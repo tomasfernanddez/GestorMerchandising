@@ -1,0 +1,95 @@
+﻿# LOGIN
+login.button=Iniciar sesión
+login.forgot=¿Olvidó su contraseña?
+login.pass=Contraseña:
+login.show_password=Mostrar contraseña
+login.title=Iniciar sesión
+login.user=Usuario:
+
+# MENÚ PRINCIPAL
+main.title=SIGPM
+menu.catalogs=Catálogos
+menu.clients=Clientes
+menu.exit=Salir
+menu.file=Archivo
+menu.lang.en=Inglés (Estados Unidos)
+menu.lang.es=Español (Argentina)
+menu.language=Idioma
+menu.logsbitacora=Logs y Bitácora
+menu.logout=Cerrar sesión
+menu.products=Productos
+menu.roles=Perfiles
+menu.security=Seguridad
+menu.suppliers=Proveedores
+menu.users=Usuarios
+
+# BARRA DE ESTADO
+status.role=Perfil: {0}
+status.user=Usuario: {0}
+
+# ABM COMÚN
+abm.clients.title=Clientes
+abm.common.delete=Eliminar
+abm.common.edit=Editar
+abm.common.new=Nuevo
+abm.common.refresh=Actualizar
+abm.common.search=Buscar
+abm.products.title=Productos
+abm.suppliers.title=Proveedores
+
+# ABM USUARIOS
+abm.usuarios.activar=Activar/Desactivar
+abm.usuarios.actualizar=Actualizar
+abm.usuarios.bloquear=Bloquear/Desbloquear
+abm.usuarios.cambiar_pass=Cambiar Contraseña
+abm.usuarios.editar=Editar Usuario
+abm.usuarios.mostrar_activos=Mostrar Activos
+abm.usuarios.mostrar_bloqueados=Mostrar Bloqueados
+abm.usuarios.mostrar_inactivos=Mostrar Inactivos
+abm.usuarios.nuevo=Nuevo Usuario
+abm.usuarios.title=Gestión de Usuarios
+
+# ============================================
+# CLIENTE
+# ============================================
+cliente.activo=Activo
+cliente.condicionIVA=Condición IVA
+cliente.cuit=CUIT
+cliente.domicilio=Domicilio
+cliente.localidad=Localidad
+cliente.pais=País
+cliente.provincia=Provincia
+cliente.razonSocial=Razón Social
+
+# USUARIO
+usuario.activo=Activo
+usuario.email=Email:
+usuario.nombre_completo=Nombre Completo:
+usuario.nombre_usuario=Nombre de Usuario:
+usuario.password_confirm=Confirmar Contraseña:
+usuario.password_mismatch=Las contraseñas no coinciden
+usuario.password_new=Nueva Contraseña:
+usuario.password_required=La contraseña es obligatoria
+usuario.perfil=Perfil:
+
+# FORMULARIOS
+form.cancel=Cancelar
+form.cerrar=Cerrar
+form.save=Guardar
+
+# MENSAJES
+msg.confirm.activar=¿Confirma activar al usuario '{0}'?
+msg.confirm.bloquear=¿Confirma bloquear al usuario '{0}'?
+msg.confirm.delete=¿Confirma la baja lógica del cliente?
+msg.confirm.desactivar=¿Confirma desactivar al usuario '{0}'?
+msg.confirm.desbloquear=¿Confirma desbloquear al usuario '{0}'?
+msg.cuit_invalid=CUIT inválido (debe tener 11 dígitos)
+msg.login_error=Ocurrió un error al intentar ingresar. Revisá los logs.
+msg.login_failed=Usuario o contraseña incorrectos.
+msg.pass_required=Ingresá tu contraseña.
+msg.pass_reset=Pedí el reseteo al administrador (MVP)
+msg.required=Campo obligatorio
+msg.select.localidad=Seleccione una localidad
+msg.select.pais=Seleccione un país
+msg.select.provincia=Seleccione una provincia
+msg.user_required=Ingresá tu usuario.

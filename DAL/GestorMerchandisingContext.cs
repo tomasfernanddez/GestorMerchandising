@@ -1,0 +1,382 @@
+﻿using DomainModel.Entidades;
+using DomainModel;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Data.Entity;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DAL
+{
+    public class GestorMerchandisingContext : DbContext
+    {
+        // Constructor - usa el connection string "GestorMerchandisingDB"
+        public GestorMerchandisingContext() : base("GestorMerchandisingDB")
+        {
+            Database.SetInitializer<GestorMerchandisingContext>(null);
+            Configuration.LazyLoadingEnabled = true;
+            Configuration.ProxyCreationEnabled = true;
+        }
+
+        public GestorMerchandisingContext(string nameOrConnectionString) : base(nameOrConnectionString)
+        {
+            Database.SetInitializer<GestorMerchandisingContext>(null);
+            Configuration.LazyLoadingEnabled = true;
+            Configuration.ProxyCreationEnabled = true;
+        }
+
+        public DbSet<Pais> Paises { get; set; }
+        public DbSet<Provincia> Provincias { get; set; }
+        public DbSet<Localidad> Localidades { get; set; }
+        public virtual DbSet<Usuario> Usuarios { get; set; }
+        public virtual DbSet<Perfil> Perfiles { get; set; }
+        public virtual DbSet<Bitacora> Bitacoras { get; set; }
+        public virtual DbSet<Sesion> Sesiones { get; set; }
+        public virtual DbSet<Cliente> Clientes { get; set; }
+        public virtual DbSet<Proveedor> Proveedores { get; set; }
+        public virtual DbSet<Producto> Productos { get; set; }
+        public virtual DbSet<Pedido> Pedidos { get; set; }
+        public virtual DbSet<PedidoDetalle> PedidoDetalles { get; set; }
+        public virtual DbSet<PedidoMuestra> PedidosMuestra { get; set; }
+        public virtual DbSet<DetalleMuestra> DetalleMuestras { get; set; }
+        public virtual DbSet<FacturaCabecera> FacturasCabecera { get; set; }
+        public virtual DbSet<FacturaDetalle> FacturasDetalle { get; set; }
+        public virtual DbSet<LogosPedido> LogosPedidos { get; set; }
+        public virtual DbSet<EmisorFactura> EmisoresFactura { get; set; }
+        public virtual DbSet<TipoEmpresa> TiposEmpresa { get; set; }
+        public virtual DbSet<TipoProveedor> TiposProveedor { get; set; }
+        public virtual DbSet<CategoriaProducto> CategoriasProducto { get; set; }
+        public virtual DbSet<UnidadMedida> UnidadesMedida { get; set; }
+        public virtual DbSet<EstadoPedido> EstadosPedido { get; set; }
+        public virtual DbSet<EstadoProducto> EstadosProducto { get; set; }
+        public virtual DbSet<EstadoPedidoMuestra> EstadosPedidoMuestra { get; set; }
+        public virtual DbSet<EstadoMuestra> EstadosMuestra { get; set; }
+        public virtual DbSet<TipoPago> TiposPago { get; set; }
+        public virtual DbSet<TecnicaPersonalizacion> TecnicasPersonalizacion { get; set; }
+        public virtual DbSet<UbicacionLogo> UbicacionesLogo { get; set; }
+
+    //    ============================================================================
+    // Configuración del modelo
+    //    ============================================================================
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            // Remover convenciones que no queremos
+            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+            modelBuilder.Conventions.Remove<OneToManyCascadeDeleteConvention>();
+            modelBuilder.Conventions.Remove<ManyToManyCascadeDeleteConvention>();
+
+        //        ============================================================================
+        // CONFIGURACIÓN DE ARQUITECTURA BASE (NUEVAS)
+        //        ============================================================================
+        
+        // Usuario -> Perfil
+        modelBuilder.Entity<Usuario>()
+            .HasRequired(u => u.Perfil)
+            .WithMany(p => p.Usuarios)
+            .HasForeignKey(u => u.IdPerfil)
+            .WillCascadeOnDelete(false);
+
+            // Usuario -> Bitacoras
+            modelBuilder.Entity<Bitacora>()
+                .HasRequired(b => b.Usuario)
+                .WithMany(u => u.BitacoraRegistros)
+                .HasForeignKey(b => b.IdUsuario)
+                .WillCascadeOnDelete(false);
+
+            // Usuario -> Sesiones
+            modelBuilder.Entity<Sesion>()
+                .HasRequired(s => s.Usuario)
+                .WithMany()
+                .HasForeignKey(s => s.IdUsuario)
+                .WillCascadeOnDelete(false);
+        
+        //        ============================================================================
+        // CONFIGURACIÓN DE COLUMNAS CALCULADAS (EXISTENTES)
+        //        ============================================================================
+
+        // PedidoDetalle - Subtotal calculado
+        modelBuilder.Entity<PedidoDetalle>()
+            .Property(pd => pd.Subtotal)
+            .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            // FacturaDetalle - Subtotal calculado
+            modelBuilder.Entity<FacturaDetalle>()
+                .Property(fd => fd.Subtotal)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            // FacturaCabecera - MontoIVA y MontoTotal calculados
+            modelBuilder.Entity<FacturaCabecera>()
+                .Property(fc => fc.MontoIVA)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<FacturaCabecera>()
+                .Property(fc => fc.MontoTotal)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+        //        ============================================================================
+        // Configuración de relaciones principales (EXISTENTES)
+        //        ============================================================================
+
+        // Cliente -> Pedidos
+        modelBuilder.Entity<Pedido>()
+            .HasRequired(p => p.Cliente)
+            .WithMany(c => c.Pedidos)
+            .HasForeignKey(p => p.IdCliente)
+            .WillCascadeOnDelete(false);
+
+            // Cliente -> PedidosMuestra
+            modelBuilder.Entity<PedidoMuestra>()
+                .HasRequired(pm => pm.Cliente)
+                .WithMany(c => c.PedidosMuestra)
+                .HasForeignKey(pm => pm.IdCliente)
+                .WillCascadeOnDelete(false);
+
+            // Cliente -> Facturas
+            modelBuilder.Entity<FacturaCabecera>()
+                .HasRequired(f => f.Cliente)
+                .WithMany(c => c.Facturas)
+                .HasForeignKey(f => f.IdCliente)
+                .WillCascadeOnDelete(false);
+
+            // Proveedor -> Productos
+            modelBuilder.Entity<Producto>()
+                .HasOptional(p => p.Proveedor)
+                .WithMany(pr => pr.Productos)
+                .HasForeignKey(p => p.IdProveedor)
+                .WillCascadeOnDelete(false);
+
+            // Pedido -> PedidoDetalles
+            modelBuilder.Entity<PedidoDetalle>()
+                .HasRequired(pd => pd.Pedido)
+                .WithMany(p => p.Detalles)
+                .HasForeignKey(pd => pd.IdPedido)
+                .WillCascadeOnDelete(false);
+
+            // Producto -> PedidoDetalles
+            modelBuilder.Entity<PedidoDetalle>()
+                .HasRequired(pd => pd.Producto)
+                .WithMany(p => p.PedidoDetalles)
+                .HasForeignKey(pd => pd.IdProducto)
+                .WillCascadeOnDelete(false);
+
+            // PedidoMuestra -> DetalleMuestras
+            modelBuilder.Entity<DetalleMuestra>()
+                .HasRequired(dm => dm.PedidoMuestra)
+                .WithMany(pm => pm.Detalles)
+                .HasForeignKey(dm => dm.IdPedidoMuestra)
+                .WillCascadeOnDelete(false);
+
+            // Producto -> DetalleMuestras
+            modelBuilder.Entity<DetalleMuestra>()
+                .HasRequired(dm => dm.Producto)
+                .WithMany(p => p.DetalleMuestras)
+                .HasForeignKey(dm => dm.IdProducto)
+                .WillCascadeOnDelete(false);
+
+            // FacturaCabecera -> FacturaDetalles
+            modelBuilder.Entity<FacturaDetalle>()
+                .HasRequired(fd => fd.Factura)
+                .WithMany(f => f.Detalles)
+                .HasForeignKey(fd => fd.IdFactura)
+                .WillCascadeOnDelete(false);
+
+            // Producto -> FacturaDetalles
+            modelBuilder.Entity<FacturaDetalle>()
+                .HasRequired(fd => fd.Producto)
+                .WithMany(p => p.FacturaDetalles)
+                .HasForeignKey(fd => fd.IdProducto)
+                .WillCascadeOnDelete(false);
+
+            // PedidoDetalle -> LogosPedido
+            modelBuilder.Entity<LogosPedido>()
+                .HasRequired(lp => lp.DetallePedido)
+                .WithMany(pd => pd.LogosPedido)
+                .HasForeignKey(lp => lp.IdDetallePedido)
+                .WillCascadeOnDelete(false);
+
+            // EmisorFactura -> FacturasCabecera
+            modelBuilder.Entity<FacturaCabecera>()
+                .HasRequired(f => f.Emisor)
+                .WithMany(e => e.Facturas)
+                .HasForeignKey(f => f.IdEmisor)
+                .WillCascadeOnDelete(false);
+
+        //        ============================================================================
+        // Configuración de relaciones opcionales (Foreign Keys opcionales) (EXISTENTES)
+        //        ============================================================================
+
+        // Cliente -> TipoEmpresa
+        modelBuilder.Entity<Cliente>()
+            .HasOptional(c => c.TipoEmpresa)
+            .WithMany(te => te.Clientes)
+            .HasForeignKey(c => c.IdTipoEmpresa);
+
+            // Proveedor -> TipoProveedor
+            modelBuilder.Entity<Proveedor>()
+                .HasOptional(p => p.TipoProveedor)
+                .WithMany(tp => tp.Proveedores)
+                .HasForeignKey(p => p.IdTipoProveedor);
+
+            // Producto -> CategoriaProducto
+            modelBuilder.Entity<Producto>()
+                .HasOptional(p => p.Categoria)
+                .WithMany(c => c.Productos)
+                .HasForeignKey(p => p.IdCategoria);
+
+            // Producto -> UnidadMedida
+            modelBuilder.Entity<Producto>()
+                .HasOptional(p => p.UnidadMedida)
+                .WithMany(um => um.Productos)
+                .HasForeignKey(p => p.IdUnidadMedida);
+
+            // Pedido -> EstadoPedido
+            modelBuilder.Entity<Pedido>()
+                .HasOptional(p => p.EstadoPedido)
+                .WithMany(ep => ep.Pedidos)
+                .HasForeignKey(p => p.IdEstadoPedido);
+
+            // Pedido -> TipoPago
+            modelBuilder.Entity<Pedido>()
+                .HasOptional(p => p.TipoPago)
+                .WithMany(tp => tp.Pedidos)
+                .HasForeignKey(p => p.IdTipoPago);
+
+            // PedidoDetalle -> EstadoProducto
+            modelBuilder.Entity<PedidoDetalle>()
+                .HasOptional(pd => pd.EstadoProducto)
+                .WithMany(ep => ep.PedidoDetalles)
+                .HasForeignKey(pd => pd.IdEstadoProducto);
+
+            // PedidoMuestra -> EstadoPedidoMuestra
+            modelBuilder.Entity<PedidoMuestra>()
+                .HasOptional(pm => pm.EstadoPedidoMuestra)
+                .WithMany(epm => epm.PedidosMuestra)
+                .HasForeignKey(pm => pm.IdEstadoPedidoMuestra);
+
+            // DetalleMuestra -> EstadoMuestra
+            modelBuilder.Entity<DetalleMuestra>()
+                .HasOptional(dm => dm.EstadoMuestra)
+                .WithMany(em => em.DetalleMuestras)
+                .HasForeignKey(dm => dm.IdEstadoMuestra);
+
+            // LogosPedido -> TecnicaPersonalizacion
+            modelBuilder.Entity<LogosPedido>()
+                .HasOptional(lp => lp.TecnicaPersonalizacion)
+                .WithMany(tp => tp.LogosPedido)
+                .HasForeignKey(lp => lp.IdTecnicaPersonalizacion);
+
+            // LogosPedido -> UbicacionLogo
+            modelBuilder.Entity<LogosPedido>()
+                .HasOptional(lp => lp.UbicacionLogo)
+                .WithMany(ul => ul.LogosPedido)
+                .HasForeignKey(lp => lp.IdUbicacionLogo);
+
+            // Catálogos
+            modelBuilder.Entity<Pais>()
+                .HasKey(p => p.IdPais)
+                .Property(p => p.Nombre).IsRequired().HasMaxLength(100);
+
+            modelBuilder.Entity<Provincia>()
+                .HasKey(p => p.IdProvincia);
+            modelBuilder.Entity<Provincia>()
+                .HasRequired(p => p.Pais)
+                .WithMany(p => p.Provincias)
+                .HasForeignKey(p => p.IdPais);
+            modelBuilder.Entity<Provincia>()
+                .Property(p => p.Nombre).IsRequired().HasMaxLength(100);
+
+            modelBuilder.Entity<Localidad>()
+                .HasKey(l => l.IdLocalidad);
+            modelBuilder.Entity<Localidad>()
+                .HasRequired(l => l.Provincia)
+                .WithMany(p => p.Localidades)
+                .HasForeignKey(l => l.IdProvincia);
+            modelBuilder.Entity<Localidad>()
+                .Property(l => l.Nombre).IsRequired().HasMaxLength(100);
+
+            // Cliente (solo agrego FKs opcionales)
+            modelBuilder.Entity<Cliente>()
+                .HasOptional(c => c.Pais)
+                .WithMany()
+                .HasForeignKey(c => c.IdPais);
+
+            modelBuilder.Entity<Cliente>()
+                .HasOptional(c => c.Provincia)
+                .WithMany()
+                .HasForeignKey(c => c.IdProvincia);
+
+            modelBuilder.Entity<Cliente>()
+                .HasOptional(c => c.LocalidadRef)
+                .WithMany()
+                .HasForeignKey(c => c.IdLocalidad);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
+    //    ============================================================================
+    // INICIALIZACIÓN DE DATOS - MÉTODO PARA EF6
+    //    ============================================================================
+    public void InicializarDatos()
+        {
+            
+            // Verificar si ya existen datos para no duplicar
+            if (Perfiles.Any()) return;
+
+            // Crear perfiles básicos del sistema
+            var perfiles = new List<Perfil>
+        {
+            new Perfil
+            {
+                IdPerfil = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                NombrePerfil = "Administrador",
+                Descripcion = "Acceso completo al sistema",
+                Activo = true
+            },
+            new Perfil
+            {
+                IdPerfil = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                NombrePerfil = "Gerente de Ventas",
+                Descripcion = "Gestión de clientes, pedidos y ventas",
+                Activo = true
+            },
+            new Perfil
+            {
+                IdPerfil = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                NombrePerfil = "Gerente de Finanzas",
+                Descripcion = "Gestión financiera y facturación",
+                Activo = true
+            },
+            new Perfil
+            {
+                IdPerfil = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                NombrePerfil = "Vendedor",
+                Descripcion = "Gestión básica de pedidos y clientes",
+                Activo = true
+            }
+        };
+
+            // Agregar perfiles
+            Perfiles.AddRange(perfiles);
+            SaveChanges();
+
+            // Crear usuario administrador por defecto
+            var usuarioAdmin = new Usuario
+            {
+                IdUsuario = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                NombreUsuario = "admin",
+                PasswordHash = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", // Hash de "admin"
+                NombreCompleto = "Administrador del Sistema",
+                Email = "admin@gestormerchandising.com",
+                Activo = true,
+                FechaCreacion = DateTime.Now,
+                IdPerfil = Guid.Parse("11111111-1111-1111-1111-111111111111")
+            };
+
+            Usuarios.Add(usuarioAdmin);
+            SaveChanges();
+        }
+    }
+}

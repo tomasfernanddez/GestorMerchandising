@@ -1,0 +1,93 @@
+﻿# LOGIN
+login.button=Sign In
+login.forgot=Forgot your password?
+login.pass=Password:
+login.show_password=Show password
+login.title=Sign in to start your session
+login.user=Username:
+
+# MAIN MENU
+main.title=SIGPM
+menu.catalogs=Catalogs
+menu.clients=Clients
+menu.exit=Exit
+menu.file=File
+menu.lang.en=English (United States)
+menu.lang.es=Spanish (Argentina)
+menu.language=Language
+menu.logsbitacora=System Logs and Audit Trail
+menu.logout=Log out
+menu.products=Products
+menu.roles=Roles
+menu.security=Security
+menu.suppliers=Suppliers
+menu.users=Users
+
+# STATUS BAR
+status.role=Role: {0}
+status.user=User: {0}
+
+# ABM COMMON
+abm.clients.title=Clients
+abm.common.delete=Delete
+abm.common.edit=Edit
+abm.common.new=New
+abm.common.refresh=Refresh
+abm.common.search=Search
+abm.products.title=Products
+abm.suppliers.title=Suppliers
+
+# ABM USERS
+abm.usuarios.activar=Activate/Deactivate
+abm.usuarios.actualizar=Refresh
+abm.usuarios.bloquear=Block/Unblock
+abm.usuarios.cambiar_pass=Change Password
+abm.usuarios.editar=Edit User
+abm.usuarios.mostrar_activos=Show Active
+abm.usuarios.mostrar_bloqueados=Show Blocked
+abm.usuarios.mostrar_inactivos=Show Inactive
+abm.usuarios.nuevo=New User
+abm.usuarios.title=User Management
+
+# CLIENT
+cliente.activo=Active
+cliente.condicionIVA=VAT Condition
+cliente.cuit=Tax ID
+cliente.domicilio=Address
+cliente.localidad=City
+cliente.pais=Country
+cliente.provincia=State/Province
+cliente.razonSocial=Business Name
+
+# USER
+usuario.activo=Active
+usuario.email=Email:
+usuario.nombre_completo=Full Name:
+usuario.nombre_usuario=Username:
+usuario.password_confirm=Confirm Password:
+usuario.password_mismatch=Passwords do not match
+usuario.password_new=New Password:
+usuario.password_required=Password is required
+usuario.perfil=Profile:
+
+# FORMS
+form.cancel=Cancel
+form.cerrar=Close
+form.save=Save
+
+# MESSAGES
+msg.confirm.activar=Confirm activating user '{0}'?
+msg.confirm.bloquear=Confirm blocking user '{0}'?
+msg.confirm.delete=Are you sure you want to deactivate this client?
+msg.confirm.desactivar=Confirm deactivating user '{0}'?
+msg.confirm.desbloquear=Confirm unblocking user '{0}'?
+msg.cuit_invalid=Invalid Tax ID (must have 11 digits)
+msg.login_error=An error occurred while signing in. Check the logs.
+msg.login_failed=Invalid username or password.
+msg.pass_required=Enter your password.
+msg.pass_reset=You must request a password reset from the administrator (MVP).
+msg.required=Required field
+msg.select.localidad=Select a city/town
+msg.select.pais=Select a country
+msg.select.provincia=Select a state/province
+msg.user_required=Enter your username.
