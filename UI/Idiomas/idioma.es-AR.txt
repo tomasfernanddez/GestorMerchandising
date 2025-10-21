@@ -2,7 +2,7 @@
 login.button=Iniciar sesión
 login.forgot=¿Olvidó su contraseña?
 login.pass=Contraseña:
-login.show_password=Mostrar contraseña
+login.show=Mostrar contraseña
 login.title=Iniciar sesión
 login.user=Usuario:
 

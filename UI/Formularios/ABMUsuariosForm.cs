@@ -1,4 +1,6 @@
 ﻿using BLL.Interfaces;
+using Services.BLL.Interfaces;
+using Services.DomainModel.Entities;
 using DomainModel;
 using System;
 using System.Collections.Generic;

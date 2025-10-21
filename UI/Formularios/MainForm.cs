@@ -1,4 +1,5 @@
 ﻿using BLL.Factories;
+using Services.BLL.Factories;
 using System;
 using System.Globalization;
 using System.Threading;
@@ -67,13 +68,13 @@ namespace UI
         {
             try
             {
-                var logSvc = ServiceFactory.CrearLogService();
+                var logSvc = ServicesFactory.CrearLogService();
                 var nombreUsuarioActual = SessionContext.NombreUsuario;
 
                 logSvc.LogInfo($"Cerrando sesión de usuario: {nombreUsuarioActual}", "Seguridad", nombreUsuarioActual);
 
                 // Registrar logout en bitácora
-                var bitacoraSvc = ServiceFactory.CrearBitacoraService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
                 bitacoraSvc.RegistrarAccion(
                     SessionContext.IdUsuario,
                     "Logout",
@@ -95,7 +96,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                var logSvc = ServiceFactory.CrearLogService();
+                var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cerrando sesión", ex, "Seguridad", SessionContext.NombreUsuario);
                 MessageBox.Show($"Error cerrando sesión: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -107,9 +108,9 @@ namespace UI
             try
             {
                 var clienteSvc = ServiceFactory.CrearClienteService();
-                var bitacoraSvc = ServiceFactory.CrearBitacoraService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
                 var geoSvc = ServiceFactory.CrearGeoService();
-                var logSvc = ServiceFactory.CrearLogService();
+                var logSvc = ServicesFactory.CrearLogService();
 
                 logSvc.LogInfo("Abriendo formulario ABM Clientes", "Clientes", SessionContext.NombreUsuario);
 
@@ -120,7 +121,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                var logSvc = ServiceFactory.CrearLogService();
+                var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo ABM Clientes", ex, "Clientes", SessionContext.NombreUsuario);
                 MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -191,12 +192,12 @@ namespace UI
                 // Guardar preferencia del usuario en la BD
                 if (SessionContext.IsAuthenticated)
                 {
-                    var usuarioSvc = ServiceFactory.CrearUsuarioService();
+                    var usuarioSvc = ServicesFactory.CrearUsuarioService();
                     var resultado = usuarioSvc.CambiarIdioma(SessionContext.IdUsuario, cultureName);
 
                     if (resultado.EsValido)
                     {
-                        var logSvc = ServiceFactory.CrearLogService();
+                        var logSvc = ServicesFactory.CrearLogService();
                         logSvc.LogInfo($"Idioma guardado en BD: {cultureName} para usuario {SessionContext.NombreUsuario}",
                             "Sistema", SessionContext.NombreUsuario);
 
@@ -214,7 +215,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                var logSvc = ServiceFactory.CrearLogService();
+                var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cambiando idioma", ex, "Sistema", SessionContext.NombreUsuario);
                 MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -340,10 +341,10 @@ namespace UI
 
             try
             {
-                var usuarioSvc = ServiceFactory.CrearUsuarioService();
-                var perfilSvc = ServiceFactory.CrearPerfilService();
-                var bitacoraSvc = ServiceFactory.CrearBitacoraService();
-                var logSvc = ServiceFactory.CrearLogService();
+                var usuarioSvc = ServicesFactory.CrearUsuarioService();
+                var perfilSvc = ServicesFactory.CrearPerfilService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var logSvc = ServicesFactory.CrearLogService();
 
                 using (var f = new ABMUsuariosForm(usuarioSvc, perfilSvc, bitacoraSvc, logSvc))
                     f.ShowDialog(this);
@@ -369,8 +370,8 @@ namespace UI
 
             try
             {
-                var bitacoraSvc = ServiceFactory.CrearBitacoraService();
-                var logSvc = ServiceFactory.CrearLogService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var logSvc = ServicesFactory.CrearLogService();
 
                 using (var f = new LogsBitacoraForm(bitacoraSvc, logSvc))
                     f.ShowDialog(this);

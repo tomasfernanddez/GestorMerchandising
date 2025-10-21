@@ -1,7 +1,10 @@
 ﻿using BLL.Factories;
 using BLL.Interfaces;
+using Services.BLL.Interfaces;
+using Services.BLL.Services;
+using Services.BLL.Factories;
 using DomainModel;
-using DomainModel.Entidades;
+using Services.DomainModel.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -184,7 +187,7 @@ namespace UI
         {
             try
             {
-                var logSvc = ServiceFactory.CrearLogService();
+                var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogInfo("Iniciando carga de clientes", "Clientes", SessionContext.NombreUsuario);
 
                 var clientes = _clienteService.ObtenerClientesActivos()?.ToList() ?? new List<Cliente>();
@@ -232,7 +235,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                var logSvc = ServiceFactory.CrearLogService();
+                var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cargando clientes", ex, "Clientes", SessionContext.NombreUsuario);
                 MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -266,7 +269,7 @@ namespace UI
 
         private void NuevoCliente()
         {
-            var logSvc = ServiceFactory.CrearLogService();
+            var logSvc = ServicesFactory.CrearLogService();
             logSvc.LogInfo("Abriendo formulario nuevo cliente", "Clientes", SessionContext.NombreUsuario);
 
             using (var f = new ClienteForm(_clienteService, _bitacora, _geoSvc, null))

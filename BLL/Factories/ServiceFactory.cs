@@ -1,20 +1,19 @@
 ﻿using BLL.Interfaces;
 using BLL.Services;
 using DAL;
-using DAL.Implementations.Base;
 using DAL.Interfaces.Base;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BizIUnitOfWork = DAL.Interfaces.Base.IUnitOfWork;
+using BizEfUnitOfWork = DAL.Implementations.Base.EfUnitOfWork;
+using BizDbContext = DAL.GestorMerchandisingContext;
 
 namespace BLL.Factories
 {
     public static class ServiceFactory
     {
+
         // =====================================================================
         // CONFIGURACIÓN CENTRALIZADA
         // =====================================================================
@@ -51,59 +50,21 @@ namespace BLL.Factories
         // =====================================================================
         // INFRAESTRUCTURA PRIVADA
         // =====================================================================
-        private static GestorMerchandisingContext CrearContexto()
+
+        private static BizDbContext CrearContextoNegocio()
         {
             var cs = ObtenerConnectionString();
-            return new GestorMerchandisingContext(cs);
+            return new BizDbContext(cs);
         }
-
-        private static IUnitOfWork CrearUnitOfWork()
+        private static BizIUnitOfWork CrearUnitOfWorkNegocio()
         {
-            var context = CrearContexto();
-            return new EfUnitOfWork(context);
+            var ctx = CrearContextoNegocio();
+            return new BizEfUnitOfWork(ctx);
         }
 
-        // =====================================================================
-        // SERVICIOS DE ARQUITECTURA BASE
-        // =====================================================================
-
-        /// <summary>
-        /// Crea el servicio de encriptación (sin dependencias).
-        /// </summary>
-        public static IEncriptacionService CrearEncriptacionService()
-        {
-            return new EncriptacionService();
-        }
-
-        /// <summary>
-        /// Crea el servicio de autenticación.
-        /// </summary>
-        public static IAutenticacionService CrearAutenticacionService()
-        {
-            var uow = CrearUnitOfWork();
-            var enc = CrearEncriptacionService();
-            return new AutenticacionService(uow, enc);
-        }
-
-        /// <summary>
-        /// Crea el servicio de bitácora.
-        /// </summary>
-        public static IBitacoraService CrearBitacoraService()
-        {
-            var uow = CrearUnitOfWork();
-            return new BitacoraService(uow);
-        }
-
-        // =====================================================================
-        // SERVICIOS PRINCIPALES DE NEGOCIO
-        // =====================================================================
-
-        /// <summary>
-        /// Crea el servicio de clientes.
-        /// </summary>
         public static IClienteService CrearClienteService()
         {
-            var uow = CrearUnitOfWork();
+            var uow = CrearUnitOfWorkNegocio();
             return new ClienteService(uow);
         }
 
@@ -132,22 +93,12 @@ namespace BLL.Factories
             public GestorMerchandisingContext Context { get; }
             public IUnitOfWork Uow { get; }
             public IClienteService Clientes { get; }
-            public IAutenticacionService Autenticacion { get; }
-            public IBitacoraService Bitacora { get; }
-            public ILogService Logs { get; }
-            public IUsuarioService Usuarios { get; }
-            public IPerfilService Perfiles { get; }
 
             internal ServiceScope(GestorMerchandisingContext ctx)
             {
                 Context = ctx;
-                Uow = new EfUnitOfWork(ctx);
+                Uow = new BizEfUnitOfWork(ctx);
                 Clientes = new ClienteService(Uow);
-                Autenticacion = new AutenticacionService(Uow, new EncriptacionService());
-                Bitacora = new BitacoraService(Uow);
-                Logs = new LogService();
-                Usuarios = new UsuarioService(Uow, new EncriptacionService());
-                Perfiles = new PerfilService(Uow);
             }
 
             public void Dispose()
@@ -159,7 +110,7 @@ namespace BLL.Factories
 
         public static ServiceScope BeginScope()
         {
-            return new ServiceScope(CrearContexto());
+            return new ServiceScope(CrearContextoNegocio());
         }
 
         // =====================================================================
@@ -196,35 +147,13 @@ namespace BLL.Factories
         public static IGeoService CrearGeoService()
         {
             // 1) crear el DbContext concreto (usa el TUYO: por nombre suele ser GestorMerchandisingContext)
-            DbContext ctx = new GestorMerchandisingContext(); // <-- reemplazá por tu clase real de DbContext
+            DbContext ctx = new BizDbContext(); // <-- reemplazá por tu clase real de DbContext
 
             // 2) crear el UoW EF con ese contexto
-            IUnitOfWork uow = new EfUnitOfWork(ctx);
+            IUnitOfWork uow = new BizEfUnitOfWork(ctx);
 
             // 3) devolver el GeoService
             return new GeoService(uow);
-        }
-
-        public static ILogService CrearLogService()
-        {
-            return new LogService();
-        }
-
-        public static IUsuarioService CrearUsuarioService()
-        {
-            var uow = CrearUnitOfWork();
-            var enc = CrearEncriptacionService();
-            return new UsuarioService(uow, enc);
-        }
-
-        // También agregar IPerfilService si no existe:
-        /// <summary>
-        /// Crea el servicio de perfiles.
-        /// </summary>
-        public static IPerfilService CrearPerfilService()
-        {
-            var uow = CrearUnitOfWork();
-            return new PerfilService(uow);
         }
     }
 }

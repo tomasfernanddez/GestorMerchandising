@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using BLL.Interfaces;
+using Services.BLL.Interfaces;
 using UI.Localization;
 
 namespace UI.Formularios

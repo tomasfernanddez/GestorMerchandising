@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{693B7C28-4C18-45DA-9903-EFC2CAF742F8}</ProjectGuid>
+    <ProjectGuid>{082D7EEC-1782-4284-99D3-87C1DD395ADF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Services</RootNamespace>
@@ -12,6 +13,8 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,7 +34,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -41,7 +52,51 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\Factories\ServicesFactory.cs" />
+    <Compile Include="BLL\Helpers\ResultadoAutenticacion.cs" />
+    <Compile Include="BLL\Helpers\ResultadoOperacion.cs" />
+    <Compile Include="BLL\Interfaces\IAutenticacionService.cs" />
+    <Compile Include="BLL\Interfaces\IBitacoraService.cs" />
+    <Compile Include="BLL\Interfaces\IEncriptacionService.cs" />
+    <Compile Include="BLL\Interfaces\ILogService.cs" />
+    <Compile Include="BLL\Interfaces\IPerfilService.cs" />
+    <Compile Include="BLL\Interfaces\IUsuarioService.cs" />
+    <Compile Include="BLL\Services\AutenticacionService.cs" />
+    <Compile Include="BLL\Services\BitacoraService.cs" />
+    <Compile Include="BLL\Services\EncriptacionService.cs" />
+    <Compile Include="BLL\Services\LogService.cs" />
+    <Compile Include="BLL\Services\PerfilService.cs" />
+    <Compile Include="BLL\Services\UsuarioService.cs" />
+    <Compile Include="DAL\Ef\Base\EfBitacoraRepository.cs" />
+    <Compile Include="DAL\Ef\Base\EfPerfilRepository.cs" />
+    <Compile Include="DAL\Ef\Base\EfRepository.cs" />
+    <Compile Include="DAL\Ef\Base\EfUnitOfWork.cs" />
+    <Compile Include="DAL\Ef\Base\EfUsuarioRepository.cs" />
+    <Compile Include="DAL\Ef\Base\ServicesContext.cs" />
+    <Compile Include="DAL\Interfaces\Base\IBitacoraRepository.cs" />
+    <Compile Include="DAL\Interfaces\Base\IHasDbContext.cs" />
+    <Compile Include="DAL\Interfaces\Base\IPerfilRepository.cs" />
+    <Compile Include="DAL\Interfaces\Base\IRepository.cs" />
+    <Compile Include="DAL\Interfaces\Base\IUnitOfWork.cs" />
+    <Compile Include="DAL\Interfaces\Base\IUsuarioRepository.cs" />
+    <Compile Include="DomainModel\Entities\Bitacora.cs" />
+    <Compile Include="DomainModel\Entities\Perfil.cs" />
+    <Compile Include="DomainModel\Entities\Sesion.cs" />
+    <Compile Include="DomainModel\Entities\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Este proyecto hace referencia a los paquetes NuGet que faltan en este equipo. Use la restauración de paquetes NuGet para descargarlos. Para obtener más información, consulte http://go.microsoft.com/fwlink/?LinkID=322105. El archivo que falta es {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
 </Project>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using BLL.Interfaces;
+using Services.BLL.Interfaces;
 using UI.Localization; // para "clave".Traducir()
 
 namespace UI

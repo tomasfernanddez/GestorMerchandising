@@ -75,6 +75,12 @@
     <Compile Include="Formularios\ABMUsuariosForm.Designer.cs">
       <DependentUpon>ABMUsuariosForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Formularios\BaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\BaseForm.Designer.cs">
+      <DependentUpon>BaseForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\ClienteForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -146,6 +152,10 @@
     <ProjectReference Include="..\DomainModel\DomainModel.csproj">
       <Project>{d532c8a4-fb8e-49c7-9d48-8ae482272dba}</Project>
       <Name>DomainModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Services.csproj">
+      <Project>{082d7eec-1782-4284-99d3-87c1dd395adf}</Project>
+      <Name>Services</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -20,7 +20,6 @@ namespace BLL.Interfaces
         Task<Cliente> ObtenerClientePorCUITAsync(string cuit);
         IEnumerable<Cliente> BuscarClientesPorRazonSocial(string razonSocial);
         Task<IEnumerable<Cliente>> BuscarClientesPorRazonSocialAsync(string razonSocial);
-
         /* Operaciones de modificación */
         ResultadoOperacion CrearCliente(Cliente cliente);
         Task<ResultadoOperacion> CrearClienteAsync(Cliente cliente);

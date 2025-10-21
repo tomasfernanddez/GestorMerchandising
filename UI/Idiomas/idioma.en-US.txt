@@ -2,7 +2,7 @@
 login.button=Sign In
 login.forgot=Forgot your password?
 login.pass=Password:
-login.show_password=Show password
+login.show=Show password
 login.title=Sign in to start your session
 login.user=Username:
 

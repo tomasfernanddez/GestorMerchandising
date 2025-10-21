@@ -1,6 +1,8 @@
 ﻿using BLL.Helpers;
 using BLL.Interfaces;
 using BLL.Services;
+using Services.BLL.Services;
+using Services.BLL.Interfaces;
 using DomainModel;
 using DomainModel.Entidades;
 using System;

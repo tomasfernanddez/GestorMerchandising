@@ -1,5 +1,5 @@
-﻿using BLL.Interfaces;
-using DomainModel;
+﻿using Services.BLL.Interfaces;
+using Services.DomainModel.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

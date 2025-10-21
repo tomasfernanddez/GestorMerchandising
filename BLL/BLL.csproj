@@ -53,30 +53,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factories\ServiceFactory.cs" />
-    <Compile Include="Helpers\ResultadoAutenticacion.cs" />
     <Compile Include="Helpers\ResultadoOperacion.cs" />
     <Compile Include="Helpers\ValidationHelper.cs" />
-    <Compile Include="Interfaces\IAutenticacionService.cs" />
-    <Compile Include="Interfaces\IBitacoraService.cs" />
     <Compile Include="Interfaces\IClienteService.cs" />
-    <Compile Include="Interfaces\IEncriptacionService.cs" />
     <Compile Include="Interfaces\IGeoService.cs" />
-    <Compile Include="Interfaces\ILogService.cs" />
-    <Compile Include="Interfaces\IPerfilService.cs" />
-    <Compile Include="Interfaces\ISistemaInicializacionService.cs" />
-    <Compile Include="Interfaces\IUsuarioService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\ApplicationServices.cs" />
-    <Compile Include="Services\AutenticacionService.cs" />
-    <Compile Include="Services\BitacoraService.cs" />
     <Compile Include="Services\ClienteService.cs" />
-    <Compile Include="Services\EncriptacionService.cs" />
     <Compile Include="Services\GeoService.cs" />
     <Compile Include="Services\LocalizacionService.cs" />
-    <Compile Include="Services\LogService.cs" />
-    <Compile Include="Services\PerfilService.cs" />
-    <Compile Include="Services\SistemaInicializacionService.cs" />
-    <Compile Include="Services\UsuarioService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DAL\DAL.csproj">

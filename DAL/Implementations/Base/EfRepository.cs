@@ -1,11 +1,11 @@
-﻿using DAL.Interfaces.Base;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using DAL.Interfaces.Base;
 
 namespace DAL.Implementations.Base
 {

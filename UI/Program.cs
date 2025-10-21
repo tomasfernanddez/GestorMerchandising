@@ -1,5 +1,6 @@
 ﻿using BLL.Factories;
-using BLL.Interfaces;
+using Services.BLL.Interfaces;
+using Services.BLL.Factories;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -31,7 +32,7 @@ namespace UI
             var cs = ConfigurationManager.ConnectionStrings["GestorMerchandisingDB"]?.ConnectionString;
             ServiceFactory.ConfigurarConnectionString(cs);
 
-            var logSvc = ServiceFactory.CrearLogService();
+            var logSvc = ServicesFactory.CrearLogService();
             logSvc.LogInfo("=== Aplicación iniciada ===", "Sistema", null);
 
             // Loop de autenticación
@@ -43,7 +44,7 @@ namespace UI
                 Thread.CurrentThread.CurrentCulture = ci;
                 Localization.Localization.Load(ci.Name);
 
-                IAutenticacionService auth = ServiceFactory.CrearAutenticacionService();
+                IAutenticacionService auth = ServicesFactory.CrearAutenticacionService();
 
                 using (var loginForm = new LoginForm(auth))
                 {
@@ -96,7 +97,7 @@ namespace UI
                 if (!SessionContext.IsAuthenticated)
                     return;
 
-                var usuarioSvc = ServiceFactory.CrearUsuarioService();
+                var usuarioSvc = ServicesFactory.CrearUsuarioService();
                 var usuario = usuarioSvc.ObtenerPorId(SessionContext.IdUsuario);
 
                 if (usuario != null && !string.IsNullOrWhiteSpace(usuario.IdiomaPreferido))
@@ -106,14 +107,14 @@ namespace UI
                     Thread.CurrentThread.CurrentCulture = ci;
                     Localization.Localization.Load(ci.Name);
 
-                    var logSvc = ServiceFactory.CrearLogService();
+                    var logSvc = ServicesFactory.CrearLogService();
                     logSvc.LogInfo($"Idioma cargado: {usuario.IdiomaPreferido} para usuario {usuario.NombreUsuario}",
                         "Sistema", SessionContext.NombreUsuario);
                 }
             }
             catch (Exception ex)
             {
-                var logSvc = ServiceFactory.CrearLogService();
+                var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cargando idioma del usuario", ex, "Sistema", SessionContext.NombreUsuario);
             }
         }

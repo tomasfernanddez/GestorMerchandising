@@ -1,6 +1,5 @@
 ﻿using System;
-using DomainModel;
-using DomainModel.Entidades;
+using Services.DomainModel.Entities;
 
 namespace UI
 {

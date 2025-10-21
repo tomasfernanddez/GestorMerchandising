@@ -3,26 +3,18 @@ using DAL.Interfaces.Base;
 using DAL.Interfaces.Principales;
 using DAL.Interfaces.Referencia;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DAL.Implementations.Base
 {
-    public class EfUnitOfWork : IHasDbContext
+    public class EfUnitOfWork : IUnitOfWork, IHasDbContext
     {
 
         public DbContext Context { get; private set; }
 
         private readonly GestorMerchandisingContext _context;
         private DbContextTransaction _transaction;
-
-        // Repositorios de arquitectura base
-        private IUsuarioRepository _usuarios;
-        private IBitacoraRepository _bitacoras;
-        private IPerfilRepository _perfiles;
 
         // Repositorios principales
         private IClienteRepository _clientes;
@@ -40,22 +32,6 @@ namespace DAL.Implementations.Base
         public EfUnitOfWork(GestorMerchandisingContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
-
-        // Propiedades de repositorios de arquitectura base
-        public IUsuarioRepository Usuarios
-        {
-            get { return _usuarios ?? (_usuarios = new EfUsuarioRepository(_context)); }
-        }
-
-        public IBitacoraRepository Bitacoras
-        {
-            get { return _bitacoras ?? (_bitacoras = new EfBitacoraRepository(_context)); }
-        }
-
-        public IPerfilRepository Perfiles
-        {
-            get { return _perfiles ?? (_perfiles = new EfPerfilRepository(_context)); }
         }
 
         // Propiedades de repositorios principales
@@ -150,24 +126,6 @@ namespace DAL.Implementations.Base
                     _transaction = null;
                 }
             }
-        }
-
-        // Métodos especiales para arquitectura base
-        public void InicializarSistema()
-        {
-            _context.InicializarDatos();
-        }
-
-        public void RegistrarAccion(Guid idUsuario, string accion, string descripcion, string modulo = null, bool exitoso = true, string mensajeError = null, string direccionIP = null)
-        {
-            Bitacoras.RegistrarAccion(idUsuario, accion, descripcion, modulo, exitoso, mensajeError, direccionIP);
-            SaveChanges();
-        }
-
-        public async Task RegistrarAccionAsync(Guid idUsuario, string accion, string descripcion, string modulo = null, bool exitoso = true, string mensajeError = null, string direccionIP = null)
-        {
-            Bitacoras.RegistrarAccion(idUsuario, accion, descripcion, modulo, exitoso, mensajeError, direccionIP);
-            await SaveChangesAsync();
         }
 
         // Dispose pattern
