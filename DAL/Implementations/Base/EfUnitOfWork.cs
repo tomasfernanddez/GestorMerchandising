@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Implementations.Base
 {
-    public class EfUnitOfWork : IUnitOfWork, IHasDbContext
+    public class EfUnitOfWork : IHasDbContext
     {
 
         public DbContext Context { get; private set; }
