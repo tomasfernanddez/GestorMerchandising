@@ -10,6 +10,7 @@ namespace UI
         public static string NombreCompleto { get; private set; }
         public static Guid IdPerfil { get; private set; }
         public static string NombrePerfil { get; private set; }
+        public static string IdiomaPreferido { get; private set; }
 
         public static void Set(Usuario u)
         {
@@ -19,6 +20,7 @@ namespace UI
             NombreCompleto = u.NombreCompleto;
             IdPerfil = u.IdPerfil;
             NombrePerfil = u.Perfil != null ? u.Perfil.NombrePerfil : null;
+            IdiomaPreferido = string.IsNullOrWhiteSpace(u.IdiomaPreferido) ? null : u.IdiomaPreferido;
         }
 
         public static void Clear()
@@ -26,8 +28,14 @@ namespace UI
             IdUsuario = Guid.Empty;
             IdPerfil = Guid.Empty;
             NombreUsuario = NombreCompleto = NombrePerfil = null;
+            IdiomaPreferido = null;
         }
 
         public static bool IsAuthenticated => IdUsuario != Guid.Empty;
+
+        public static void ActualizarIdioma(string idioma)
+        {
+            IdiomaPreferido = string.IsNullOrWhiteSpace(idioma) ? null : idioma;
+        }
     }
 }

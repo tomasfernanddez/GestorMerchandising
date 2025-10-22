@@ -188,6 +188,7 @@ namespace UI
                 Thread.CurrentThread.CurrentUICulture = ci;
                 Thread.CurrentThread.CurrentCulture = ci;
                 Localization.Localization.Load(ci.Name);
+                SessionContext.ActualizarIdioma(ci.Name);
 
                 // Guardar preferencia del usuario en la BD
                 if (SessionContext.IsAuthenticated)

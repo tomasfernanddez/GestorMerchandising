@@ -75,12 +75,6 @@
     <Compile Include="Formularios\ABMUsuariosForm.Designer.cs">
       <DependentUpon>ABMUsuariosForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Formularios\BaseForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Formularios\BaseForm.Designer.cs">
-      <DependentUpon>BaseForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Formularios\ClienteForm.cs">
       <SubType>Form</SubType>
     </Compile>

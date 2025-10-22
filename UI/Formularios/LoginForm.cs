@@ -90,9 +90,7 @@ namespace UI
                 }
 
                 SessionContext.Set(r.Usuario);           // tu helper de sesión
-                Hide();
-                using (var main = new MainForm())        // tu MainForm
-                    main.ShowDialog(this);
+                DialogResult = DialogResult.OK;
                 Close();
             }
             catch
