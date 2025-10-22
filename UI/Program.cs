@@ -100,17 +100,40 @@ namespace UI
                 var usuarioSvc = ServicesFactory.CrearUsuarioService();
                 var usuario = usuarioSvc.ObtenerPorId(SessionContext.IdUsuario);
 
-                if (usuario != null && !string.IsNullOrWhiteSpace(usuario.IdiomaPreferido))
+                if (usuario == null)
+                    return;
+
+                // Si el usuario no tiene idioma preferido, asignar el por defecto
+                string idiomaACargar = usuario.IdiomaPreferido;
+                if (string.IsNullOrWhiteSpace(idiomaACargar))
                 {
-                    var ci = new CultureInfo(usuario.IdiomaPreferido);
-                    Thread.CurrentThread.CurrentUICulture = ci;
-                    Thread.CurrentThread.CurrentCulture = ci;
-                    Localization.Localization.Load(ci.Name);
+                    idiomaACargar = "es-AR"; // Idioma por defecto
+
+                    // Guardar el idioma por defecto en la BD para este usuario
+                    var resultado = usuarioSvc.CambiarIdioma(SessionContext.IdUsuario, idiomaACargar);
 
                     var logSvc = ServicesFactory.CrearLogService();
-                    logSvc.LogInfo($"Idioma cargado: {usuario.IdiomaPreferido} para usuario {usuario.NombreUsuario}",
-                        "Sistema", SessionContext.NombreUsuario);
+                    if (resultado.EsValido)
+                    {
+                        logSvc.LogInfo($"Idioma por defecto asignado: {idiomaACargar} para usuario {usuario.NombreUsuario}",
+                            "Sistema", SessionContext.NombreUsuario);
+                    }
+                    else
+                    {
+                        logSvc.LogWarning($"No se pudo asignar idioma por defecto: {resultado.Mensaje}",
+                            "Sistema", SessionContext.NombreUsuario);
+                    }
                 }
+
+                // Cargar el idioma en la aplicación
+                var ci = new CultureInfo(idiomaACargar);
+                Thread.CurrentThread.CurrentUICulture = ci;
+                Thread.CurrentThread.CurrentCulture = ci;
+                Localization.Localization.Load(ci.Name);
+
+                var logService = ServicesFactory.CrearLogService();
+                logService.LogInfo($"Idioma cargado: {idiomaACargar} para usuario {usuario.NombreUsuario}",
+                    "Sistema", SessionContext.NombreUsuario);
             }
             catch (Exception ex)
             {
