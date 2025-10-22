@@ -49,6 +49,12 @@ namespace Services.BLL.Services
                 usuario.Bloqueado = false;
                 usuario.IntentosLoginFallidos = 0;
 
+                // Asignar idioma por defecto si no está especificado
+                if (string.IsNullOrWhiteSpace(usuario.IdiomaPreferido))
+                {
+                    usuario.IdiomaPreferido = "es-AR"; // Idioma por defecto
+                }
+
                 _unitOfWork.Usuarios.Add(usuario);
                 _unitOfWork.SaveChanges();
 
@@ -100,6 +106,12 @@ namespace Services.BLL.Services
                 usuarioExistente.Email = usuario.Email;
                 usuarioExistente.IdPerfil = usuario.IdPerfil;
                 usuarioExistente.Activo = usuario.Activo;
+
+                // Preservar idioma preferido si viene especificado
+                if (!string.IsNullOrWhiteSpace(usuario.IdiomaPreferido))
+                {
+                    usuarioExistente.IdiomaPreferido = usuario.IdiomaPreferido;
+                }
 
                 _unitOfWork.Usuarios.Update(usuarioExistente);
                 _unitOfWork.SaveChanges();

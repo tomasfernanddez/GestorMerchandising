@@ -54,6 +54,10 @@ namespace DAL
         public virtual DbSet<TecnicaPersonalizacion> TecnicasPersonalizacion { get; set; }
         public virtual DbSet<UbicacionLogo> UbicacionesLogo { get; set; }
 
+        // Patrón Composite - Personalización
+        public virtual DbSet<GrupoPersonalizacion> GruposPersonalizacion { get; set; }
+        public virtual DbSet<GrupoPersonalizacionLogo> GruposPersonalizacionLogos { get; set; }
+
     //    ============================================================================
     // Configuración del modelo
     //    ============================================================================
@@ -244,6 +248,40 @@ namespace DAL
                 .HasOptional(lp => lp.UbicacionLogo)
                 .WithMany(ul => ul.LogosPedido)
                 .HasForeignKey(lp => lp.IdUbicacionLogo);
+
+        //        ============================================================================
+        // Configuración del Patrón Composite - Personalización
+        //        ============================================================================
+
+        // GrupoPersonalizacion -> PedidoDetalle
+        modelBuilder.Entity<GrupoPersonalizacion>()
+            .HasRequired(gp => gp.DetallePedido)
+            .WithMany()
+            .HasForeignKey(gp => gp.IdDetallePedido)
+            .WillCascadeOnDelete(false);
+
+            // GrupoPersonalizacion -> GrupoPadre (auto-referencia)
+            modelBuilder.Entity<GrupoPersonalizacion>()
+                .HasOptional(gp => gp.GrupoPadre)
+                .WithMany(gp => gp.GruposHijos)
+                .HasForeignKey(gp => gp.IdGrupoPadre)
+                .WillCascadeOnDelete(false);
+
+            // GrupoPersonalizacionLogo - Relación many-to-many con clave compuesta
+            modelBuilder.Entity<GrupoPersonalizacionLogo>()
+                .HasKey(gpl => new { gpl.IdGrupo, gpl.IdLogo });
+
+            modelBuilder.Entity<GrupoPersonalizacionLogo>()
+                .HasRequired(gpl => gpl.Grupo)
+                .WithMany(gp => gp.LogosAsociados)
+                .HasForeignKey(gpl => gpl.IdGrupo)
+                .WillCascadeOnDelete(true);
+
+            modelBuilder.Entity<GrupoPersonalizacionLogo>()
+                .HasRequired(gpl => gpl.Logo)
+                .WithMany()
+                .HasForeignKey(gpl => gpl.IdLogo)
+                .WillCascadeOnDelete(true);
 
             // Catálogos
             modelBuilder.Entity<Pais>()
