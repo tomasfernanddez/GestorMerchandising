@@ -67,6 +67,8 @@
     <Compile Include="Entidades\UnidadMedida.cs" />
     <Compile Include="FacturaCabecera.cs" />
     <Compile Include="FacturaDetalle.cs" />
+    <Compile Include="GrupoPersonalizacion.cs" />
+    <Compile Include="Interfaces\IComponentePersonalizacion.cs" />
     <Compile Include="Localidad.cs" />
     <Compile Include="LogosPedido.cs" />
     <Compile Include="Pais.cs" />
