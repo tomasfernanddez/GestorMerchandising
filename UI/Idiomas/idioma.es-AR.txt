@@ -136,3 +136,43 @@ msg.select.localidad=Seleccione una localidad
 msg.select.pais=Seleccione un país
 msg.select.provincia=Seleccione una provincia
 msg.user_required=Ingresá tu usuario.
+
+# ============================================
+# PRODUCTO
+# ============================================
+product.name=Nombre del Producto
+product.category=Categoría
+product.provider=Proveedor
+product.name.maxlength=El nombre no puede superar los 150 caracteres
+
+# ============================================
+# PEDIDO
+# ============================================
+order.number=Número de Pedido
+order.client=Cliente
+order.date=Fecha
+order.deadline=Fecha Límite
+order.observations=Observaciones
+order.invoiced=Facturado
+order.payment.type=Tipo de Pago
+order.status=Estado del Pedido
+order.contact.name=Nombre del Contacto
+order.contact.email=Email del Contacto
+order.contact.phone=Teléfono del Contacto
+order.delivery.address=Dirección de Entrega
+order.oc=Orden de Compra
+order.remito=Número de Remito
+order.detail.product=Producto
+order.detail.quantity=Cantidad
+order.detail.price=Precio Unitario
+order.detail.subtotal=Subtotal
+order.detail.status=Estado
+order.detail.deadline=Fecha Límite Producto
+order.logo.technique=Técnica
+order.logo.location=Ubicación
+order.logo.provider=Proveedor Personalización
+order.logo.cost=Costo
+order.logo.description=Descripción
+order.total=Total
+order.total.iva=Total con IVA
+abm.orders.title=Gestión de Pedidos

@@ -132,3 +132,43 @@ msg.select.localidad=Select a city/town
 msg.select.pais=Select a country
 msg.select.provincia=Select a state/province
 msg.user_required=Enter your username.
+
+# ============================================
+# PRODUCT
+# ============================================
+product.name=Product Name
+product.category=Category
+product.provider=Supplier
+product.name.maxlength=Name cannot exceed 150 characters
+
+# ============================================
+# ORDER
+# ============================================
+order.number=Order Number
+order.client=Client
+order.date=Date
+order.deadline=Deadline
+order.observations=Observations
+order.invoiced=Invoiced
+order.payment.type=Payment Type
+order.status=Order Status
+order.contact.name=Contact Name
+order.contact.email=Contact Email
+order.contact.phone=Contact Phone
+order.delivery.address=Delivery Address
+order.oc=Purchase Order
+order.remito=Delivery Note Number
+order.detail.product=Product
+order.detail.quantity=Quantity
+order.detail.price=Unit Price
+order.detail.subtotal=Subtotal
+order.detail.status=Status
+order.detail.deadline=Product Deadline
+order.logo.technique=Technique
+order.logo.location=Location
+order.logo.provider=Personalization Supplier
+order.logo.cost=Cost
+order.logo.description=Description
+order.total=Total
+order.total.iva=Total with VAT
+abm.orders.title=Order Management
