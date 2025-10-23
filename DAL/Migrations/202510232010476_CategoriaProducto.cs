@@ -72,16 +72,18 @@
             CreateIndex("dbo.PedidoDetalle", "ProveedorPersonalizacion_IdProveedor");
             AddForeignKey("dbo.PedidoDetalle", "ProveedorPersonalizacion_IdProveedor", "dbo.Proveedor", "IdProveedor");
             AddForeignKey("dbo.LogosPedido", "IdProveedor", "dbo.Proveedor", "IdProveedor");
+            DropIndex("dbo.Pedido", "IX_Pedido_Fecha");
             DropColumn("dbo.Pedido", "Fecha");
             DropColumn("dbo.Pedido", "FechaLimite");
             DropColumn("dbo.Pedido", "TieneFechaLimite");
         }
-        
+
         public override void Down()
         {
             AddColumn("dbo.Pedido", "TieneFechaLimite", c => c.Boolean(nullable: false));
             AddColumn("dbo.Pedido", "FechaLimite", c => c.DateTime());
             AddColumn("dbo.Pedido", "Fecha", c => c.DateTime(nullable: false));
+            CreateIndex("dbo.Pedido", "Fecha", name: "IX_Pedido_Fecha");
             DropForeignKey("dbo.LogosPedido", "IdProveedor", "dbo.Proveedor");
             DropForeignKey("dbo.PedidoDetalle", "ProveedorPersonalizacion_IdProveedor", "dbo.Proveedor");
             DropForeignKey("dbo.PedidoNota", "IdPedido", "dbo.Pedido");
