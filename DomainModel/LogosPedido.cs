@@ -28,7 +28,6 @@ namespace DomainModel
         /// <summary>
         /// Costo adicional de este logo/personalización
         /// </summary>
-        [Column(TypeName = "decimal(18,2)")]
         public decimal CostoPersonalizacion { get; set; } = 0;
 
         /// <summary>

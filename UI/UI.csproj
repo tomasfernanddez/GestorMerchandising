@@ -87,6 +87,12 @@
     <Compile Include="Formularios\LogsBitacoraForm.Designer.cs">
       <DependentUpon>LogsBitacoraForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Formularios\ProveedorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\ProveedorForm.Designer.cs">
+      <DependentUpon>ProveedorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\UsuarioForm.cs">
       <SubType>Form</SubType>
     </Compile>

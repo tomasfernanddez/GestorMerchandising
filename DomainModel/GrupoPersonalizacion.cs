@@ -41,7 +41,6 @@ namespace DomainModel
         /// Puede ser 0 si solo se suma el costo de los componentes individuales
         /// O puede ser negativo para aplicar un descuento por paquete
         /// </summary>
-        [Column(TypeName = "decimal(18,2)")]
         public decimal CostoAdicionalGrupo { get; set; } = 0;
 
         /// <summary>

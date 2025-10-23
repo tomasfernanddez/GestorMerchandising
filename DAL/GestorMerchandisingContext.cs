@@ -33,6 +33,7 @@ namespace DAL
         public DbSet<Localidad> Localidades { get; set; }
         public virtual DbSet<Cliente> Clientes { get; set; }
         public virtual DbSet<Proveedor> Proveedores { get; set; }
+        public virtual DbSet<CondicionIva> CondicionesIva { get; set; }
         public virtual DbSet<Producto> Productos { get; set; }
         public virtual DbSet<Pedido> Pedidos { get; set; }
         public virtual DbSet<PedidoDetalle> PedidoDetalles { get; set; }
@@ -179,21 +180,62 @@ namespace DAL
                 .HasForeignKey(f => f.IdEmisor)
                 .WillCascadeOnDelete(false);
 
-        //        ============================================================================
-        // Configuración de relaciones opcionales (Foreign Keys opcionales) (EXISTENTES)
-        //        ============================================================================
+            //        ============================================================================
+            // Configuración de relaciones opcionales (Foreign Keys opcionales) (EXISTENTES)
+            //        ============================================================================
 
-        // Cliente -> TipoEmpresa
-        modelBuilder.Entity<Cliente>()
-            .HasOptional(c => c.TipoEmpresa)
-            .WithMany(te => te.Clientes)
-            .HasForeignKey(c => c.IdTipoEmpresa);
+            // Cliente -> Condicion IVA
+            modelBuilder.Entity<Cliente>()
+                .HasRequired(c => c.CondicionIva)
+                .WithMany(ci => ci.Clientes)
+                .HasForeignKey(c => c.IdCondicionIva)
+                .WillCascadeOnDelete(false);
+
+            // Cliente -> TipoEmpresa
+            modelBuilder.Entity<Cliente>()
+                .HasOptional(c => c.TipoEmpresa)
+                .WithMany(te => te.Clientes)
+                .HasForeignKey(c => c.IdTipoEmpresa);
 
             // Proveedor -> TipoProveedor
             modelBuilder.Entity<Proveedor>()
                 .HasOptional(p => p.TipoProveedor)
                 .WithMany(tp => tp.Proveedores)
                 .HasForeignKey(p => p.IdTipoProveedor);
+
+            // Proveedor -> Condicion IVA
+            modelBuilder.Entity<Proveedor>()
+                .HasRequired(p => p.CondicionIva)
+                .WithMany(ci => ci.Proveedores)
+                .HasForeignKey(p => p.IdCondicionIva)
+                .WillCascadeOnDelete(false);
+
+            // Proveedor -> País / Provincia / Localidad (opcionales)
+            modelBuilder.Entity<Proveedor>()
+                .HasOptional(p => p.Pais)
+                .WithMany()
+                .HasForeignKey(p => p.IdPais);
+
+            modelBuilder.Entity<Proveedor>()
+                .HasOptional(p => p.Provincia)
+                .WithMany()
+                .HasForeignKey(p => p.IdProvincia);
+
+            modelBuilder.Entity<Proveedor>()
+                .HasOptional(p => p.LocalidadRef)
+                .WithMany()
+                .HasForeignKey(p => p.IdLocalidad);
+
+            // Proveedor -> Técnicas de personalización (Many-to-Many)
+            modelBuilder.Entity<Proveedor>()
+                .HasMany(p => p.TecnicasPersonalizacion)
+                .WithMany(t => t.Proveedores)
+                .Map(m =>
+                {
+                    m.ToTable("ProveedorTecnicaPersonalizacion");
+                    m.MapLeftKey("IdProveedor");
+                    m.MapRightKey("IdTecnicaPersonalizacion");
+                });
 
             // Producto -> CategoriaProducto
             modelBuilder.Entity<Producto>()

@@ -23,8 +23,8 @@ namespace DomainModel
         [StringLength(15)]
         public string CUIT { get; set; }
 
-        [StringLength(50)]
-        public string CondicionIva { get; set; }
+        [Required]
+        public Guid IdCondicionIva { get; set; }
 
         [StringLength(150)]
         public string Domicilio { get; set; }
@@ -43,6 +43,7 @@ namespace DomainModel
 
         // Navegación
         public virtual TipoEmpresa TipoEmpresa { get; set; }
+        public virtual CondicionIva CondicionIva { get; set; }
 
         // === NUEVO: navegación geo opcional ===
         public virtual Pais Pais { get; set; }

@@ -61,6 +61,49 @@ cliente.pais=País
 cliente.provincia=Provincia
 cliente.razonSocial=Razón Social
 
+# ============================================
+# PROVEEDOR
+# ============================================
+supplier.column.razon=Razón Social
+supplier.column.cuit=CUIT
+supplier.column.type=Tipo
+supplier.column.location=Localidad
+supplier.column.status=Estado
+supplier.filter.razon=Razón Social
+supplier.filter.cuit=CUIT
+supplier.filter.type=Tipo
+supplier.filter.status=Estado
+supplier.filter.type.all=Todos los tipos
+supplier.status.all=Todos
+supplier.status.active=Activo
+supplier.status.inactive=Inactivo
+supplier.tool.activate=Activar
+supplier.confirm.deactivate=¿Confirma desactivar el proveedor seleccionado?
+supplier.confirm.activate=¿Confirma activar el proveedor seleccionado?
+supplier.razonSocial=Razón Social
+supplier.cuit=CUIT
+supplier.condicionIVA=Condición IVA
+supplier.tipoProveedor=Tipo de Proveedor
+supplier.condicionesPago=Condiciones de Pago
+supplier.fechaAlta=Fecha de Alta
+supplier.domicilio=Domicilio
+supplier.codigoPostal=Código Postal
+supplier.pais=País
+supplier.provincia=Provincia
+supplier.localidad=Localidad
+supplier.group.general=Datos Generales
+supplier.group.ubicacion=Datos de Ubicación
+supplier.group.tecnicas=Técnicas de Personalización
+supplier.group.observaciones=Observaciones
+supplier.validation.tecnica=Seleccione al menos una técnica de personalización
+supplier.validation.observaciones=Las observaciones no pueden superar los 500 caracteres
+
+# Valores de catálogo para condiciones
+supplier.payment.cash=Contado
+supplier.payment.30=30 días f/f
+supplier.payment.60=60 días f/f
+supplier.payment.90=90 días f/f
+
 # USUARIO
 usuario.activo=Activo
 usuario.email=Email:

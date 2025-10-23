@@ -1,4 +1,5 @@
 ﻿using DAL.Implementations.Principales;
+using DAL.Implementations.Referencia;
 using DAL.Interfaces.Base;
 using DAL.Interfaces.Principales;
 using DAL.Interfaces.Referencia;
@@ -18,20 +19,26 @@ namespace DAL.Implementations.Base
 
         // Repositorios principales
         private IClienteRepository _clientes;
+        private IProveedorRepository _proveedores;
+
+        // Repositorios de referencia
+        private ITipoProveedorRepository _tiposProveedor;
+        private ICondicionIvaRepository _condicionesIva;
 
         // Repositorios futuros (por implementar)
-        // private IProveedorRepository _proveedores;
         // private IProductoRepository _productos;
         // etc.
 
         public EfUnitOfWork(DbContext context)
         {
-            Context = context;
+            Context = context ?? throw new ArgumentNullException(nameof(context));
+            _context = context as GestorMerchandisingContext ?? throw new ArgumentException("El DbContext debe ser GestorMerchandisingContext", nameof(context));
         }
 
         public EfUnitOfWork(GestorMerchandisingContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            Context = context;
         }
 
         // Propiedades de repositorios principales
@@ -40,15 +47,25 @@ namespace DAL.Implementations.Base
             get { return _clientes ?? (_clientes = new EfClienteRepository(_context)); }
         }
 
-        // Implementaciones temporales (NotImplementedException hasta que creemos las clases)
-        public IProveedorRepository Proveedores => throw new NotImplementedException();
+        public IProveedorRepository Proveedores
+        {
+            get { return _proveedores ?? (_proveedores = new EfProveedorRepository(_context)); }
+        }
         public IProductoRepository Productos => throw new NotImplementedException();
         public IPedidoRepository Pedidos => throw new NotImplementedException();
         public IPedidoDetalleRepository PedidoDetalles => throw new NotImplementedException();
         public IPedidoMuestraRepository PedidosMuestra => throw new NotImplementedException();
         public IFacturaCabeceraRepository FacturasCabecera => throw new NotImplementedException();
         public ITipoEmpresaRepository TiposEmpresa => throw new NotImplementedException();
-        public ITipoProveedorRepository TiposProveedor => throw new NotImplementedException();
+
+        public ITipoProveedorRepository TiposProveedor
+        {
+            get { return _tiposProveedor ?? (_tiposProveedor = new EfTipoProveedorRepository(_context)); }
+        }
+        public ICondicionIvaRepository CondicionesIva
+        {
+            get { return _condicionesIva ?? (_condicionesIva = new EfCondicionIvaRepository(_context)); }
+        }
         public ICategoriaProductoRepository CategoriasProducto => throw new NotImplementedException();
         public IEstadoPedidoRepository EstadosPedido => throw new NotImplementedException();
         public IEstadoProductoRepository EstadosProducto => throw new NotImplementedException();

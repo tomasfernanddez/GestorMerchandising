@@ -110,11 +110,12 @@ namespace UI
                 var clienteSvc = ServiceFactory.CrearClienteService();
                 var bitacoraSvc = ServicesFactory.CrearBitacoraService();
                 var geoSvc = ServiceFactory.CrearGeoService();
+                var condicionIvaSvc = ServiceFactory.CrearCondicionIvaService();
                 var logSvc = ServicesFactory.CrearLogService();
 
                 logSvc.LogInfo("Abriendo formulario ABM Clientes", "Clientes", SessionContext.NombreUsuario);
 
-                using (var f = new ABMClientesForm(clienteSvc, bitacoraSvc, geoSvc))
+                using (var f = new ABMClientesForm(clienteSvc, bitacoraSvc, geoSvc, condicionIvaSvc))
                     f.ShowDialog(this);
 
                 logSvc.LogInfo("Cerrado formulario ABM Clientes", "Clientes", SessionContext.NombreUsuario);
@@ -129,8 +130,27 @@ namespace UI
 
         private void AbrirProveedores()
         {
-            using (var f = new ABMProveedoresForm())
-                f.ShowDialog(this);
+            try
+            {
+                var proveedorSvc = ServiceFactory.CrearProveedorService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var geoSvc = ServiceFactory.CrearGeoService();
+                var condicionIvaSvc = ServiceFactory.CrearCondicionIvaService();
+                var logSvc = ServicesFactory.CrearLogService();
+
+                logSvc.LogInfo("Abriendo formulario ABM Proveedores / Opening suppliers form", "Proveedores", SessionContext.NombreUsuario);
+
+                using (var f = new ABMProveedoresForm(proveedorSvc, bitacoraSvc, geoSvc, condicionIvaSvc))
+                    f.ShowDialog(this);
+
+                logSvc.LogInfo("Cerrado formulario ABM Proveedores / Suppliers form closed", "Proveedores", SessionContext.NombreUsuario);
+            }
+            catch (Exception ex)
+            {
+                var logSvc = ServicesFactory.CrearLogService();
+                logSvc.LogError("Error abriendo ABM Proveedores / Error opening suppliers form", ex, "Proveedores", SessionContext.NombreUsuario);
+                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void AbrirProductos()

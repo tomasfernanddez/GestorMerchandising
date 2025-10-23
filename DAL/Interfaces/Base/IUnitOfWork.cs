@@ -1,4 +1,5 @@
-﻿using DAL.Interfaces.Principales;
+﻿using DAL.Implementations.Referencia;
+using DAL.Interfaces.Principales;
 using DAL.Interfaces.Referencia;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ namespace DAL.Interfaces.Base
     //    ============================================================================
         ITipoEmpresaRepository TiposEmpresa { get; }
         ITipoProveedorRepository TiposProveedor { get; }
+        ICondicionIvaRepository CondicionesIva { get; }
         ICategoriaProductoRepository CategoriasProducto { get; }
         IEstadoPedidoRepository EstadosPedido { get; }
         IEstadoProductoRepository EstadosProducto { get; }

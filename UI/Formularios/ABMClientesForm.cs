@@ -19,6 +19,7 @@ namespace UI
         private readonly IClienteService _clienteService;
         private readonly IBitacoraService _bitacora;
         private readonly IGeoService _geoSvc;
+        private readonly ICondicionIvaService _condicionIvaService;
         private bool _puedeEliminar;
 
         public ABMClientesForm()
@@ -26,11 +27,12 @@ namespace UI
             InitializeComponent();
         }
 
-        public ABMClientesForm(IClienteService clienteService, IBitacoraService bitacora, IGeoService geoSvc)
+        public ABMClientesForm(IClienteService clienteService, IBitacoraService bitacora, IGeoService geoSvc, ICondicionIvaService condicionIvaService)
         {
             _clienteService = clienteService ?? throw new ArgumentNullException(nameof(clienteService));
             _bitacora = bitacora ?? throw new ArgumentNullException(nameof(bitacora));
             _geoSvc = geoSvc ?? throw new ArgumentNullException(nameof(geoSvc));
+            _condicionIvaService = condicionIvaService ?? throw new ArgumentNullException(nameof(condicionIvaService));
 
             InitializeComponent();
 
@@ -272,7 +274,7 @@ namespace UI
             var logSvc = ServicesFactory.CrearLogService();
             logSvc.LogInfo("Abriendo formulario nuevo cliente", "Clientes", SessionContext.NombreUsuario);
 
-            using (var f = new ClienteForm(_clienteService, _bitacora, _geoSvc, null))
+            using (var f = new ClienteForm(_clienteService, _bitacora, _geoSvc, _condicionIvaService, null))
             {
                 if (f.ShowDialog(this) == DialogResult.OK)
                 {
@@ -294,7 +296,7 @@ namespace UI
             var cliente = _clienteService.ObtenerClientePorId(row.IdCliente);
             if (cliente == null) return;
 
-            using (var f = new ClienteForm(_clienteService, _bitacora, _geoSvc, cliente))
+            using (var f = new ClienteForm(_clienteService, _bitacora, _geoSvc, _condicionIvaService, cliente))
             {
                 if (f.ShowDialog(this) == DialogResult.OK)
                     CargarClientes();

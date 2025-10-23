@@ -18,6 +18,8 @@ namespace BLL.Factories
         // CONFIGURACIÓN CENTRALIZADA
         // =====================================================================
         private static string _connectionString;
+        private static bool _databaseActualizada;
+        private static readonly object _upgradeLock = new object();
 
         /// <summary>
         /// Configura el connection string a usar en toda la aplicación.
@@ -26,6 +28,7 @@ namespace BLL.Factories
         public static void ConfigurarConnectionString(string connectionString)
         {
             _connectionString = connectionString;
+            EnsureDatabaseActualizada();
         }
 
         /// <summary>
@@ -53,6 +56,7 @@ namespace BLL.Factories
 
         private static BizDbContext CrearContextoNegocio()
         {
+            EnsureDatabaseActualizada();
             var cs = ObtenerConnectionString();
             return new BizDbContext(cs);
         }
@@ -68,14 +72,20 @@ namespace BLL.Factories
             return new ClienteService(uow);
         }
 
-        // TODO: Agregar cuando se implementen
-        /*
         public static IProveedorService CrearProveedorService()
         {
-            var uow = CrearUnitOfWork();
+            var uow = CrearUnitOfWorkNegocio();
             return new ProveedorService(uow);
         }
 
+        public static ICondicionIvaService CrearCondicionIvaService()
+        {
+            var uow = CrearUnitOfWorkNegocio();
+            return new CondicionIvaService(uow);
+        }
+
+        // TODO: Agregar cuando se implementen
+        /*
         public static IProductoService CrearProductoService()
         {
             var uow = CrearUnitOfWork();
@@ -125,6 +135,28 @@ namespace BLL.Factories
             var cs = ObtenerConnectionString();
             var preview = cs.Length > 80 ? cs.Substring(0, 80) + "..." : cs;
             return $"ConnectionString configurado: {preview}";
+        }
+
+        private static void EnsureDatabaseActualizada()
+        {
+            if (_databaseActualizada)
+                return;
+
+            lock (_upgradeLock)
+            {
+                if (_databaseActualizada)
+                    return;
+
+                var cs = ObtenerConnectionString();
+                if (string.IsNullOrWhiteSpace(cs))
+                    return;
+
+                var csSettings = ConfigurationManager.ConnectionStrings[cs];
+                var connectionString = csSettings?.ConnectionString ?? cs;
+
+                DatabaseUpgrade.EnsureUpToDate(connectionString);
+                _databaseActualizada = true;
+            }
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DomainModel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
@@ -20,5 +21,6 @@ namespace DomainModel.Entidades
 
         // Navegación
         public virtual ICollection<LogosPedido> LogosPedido { get; set; } = new List<LogosPedido>();
+        public virtual ICollection<Proveedor> Proveedores { get; set; } = new List<Proveedor>();
     }
 }
