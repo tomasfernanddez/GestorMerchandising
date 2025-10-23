@@ -16,7 +16,7 @@ namespace DomainModel
         public Guid IdProducto { get; set; } = Guid.NewGuid();
 
         [Required]
-        [StringLength(100)]
+        [StringLength(150)]
         public string NombreProducto { get; set; }
 
         public Guid? IdCategoria { get; set; }

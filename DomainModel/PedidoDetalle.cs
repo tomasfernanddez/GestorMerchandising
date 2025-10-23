@@ -29,6 +29,8 @@ namespace DomainModel
 
         public bool FichaAplicacion { get; set; }
 
+        public DateTime? FechaLimiteProducto { get; set; }
+
         public Guid? IdEstadoProducto { get; set; }
 
         // Navegación

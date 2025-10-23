@@ -296,6 +296,12 @@ namespace DAL
                 .WithMany(ul => ul.LogosPedido)
                 .HasForeignKey(lp => lp.IdUbicacionLogo);
 
+            // LogosPedido -> ProveedorPersonalizacion (el proveedor que aplica el logo)
+            modelBuilder.Entity<LogosPedido>()
+                .HasOptional(lp => lp.ProveedorPersonalizacion)
+                .WithMany()
+                .HasForeignKey(lp => lp.IdProveedorPersonalizacion);
+
         //        ============================================================================
         // Configuración del Patrón Composite - Personalización
         //        ============================================================================

@@ -15,6 +15,10 @@ namespace DomainModel
         [Key]
         public Guid IdPedido { get; set; } = Guid.NewGuid();
 
+        [Required]
+        [StringLength(20)]
+        public string NumeroPedido { get; set; }  // PED-0001, PED-0002, etc.
+
         public Guid IdCliente { get; set; }
 
         public DateTime Fecha { get; set; } = DateTime.Now;
@@ -40,6 +44,14 @@ namespace DomainModel
 
         [StringLength(50)]
         public string NumeroRemito { get; set; }
+
+        [StringLength(1000)]
+        public string Observaciones { get; set; }
+
+        public bool Facturado { get; set; } = false;
+
+        [StringLength(500)]
+        public string RutaFacturaPDF { get; set; }
 
         public Guid? IdEstadoPedido { get; set; }
         public Guid? IdTipoPago { get; set; }
