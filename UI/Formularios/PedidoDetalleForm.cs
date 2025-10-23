@@ -275,7 +275,7 @@ namespace UI
 
         private string FormatearDescripcionProducto(Producto producto)
         {
-            var categoria = producto.Categoria?.NombreCategoriaProducto;
+            var categoria = producto.Categoria?.NombreCategoria;
             var proveedor = producto.Proveedor?.RazonSocial;
             if (string.IsNullOrWhiteSpace(categoria) && string.IsNullOrWhiteSpace(proveedor))
             {
@@ -415,7 +415,7 @@ namespace UI
                 Cantidad = (int)nudCantidad.Value,
                 PrecioUnitario = nudPrecio.Value,
                 IdEstadoProducto = idEstado,
-                EstadoProducto = idEstado.HasValue ? _estadosProducto.FirstOrDefault(e => e.IdEstadoProducto == idEstado)?.NombreEstadoProducto : null,
+                EstadoProducto = idEstado.HasValue ? _estadosProducto.FirstOrDefault(estado => estado.IdEstadoProducto == idEstado)?.NombreEstadoProducto : null,
                 FechaLimite = fechaLimite,
                 FichaAplicacion = chkFicha.Checked,
                 Notas = txtNotas.Text?.Trim(),

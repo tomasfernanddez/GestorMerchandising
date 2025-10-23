@@ -103,6 +103,11 @@
     <Compile Include="Migrations\202510230620266_TiposProveedor.Designer.cs">
       <DependentUpon>202510230620266_TiposProveedor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510232010476_CategoriaProducto.cs" />
+    <Compile Include="Migrations\202510232010476_CategoriaProducto.Designer.cs">
+      <DependentUpon>202510232010476_CategoriaProducto.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\ActualizarCategoriaProducto.cs" />
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
     <Compile Include="Migrations\AgregarModuloProveedores.cs" />
@@ -137,6 +142,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510230620266_TiposProveedor.resx">
       <DependentUpon>202510230620266_TiposProveedor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510232010476_CategoriaProducto.resx">
+      <DependentUpon>202510232010476_CategoriaProducto.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

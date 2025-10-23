@@ -18,7 +18,7 @@ namespace UI
         private readonly IProveedorService _proveedorService;
         private readonly IBitacoraService _bitacoraService;
         private readonly bool _esEdicion;
-        private Producto _producto;
+        private readonly Producto _producto;
         private IList<CategoriaProducto> _categorias = new List<CategoriaProducto>();
         private IList<Proveedor> _proveedores = new List<Proveedor>();
 

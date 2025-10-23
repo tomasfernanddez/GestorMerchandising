@@ -22,7 +22,10 @@ namespace BLL.Services
 
         public IEnumerable<Pedido> ObtenerPedidos(PedidoFiltro filtro = null)
         {
-            filtro ??= new PedidoFiltro();
+            if (filtro == null)
+            {
+                filtro = new PedidoFiltro();
+            }
             IEnumerable<Pedido> pedidos = _unitOfWork.Pedidos.GetAll();
 
             if (!string.IsNullOrWhiteSpace(filtro.NumeroPedido))

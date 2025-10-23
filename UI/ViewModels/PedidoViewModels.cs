@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace UI.ViewModels
 {
-    internal class PedidoDetalleViewModel
+    public class PedidoDetalleViewModel
     {
         public Guid IdDetallePedido { get; set; }
         public Guid? IdProducto { get; set; }
@@ -24,7 +24,7 @@ namespace UI.ViewModels
         public List<PedidoLogoViewModel> Logos { get; set; } = new List<PedidoLogoViewModel>();
     }
 
-    internal class PedidoLogoViewModel
+    public class PedidoLogoViewModel
     {
         public Guid IdLogoPedido { get; set; }
         public Guid? IdTecnica { get; set; }

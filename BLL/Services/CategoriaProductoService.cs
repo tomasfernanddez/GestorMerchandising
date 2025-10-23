@@ -256,7 +256,10 @@ namespace BLL.Services
 
         private int ObtenerSiguienteOrden(IEnumerable<CategoriaProducto> categorias = null)
         {
-            categorias ??= _unitOfWork.CategoriasProducto.GetAll();
+            if (categorias == null)
+            {
+                categorias = _unitOfWork.CategoriasProducto.GetAll();
+            }
             if (!categorias.Any())
                 return 1;
 
