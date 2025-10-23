@@ -93,11 +93,16 @@
     <Compile Include="Migrations\202510222330222_Proveedor.Designer.cs">
       <DependentUpon>202510222330222_Proveedor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510230620266_TiposProveedor.cs" />
+    <Compile Include="Migrations\202510230620266_TiposProveedor.Designer.cs">
+      <DependentUpon>202510230620266_TiposProveedor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
     <Compile Include="Migrations\AgregarModuloProveedores.cs" />
     <Compile Include="Migrations\AgregarPatronCompositePersonalizacion.cs" />
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Migrations\PermitirMultiplesTiposProveedor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +128,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510222330222_Proveedor.resx">
       <DependentUpon>202510222330222_Proveedor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510230620266_TiposProveedor.resx">
+      <DependentUpon>202510230620266_TiposProveedor.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

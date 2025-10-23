@@ -16,7 +16,7 @@ namespace UI
         private Label lblCondicionIVA;
         private ComboBox cboCondicionIVA;
         private Label lblTipoProveedor;
-        private ComboBox cboTipoProveedor;
+        private CheckedListBox clbTiposProveedor;
         private Label lblCondicionesPago;
         private ComboBox cboCondicionesPago;
         private CheckBox chkActivo;
@@ -56,7 +56,7 @@ namespace UI
             this.chkActivo = new System.Windows.Forms.CheckBox();
             this.cboCondicionesPago = new System.Windows.Forms.ComboBox();
             this.lblCondicionesPago = new System.Windows.Forms.Label();
-            this.cboTipoProveedor = new System.Windows.Forms.ComboBox();
+            this.clbTiposProveedor = new System.Windows.Forms.CheckedListBox();
             this.lblTipoProveedor = new System.Windows.Forms.Label();
             this.cboCondicionIVA = new System.Windows.Forms.ComboBox();
             this.lblCondicionIVA = new System.Windows.Forms.Label();
@@ -96,7 +96,7 @@ namespace UI
             this.grpGenerales.Controls.Add(this.chkActivo);
             this.grpGenerales.Controls.Add(this.cboCondicionesPago);
             this.grpGenerales.Controls.Add(this.lblCondicionesPago);
-            this.grpGenerales.Controls.Add(this.cboTipoProveedor);
+            this.grpGenerales.Controls.Add(this.clbTiposProveedor);
             this.grpGenerales.Controls.Add(this.lblTipoProveedor);
             this.grpGenerales.Controls.Add(this.cboCondicionIVA);
             this.grpGenerales.Controls.Add(this.lblCondicionIVA);
@@ -106,14 +106,14 @@ namespace UI
             this.grpGenerales.Controls.Add(this.lblRazonSocial);
             this.grpGenerales.Location = new System.Drawing.Point(16, 15);
             this.grpGenerales.Name = "grpGenerales";
-            this.grpGenerales.Size = new System.Drawing.Size(520, 220);
+            this.grpGenerales.Size = new System.Drawing.Size(520, 240);
             this.grpGenerales.TabIndex = 0;
             this.grpGenerales.TabStop = false;
             this.grpGenerales.Text = "supplier.group.general";
             // 
             // lblFechaAltaValor
             // 
-            this.lblFechaAltaValor.Location = new System.Drawing.Point(140, 180);
+            this.lblFechaAltaValor.Location = new System.Drawing.Point(140, 205);
             this.lblFechaAltaValor.Name = "lblFechaAltaValor";
             this.lblFechaAltaValor.Size = new System.Drawing.Size(180, 20);
             this.lblFechaAltaValor.TabIndex = 12;
@@ -122,7 +122,7 @@ namespace UI
             // 
             // lblFechaAlta
             // 
-            this.lblFechaAlta.Location = new System.Drawing.Point(20, 180);
+            this.lblFechaAlta.Location = new System.Drawing.Point(20, 205);
             this.lblFechaAlta.Name = "lblFechaAlta";
             this.lblFechaAlta.Size = new System.Drawing.Size(110, 20);
             this.lblFechaAlta.TabIndex = 11;
@@ -132,7 +132,7 @@ namespace UI
             // chkActivo
             // 
             this.chkActivo.AutoSize = true;
-            this.chkActivo.Location = new System.Drawing.Point(324, 182);
+            this.chkActivo.Location = new System.Drawing.Point(324, 207);
             this.chkActivo.Name = "chkActivo";
             this.chkActivo.Size = new System.Drawing.Size(113, 17);
             this.chkActivo.TabIndex = 10;
@@ -143,28 +143,28 @@ namespace UI
             // 
             this.cboCondicionesPago.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboCondicionesPago.FormattingEnabled = true;
-            this.cboCondicionesPago.Location = new System.Drawing.Point(140, 145);
+            this.cboCondicionesPago.Location = new System.Drawing.Point(140, 170);
             this.cboCondicionesPago.Name = "cboCondicionesPago";
             this.cboCondicionesPago.Size = new System.Drawing.Size(280, 21);
             this.cboCondicionesPago.TabIndex = 9;
             // 
             // lblCondicionesPago
             // 
-            this.lblCondicionesPago.Location = new System.Drawing.Point(20, 145);
+            this.lblCondicionesPago.Location = new System.Drawing.Point(20, 170);
             this.lblCondicionesPago.Name = "lblCondicionesPago";
             this.lblCondicionesPago.Size = new System.Drawing.Size(110, 20);
             this.lblCondicionesPago.TabIndex = 8;
             this.lblCondicionesPago.Text = "supplier.condicionesPago";
             this.lblCondicionesPago.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // cboTipoProveedor
-            // 
-            this.cboTipoProveedor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboTipoProveedor.FormattingEnabled = true;
-            this.cboTipoProveedor.Location = new System.Drawing.Point(140, 110);
-            this.cboTipoProveedor.Name = "cboTipoProveedor";
-            this.cboTipoProveedor.Size = new System.Drawing.Size(280, 21);
-            this.cboTipoProveedor.TabIndex = 7;
+            //
+            // clbTiposProveedor
+            //
+            this.clbTiposProveedor.CheckOnClick = true;
+            this.clbTiposProveedor.FormattingEnabled = true;
+            this.clbTiposProveedor.Location = new System.Drawing.Point(140, 110);
+            this.clbTiposProveedor.Name = "clbTiposProveedor";
+            this.clbTiposProveedor.Size = new System.Drawing.Size(280, 49);
+            this.clbTiposProveedor.TabIndex = 7;
             // 
             // lblTipoProveedor
             // 

@@ -104,7 +104,6 @@ namespace UI
         private void ConfigurarControles()
         {
             cboCondicionIVA.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboTipoProveedor.DropDownStyle = ComboBoxStyle.DropDownList;
             cboCondicionesPago.DropDownStyle = ComboBoxStyle.DropDownList;
             cboPais.DropDownStyle = ComboBoxStyle.DropDownList;
             cboProvincia.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -117,7 +116,7 @@ namespace UI
             btnCancelar.Click += (s, e) => DialogResult = DialogResult.Cancel;
             cboPais.SelectedIndexChanged += (s, e) => CargarProvincias();
             cboProvincia.SelectedIndexChanged += (s, e) => CargarLocalidades();
-            cboTipoProveedor.SelectedIndexChanged += (s, e) => ActualizarVisibilidadTecnicas();
+            clbTiposProveedor.ItemCheck += (s, e) => BeginInvoke((Action)ActualizarVisibilidadTecnicas);
         }
 
         private void CargarCatalogos()
@@ -140,11 +139,11 @@ namespace UI
                 cboCondicionesPago.SelectedIndex = 0;
 
             _tiposProveedor = _proveedorService.ObtenerTiposProveedor()?.ToList() ?? new List<TipoProveedor>();
-            cboTipoProveedor.DataSource = _tiposProveedor.Select(tp => new Item { Id = tp.IdTipoProveedor, Nombre = tp.TipoProveedorNombre }).ToList();
-            cboTipoProveedor.DisplayMember = nameof(Item.Nombre);
-            cboTipoProveedor.ValueMember = nameof(Item.Id);
-            if (cboTipoProveedor.Items.Count > 0)
-                cboTipoProveedor.SelectedIndex = 0;
+            clbTiposProveedor.Items.Clear();
+            foreach (var tipo in _tiposProveedor)
+            {
+                clbTiposProveedor.Items.Add(new Item { Id = tipo.IdTipoProveedor, Nombre = tipo.TipoProveedorNombre }, false);
+            }
 
             _tecnicasDisponibles = _proveedorService.ObtenerTecnicasPersonalizacion()?.ToList() ?? new List<TecnicaPersonalizacion>();
             clbTecnicas.Items.Clear();
@@ -232,14 +231,17 @@ namespace UI
             }
             SeleccionarItemCombo(cboCondicionesPago, _model.CondicionesPago);
 
-            if (_model.IdTipoProveedor.HasValue)
+            if (_model.TiposProveedor != null)
             {
-                for (int i = 0; i < cboTipoProveedor.Items.Count; i++)
+                var seleccionadas = _model.TiposProveedor
+                    .Select(tp => tp.IdTipoProveedor)
+                    .ToHashSet();
+
+                for (int i = 0; i < clbTiposProveedor.Items.Count; i++)
                 {
-                    if ((cboTipoProveedor.Items[i] as Item)?.Id == _model.IdTipoProveedor.Value)
+                    if (clbTiposProveedor.Items[i] is Item item && seleccionadas.Contains(item.Id))
                     {
-                        cboTipoProveedor.SelectedIndex = i;
-                        break;
+                        clbTiposProveedor.SetItemChecked(i, true);
                     }
                 }
             }
@@ -315,13 +317,16 @@ namespace UI
                 var itPais = cboPais.SelectedItem as Item;
                 var itProvincia = cboProvincia.SelectedItem as Item;
                 var itLocalidad = cboLocalidad.SelectedItem as Item;
-                var itTipo = cboTipoProveedor.SelectedItem as Item;
+                var tiposSeleccionados = clbTiposProveedor.CheckedItems
+                    .OfType<Item>()
+                    .Select(t => t.Id)
+                    .Distinct()
+                    .ToList();
 
                 _model.RazonSocial = txtRazonSocial.Text.Trim();
                 _model.CUIT = ObtenerCuitLimpio();
                 var condicionSeleccionada = cboCondicionIVA.SelectedItem as Item;
                 _model.IdCondicionIva = condicionSeleccionada?.Id ?? Guid.Empty;
-                _model.IdTipoProveedor = itTipo?.Id;
                 _model.CondicionesPago = cboCondicionesPago.SelectedItem?.ToString();
                 _model.Domicilio = txtDomicilio.Text.Trim();
                 _model.CodigoPostal = txtCodigoPostal.Text.Trim();
@@ -331,6 +336,9 @@ namespace UI
                 _model.Localidad = itLocalidad?.Nombre;
                 _model.Observaciones = txtObservaciones.Text.Trim();
                 _model.Activo = chkActivo.Checked;
+                _model.TiposProveedor = _tiposProveedor
+                    .Where(tp => tiposSeleccionados.Contains(tp.IdTipoProveedor))
+                    .ToList();
                 if (!_esEdicion)
                 {
                     _model.FechaAlta = DateTime.Now;
@@ -344,14 +352,14 @@ namespace UI
                 ResultadoOperacion resultado;
                 if (_esEdicion)
                 {
-                    resultado = _proveedorService.ActualizarProveedor(_model, tecnicasSeleccionadas);
+                    resultado = _proveedorService.ActualizarProveedor(_model, tiposSeleccionados, tecnicasSeleccionadas);
                     _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Proveedor.Editar",
                         resultado.EsValido ? $"Id={_model.IdProveedor}" : resultado.Mensaje,
                         "Proveedores", resultado.EsValido);
                 }
                 else
                 {
-                    resultado = _proveedorService.CrearProveedor(_model, tecnicasSeleccionadas);
+                    resultado = _proveedorService.CrearProveedor(_model, tiposSeleccionados, tecnicasSeleccionadas);
                     _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Proveedor.Alta",
                         resultado.EsValido ? $"Id={resultado.IdGenerado}" : resultado.Mensaje,
                         "Proveedores", resultado.EsValido);
@@ -402,9 +410,9 @@ namespace UI
                 ok = false;
             }
 
-            if (cboTipoProveedor.SelectedItem == null)
+            if (clbTiposProveedor.CheckedItems.Count == 0)
             {
-                errorProvider1.SetError(cboTipoProveedor, "msg.required".Traducir());
+                errorProvider1.SetError(clbTiposProveedor, "msg.required".Traducir());
                 ok = false;
             }
 
@@ -432,9 +440,9 @@ namespace UI
                 ok = false;
             }
 
-            var tipoSeleccionado = ObtenerTipoProveedorSeleccionado();
+            var tiposSeleccionados = ObtenerTiposProveedorSeleccionados();
 
-            if (ProveedorCatalogoHelper.EsTipoPersonalizador(tipoSeleccionado))
+            if (tiposSeleccionados.Any(ProveedorCatalogoHelper.EsTipoPersonalizador))
             {
                 if (clbTecnicas.CheckedItems.Count == 0)
                 {
@@ -454,21 +462,26 @@ namespace UI
 
         private void ActualizarVisibilidadTecnicas()
         {
-            var tipo = ObtenerTipoProveedorSeleccionado();
-            bool esPersonalizador = ProveedorCatalogoHelper.EsTipoPersonalizador(tipo);
+            var tipos = ObtenerTiposProveedorSeleccionados();
+            bool esPersonalizador = tipos.Any(ProveedorCatalogoHelper.EsTipoPersonalizador);
 
             grpTecnicas.Enabled = esPersonalizador;
             grpTecnicas.Visible = esPersonalizador || clbTecnicas.CheckedItems.Count > 0;
         }
 
-        private TipoProveedor ObtenerTipoProveedorSeleccionado()
+        private List<TipoProveedor> ObtenerTiposProveedorSeleccionados()
         {
-            if (cboTipoProveedor.SelectedItem is Item item)
-            {
-                return _tiposProveedor.FirstOrDefault(tp => tp.IdTipoProveedor == item.Id);
-            }
+            if (clbTiposProveedor.CheckedItems.Count == 0)
+                return new List<TipoProveedor>();
 
-            return null;
+            var seleccionados = clbTiposProveedor.CheckedItems
+                .OfType<Item>()
+                .Select(i => i.Id)
+                .ToHashSet();
+
+            return _tiposProveedor
+                .Where(tp => seleccionados.Contains(tp.IdTipoProveedor))
+                .ToList();
         }
 
         private string ObtenerCuitLimpio()

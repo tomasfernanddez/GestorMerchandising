@@ -1,6 +1,7 @@
 ﻿using BLL.Factories;
 using Services.BLL.Factories;
 using System;
+using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
@@ -35,6 +36,9 @@ namespace UI
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel stsUsuario;
         private ToolStripStatusLabel stsPerfil;
+
+        private Panel pnlContent;
+        private Form _formularioActual;
 
         public MainForm()
         {
@@ -115,10 +119,13 @@ namespace UI
 
                 logSvc.LogInfo("Abriendo formulario ABM Clientes", "Clientes", SessionContext.NombreUsuario);
 
-                using (var f = new ABMClientesForm(clienteSvc, bitacoraSvc, geoSvc, condicionIvaSvc))
-                    f.ShowDialog(this);
+                var f = new ABMClientesForm(clienteSvc, bitacoraSvc, geoSvc, condicionIvaSvc);
+                f.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado formulario ABM Clientes", "Clientes", SessionContext.NombreUsuario);
+                };
 
-                logSvc.LogInfo("Cerrado formulario ABM Clientes", "Clientes", SessionContext.NombreUsuario);
+                MostrarFormulario(f);
             }
             catch (Exception ex)
             {
@@ -140,10 +147,13 @@ namespace UI
 
                 logSvc.LogInfo("Abriendo formulario ABM Proveedores / Opening suppliers form", "Proveedores", SessionContext.NombreUsuario);
 
-                using (var f = new ABMProveedoresForm(proveedorSvc, bitacoraSvc, geoSvc, condicionIvaSvc))
-                    f.ShowDialog(this);
+                var f = new ABMProveedoresForm(proveedorSvc, bitacoraSvc, geoSvc, condicionIvaSvc);
+                f.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado formulario ABM Proveedores / Suppliers form closed", "Proveedores", SessionContext.NombreUsuario);
+                };
 
-                logSvc.LogInfo("Cerrado formulario ABM Proveedores / Suppliers form closed", "Proveedores", SessionContext.NombreUsuario);
+                MostrarFormulario(f);
             }
             catch (Exception ex)
             {
@@ -155,8 +165,8 @@ namespace UI
 
         private void AbrirProductos()
         {
-            using (var f = new ABMProductosForm())
-                f.ShowDialog(this);
+            var f = new ABMProductosForm();
+            MostrarFormulario(f);
         }
 
         private void ApplyTexts()
@@ -242,6 +252,44 @@ namespace UI
             }
         }
 
+        private void MostrarFormulario(Form formulario)
+        {
+            if (formulario == null)
+                return;
+
+            if (_formularioActual != null)
+            {
+                _formularioActual.FormClosed -= FormularioActual_FormClosed;
+                _formularioActual.Close();
+                _formularioActual.Dispose();
+                _formularioActual = null;
+            }
+
+            pnlContent?.Controls.Clear();
+
+            _formularioActual = formulario;
+            formulario.TopLevel = false;
+            formulario.FormBorderStyle = FormBorderStyle.None;
+            formulario.Dock = DockStyle.Fill;
+            formulario.ShowIcon = false;
+            formulario.ShowInTaskbar = false;
+            formulario.FormClosed += FormularioActual_FormClosed;
+
+            pnlContent?.Controls.Add(formulario);
+            formulario.BringToFront();
+            formulario.Show();
+        }
+
+        private void FormularioActual_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (sender == _formularioActual)
+            {
+                _formularioActual.FormClosed -= FormularioActual_FormClosed;
+                _formularioActual = null;
+                pnlContent?.Controls.Clear();
+            }
+        }
+
         // ============================================================
         // InitializeComponent: diseño simple con MenuStrip y StatusStrip
         // ============================================================
@@ -269,6 +317,7 @@ namespace UI
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.stsUsuario = new System.Windows.Forms.ToolStripStatusLabel();
             this.stsPerfil = new System.Windows.Forms.ToolStripStatusLabel();
+            this.pnlContent = new System.Windows.Forms.Panel();
 
             // MenuStrip
             this.menuStrip1.Items.AddRange(new ToolStripItem[] {
@@ -277,6 +326,7 @@ namespace UI
                 this.mnuSeguridad,
                 this.mnuIdioma
             });
+            this.menuStrip1.Dock = DockStyle.Top;
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
 
@@ -332,7 +382,7 @@ namespace UI
                 this.stsUsuario,
                 this.stsPerfil
             });
-            this.statusStrip1.Location = new System.Drawing.Point(0, 428);
+            this.statusStrip1.Dock = DockStyle.Bottom;
             this.statusStrip1.Name = "statusStrip1";
 
             this.stsUsuario.Name = "stsUsuario";
@@ -340,8 +390,17 @@ namespace UI
             this.stsPerfil.Name = "stsPerfil";
             this.stsPerfil.Text = "Perfil: -";
 
+            // pnlContent
+            this.pnlContent.Dock = DockStyle.Fill;
+            this.pnlContent.Location = new System.Drawing.Point(0, 24);
+            this.pnlContent.Name = "pnlContent";
+            this.pnlContent.Size = new System.Drawing.Size(900, 404);
+            this.pnlContent.BackColor = System.Drawing.SystemColors.Window;
+            this.pnlContent.TabIndex = 2;
+
             // MainForm
             this.ClientSize = new System.Drawing.Size(900, 450);
+            this.Controls.Add(this.pnlContent);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -367,8 +426,13 @@ namespace UI
                 var bitacoraSvc = ServicesFactory.CrearBitacoraService();
                 var logSvc = ServicesFactory.CrearLogService();
 
-                using (var f = new ABMUsuariosForm(usuarioSvc, perfilSvc, bitacoraSvc, logSvc))
-                    f.ShowDialog(this);
+                var f = new ABMUsuariosForm(usuarioSvc, perfilSvc, bitacoraSvc, logSvc);
+                f.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado formulario ABM Usuarios", "Seguridad", SessionContext.NombreUsuario);
+                };
+
+                MostrarFormulario(f);
             }
             catch (Exception ex)
             {
@@ -394,8 +458,13 @@ namespace UI
                 var bitacoraSvc = ServicesFactory.CrearBitacoraService();
                 var logSvc = ServicesFactory.CrearLogService();
 
-                using (var f = new LogsBitacoraForm(bitacoraSvc, logSvc))
-                    f.ShowDialog(this);
+                var f = new LogsBitacoraForm(bitacoraSvc, logSvc);
+                f.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado formulario Logs y Bitácora", "Seguridad", SessionContext.NombreUsuario);
+                };
+
+                MostrarFormulario(f);
             }
             catch (Exception ex)
             {

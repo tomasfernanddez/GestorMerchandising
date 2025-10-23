@@ -46,19 +46,17 @@ namespace DomainModel
 
         public DateTime FechaAlta { get; set; } = DateTime.Now;
 
-        public Guid? IdTipoProveedor { get; set; }
-
         public Guid? IdPais { get; set; }
         public Guid? IdProvincia { get; set; }
         public Guid? IdLocalidad { get; set; }
 
         // Navegación
-        public virtual TipoProveedor TipoProveedor { get; set; }
         public virtual CondicionIva CondicionIva { get; set; }
         public virtual Pais Pais { get; set; }
         public virtual Provincia Provincia { get; set; }
         public virtual Localidad LocalidadRef { get; set; }
 
+        public virtual ICollection<TipoProveedor> TiposProveedor { get; set; } = new List<TipoProveedor>();
         public virtual ICollection<TecnicaPersonalizacion> TecnicasPersonalizacion { get; set; } = new List<TecnicaPersonalizacion>();
 
         public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();

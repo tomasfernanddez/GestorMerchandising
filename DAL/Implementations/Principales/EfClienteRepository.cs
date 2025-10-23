@@ -21,6 +21,7 @@ namespace DAL.Implementations.Principales
         {
             return _dbSet.Where(c => c.Activo == true)
                         .Include(c => c.TipoEmpresa)
+                        .Include(c => c.CondicionIva)
                         .OrderBy(c => c.RazonSocial)
                         .ToList();
         }
@@ -30,6 +31,7 @@ namespace DAL.Implementations.Principales
         {
             return await _dbSet.Where(c => c.Activo == true)
                               .Include(c => c.TipoEmpresa)
+                              .Include(c => c.CondicionIva)
                               .OrderBy(c => c.RazonSocial)
                               .ToListAsync();
         }
@@ -65,6 +67,7 @@ namespace DAL.Implementations.Principales
                 return null;
 
             return _dbSet.Include(c => c.TipoEmpresa)
+                        .Include(c => c.CondicionIva)
                         .FirstOrDefault(c => c.CUIT == cuit.Trim());
         }
 
@@ -77,7 +80,8 @@ namespace DAL.Implementations.Principales
                 return null;
 
             return await _dbSet.Include(c => c.TipoEmpresa)
-                              .FirstOrDefaultAsync(c => c.CUIT == cuit.Trim());
+                            .Include(c => c.CondicionIva)
+                            .FirstOrDefaultAsync(c => c.CUIT == cuit.Trim());
         }
 
         /// <summary>
@@ -92,6 +96,7 @@ namespace DAL.Implementations.Principales
 
             return _dbSet.Where(c => c.RazonSocial.ToLower().Contains(termino))
                         .Include(c => c.TipoEmpresa)
+                        .Include(c => c.CondicionIva)
                         .OrderBy(c => c.RazonSocial)
                         .ToList();
         }
@@ -108,6 +113,7 @@ namespace DAL.Implementations.Principales
 
             return await _dbSet.Where(c => c.RazonSocial.ToLower().Contains(termino))
                               .Include(c => c.TipoEmpresa)
+                              .Include(c => c.CondicionIva)
                               .OrderBy(c => c.RazonSocial)
                               .ToListAsync();
         }
