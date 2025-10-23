@@ -17,9 +17,9 @@ namespace BLL.Interfaces
         Task<IEnumerable<Proveedor>> BuscarProveedoresAsync(string razonSocial, string cuit, Guid? idTipoProveedor, bool? activo);
         Proveedor ObtenerProveedorPorCUIT(string cuit);
         Task<Proveedor> ObtenerProveedorPorCUITAsync(string cuit);
-        ResultadoOperacion CrearProveedor(Proveedor proveedor, IEnumerable<Guid> tecnicasPersonalizacion);
-        Task<ResultadoOperacion> CrearProveedorAsync(Proveedor proveedor, IEnumerable<Guid> tecnicasPersonalizacion);
-        ResultadoOperacion ActualizarProveedor(Proveedor proveedor, IEnumerable<Guid> tecnicasPersonalizacion);
+        ResultadoOperacion CrearProveedor(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion);
+        Task<ResultadoOperacion> CrearProveedorAsync(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion);
+        ResultadoOperacion ActualizarProveedor(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion);
         ResultadoOperacion DesactivarProveedor(Guid idProveedor);
         ResultadoOperacion ActivarProveedor(Guid idProveedor);
         IEnumerable<TipoProveedor> ObtenerTiposProveedor();

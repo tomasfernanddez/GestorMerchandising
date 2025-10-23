@@ -197,11 +197,16 @@ namespace DAL
                 .WithMany(te => te.Clientes)
                 .HasForeignKey(c => c.IdTipoEmpresa);
 
-            // Proveedor -> TipoProveedor
+            // Proveedor -> Tipos de proveedor (Many-to-Many)
             modelBuilder.Entity<Proveedor>()
-                .HasOptional(p => p.TipoProveedor)
+                .HasMany(p => p.TiposProveedor)
                 .WithMany(tp => tp.Proveedores)
-                .HasForeignKey(p => p.IdTipoProveedor);
+                .Map(m =>
+                {
+                    m.ToTable("ProveedorTipoProveedor");
+                    m.MapLeftKey("IdProveedor");
+                    m.MapRightKey("IdTipoProveedor");
+                });
 
             // Proveedor -> Condicion IVA
             modelBuilder.Entity<Proveedor>()

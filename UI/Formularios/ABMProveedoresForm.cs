@@ -198,7 +198,7 @@ namespace UI
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogInfo("Cargando proveedores / Loading suppliers", "Proveedores", SessionContext.NombreUsuario);
 
-                var estadoSeleccionado = (cboFiltroEstado.SelectedItem as ComboItem)?.Estado;
+                var estadoSeleccionado = (cboFiltroEstado.ComboBox.SelectedItem as ComboItem)?.Estado;
                 var tipoSeleccionado = cboFiltroTipo.ComboBox.SelectedItem as DomainModel.Entidades.TipoProveedor;
                 Guid? idTipo = tipoSeleccionado != null && tipoSeleccionado.IdTipoProveedor != Guid.Empty
                     ? tipoSeleccionado.IdTipoProveedor
@@ -216,7 +216,9 @@ namespace UI
                         IdProveedor = p.IdProveedor,
                         RazonSocial = p.RazonSocial,
                         CUIT = FormatearCuit(p.CUIT),
-                        TipoProveedor = p.TipoProveedor?.TipoProveedorNombre ?? string.Empty,
+                        TipoProveedor = string.Join(", ",
+                            (p.TiposProveedor ?? Enumerable.Empty<DomainModel.Entidades.TipoProveedor>())
+                                .Select(tp => tp.TipoProveedorNombre)) ?? string.Empty,
                         Localidad = p.LocalidadRef?.Nombre ?? p.Localidad,
                         Estado = p.Activo ? "supplier.status.active".Traducir() : "supplier.status.inactive".Traducir(),
                         Activo = p.Activo

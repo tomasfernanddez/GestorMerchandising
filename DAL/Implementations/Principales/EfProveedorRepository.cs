@@ -18,7 +18,7 @@ namespace DAL.Implementations.Principales
         private IQueryable<Proveedor> QueryBase()
         {
             return _dbSet
-                .Include(p => p.TipoProveedor)
+                .Include(p => p.TiposProveedor)
                 .Include(p => p.Pais)
                 .Include(p => p.Provincia)
                 .Include(p => p.LocalidadRef)
@@ -44,7 +44,7 @@ namespace DAL.Implementations.Principales
         public IEnumerable<Proveedor> GetProveedoresPorTipo(Guid idTipoProveedor)
         {
             return QueryBase()
-                .Where(p => p.IdTipoProveedor == idTipoProveedor && p.Activo)
+                .Where(p => p.TiposProveedor.Any(tp => tp.IdTipoProveedor == idTipoProveedor) && p.Activo)
                 .OrderBy(p => p.RazonSocial)
                 .ToList();
         }
@@ -52,7 +52,7 @@ namespace DAL.Implementations.Principales
         public async Task<IEnumerable<Proveedor>> GetProveedoresPorTipoAsync(Guid idTipoProveedor)
         {
             return await QueryBase()
-                .Where(p => p.IdTipoProveedor == idTipoProveedor && p.Activo)
+                .Where(p => p.TiposProveedor.Any(tp => tp.IdTipoProveedor == idTipoProveedor) && p.Activo)
                 .OrderBy(p => p.RazonSocial)
                 .ToListAsync();
         }
@@ -155,7 +155,8 @@ namespace DAL.Implementations.Principales
 
             if (idTipoProveedor.HasValue && idTipoProveedor.Value != Guid.Empty)
             {
-                query = query.Where(p => p.IdTipoProveedor == idTipoProveedor.Value);
+                var id = idTipoProveedor.Value;
+                query = query.Where(p => p.TiposProveedor.Any(tp => tp.IdTipoProveedor == id));
             }
 
             if (activo.HasValue)
@@ -186,7 +187,8 @@ namespace DAL.Implementations.Principales
 
             if (idTipoProveedor.HasValue && idTipoProveedor.Value != Guid.Empty)
             {
-                query = query.Where(p => p.IdTipoProveedor == idTipoProveedor.Value);
+                var id = idTipoProveedor.Value;
+                query = query.Where(p => p.TiposProveedor.Any(tp => tp.IdTipoProveedor == id));
             }
 
             if (activo.HasValue)

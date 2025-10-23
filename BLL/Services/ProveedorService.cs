@@ -75,11 +75,11 @@ namespace BLL.Services
             return await _unitOfWork.Proveedores.GetProveedorPorCUITAsync(limpio);
         }
 
-        public ResultadoOperacion CrearProveedor(Proveedor proveedor, IEnumerable<Guid> tecnicasPersonalizacion)
+        public ResultadoOperacion CrearProveedor(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion)
         {
             try
             {
-                var resultadoValidacion = ValidarProveedor(proveedor, tecnicasPersonalizacion);
+                var resultadoValidacion = ValidarProveedor(proveedor, tiposProveedor, tecnicasPersonalizacion);
                 if (!resultadoValidacion.EsValido)
                     return resultadoValidacion;
 
@@ -97,6 +97,7 @@ namespace BLL.Services
                 proveedor.CodigoPostal = proveedor.CodigoPostal?.Trim();
                 proveedor.Localidad = proveedor.Localidad?.Trim();
 
+                SincronizarTipos(proveedor, tiposProveedor);
                 SincronizarTecnicas(proveedor, tecnicasPersonalizacion);
 
                 _unitOfWork.Proveedores.Add(proveedor);
@@ -110,11 +111,11 @@ namespace BLL.Services
             }
         }
 
-        public async Task<ResultadoOperacion> CrearProveedorAsync(Proveedor proveedor, IEnumerable<Guid> tecnicasPersonalizacion)
+        public async Task<ResultadoOperacion> CrearProveedorAsync(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion)
         {
             try
             {
-                var resultadoValidacion = ValidarProveedor(proveedor, tecnicasPersonalizacion);
+                var resultadoValidacion = ValidarProveedor(proveedor, tiposProveedor, tecnicasPersonalizacion);
                 if (!resultadoValidacion.EsValido)
                     return resultadoValidacion;
 
@@ -132,6 +133,7 @@ namespace BLL.Services
                 proveedor.CodigoPostal = proveedor.CodigoPostal?.Trim();
                 proveedor.Localidad = proveedor.Localidad?.Trim();
 
+                SincronizarTipos(proveedor, tiposProveedor);
                 SincronizarTecnicas(proveedor, tecnicasPersonalizacion);
 
                 _unitOfWork.Proveedores.Add(proveedor);
@@ -145,16 +147,17 @@ namespace BLL.Services
             }
         }
 
-        public ResultadoOperacion ActualizarProveedor(Proveedor proveedor, IEnumerable<Guid> tecnicasPersonalizacion)
+        public ResultadoOperacion ActualizarProveedor(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion)
         {
             try
             {
-                var resultadoValidacion = ValidarProveedor(proveedor, tecnicasPersonalizacion, esActualizacion: true);
+                var resultadoValidacion = ValidarProveedor(proveedor, tiposProveedor, tecnicasPersonalizacion, esActualizacion: true);
                 if (!resultadoValidacion.EsValido)
                     return resultadoValidacion;
 
                 var proveedorExistente = _unitOfWork.Set<Proveedor>()
                     .Include(p => p.TecnicasPersonalizacion)
+                    .Include(p => p.TiposProveedor)
                     .FirstOrDefault(p => p.IdProveedor == proveedor.IdProveedor);
 
                 if (proveedorExistente == null)
@@ -174,11 +177,11 @@ namespace BLL.Services
                 proveedorExistente.IdPais = proveedor.IdPais;
                 proveedorExistente.IdProvincia = proveedor.IdProvincia;
                 proveedorExistente.IdLocalidad = proveedor.IdLocalidad;
-                proveedorExistente.IdTipoProveedor = proveedor.IdTipoProveedor;
                 proveedorExistente.CondicionesPago = NormalizarCondicionPago(proveedor.CondicionesPago);
                 proveedorExistente.Observaciones = proveedor.Observaciones?.Trim();
                 proveedorExistente.Activo = proveedor.Activo;
 
+                SincronizarTipos(proveedorExistente, tiposProveedor);
                 ActualizarTecnicas(proveedorExistente, tecnicasPersonalizacion);
 
                 _unitOfWork.Proveedores.Update(proveedorExistente);
@@ -266,7 +269,7 @@ namespace BLL.Services
                 .ToListAsync();
         }
 
-        private ResultadoOperacion ValidarProveedor(Proveedor proveedor, IEnumerable<Guid> tecnicasSeleccionadas, bool esActualizacion = false)
+        private ResultadoOperacion ValidarProveedor(Proveedor proveedor, IEnumerable<Guid> tiposSeleccionados, IEnumerable<Guid> tecnicasSeleccionadas, bool esActualizacion = false)
         {
             if (proveedor == null)
                 return ResultadoOperacion.Error("El proveedor no puede ser nulo");
@@ -300,14 +303,22 @@ namespace BLL.Services
             if (proveedor.IdLocalidad == null || proveedor.IdLocalidad == Guid.Empty)
                 return ResultadoOperacion.Error("Debe seleccionar una localidad");
 
-            if (proveedor.IdTipoProveedor == null || proveedor.IdTipoProveedor == Guid.Empty)
-                return ResultadoOperacion.Error("Debe seleccionar un tipo de proveedor");
+            var idsTipos = tiposSeleccionados?
+                .Where(id => id != Guid.Empty)
+                .Distinct()
+                .ToList();
 
-            var tipo = _unitOfWork.TiposProveedor.GetById(proveedor.IdTipoProveedor.Value);
-            if (tipo == null)
-                return ResultadoOperacion.Error("El tipo de proveedor seleccionado no existe");
+            if (idsTipos == null || !idsTipos.Any())
+                return ResultadoOperacion.Error("Debe seleccionar al menos un tipo de proveedor");
 
-            if (ProveedorCatalogoHelper.EsTipoPersonalizador(tipo))
+            var tipos = _unitOfWork.Set<TipoProveedor>()
+                .Where(tp => idsTipos.Contains(tp.IdTipoProveedor))
+                .ToList();
+
+            if (tipos.Count != idsTipos.Count)
+                return ResultadoOperacion.Error("Alguno de los tipos de proveedor seleccionados no existe");
+
+            if (tipos.Any(ProveedorCatalogoHelper.EsTipoPersonalizador))
             {
                 if (tecnicasSeleccionadas == null || !tecnicasSeleccionadas.Any())
                     return ResultadoOperacion.Error("Debe seleccionar al menos una técnica de personalización");
@@ -360,6 +371,34 @@ namespace BLL.Services
             foreach (var tecnica in tecnicas)
             {
                 proveedor.TecnicasPersonalizacion.Add(tecnica);
+            }
+        }
+
+        private void SincronizarTipos(Proveedor proveedor, IEnumerable<Guid> tiposSeleccionados)
+        {
+            if (proveedor == null)
+                return;
+
+            proveedor.TiposProveedor.Clear();
+
+            if (tiposSeleccionados == null)
+                return;
+
+            var ids = tiposSeleccionados
+                .Where(id => id != Guid.Empty)
+                .Distinct()
+                .ToList();
+
+            if (!ids.Any())
+                return;
+
+            var tipos = _unitOfWork.Set<TipoProveedor>()
+                .Where(tp => ids.Contains(tp.IdTipoProveedor))
+                .ToList();
+
+            foreach (var tipo in tipos)
+            {
+                proveedor.TiposProveedor.Add(tipo);
             }
         }
 

@@ -49,6 +49,7 @@ namespace UI
             public string Localidad { get; set; }
             public string Provincia { get; set; }
             public string Pais { get; set; }
+            public string CondicionIva { get; set; }
             public bool Activo { get; set; }
         }
 
@@ -118,6 +119,15 @@ namespace UI
 
             dgvClientes.Columns.Add(new DataGridViewTextBoxColumn
             {
+                DataPropertyName = nameof(ClienteGridRow.CondicionIva),
+                Name = "CondicionIva",
+                HeaderText = "CondicionIVA",
+                FillWeight = 120,
+                MinimumWidth = 110
+            });
+
+            dgvClientes.Columns.Add(new DataGridViewTextBoxColumn
+            {
                 DataPropertyName = nameof(ClienteGridRow.Provincia),
                 Name = "Provincia",
                 HeaderText = "Provincia",
@@ -154,6 +164,7 @@ namespace UI
             dgvClientes.Columns["Localidad"].HeaderText = "cliente.localidad".Traducir();
             dgvClientes.Columns["Provincia"].HeaderText = "cliente.provincia".Traducir();
             dgvClientes.Columns["Pais"].HeaderText = "cliente.pais".Traducir();
+            dgvClientes.Columns["CondicionIva"].HeaderText = "cliente.condicionIVA".Traducir();
             dgvClientes.Columns["Activo"].HeaderText = "cliente.activo".Traducir();
 
             // Usa un helper que no rompe si la columna no existe
@@ -194,42 +205,8 @@ namespace UI
 
                 var clientes = _clienteService.ObtenerClientesActivos()?.ToList() ?? new List<Cliente>();
 
-                // Cache de catálogos
-                var paises = _geoSvc.ListarPaises() ?? new List<GeoDTO>();
-                var dPais = paises.ToDictionary(x => x.Id, x => x.Nombre);
-
-                var dProv = new Dictionary<Guid, string>();
-                var dLoc = new Dictionary<Guid, string>();
-
-                foreach (var pais in paises)
-                {
-                    var provincias = _geoSvc.ListarProvinciasPorPais(pais.Id) ?? new List<GeoDTO>();
-                    foreach (var prov in provincias)
-                    {
-                        if (!dProv.ContainsKey(prov.Id))
-                            dProv[prov.Id] = prov.Nombre;
-
-                        var localidades = _geoSvc.ListarLocalidadesPorProvincia(prov.Id) ?? new List<GeoDTO>();
-                        foreach (var loc in localidades)
-                        {
-                            if (!dLoc.ContainsKey(loc.Id))
-                                dLoc[loc.Id] = loc.Nombre;
-                        }
-                    }
-                }
-
-                // Proyección para el grid
-                var rows = clientes.Select(c => new ClienteGridRow
-                {
-                    IdCliente = c.IdCliente,
-                    RazonSocial = c.RazonSocial,
-                    CUIT = c.CUIT,
-                    Domicilio = c.Domicilio,
-                    Localidad = (c.IdLocalidad.HasValue && dLoc.ContainsKey(c.IdLocalidad.Value)) ? dLoc[c.IdLocalidad.Value] : (c.Localidad ?? ""),
-                    Provincia = (c.IdProvincia.HasValue && dProv.ContainsKey(c.IdProvincia.Value)) ? dProv[c.IdProvincia.Value] : "",
-                    Pais = (c.IdPais.HasValue && dPais.ContainsKey(c.IdPais.Value)) ? dPais[c.IdPais.Value] : "",
-                    Activo = c.Activo
-                }).ToList();
+                var (dPais, dProv, dLoc) = ConstruirMapeosGeograficos();
+                var rows = ProyectarClientes(clientes, dPais, dProv, dLoc);
 
                 bsClientes.DataSource = rows;
 
@@ -256,12 +233,81 @@ namespace UI
 
                 // búsqueda por razón social desde BLL
                 var data = _clienteService.BuscarClientesPorRazonSocial(filtro) ?? Enumerable.Empty<Cliente>();
-                bsClientes.DataSource = data.ToList();
+                var (dPais, dProv, dLoc) = ConstruirMapeosGeograficos();
+                bsClientes.DataSource = ProyectarClientes(data, dPais, dProv, dLoc);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private (Dictionary<Guid, string> dPais, Dictionary<Guid, string> dProv, Dictionary<Guid, string> dLoc) ConstruirMapeosGeograficos()
+        {
+            var paises = _geoSvc.ListarPaises() ?? new List<GeoDTO>();
+            var dPais = paises.ToDictionary(x => x.Id, x => x.Nombre);
+
+            var dProv = new Dictionary<Guid, string>();
+            var dLoc = new Dictionary<Guid, string>();
+
+            foreach (var pais in paises)
+            {
+                var provincias = _geoSvc.ListarProvinciasPorPais(pais.Id) ?? new List<GeoDTO>();
+                foreach (var prov in provincias)
+                {
+                    if (!dProv.ContainsKey(prov.Id))
+                        dProv[prov.Id] = prov.Nombre;
+
+                    var localidades = _geoSvc.ListarLocalidadesPorProvincia(prov.Id) ?? new List<GeoDTO>();
+                    foreach (var loc in localidades)
+                    {
+                        if (!dLoc.ContainsKey(loc.Id))
+                            dLoc[loc.Id] = loc.Nombre;
+                    }
+                }
+            }
+
+            return (dPais, dProv, dLoc);
+        }
+
+        private static List<ClienteGridRow> ProyectarClientes(IEnumerable<Cliente> clientes,
+            Dictionary<Guid, string> dPais,
+            Dictionary<Guid, string> dProv,
+            Dictionary<Guid, string> dLoc)
+        {
+            var resultado = new List<ClienteGridRow>();
+
+            foreach (var c in clientes ?? Enumerable.Empty<Cliente>())
+            {
+                var localidad = string.Empty;
+                if (c.IdLocalidad.HasValue && dLoc.TryGetValue(c.IdLocalidad.Value, out var locNombre))
+                    localidad = locNombre;
+                else if (!string.IsNullOrWhiteSpace(c.Localidad))
+                    localidad = c.Localidad;
+
+                var provincia = string.Empty;
+                if (c.IdProvincia.HasValue && dProv.TryGetValue(c.IdProvincia.Value, out var provNombre))
+                    provincia = provNombre;
+
+                var pais = string.Empty;
+                if (c.IdPais.HasValue && dPais.TryGetValue(c.IdPais.Value, out var paisNombre))
+                    pais = paisNombre;
+
+                resultado.Add(new ClienteGridRow
+                {
+                    IdCliente = c.IdCliente,
+                    RazonSocial = c.RazonSocial,
+                    CUIT = c.CUIT,
+                    Domicilio = c.Domicilio,
+                    Localidad = localidad,
+                    Provincia = provincia,
+                    Pais = pais,
+                    CondicionIva = c.CondicionIva?.Nombre ?? string.Empty,
+                    Activo = c.Activo
+                });
+            }
+
+            return resultado;
         }
 
         private ClienteGridRow GetSeleccionado()
