@@ -21,7 +21,7 @@ namespace UI
         private Label lblLocalidad;
         private ComboBox cboLocalidad;
         private Label lblCondIVA;
-        private TextBox txtCondIVA;
+        private ComboBox cboCondIVA;
         private CheckBox chkActivo;
         private Button btnGuardar;
         private Button btnCancelar;
@@ -49,7 +49,7 @@ namespace UI
             this.lblLocalidad = new System.Windows.Forms.Label();
             this.cboLocalidad = new System.Windows.Forms.ComboBox();
             this.lblCondIVA = new System.Windows.Forms.Label();
-            this.txtCondIVA = new System.Windows.Forms.TextBox();
+            this.cboCondIVA = new System.Windows.Forms.ComboBox();
             this.chkActivo = new System.Windows.Forms.CheckBox();
             this.btnGuardar = new System.Windows.Forms.Button();
             this.btnCancelar = new System.Windows.Forms.Button();
@@ -168,12 +168,14 @@ namespace UI
             this.lblCondIVA.Text = "cliente.condicionIVA";
             this.lblCondIVA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // txtCondIVA
-            // 
-            this.txtCondIVA.Location = new System.Drawing.Point(140, 224);
-            this.txtCondIVA.Name = "txtCondIVA";
-            this.txtCondIVA.Size = new System.Drawing.Size(180, 20);
-            this.txtCondIVA.TabIndex = 13;
+            // cboCondIVA
+            //
+            this.cboCondIVA.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboCondIVA.FormattingEnabled = true;
+            this.cboCondIVA.Location = new System.Drawing.Point(140, 224);
+            this.cboCondIVA.Name = "cboCondIVA";
+            this.cboCondIVA.Size = new System.Drawing.Size(220, 21);
+            this.cboCondIVA.TabIndex = 13;
             // 
             // chkActivo
             // 
@@ -218,7 +220,7 @@ namespace UI
             this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.btnGuardar);
             this.Controls.Add(this.chkActivo);
-            this.Controls.Add(this.txtCondIVA);
+            this.Controls.Add(this.cboCondIVA);
             this.Controls.Add(this.lblCondIVA);
             this.Controls.Add(this.cboLocalidad);
             this.Controls.Add(this.lblLocalidad);

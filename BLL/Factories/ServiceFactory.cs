@@ -68,14 +68,20 @@ namespace BLL.Factories
             return new ClienteService(uow);
         }
 
-        // TODO: Agregar cuando se implementen
-        /*
         public static IProveedorService CrearProveedorService()
         {
-            var uow = CrearUnitOfWork();
+            var uow = CrearUnitOfWorkNegocio();
             return new ProveedorService(uow);
         }
 
+        public static ICondicionIvaService CrearCondicionIvaService()
+        {
+            var uow = CrearUnitOfWorkNegocio();
+            return new CondicionIvaService(uow);
+        }
+
+        // TODO: Agregar cuando se implementen
+        /*
         public static IProductoService CrearProductoService()
         {
             var uow = CrearUnitOfWork();

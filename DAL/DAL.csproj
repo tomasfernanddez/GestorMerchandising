@@ -57,7 +57,10 @@
     <Compile Include="Implementations\Base\EfRepository.cs" />
     <Compile Include="Implementations\Base\EfUnitOfWork.cs" />
     <Compile Include="Implementations\Principales\EfClienteRepository.cs" />
+    <Compile Include="Implementations\Referencia\EfCondicionIvaRepository.cs" />
+    <Compile Include="Implementations\Principales\EfProveedorRepository.cs" />
     <Compile Include="Implementations\Referencia\EfTipoEmpresaRepository.cs" />
+    <Compile Include="Implementations\Referencia\EfTipoProveedorRepository.cs" />
     <Compile Include="Interfaces\Base\IHasDbContext.cs" />
     <Compile Include="Interfaces\Base\IRepository.cs" />
     <Compile Include="Interfaces\Base\IUnitOfWork.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="Interfaces\Principales\IProductoRepository.cs" />
     <Compile Include="Interfaces\Principales\IProveedorRepository.cs" />
     <Compile Include="Interfaces\Referencia\ICategoriaProductoRepository.cs" />
+    <Compile Include="Interfaces\Referencia\ICondicionIvaRepository.cs" />
     <Compile Include="Interfaces\Referencia\IEstadoPedidoRepository.cs" />
     <Compile Include="Interfaces\Referencia\IEstadoProductoRepository.cs" />
     <Compile Include="Interfaces\Referencia\ITipoEmpresaRepository.cs" />
@@ -85,7 +89,13 @@
     <Compile Include="Migrations\202509250016482_Baseline1.Designer.cs">
       <DependentUpon>202509250016482_Baseline1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510222330222_Proveedor.cs" />
+    <Compile Include="Migrations\202510222330222_Proveedor.Designer.cs">
+      <DependentUpon>202510222330222_Proveedor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
+    <Compile Include="Migrations\AgregarModuloProveedores.cs" />
     <Compile Include="Migrations\AgregarPatronCompositePersonalizacion.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -110,6 +120,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509250016482_Baseline1.resx">
       <DependentUpon>202509250016482_Baseline1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510222330222_Proveedor.resx">
+      <DependentUpon>202510222330222_Proveedor.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

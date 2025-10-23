@@ -19,8 +19,10 @@ namespace UI
         private readonly IClienteService _clienteService;
         private readonly IBitacoraService _bitacora;
         private readonly IGeoService _geoService;
+        private readonly ICondicionIvaService _condicionIvaService;
         private readonly bool _esEdicion;
         private Cliente _model;
+        private IList<CondicionIva> _condicionesIva = new List<CondicionIva>();
 
         private class Item { public Guid Id { get; set; } public string Nombre { get; set; } }
 
@@ -29,11 +31,12 @@ namespace UI
             InitializeComponent();
         }
 
-        public ClienteForm(IClienteService clienteService, IBitacoraService bitacora, IGeoService geoService, Cliente cliente)
+        public ClienteForm(IClienteService clienteService, IBitacoraService bitacora, IGeoService geoService, ICondicionIvaService condicionIvaService, Cliente cliente)
         {
             _clienteService = clienteService ?? throw new ArgumentNullException(nameof(clienteService));
             _bitacora = bitacora ?? throw new ArgumentNullException(nameof(bitacora));
             _geoService = geoService ?? throw new ArgumentNullException(nameof(geoService));
+            _condicionIvaService = condicionIvaService ?? throw new ArgumentNullException(nameof(condicionIvaService));
             _model = cliente;
             _esEdicion = cliente != null;
 
@@ -44,6 +47,7 @@ namespace UI
         private void ClienteForm_Load(object sender, EventArgs e)
         {
             ApplyTexts();
+            CargarCondicionIVA();
             CargarCombosGeo();  // País -> Prov -> Loc
             CargarModelo();
             WireUp();
@@ -68,13 +72,15 @@ namespace UI
             {
                 _model = new Cliente { Activo = true };
                 chkActivo.Checked = true;
+                if (cboCondIVA.Items.Count > 0)
+                    cboCondIVA.SelectedIndex = 0;
                 return;
             }
 
             txtRazon.Text = _model.RazonSocial;
             txtCUIT.Text = _model.CUIT;
             txtDomicilio.Text = _model.Domicilio;
-            txtCondIVA.Text = _model.CondicionIva;
+            SeleccionarCondicionIva(_model.IdCondicionIva);
             chkActivo.Checked = _model.Activo;
 
             // País (dispara provincias)
@@ -131,6 +137,7 @@ namespace UI
                 var digits = Regex.Replace(txtCUIT.Text, "[^0-9]", "");
                 if (digits.Length != 11) { errorProvider1.SetError(txtCUIT, "msg.cuit_invalid".Traducir()); ok = false; }
             }
+            if (cboCondIVA.SelectedItem == null) { errorProvider1.SetError(cboCondIVA, "msg.required".Traducir()); ok = false; }
             if (cboPais.SelectedItem == null) { errorProvider1.SetError(cboPais, "msg.required".Traducir()); ok = false; }
             if (cboProvincia.SelectedItem == null) { errorProvider1.SetError(cboProvincia, "msg.required".Traducir()); ok = false; }
             if (cboLocalidad.SelectedItem == null) { errorProvider1.SetError(cboLocalidad, "msg.required".Traducir()); ok = false; }
@@ -151,7 +158,8 @@ namespace UI
                 _model.RazonSocial = txtRazon.Text.Trim();
                 _model.CUIT = Regex.Replace(txtCUIT.Text, "[^0-9]", "");
                 _model.Domicilio = txtDomicilio.Text.Trim();
-                _model.CondicionIva = txtCondIVA.Text.Trim();
+                var condicionSeleccionada = cboCondIVA.SelectedItem as Item;
+                _model.IdCondicionIva = condicionSeleccionada?.Id ?? Guid.Empty;
                 _model.Activo = chkActivo.Checked;
                 _model.IdPais = itPais?.Id;
                 _model.IdProvincia = itProv?.Id;
@@ -205,6 +213,17 @@ namespace UI
             if (cboPais.Items.Count > 0) cboPais.SelectedIndex = 0;
         }
 
+        private void CargarCondicionIVA()
+        {
+            _condicionesIva = _condicionIvaService.ObtenerTodas()?.ToList() ?? new List<CondicionIva>();
+            cboCondIVA.DisplayMember = nameof(CondicionIva.Nombre);
+            cboCondIVA.ValueMember = nameof(CondicionIva.IdCondicionIva);
+            cboCondIVA.DataSource = _condicionesIva.Select(ci => new Item { Id = ci.IdCondicionIva, Nombre = ci.Nombre }).ToList();
+
+            if (cboCondIVA.Items.Count > 0)
+                cboCondIVA.SelectedIndex = 0;
+        }
+
         private void CargarProvincias()
         {
             cboProvincia.DataSource = null; cboLocalidad.DataSource = null;
@@ -231,6 +250,21 @@ namespace UI
             cboLocalidad.DataSource = localidades.Select(x => new Item { Id = x.Id, Nombre = x.Nombre }).ToList();
 
             if (cboLocalidad.Items.Count > 0) cboLocalidad.SelectedIndex = 0;
+        }
+
+        private void SeleccionarCondicionIva(Guid idCondicion)
+        {
+            if (idCondicion == Guid.Empty)
+                return;
+
+            for (int i = 0; i < cboCondIVA.Items.Count; i++)
+            {
+                if (cboCondIVA.Items[i] is Item item && item.Id == idCondicion)
+                {
+                    cboCondIVA.SelectedIndex = i;
+                    return;
+                }
+            }
         }
     }
 }

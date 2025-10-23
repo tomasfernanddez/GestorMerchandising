@@ -90,13 +90,14 @@ namespace BLL.Services
         {
             try
             {
+                NormalizarCliente(cliente);
                 var validacion = ValidarCliente(cliente);
                 if (!validacion.EsValido)
                     return validacion;
 
                 if (_unitOfWork.Clientes.ExisteCUIT(cliente.CUIT))
                 {
-                    return ResultadoOperacion.Error($"Ya existe un cliente con el CUIT {cliente.CUIT}");
+                    return ResultadoOperacion.Error($"Ya existe un cliente con el CUIT {FormatearCuit(cliente.CUIT)}");
                 }
 
                 cliente.IdCliente = Guid.NewGuid();
@@ -117,13 +118,14 @@ namespace BLL.Services
         {
             try
             {
+                NormalizarCliente(cliente);
                 var validacion = ValidarCliente(cliente);
                 if (!validacion.EsValido)
                     return validacion;
 
                 if (await _unitOfWork.Clientes.ExisteCUITAsync(cliente.CUIT))
                 {
-                    return ResultadoOperacion.Error($"Ya existe un cliente con el CUIT {cliente.CUIT}");
+                    return ResultadoOperacion.Error($"Ya existe un cliente con el CUIT {FormatearCuit(cliente.CUIT)}");
                 }
 
                 cliente.IdCliente = Guid.NewGuid();
@@ -144,6 +146,7 @@ namespace BLL.Services
         {
             try
             {
+                NormalizarCliente(cliente);
                 var validacion = ValidarCliente(cliente);
                 if (!validacion.EsValido)
                     return validacion;
@@ -157,7 +160,7 @@ namespace BLL.Services
                 var clienteConMismoCUIT = _unitOfWork.Clientes.GetClientePorCUIT(cliente.CUIT);
                 if (clienteConMismoCUIT != null && clienteConMismoCUIT.IdCliente != cliente.IdCliente)
                 {
-                    return ResultadoOperacion.Error($"Ya existe otro cliente con el CUIT {cliente.CUIT}");
+                    return ResultadoOperacion.Error($"Ya existe otro cliente con el CUIT {FormatearCuit(cliente.CUIT)}");
                 }
 
                 _unitOfWork.Clientes.Update(cliente);
@@ -242,6 +245,21 @@ namespace BLL.Services
             };
         }
 
+        private void NormalizarCliente(Cliente cliente)
+        {
+            if (cliente == null)
+                return;
+
+            cliente.RazonSocial = cliente.RazonSocial?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(cliente.CUIT))
+                cliente.CUIT = new string(cliente.CUIT.Where(char.IsDigit).ToArray());
+
+            cliente.Domicilio = cliente.Domicilio?.Trim();
+            cliente.Localidad = cliente.Localidad?.Trim();
+
+        }
+
         private ResultadoOperacion ValidarCliente(Cliente cliente)
         {
             if (cliente == null)
@@ -259,6 +277,12 @@ namespace BLL.Services
             if (!ValidarFormatoCUIT(cliente.CUIT))
                 return ResultadoOperacion.Error("El formato del CUIT no es válido");
 
+            if (cliente.IdCondicionIva == Guid.Empty)
+                return ResultadoOperacion.Error("La condición de IVA es obligatoria");
+
+            if (!_unitOfWork.CondicionesIva.Existe(cliente.IdCondicionIva))
+                return ResultadoOperacion.Error("La condición de IVA seleccionada no existe");
+
             if (!string.IsNullOrWhiteSpace(cliente.Domicilio) && cliente.Domicilio.Length > 150)
                 return ResultadoOperacion.Error("El domicilio no puede superar los 150 caracteres");
 
@@ -266,6 +290,18 @@ namespace BLL.Services
                 return ResultadoOperacion.Error("La localidad no puede superar los 100 caracteres");
 
             return ResultadoOperacion.Exitoso("Validación exitosa");
+        }
+
+        private static string FormatearCuit(string cuit)
+        {
+            if (string.IsNullOrWhiteSpace(cuit))
+                return string.Empty;
+
+            var limpio = new string(cuit.Where(char.IsDigit).ToArray());
+            if (limpio.Length != 11)
+                return limpio;
+
+            return $"{limpio.Substring(0, 2)}-{limpio.Substring(2, 8)}-{limpio.Substring(10, 1)}";
         }
 
         private bool ValidarFormatoCUIT(string cuit)

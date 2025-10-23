@@ -55,6 +55,7 @@
     <Compile Include="DetalleMuestra.cs" />
     <Compile Include="EmisorFactura.cs" />
     <Compile Include="Entidades\CategoriaProducto.cs" />
+    <Compile Include="Entidades\CondicionIva.cs" />
     <Compile Include="Entidades\EstadoMuestra.cs" />
     <Compile Include="Entidades\EstadoPedido.cs" />
     <Compile Include="Entidades\EstadoPedidoMuestra.cs" />

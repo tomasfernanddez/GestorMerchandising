@@ -23,5 +23,10 @@ namespace DAL.Interfaces.Principales
         Task<bool> ExisteCUITAsync(string cuit);
         void DesactivarProveedor(Guid idProveedor);
         void ActivarProveedor(Guid idProveedor);
+
+        IEnumerable<Proveedor> Buscar(string razonSocial, string cuit, Guid? idTipoProveedor, bool? activo);
+        Task<IEnumerable<Proveedor>> BuscarAsync(string razonSocial, string cuit, Guid? idTipoProveedor, bool? activo);
+        Proveedor ObtenerConDetalles(Guid idProveedor);
+        Task<Proveedor> ObtenerConDetallesAsync(Guid idProveedor);
     }
 }
