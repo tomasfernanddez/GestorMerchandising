@@ -27,14 +27,25 @@ namespace DomainModel
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public decimal Subtotal { get; private set; }
 
+        [NotMapped]
+        public decimal SubtotalCalculado => Cantidad * PrecioUnitario;
+
         public bool FichaAplicacion { get; set; }
 
         public Guid? IdEstadoProducto { get; set; }
+
+        public DateTime? FechaLimiteProduccion { get; set; }
+
+        [StringLength(250)]
+        public string Notas { get; set; }
+
+        public Guid? IdProveedorPersonalizacion { get; set; }
 
         // Navegación
         public virtual Pedido Pedido { get; set; }
         public virtual Producto Producto { get; set; }
         public virtual EstadoProducto EstadoProducto { get; set; }
+        public virtual Proveedor ProveedorPersonalizacion { get; set; }
         public virtual ICollection<LogosPedido> LogosPedido { get; set; } = new List<LogosPedido>();
     }
 }

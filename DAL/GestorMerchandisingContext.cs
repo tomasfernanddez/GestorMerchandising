@@ -37,6 +37,8 @@ namespace DAL
         public virtual DbSet<Producto> Productos { get; set; }
         public virtual DbSet<Pedido> Pedidos { get; set; }
         public virtual DbSet<PedidoDetalle> PedidoDetalles { get; set; }
+        public virtual DbSet<PedidoEstadoHistorial> PedidosEstadoHistorial { get; set; }
+        public virtual DbSet<PedidoNota> PedidoNotas { get; set; }
         public virtual DbSet<PedidoMuestra> PedidosMuestra { get; set; }
         public virtual DbSet<DetalleMuestra> DetalleMuestras { get; set; }
         public virtual DbSet<FacturaCabecera> FacturasCabecera { get; set; }
@@ -136,6 +138,24 @@ namespace DAL
                 .HasRequired(pd => pd.Producto)
                 .WithMany(p => p.PedidoDetalles)
                 .HasForeignKey(pd => pd.IdProducto)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<PedidoEstadoHistorial>()
+                .HasRequired(ph => ph.Pedido)
+                .WithMany(p => p.HistorialEstados)
+                .HasForeignKey(ph => ph.IdPedido)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<PedidoEstadoHistorial>()
+                .HasRequired(ph => ph.EstadoPedido)
+                .WithMany()
+                .HasForeignKey(ph => ph.IdEstadoPedido)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<PedidoNota>()
+                .HasRequired(pn => pn.Pedido)
+                .WithMany(p => p.Notas)
+                .HasForeignKey(pn => pn.IdPedido)
                 .WillCascadeOnDelete(false);
 
             // PedidoMuestra -> DetalleMuestras

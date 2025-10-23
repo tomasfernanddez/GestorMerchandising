@@ -19,5 +19,11 @@ namespace DAL.Interfaces.Principales
         Task<IEnumerable<Producto>> BuscarPorNombreAsync(string nombre);
         bool ExisteNombre(string nombre);
         Task<bool> ExisteNombreAsync(string nombre);
+        Producto ObtenerPorNombreExacto(string nombreNormalizado);
+        Task<Producto> ObtenerPorNombreExactoAsync(string nombreNormalizado);
+        IEnumerable<Producto> BuscarParaAutocomplete(string termino, int maxResultados = 10);
+        Task<IEnumerable<Producto>> BuscarParaAutocompleteAsync(string termino, int maxResultados = 10);
+        void RegistrarUso(Guid idProducto);
+        Task RegistrarUsoAsync(Guid idProducto);
     }
 }

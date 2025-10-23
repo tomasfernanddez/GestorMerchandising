@@ -18,6 +18,12 @@ namespace DomainModel.Entidades
         [StringLength(100)]
         public string NombreCategoria { get; set; }
 
+        public bool Activo { get; set; } = true;
+
+        public int Orden { get; set; }
+
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+
         // Navegación
         public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
     }

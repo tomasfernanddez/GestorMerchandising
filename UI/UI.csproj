@@ -87,6 +87,36 @@
     <Compile Include="Formularios\LogsBitacoraForm.Designer.cs">
       <DependentUpon>LogsBitacoraForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Formularios\PedidoDetalleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PedidoDetalleForm.Designer.cs">
+      <DependentUpon>PedidoDetalleForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\PedidoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PedidoForm.Designer.cs">
+      <DependentUpon>PedidoForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\PedidoLogoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PedidoLogoForm.Designer.cs">
+      <DependentUpon>PedidoLogoForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\PedidosForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PedidosForm.Designer.cs">
+      <DependentUpon>PedidosForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\ProductoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\ProductoForm.Designer.cs">
+      <DependentUpon>ProductoForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\ProveedorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -110,6 +140,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionContext.cs" />
+    <Compile Include="ViewModels\PedidoViewModels.cs" />
     <EmbeddedResource Include="Formularios\ABMUsuariosForm.resx">
       <DependentUpon>ABMUsuariosForm.cs</DependentUpon>
     </EmbeddedResource>

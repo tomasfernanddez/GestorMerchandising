@@ -57,8 +57,14 @@
     <Compile Include="Implementations\Base\EfRepository.cs" />
     <Compile Include="Implementations\Base\EfUnitOfWork.cs" />
     <Compile Include="Implementations\Principales\EfClienteRepository.cs" />
+    <Compile Include="Implementations\Principales\EfPedidoDetalleRepository.cs" />
+    <Compile Include="Implementations\Principales\EfPedidoRepository.cs" />
+    <Compile Include="Implementations\Principales\EfProductoRepository.cs" />
+    <Compile Include="Implementations\Referencia\EfCategoriaProductoRepository.cs" />
     <Compile Include="Implementations\Referencia\EfCondicionIvaRepository.cs" />
     <Compile Include="Implementations\Principales\EfProveedorRepository.cs" />
+    <Compile Include="Implementations\Referencia\EfEstadoPedidoRepository.cs" />
+    <Compile Include="Implementations\Referencia\EfEstadoProductoRepository.cs" />
     <Compile Include="Implementations\Referencia\EfTipoEmpresaRepository.cs" />
     <Compile Include="Implementations\Referencia\EfTipoProveedorRepository.cs" />
     <Compile Include="Interfaces\Base\IHasDbContext.cs" />

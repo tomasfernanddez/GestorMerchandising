@@ -16,12 +16,20 @@ namespace DomainModel
         public Guid IdProducto { get; set; } = Guid.NewGuid();
 
         [Required]
-        [StringLength(100)]
+        [StringLength(150)]
         public string NombreProducto { get; set; }
 
         public Guid? IdCategoria { get; set; }
         public Guid? IdUnidadMedida { get; set; }
         public Guid? IdProveedor { get; set; }
+
+        public bool Activo { get; set; } = true;
+
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+
+        public DateTime? FechaUltimoUso { get; set; }
+
+        public int VecesUsado { get; set; }
 
         // Navegación
         public virtual CategoriaProducto Categoria { get; set; }
