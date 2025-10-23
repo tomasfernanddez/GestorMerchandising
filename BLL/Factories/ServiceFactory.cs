@@ -84,20 +84,17 @@ namespace BLL.Factories
             return new CondicionIvaService(uow);
         }
 
-        // TODO: Agregar cuando se implementen
-        /*
         public static IProductoService CrearProductoService()
         {
-            var uow = CrearUnitOfWork();
+            var uow = CrearUnitOfWorkNegocio();
             return new ProductoService(uow);
         }
 
         public static IPedidoService CrearPedidoService()
         {
-            var uow = CrearUnitOfWork();
+            var uow = CrearUnitOfWorkNegocio();
             return new PedidoService(uow);
         }
-        */
         public sealed class ServiceScope : IDisposable
         {
             public GestorMerchandisingContext Context { get; }

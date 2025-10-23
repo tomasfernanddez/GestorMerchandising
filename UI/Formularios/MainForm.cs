@@ -23,6 +23,9 @@ namespace UI
         private ToolStripMenuItem mnuProveedores;
         private ToolStripMenuItem mnuProductos;
 
+        private ToolStripMenuItem mnuOperaciones;
+        private ToolStripMenuItem mnuPedidos;
+
         private ToolStripMenuItem mnuSeguridad;
         private ToolStripMenuItem mnuUsuarios;
         private ToolStripMenuItem mnuPerfiles;
@@ -58,6 +61,8 @@ namespace UI
             mnuClientes.Click += (s, e) => AbrirClientes();
             mnuProveedores.Click += (s, e) => AbrirProveedores();
             mnuProductos.Click += (s, e) => AbrirProductos();
+
+            mnuPedidos.Click += (s, e) => AbrirPedidos();
 
             mnuUsuarios.Click += (s, e) => AbrirGestionUsuarios();
             mnuPerfiles.Click += (s, e) => MessageBox.Show("Pendiente: ABM Perfiles.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -165,8 +170,58 @@ namespace UI
 
         private void AbrirProductos()
         {
-            var f = new ABMProductosForm();
-            MostrarFormulario(f);
+            try
+            {
+                var productoSvc = ServiceFactory.CrearProductoService();
+                var proveedorSvc = ServiceFactory.CrearProveedorService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var logSvc = ServicesFactory.CrearLogService();
+
+                logSvc.LogInfo("Abriendo formulario ABM Productos", "Productos", SessionContext.NombreUsuario);
+
+                var f = new ABMProductosForm(productoSvc, proveedorSvc, bitacoraSvc);
+                f.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado formulario ABM Productos", "Productos", SessionContext.NombreUsuario);
+                };
+
+                MostrarFormulario(f);
+            }
+            catch (Exception ex)
+            {
+                var logSvc = ServicesFactory.CrearLogService();
+                logSvc.LogError("Error abriendo ABM Productos", ex, "Productos", SessionContext.NombreUsuario);
+                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirPedidos()
+        {
+            try
+            {
+                var pedidoSvc = ServiceFactory.CrearPedidoService();
+                var clienteSvc = ServiceFactory.CrearClienteService();
+                var productoSvc = ServiceFactory.CrearProductoService();
+                var proveedorSvc = ServiceFactory.CrearProveedorService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var logSvc = ServicesFactory.CrearLogService();
+
+                logSvc.LogInfo("Abriendo formulario ABM Pedidos", "Pedidos", SessionContext.NombreUsuario);
+
+                var f = new ABMPedidosForm(pedidoSvc, clienteSvc, productoSvc, proveedorSvc, bitacoraSvc);
+                f.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado formulario ABM Pedidos", "Pedidos", SessionContext.NombreUsuario);
+                };
+
+                MostrarFormulario(f);
+            }
+            catch (Exception ex)
+            {
+                var logSvc = ServicesFactory.CrearLogService();
+                logSvc.LogError("Error abriendo ABM Pedidos", ex, "Pedidos", SessionContext.NombreUsuario);
+                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void ApplyTexts()
@@ -182,6 +237,9 @@ namespace UI
             mnuClientes.Text = "menu.clients".Traducir();
             mnuProveedores.Text = "menu.suppliers".Traducir();
             mnuProductos.Text = "menu.products".Traducir();
+
+            mnuOperaciones.Text = "menu.operations".Traducir();
+            mnuPedidos.Text = "menu.orders".Traducir();
 
             mnuSeguridad.Text = "menu.security".Traducir();
             mnuUsuarios.Text = "menu.users".Traducir();
@@ -305,6 +363,9 @@ namespace UI
             this.mnuProveedores = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuProductos = new System.Windows.Forms.ToolStripMenuItem();
 
+            this.mnuOperaciones = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuPedidos = new System.Windows.Forms.ToolStripMenuItem();
+
             this.mnuSeguridad = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuLogsBitacora = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuUsuarios = new System.Windows.Forms.ToolStripMenuItem();
@@ -323,6 +384,7 @@ namespace UI
             this.menuStrip1.Items.AddRange(new ToolStripItem[] {
                 this.mnuArchivo,
                 this.mnuCatalogos,
+                this.mnuOperaciones,
                 this.mnuSeguridad,
                 this.mnuIdioma
             });
@@ -352,6 +414,14 @@ namespace UI
             this.mnuClientes.Name = "mnuClientes";
             this.mnuProveedores.Name = "mnuProveedores";
             this.mnuProductos.Name = "mnuProductos";
+
+            // Operaciones
+            this.mnuOperaciones.DropDownItems.AddRange(new ToolStripItem[] {
+                this.mnuPedidos
+            });
+            this.mnuOperaciones.Name = "mnuOperaciones";
+
+            this.mnuPedidos.Name = "mnuPedidos";
 
             // Seguridad
             this.mnuSeguridad.DropDownItems.AddRange(new ToolStripItem[] {
