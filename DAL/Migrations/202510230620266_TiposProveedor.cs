@@ -9,6 +9,11 @@
         {
             DropForeignKey("dbo.Proveedor", "IdTipoProveedor", "dbo.TipoProveedor");
             DropIndex("dbo.Proveedor", new[] { "IdTipoProveedor" });
+            Sql(@"
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_Proveedor_TipoProveedor')
+BEGIN
+    ALTER TABLE dbo.Proveedor DROP CONSTRAINT FK_Proveedor_TipoProveedor;
+END");
             CreateTable(
                 "dbo.ProveedorTipoProveedor",
                 c => new
