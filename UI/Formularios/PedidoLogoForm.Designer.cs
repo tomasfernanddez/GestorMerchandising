@@ -37,8 +37,6 @@
             this.cmbProveedor = new System.Windows.Forms.ComboBox();
             this.lblCantidad = new System.Windows.Forms.Label();
             this.nudCantidad = new System.Windows.Forms.NumericUpDown();
-            this.lblCosto = new System.Windows.Forms.Label();
-            this.nudCosto = new System.Windows.Forms.NumericUpDown();
             this.lblDescripcion = new System.Windows.Forms.Label();
             this.txtDescripcion = new System.Windows.Forms.TextBox();
             this.panelBotones = new System.Windows.Forms.FlowLayoutPanel();
@@ -46,7 +44,6 @@
             this.btnCancelar = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudCantidad)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudCosto)).BeginInit();
             this.panelBotones.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -63,21 +60,18 @@
             this.tableLayoutPanel1.Controls.Add(this.cmbProveedor, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.lblCantidad, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.nudCantidad, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.lblCosto, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.nudCosto, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.lblDescripcion, 0, 5);
-            this.tableLayoutPanel1.Controls.Add(this.txtDescripcion, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.lblDescripcion, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.txtDescripcion, 1, 4);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 12);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 6;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
+            this.tableLayoutPanel1.RowCount = 5;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(460, 190);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(460, 162);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // lblTecnica
@@ -167,35 +161,12 @@
             this.nudCantidad.Name = "nudCantidad";
             this.nudCantidad.Size = new System.Drawing.Size(293, 20);
             this.nudCantidad.TabIndex = 7;
+            this.nudCantidad.ThousandsSeparator = true;
             this.nudCantidad.Value = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            // 
-            // lblCosto
-            // 
-            this.lblCosto.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblCosto.AutoSize = true;
-            this.lblCosto.Location = new System.Drawing.Point(3, 119);
-            this.lblCosto.Name = "lblCosto";
-            this.lblCosto.Size = new System.Drawing.Size(34, 13);
-            this.lblCosto.TabIndex = 8;
-            this.lblCosto.Text = "Costo";
-            // 
-            // nudCosto
-            // 
-            this.nudCosto.DecimalPlaces = 2;
-            this.nudCosto.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.nudCosto.Location = new System.Drawing.Point(164, 115);
-            this.nudCosto.Maximum = new decimal(new int[] {
-            1000000,
-            0,
-            0,
-            0});
-            this.nudCosto.Name = "nudCosto";
-            this.nudCosto.Size = new System.Drawing.Size(293, 20);
-            this.nudCosto.TabIndex = 9;
             // 
             // lblDescripcion
             // 
@@ -204,18 +175,18 @@
             this.lblDescripcion.Location = new System.Drawing.Point(3, 158);
             this.lblDescripcion.Name = "lblDescripcion";
             this.lblDescripcion.Size = new System.Drawing.Size(63, 13);
-            this.lblDescripcion.TabIndex = 10;
+            this.lblDescripcion.TabIndex = 8;
             this.lblDescripcion.Text = "Descripción";
             // 
             // txtDescripcion
             // 
             this.txtDescripcion.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtDescripcion.Location = new System.Drawing.Point(164, 143);
+            this.txtDescripcion.Location = new System.Drawing.Point(164, 115);
             this.txtDescripcion.Multiline = true;
             this.txtDescripcion.Name = "txtDescripcion";
             this.txtDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDescripcion.Size = new System.Drawing.Size(293, 44);
-            this.txtDescripcion.TabIndex = 11;
+            this.txtDescripcion.Size = new System.Drawing.Size(293, 72);
+            this.txtDescripcion.TabIndex = 9;
             // 
             // panelBotones
             // 
@@ -225,7 +196,7 @@
             this.panelBotones.Controls.Add(this.btnAceptar);
             this.panelBotones.Controls.Add(this.btnCancelar);
             this.panelBotones.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.panelBotones.Location = new System.Drawing.Point(278, 208);
+            this.panelBotones.Location = new System.Drawing.Point(278, 180);
             this.panelBotones.Name = "panelBotones";
             this.panelBotones.Size = new System.Drawing.Size(194, 29);
             this.panelBotones.TabIndex = 1;
@@ -258,7 +229,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancelar;
-            this.ClientSize = new System.Drawing.Size(484, 249);
+            this.ClientSize = new System.Drawing.Size(484, 221);
             this.Controls.Add(this.panelBotones);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -272,7 +243,6 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudCantidad)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudCosto)).EndInit();
             this.panelBotones.ResumeLayout(false);
             this.panelBotones.PerformLayout();
             this.ResumeLayout(false);
@@ -291,8 +261,6 @@
         private System.Windows.Forms.ComboBox cmbProveedor;
         private System.Windows.Forms.Label lblCantidad;
         private System.Windows.Forms.NumericUpDown nudCantidad;
-        private System.Windows.Forms.Label lblCosto;
-        private System.Windows.Forms.NumericUpDown nudCosto;
         private System.Windows.Forms.Label lblDescripcion;
         private System.Windows.Forms.TextBox txtDescripcion;
         private System.Windows.Forms.FlowLayoutPanel panelBotones;

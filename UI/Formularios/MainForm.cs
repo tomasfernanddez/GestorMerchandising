@@ -285,7 +285,7 @@ namespace UI
                         logSvc.LogInfo($"Idioma guardado en BD: {cultureName} para usuario {SessionContext.NombreUsuario}",
                             "Sistema", SessionContext.NombreUsuario);
 
-                        MessageBox.Show($"Idioma actualizado a {cultureName}. Los cambios se aplicarán completamente al reiniciar sesión.",
+                        MessageBox.Show($"Idioma actualizado a {cultureName}.",
                             "Idioma", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else

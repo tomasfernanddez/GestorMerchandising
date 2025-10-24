@@ -327,6 +327,7 @@
             this.nudMontoPagado.Name = "nudMontoPagado";
             this.nudMontoPagado.Size = new System.Drawing.Size(160, 20);
             this.nudMontoPagado.TabIndex = 11;
+            this.nudMontoPagado.ThousandsSeparator = true;
             // 
             // lblFacturado
             // 

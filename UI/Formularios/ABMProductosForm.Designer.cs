@@ -16,6 +16,8 @@
         private System.Windows.Forms.ToolStripLabel tslCategoria;
         private System.Windows.Forms.ToolStripComboBox cboCategorias;
         private System.Windows.Forms.ToolStripLabel tslProveedor;
+        private System.Windows.Forms.ToolStripLabel tslEstado;
+        private System.Windows.Forms.ToolStripComboBox cboEstado;
         private System.Windows.Forms.ToolStripComboBox cboProveedores;
         private System.Windows.Forms.DataGridView dgvProductos;
 
@@ -44,6 +46,8 @@
             this.cboCategorias = new System.Windows.Forms.ToolStripComboBox();
             this.tslProveedor = new System.Windows.Forms.ToolStripLabel();
             this.cboProveedores = new System.Windows.Forms.ToolStripComboBox();
+            this.tslEstado = new System.Windows.Forms.ToolStripLabel();
+            this.cboEstado = new System.Windows.Forms.ToolStripComboBox();
             this.dgvProductos = new System.Windows.Forms.DataGridView();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProductos)).BeginInit();
@@ -64,7 +68,9 @@
             this.tslCategoria,
             this.cboCategorias,
             this.tslProveedor,
-            this.cboProveedores});
+            this.cboProveedores,
+            this.tslEstado,
+            this.cboEstado});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(984, 25);
@@ -148,6 +154,19 @@
             this.cboProveedores.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboProveedores.Name = "cboProveedores";
             this.cboProveedores.Size = new System.Drawing.Size(160, 25);
+            //
+            // tslEstado
+            //
+            this.tslEstado.Margin = new System.Windows.Forms.Padding(10, 1, 0, 2);
+            this.tslEstado.Name = "tslEstado";
+            this.tslEstado.Size = new System.Drawing.Size(40, 22);
+            this.tslEstado.Text = "Estado";
+            //
+            // cboEstado
+            //
+            this.cboEstado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboEstado.Name = "cboEstado";
+            this.cboEstado.Size = new System.Drawing.Size(160, 25);
             // 
             // dgvProductos
             // 

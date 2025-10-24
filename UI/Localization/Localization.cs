@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace UI.Localization
 {
@@ -13,6 +15,8 @@ namespace UI.Localization
         private static readonly object _lock = new object();
         private static Dictionary<string, string> _strings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private static string _loadedCulture = null;
+
+        public static event EventHandler LanguageChanged;
 
         /// <summary>
         /// Carga el archivo idioma.<culture>.txt (UTF-8) desde la carpeta Idiomas del ejecutable.
@@ -24,9 +28,6 @@ namespace UI.Localization
 
             lock (_lock)
             {
-                if (string.Equals(_loadedCulture, cultureName, StringComparison.OrdinalIgnoreCase))
-                    return;
-
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 var dir = Path.Combine(baseDir, "Idiomas");
 
@@ -67,6 +68,8 @@ namespace UI.Localization
                 _strings = dict;
                 _loadedCulture = cultureName;
             }
+
+            OnLanguageChanged();
         }
 
         /// <summary>
@@ -88,6 +91,58 @@ namespace UI.Localization
                 catch { /* ignora errores de formato */ }
             }
             return value;
+        }
+
+        private static void OnLanguageChanged()
+        {
+            try
+            {
+                LanguageChanged?.Invoke(null, EventArgs.Empty);
+            }
+            catch
+            {
+                // Ignorar errores de suscriptores para no afectar el cambio de idioma
+            }
+
+            RefreshOpenForms();
+        }
+
+        private static void RefreshOpenForms()
+        {
+            if (Application.MessageLoop == false)
+                return;
+
+            try
+            {
+                var forms = Application.OpenForms.Cast<Form>().ToList();
+                foreach (var form in forms)
+                {
+                    if (form.IsDisposed || form.Disposing)
+                        continue;
+
+                    var method = form.GetType().GetMethod("ApplyTexts", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    if (method == null || method.GetParameters().Length > 0)
+                        continue;
+
+                    if (form.InvokeRequired)
+                    {
+                        form.BeginInvoke(new MethodInvoker(() =>
+                        {
+                            try { method.Invoke(form, null); }
+                            catch { /* ignorar */ }
+                        }));
+                    }
+                    else
+                    {
+                        try { method.Invoke(form, null); }
+                        catch { /* ignorar */ }
+                    }
+                }
+            }
+            catch
+            {
+                // No interrumpir el flujo si falla el refresco de formularios
+            }
         }
     }
 }

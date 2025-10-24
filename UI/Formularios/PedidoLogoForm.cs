@@ -42,9 +42,6 @@ namespace UI
                 cmbUbicacion.SelectedValue = _logoOriginal.IdUbicacion ?? Guid.Empty;
                 cmbProveedor.SelectedValue = _logoOriginal.IdProveedor ?? Guid.Empty;
                 nudCantidad.Value = Math.Max(1, _logoOriginal.Cantidad);
-                nudCosto.Value = _logoOriginal.Costo >= nudCosto.Minimum && _logoOriginal.Costo <= nudCosto.Maximum
-                    ? _logoOriginal.Costo
-                    : 0;
                 txtDescripcion.Text = _logoOriginal.Descripcion ?? string.Empty;
             }
         }
@@ -56,7 +53,6 @@ namespace UI
             lblUbicacion.Text = "order.logo.location".Traducir();
             lblProveedor.Text = "order.logo.provider".Traducir();
             lblCantidad.Text = "order.logo.quantity".Traducir();
-            lblCosto.Text = "order.logo.cost".Traducir();
             lblDescripcion.Text = "order.logo.notes".Traducir();
             btnAceptar.Text = "form.accept".Traducir();
             btnCancelar.Text = "form.cancel".Traducir();
@@ -104,7 +100,7 @@ namespace UI
                 IdProveedor = ObtenerGuidSeleccionado(cmbProveedor),
                 Proveedor = (cmbProveedor.SelectedItem as Proveedor)?.RazonSocial,
                 Cantidad = (int)nudCantidad.Value,
-                Costo = nudCosto.Value,
+                Costo = _logoOriginal?.Costo ?? 0m,
                 Descripcion = txtDescripcion.Text?.Trim()
             };
 

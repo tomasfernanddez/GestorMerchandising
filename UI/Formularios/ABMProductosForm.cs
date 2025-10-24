@@ -38,6 +38,20 @@ namespace UI
             public override string ToString() => Texto;
         }
 
+        private enum EstadoFiltro
+        {
+            SoloActivos,
+            SoloInactivos,
+            Todos
+        }
+
+        private sealed class EstadoComboItem
+        {
+            public EstadoFiltro Estado { get; set; }
+            public string Texto { get; set; }
+            public override string ToString() => Texto;
+        }
+
         public ABMProductosForm(
             IProductoService productoService,
             ICategoriaProductoService categoriaService,
@@ -145,6 +159,7 @@ namespace UI
             tslBuscar.Text = "form.search".Traducir();
             tslCategoria.Text = "product.category".Traducir();
             tslProveedor.Text = "product.provider".Traducir();
+            tslEstado.Text = "product.filter.status".Traducir();
 
             SetHeaderSafe("Nombre", "product.name");
             SetHeaderSafe("Categoria", "product.category");
@@ -152,6 +167,11 @@ namespace UI
             SetHeaderSafe("UltimoUso", "product.lastUsed");
             SetHeaderSafe("VecesUsado", "product.usageCount");
             SetHeaderSafe("Activo", "product.active");
+
+            if (cboEstado.ComboBox.Items.Count > 0)
+            {
+                ActualizarFiltroEstado(true);
+            }
         }
 
         private void SetHeaderSafe(string columnName, string resourceKey)
@@ -179,6 +199,7 @@ namespace UI
             txtBuscar.TextChanged += (s, e) => BuscarProductos();
             cboCategorias.SelectedIndexChanged += (s, e) => { if (!_cargandoFiltros) BuscarProductos(); };
             cboProveedores.SelectedIndexChanged += (s, e) => { if (!_cargandoFiltros) BuscarProductos(); };
+            cboEstado.ComboBox.SelectedIndexChanged += (s, e) => { if (!_cargandoFiltros) BuscarProductos(); };
             dgvProductos.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) EditarSeleccionado(); };
         }
 
@@ -226,11 +247,51 @@ namespace UI
 
                 cboCategorias.SelectedIndex = 0;
                 cboProveedores.SelectedIndex = 0;
+
+                ActualizarFiltroEstado(false);
             }
             finally
             {
                 _cargandoFiltros = false;
             }
+        }
+
+        private void ActualizarFiltroEstado(bool mantenerSeleccion)
+        {
+            var seleccionado = mantenerSeleccion ? ObtenerFiltroEstado() : EstadoFiltro.SoloActivos;
+
+            _cargandoFiltros = true;
+            try
+            {
+                var items = new List<EstadoComboItem>
+                {
+                    new EstadoComboItem { Estado = EstadoFiltro.SoloActivos, Texto = "product.filter.status.active".Traducir() },
+                    new EstadoComboItem { Estado = EstadoFiltro.SoloInactivos, Texto = "product.filter.status.inactive".Traducir() },
+                    new EstadoComboItem { Estado = EstadoFiltro.Todos, Texto = "product.filter.status.all".Traducir() }
+                };
+
+                cboEstado.ComboBox.DisplayMember = nameof(EstadoComboItem.Texto);
+                cboEstado.ComboBox.ValueMember = nameof(EstadoComboItem.Estado);
+                cboEstado.ComboBox.DataSource = items;
+
+                var index = items.FindIndex(i => i.Estado == seleccionado);
+                cboEstado.SelectedIndex = index >= 0 ? index : 0;
+            }
+            finally
+            {
+                _cargandoFiltros = false;
+            }
+        }
+
+        private EstadoFiltro ObtenerFiltroEstado()
+        {
+            if (cboEstado.SelectedItem is EstadoComboItem item)
+                return item.Estado;
+
+            if (cboEstado.ComboBox.SelectedValue is EstadoFiltro estado)
+                return estado;
+
+            return EstadoFiltro.SoloActivos;
         }
 
         private void BuscarProductos()
@@ -251,11 +312,25 @@ namespace UI
 
             var categoriaSeleccionada = (cboCategorias.SelectedItem as ComboItem)?.Id;
             var proveedorSeleccionado = (cboProveedores.SelectedItem as ComboItem)?.Id;
+            var estadoSeleccionado = ObtenerFiltroEstado();
 
             if (categoriaSeleccionada.HasValue)
                 productos = productos.Where(p => p.IdCategoria == categoriaSeleccionada);
             if (proveedorSeleccionado.HasValue)
                 productos = productos.Where(p => p.IdProveedor == proveedorSeleccionado);
+
+            switch (estadoSeleccionado)
+            {
+                case EstadoFiltro.SoloActivos:
+                    productos = productos.Where(p => p.Activo);
+                    break;
+                case EstadoFiltro.SoloInactivos:
+                    productos = productos.Where(p => !p.Activo);
+                    break;
+                default:
+                    // EstadoFiltro.Todos
+                    break;
+            }
 
             var rows = productos
                 .Select(p => new ProductoGridRow

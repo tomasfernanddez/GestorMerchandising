@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -123,6 +124,16 @@ namespace UI
 
             btnGuardar.Text = "form.save".Traducir();
             btnCancelar.Text = "form.cancel".Traducir();
+
+            if (_clientes != null)
+            {
+                ConfigurarCombosGenerales(true);
+            }
+
+            if (dgvDetalles.Columns.Count > 0)
+            {
+                ActualizarEncabezadosDetalles();
+            }
         }
 
         private void CargarDatosReferencia()
@@ -130,27 +141,25 @@ namespace UI
             try
             {
                 _clientes = _clienteService.ObtenerClientesActivos().OrderBy(c => c.RazonSocial).ToList();
-                cmbCliente.DisplayMember = nameof(Cliente.RazonSocial);
-                cmbCliente.ValueMember = nameof(Cliente.IdCliente);
-                cmbCliente.DataSource = _clientes;
-
                 _categorias = _categoriaService.ObtenerTodas().Where(c => c.Activo).OrderBy(c => c.NombreCategoria).ToList();
-                _proveedoresProductos = _proveedorService.ObtenerProveedoresActivos().OrderBy(p => p.RazonSocial).ToList();
-                _proveedoresPersonalizacion = _proveedoresProductos.ToList();
+                var proveedoresActivos = _proveedorService.ObtenerProveedoresActivos().OrderBy(p => p.RazonSocial).ToList();
+                _proveedoresProductos = proveedoresActivos
+                    .Where(EsProveedorProducto)
+                    .OrderBy(p => p.RazonSocial)
+                    .ToList();
+                _proveedoresPersonalizacion = proveedoresActivos
+                    .Where(EsProveedorPersonalizador)
+                    .OrderBy(p => p.RazonSocial)
+                    .ToList();
 
                 _estadosPedido = _pedidoService.ObtenerEstadosPedido().OrderBy(e => e.NombreEstadoPedido).ToList();
-                cmbEstadoPedido.DisplayMember = nameof(EstadoPedido.NombreEstadoPedido);
-                cmbEstadoPedido.ValueMember = nameof(EstadoPedido.IdEstadoPedido);
-                cmbEstadoPedido.DataSource = _estadosPedido;
-
                 _tiposPago = _pedidoService.ObtenerTiposPago().OrderBy(t => t.NombreTipoPago).ToList();
-                cmbTipoPago.DisplayMember = nameof(TipoPago.NombreTipoPago);
-                cmbTipoPago.ValueMember = nameof(TipoPago.IdTipoPago);
-                cmbTipoPago.DataSource = _tiposPago;
 
                 _estadosProducto = _pedidoService.ObtenerEstadosProducto().OrderBy(e => e.NombreEstadoProducto).ToList();
                 _tecnicas = _pedidoService.ObtenerTecnicasPersonalizacion().OrderBy(t => t.NombreTecnicaPersonalizacion).ToList();
                 _ubicaciones = _pedidoService.ObtenerUbicacionesLogo().OrderBy(u => u.NombreUbicacionLogo).ToList();
+
+                ConfigurarCombosGenerales();
             }
             catch (Exception ex)
             {
@@ -158,6 +167,99 @@ namespace UI
                 MessageBox.Show("order.loadReferences.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
             }
+        }
+
+        private void ConfigurarCombosGenerales(bool mantenerSeleccion = false)
+        {
+            var clienteSeleccionado = mantenerSeleccion && cmbCliente.SelectedValue is Guid clienteId && clienteId != Guid.Empty
+                ? (Guid?)clienteId
+                : null;
+            var tipoPagoSeleccionado = mantenerSeleccion && cmbTipoPago.SelectedValue is Guid pagoId && pagoId != Guid.Empty
+                ? (Guid?)pagoId
+                : null;
+            var estadoSeleccionado = mantenerSeleccion && cmbEstadoPedido.SelectedValue is Guid estadoId && estadoId != Guid.Empty
+                ? (Guid?)estadoId
+                : null;
+
+            cmbCliente.DataSource = null;
+            var clientes = new List<Cliente>
+            {
+                new Cliente { IdCliente = Guid.Empty, RazonSocial = "form.select.optional".Traducir() }
+            };
+            clientes.AddRange(_clientes);
+            cmbCliente.DisplayMember = nameof(Cliente.RazonSocial);
+            cmbCliente.ValueMember = nameof(Cliente.IdCliente);
+            cmbCliente.DataSource = clientes;
+            if (mantenerSeleccion && clienteSeleccionado.HasValue)
+                cmbCliente.SelectedValue = clienteSeleccionado.Value;
+            else
+                cmbCliente.SelectedIndex = 0;
+
+            cmbTipoPago.DataSource = null;
+            var tiposPago = new List<TipoPago>
+            {
+                new TipoPago { IdTipoPago = Guid.Empty, NombreTipoPago = "form.select.optional".Traducir() }
+            };
+            tiposPago.AddRange(_tiposPago);
+            cmbTipoPago.DisplayMember = nameof(TipoPago.NombreTipoPago);
+            cmbTipoPago.ValueMember = nameof(TipoPago.IdTipoPago);
+            cmbTipoPago.DataSource = tiposPago;
+            if (mantenerSeleccion && tipoPagoSeleccionado.HasValue)
+                cmbTipoPago.SelectedValue = tipoPagoSeleccionado.Value;
+            else
+                cmbTipoPago.SelectedIndex = 0;
+
+            cmbEstadoPedido.DataSource = null;
+            var estados = new List<EstadoPedido>
+            {
+                new EstadoPedido { IdEstadoPedido = Guid.Empty, NombreEstadoPedido = "form.select.optional".Traducir() }
+            };
+            estados.AddRange(_estadosPedido);
+            cmbEstadoPedido.DisplayMember = nameof(EstadoPedido.NombreEstadoPedido);
+            cmbEstadoPedido.ValueMember = nameof(EstadoPedido.IdEstadoPedido);
+            cmbEstadoPedido.DataSource = estados;
+
+            if (mantenerSeleccion && estadoSeleccionado.HasValue && estados.Any(e => e.IdEstadoPedido == estadoSeleccionado.Value))
+            {
+                cmbEstadoPedido.SelectedValue = estadoSeleccionado.Value;
+            }
+            else
+            {
+                SeleccionarEstadoProduccion();
+            }
+        }
+
+        private bool EsProveedorProducto(Proveedor proveedor)
+        {
+            return proveedor?.TiposProveedor != null && proveedor.TiposProveedor.Any(ProveedorCatalogoHelper.EsTipoProducto);
+        }
+
+        private bool EsProveedorPersonalizador(Proveedor proveedor)
+        {
+            return proveedor?.TiposProveedor != null && proveedor.TiposProveedor.Any(ProveedorCatalogoHelper.EsTipoPersonalizador);
+        }
+
+        private void SeleccionarEstadoProduccion()
+        {
+            var estadoProduccion = _estadosPedido?.FirstOrDefault(e => EsEstadoProduccion(e.NombreEstadoPedido));
+            if (estadoProduccion != null)
+            {
+                cmbEstadoPedido.SelectedValue = estadoProduccion.IdEstadoPedido;
+            }
+            else if (cmbEstadoPedido.Items.Count > 0)
+            {
+                cmbEstadoPedido.SelectedIndex = 0;
+            }
+        }
+
+        private static bool EsEstadoProduccion(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return false;
+
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            return compare.IndexOf(nombre, "producción", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                || compare.IndexOf(nombre, "produccion", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
         private void ConfigurarGrillaDetalles()
@@ -169,6 +271,7 @@ namespace UI
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoDetalleViewModel.NombreProducto),
+                Name = nameof(PedidoDetalleViewModel.NombreProducto),
                 HeaderText = "order.detail.product".Traducir(),
                 FillWeight = 220,
                 MinimumWidth = 160
@@ -176,6 +279,7 @@ namespace UI
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoDetalleViewModel.Categoria),
+                Name = nameof(PedidoDetalleViewModel.Categoria),
                 HeaderText = "order.detail.category".Traducir(),
                 FillWeight = 140,
                 MinimumWidth = 110
@@ -183,6 +287,7 @@ namespace UI
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoDetalleViewModel.Proveedor),
+                Name = nameof(PedidoDetalleViewModel.Proveedor),
                 HeaderText = "order.detail.provider".Traducir(),
                 FillWeight = 150,
                 MinimumWidth = 120
@@ -190,6 +295,7 @@ namespace UI
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoDetalleViewModel.Cantidad),
+                Name = nameof(PedidoDetalleViewModel.Cantidad),
                 HeaderText = "order.detail.quantity".Traducir(),
                 FillWeight = 70,
                 MinimumWidth = 70
@@ -197,14 +303,16 @@ namespace UI
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoDetalleViewModel.PrecioUnitario),
+                Name = nameof(PedidoDetalleViewModel.PrecioUnitario),
                 HeaderText = "order.detail.price".Traducir(),
                 FillWeight = 90,
                 MinimumWidth = 80,
-                DefaultCellStyle = { Format = "C2" }
+                DefaultCellStyle = { Format = "N2" }
             });
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoDetalleViewModel.EstadoProducto),
+                Name = nameof(PedidoDetalleViewModel.EstadoProducto),
                 HeaderText = "order.detail.state".Traducir(),
                 FillWeight = 100,
                 MinimumWidth = 100
@@ -212,20 +320,47 @@ namespace UI
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoDetalleViewModel.FechaLimite),
+                Name = nameof(PedidoDetalleViewModel.FechaLimite),
                 HeaderText = "order.detail.deadline".Traducir(),
                 FillWeight = 90,
                 MinimumWidth = 90,
                 DefaultCellStyle = { Format = "d" }
             });
-            dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(PedidoDetalleViewModel.ProveedorPersonalizacion),
-                HeaderText = "order.detail.provider.personalization".Traducir(),
-                FillWeight = 140,
-                MinimumWidth = 120
-            });
 
             dgvDetalles.DataSource = _detalles;
+            dgvDetalles.CellDoubleClick += dgvDetalles_CellDoubleClick;
+        }
+
+        private void ActualizarEncabezadosDetalles()
+        {
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.NombreProducto), "order.detail.product");
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.Categoria), "order.detail.category");
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.Proveedor), "order.detail.provider");
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.Cantidad), "order.detail.quantity");
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.PrecioUnitario), "order.detail.price");
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.EstadoProducto), "order.detail.state");
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.FechaLimite), "order.detail.deadline");
+        }
+
+        private void SetDetalleHeader(string columnName, string resourceKey)
+        {
+            var column = dgvDetalles.Columns[columnName];
+            if (column != null)
+            {
+                column.HeaderText = resourceKey.Traducir();
+            }
+        }
+
+        private void dgvDetalles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+                return;
+
+            var detalle = ObtenerDetalleSeleccionado();
+            if (detalle != null)
+            {
+                AbrirDetalle(detalle);
+            }
         }
 
         private void CargarPedidoExistente(Guid idPedido)
@@ -287,10 +422,7 @@ namespace UI
             dgvDetalles.DataSource = _detalles;
             _notas = new List<PedidoNota>();
             _historial = new List<PedidoEstadoHistorial>();
-            if (_estadosPedido.Any())
-            {
-                cmbEstadoPedido.SelectedIndex = 0;
-            }
+            SeleccionarEstadoProduccion();
         }
 
         private PedidoDetalleViewModel MapearDetalle(PedidoDetalle detalle)
@@ -399,16 +531,15 @@ namespace UI
                 return;
 
             decimal totalProductos = _detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
-            decimal totalLogos = _detalles.Sum(d => d.Logos.Sum(l => l.Costo * (l.Cantidad <= 0 ? 1 : l.Cantidad)));
-            decimal totalSinIva = totalProductos + totalLogos;
+            decimal totalSinIva = Math.Round(totalProductos, 2);
             decimal iva = Math.Round(totalSinIva * 0.21m, 2);
-            decimal totalConIva = totalSinIva + iva;
-            decimal saldo = Math.Max(0, totalConIva - nudMontoPagado.Value);
+            decimal totalConIva = Math.Round(totalSinIva + iva, 2);
+            decimal saldo = Math.Max(0, Math.Round(totalConIva - nudMontoPagado.Value, 2));
 
-            lblTotalSinIvaValor.Text = totalSinIva.ToString("C2");
-            lblMontoIvaValor.Text = iva.ToString("C2");
-            lblTotalConIvaValor.Text = totalConIva.ToString("C2");
-            lblSaldoPendienteValor.Text = saldo.ToString("C2");
+            lblTotalSinIvaValor.Text = totalSinIva.ToString("N2");
+            lblMontoIvaValor.Text = iva.ToString("N2");
+            lblTotalConIvaValor.Text = totalConIva.ToString("N2");
+            lblSaldoPendienteValor.Text = saldo.ToString("N2");
         }
 
         private void chkFechaEntrega_CheckedChanged(object sender, EventArgs e)
@@ -480,7 +611,8 @@ namespace UI
                 _tecnicas,
                 _ubicaciones,
                 _proveedoresPersonalizacion,
-                detalle);
+                detalle,
+                fechaLimitePedido: ObtenerFechaLimitePedido());
 
             if (form.ShowDialog(this) == DialogResult.OK && form.DetalleResult != null)
             {
@@ -499,6 +631,14 @@ namespace UI
 
                 ActualizarResumen();
             }
+        }
+
+        private DateTime? ObtenerFechaLimitePedido()
+        {
+            if (chkFechaEntrega.Checked)
+                return dtpFechaEntrega.Value.Date;
+
+            return _pedidoOriginal?.FechaLimiteEntrega;
         }
 
         private void btnAgregarNota_Click(object sender, EventArgs e)

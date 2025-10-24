@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using BLL.Interfaces;
@@ -24,7 +25,9 @@ namespace UI
 
         private BindingList<PedidoLogoViewModel> _logos;
         private Producto _productoSeleccionado;
-        private readonly string _textoProveedorCorto;
+        private string _textoProveedorCorto;
+        private readonly DateTime? _fechaLimitePedido;
+        private bool _combosInicializados;
 
         public PedidoDetalleViewModel DetalleResult { get; private set; }
 
@@ -49,7 +52,8 @@ namespace UI
             IEnumerable<TecnicaPersonalizacion> tecnicas,
             IEnumerable<UbicacionLogo> ubicaciones,
             IEnumerable<Proveedor> proveedoresPersonalizacion,
-            PedidoDetalleViewModel detalle = null)
+            PedidoDetalleViewModel detalle = null,
+            DateTime? fechaLimitePedido = null)
         {
             _productoService = productoService ?? throw new ArgumentNullException(nameof(productoService));
             _categorias = categorias?.OrderBy(c => c.NombreCategoria).ToList() ?? new List<CategoriaProducto>();
@@ -59,6 +63,7 @@ namespace UI
             _ubicaciones = ubicaciones?.OrderBy(u => u.NombreUbicacionLogo).ToList() ?? new List<UbicacionLogo>();
             _proveedoresPersonalizacion = proveedoresPersonalizacion?.OrderBy(p => p.RazonSocial).ToList() ?? new List<Proveedor>();
             _detalleOriginal = detalle;
+            _fechaLimitePedido = fechaLimitePedido;
             _textoProveedorCorto = "order.detail.provider.short".Traducir();
 
             InitializeComponent();
@@ -84,7 +89,6 @@ namespace UI
             lblFechaLimite.Text = "order.detail.deadline".Traducir();
             chkFechaLimite.Text = "order.detail.deadline.enable".Traducir();
             lblFicha.Text = "order.detail.applicationSheet".Traducir();
-            lblProveedorPersonalizacion.Text = "order.detail.provider.personalization".Traducir();
             lblNotas.Text = "order.detail.notes".Traducir();
             gbLogos.Text = "order.detail.logos".Traducir();
             btnAgregarLogo.Text = "order.detail.logo.add".Traducir();
@@ -92,33 +96,88 @@ namespace UI
             btnEliminarLogo.Text = "order.detail.logo.delete".Traducir();
             btnAceptar.Text = "form.accept".Traducir();
             btnCancelar.Text = "form.cancel".Traducir();
+
+            _textoProveedorCorto = "order.detail.provider.short".Traducir();
+
+            if (_combosInicializados)
+            {
+                ConfigurarCombos(true);
+            }
         }
 
-        private void ConfigurarCombos()
+        private void ConfigurarCombos(bool mantenerSeleccion = false)
         {
             cmbProducto.AutoCompleteMode = AutoCompleteMode.None;
             cmbProducto.AutoCompleteSource = AutoCompleteSource.None;
 
+            var categoriaSeleccionada = mantenerSeleccion && cmbCategoria.SelectedValue is Guid cat && cat != Guid.Empty
+                ? cat
+                : Guid.Empty;
+            var proveedorSeleccionado = mantenerSeleccion && cmbProveedor.SelectedValue is Guid prov && prov != Guid.Empty
+                ? prov
+                : Guid.Empty;
+            var estadoSeleccionado = mantenerSeleccion && cmbEstado.SelectedValue is Guid estado && estado != Guid.Empty
+                ? (Guid?)estado
+                : null;
+
+            var categorias = new List<CategoriaProducto>
+            {
+                new CategoriaProducto { IdCategoria = Guid.Empty, NombreCategoria = "form.select.optional".Traducir() }
+            };
+            categorias.AddRange(_categorias);
             cmbCategoria.DisplayMember = nameof(CategoriaProducto.NombreCategoria);
             cmbCategoria.ValueMember = nameof(CategoriaProducto.IdCategoria);
-            cmbCategoria.DataSource = _categorias;
+            cmbCategoria.DataSource = categorias;
+            if (mantenerSeleccion && categoriaSeleccionada != Guid.Empty && categorias.Any(c => c.IdCategoria == categoriaSeleccionada))
+                cmbCategoria.SelectedValue = categoriaSeleccionada;
+            else
+                cmbCategoria.SelectedIndex = 0;
 
+            var proveedores = new List<Proveedor>
+            {
+                new Proveedor { IdProveedor = Guid.Empty, RazonSocial = "form.select.optional".Traducir() }
+            };
+            proveedores.AddRange(_proveedoresProductos);
             cmbProveedor.DisplayMember = nameof(Proveedor.RazonSocial);
             cmbProveedor.ValueMember = nameof(Proveedor.IdProveedor);
-            cmbProveedor.DataSource = _proveedoresProductos;
+            cmbProveedor.DataSource = proveedores;
+            if (mantenerSeleccion && proveedorSeleccionado != Guid.Empty && proveedores.Any(p => p.IdProveedor == proveedorSeleccionado))
+                cmbProveedor.SelectedValue = proveedorSeleccionado;
+            else
+                cmbProveedor.SelectedIndex = 0;
 
             cmbEstado.DisplayMember = nameof(EstadoProducto.NombreEstadoProducto);
             cmbEstado.ValueMember = nameof(EstadoProducto.IdEstadoProducto);
             cmbEstado.DataSource = _estadosProducto;
+            if (mantenerSeleccion && estadoSeleccionado.HasValue && _estadosProducto.Any(e => e.IdEstadoProducto == estadoSeleccionado.Value))
+                cmbEstado.SelectedValue = estadoSeleccionado.Value;
+            else
+                SeleccionarEstadoProductoProduccion();
 
-            var proveedoresPersonalizacion = new List<Proveedor>
+            _combosInicializados = true;
+        }
+
+        private void SeleccionarEstadoProductoProduccion()
+        {
+            var estadoProduccion = _estadosProducto?.FirstOrDefault(e => EsEstadoProduccion(e.NombreEstadoProducto));
+            if (estadoProduccion != null)
             {
-                new Proveedor { IdProveedor = Guid.Empty, RazonSocial = "form.select.optional".Traducir() }
-            };
-            proveedoresPersonalizacion.AddRange(_proveedoresPersonalizacion);
-            cmbProveedorPersonalizacion.DisplayMember = nameof(Proveedor.RazonSocial);
-            cmbProveedorPersonalizacion.ValueMember = nameof(Proveedor.IdProveedor);
-            cmbProveedorPersonalizacion.DataSource = proveedoresPersonalizacion;
+                cmbEstado.SelectedValue = estadoProduccion.IdEstadoProducto;
+            }
+            else if (cmbEstado.Items.Count > 0)
+            {
+                cmbEstado.SelectedIndex = 0;
+            }
+        }
+
+        private static bool EsEstadoProduccion(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return false;
+
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            return compare.IndexOf(nombre, "producción", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                || compare.IndexOf(nombre, "produccion", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
         private void ConfigurarGrillaLogos()
@@ -156,20 +215,21 @@ namespace UI
             });
             dgvLogos.Columns.Add(new DataGridViewTextBoxColumn
             {
-                DataPropertyName = nameof(PedidoLogoViewModel.Costo),
-                HeaderText = "order.detail.logo.cost".Traducir(),
-                FillWeight = 80,
-                MinimumWidth = 70,
-                DefaultCellStyle = { Format = "C2" }
-            });
-            dgvLogos.Columns.Add(new DataGridViewTextBoxColumn
-            {
                 DataPropertyName = nameof(PedidoLogoViewModel.Descripcion),
                 HeaderText = "order.detail.logo.notes".Traducir(),
                 FillWeight = 160,
                 MinimumWidth = 140
             });
             dgvLogos.DataSource = _logos;
+            dgvLogos.CellDoubleClick += dgvLogos_CellDoubleClick;
+        }
+
+        private void dgvLogos_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+                return;
+
+            btnEditarLogo.PerformClick();
         }
 
         private void CargarDetalle()
@@ -211,11 +271,6 @@ namespace UI
 
             chkFicha.Checked = _detalleOriginal.FichaAplicacion;
 
-            if (_detalleOriginal.IdProveedorPersonalizacion.HasValue)
-            {
-                cmbProveedorPersonalizacion.SelectedValue = _detalleOriginal.IdProveedorPersonalizacion.Value;
-            }
-
             txtNotas.Text = _detalleOriginal.Notas;
         }
 
@@ -238,8 +293,9 @@ namespace UI
 
         private void cmbProducto_TextUpdate(object sender, EventArgs e)
         {
-            var texto = cmbProducto.Text?.Trim() ?? string.Empty;
-            if (texto.Length < 2)
+            var textoActual = cmbProducto.Text ?? string.Empty;
+            var terminoBusqueda = textoActual.Trim();
+            if (terminoBusqueda.Length < 2)
             {
                 _productoSeleccionado = null;
                 return;
@@ -248,8 +304,8 @@ namespace UI
             try
             {
                 _productoSeleccionado = null;
-                var sugerencias = _productoService.BuscarParaAutocomplete(texto, 12)
-                    .Where(p => p != null)
+                var sugerencias = _productoService.BuscarParaAutocomplete(terminoBusqueda, 12)
+                    .Where(p => p != null && p.Activo)
                     .ToList();
 
                 cmbProducto.BeginUpdate();
@@ -263,9 +319,9 @@ namespace UI
                 cmbProducto.EndUpdate();
 
                 cmbProducto.DroppedDown = sugerencias.Any();
-                cmbProducto.Text = texto;
-                cmbProducto.SelectionStart = caret;
-                cmbProducto.SelectionLength = texto.Length - caret;
+                cmbProducto.Text = textoActual;
+                cmbProducto.SelectionStart = Math.Min(caret, cmbProducto.Text.Length);
+                cmbProducto.SelectionLength = Math.Max(0, cmbProducto.Text.Length - cmbProducto.SelectionStart);
             }
             catch
             {
@@ -353,7 +409,13 @@ namespace UI
 
         private void btnAceptar_Click(object sender, EventArgs e)
         {
-            var nombreProducto = cmbProducto.Text?.Trim();
+            var textoIngresado = cmbProducto.Text ?? string.Empty;
+            var nombreProducto = textoIngresado.Trim();
+            if (_productoSeleccionado != null && !string.IsNullOrWhiteSpace(_productoSeleccionado.NombreProducto))
+            {
+                nombreProducto = _productoSeleccionado.NombreProducto;
+            }
+
             if (string.IsNullOrWhiteSpace(nombreProducto))
             {
                 MessageBox.Show("order.detail.validation.product".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -395,14 +457,17 @@ namespace UI
                 idEstado = estadoId;
             }
 
-            Guid? idProveedorPersonalizacion = null;
-            if (cmbProveedorPersonalizacion.SelectedValue is Guid provPersId && provPersId != Guid.Empty)
-            {
-                idProveedorPersonalizacion = provPersId;
-            }
-
+            var idProveedorPersonalizacion = _detalleOriginal?.IdProveedorPersonalizacion;
+            var proveedorPersonalizacion = _detalleOriginal?.ProveedorPersonalizacion;
             DateTime? fechaLimite = chkFechaLimite.Checked ? dtpFechaLimite.Value.Date : (DateTime?)null;
 
+            if (_fechaLimitePedido.HasValue && fechaLimite.HasValue && fechaLimite.Value >= _fechaLimitePedido.Value)
+            {
+                MessageBox.Show("order.detail.validation.deadlineOrder".Traducir(_fechaLimitePedido.Value.ToString("d")), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                dtpFechaLimite.Focus();
+                return;
+            }
+            
             DetalleResult = new PedidoDetalleViewModel
             {
                 IdDetallePedido = _detalleOriginal?.IdDetallePedido ?? Guid.Empty,
@@ -420,7 +485,7 @@ namespace UI
                 FichaAplicacion = chkFicha.Checked,
                 Notas = txtNotas.Text?.Trim(),
                 IdProveedorPersonalizacion = idProveedorPersonalizacion,
-                ProveedorPersonalizacion = idProveedorPersonalizacion.HasValue ? _proveedoresPersonalizacion.FirstOrDefault(p => p.IdProveedor == idProveedorPersonalizacion)?.RazonSocial : null,
+                ProveedorPersonalizacion = proveedorPersonalizacion,
                 Logos = _logos.Select(CloneLogo).ToList()
             };
 

@@ -78,6 +78,16 @@ namespace UI
             tslEstado.Text = "order.state".Traducir();
             tslFacturado.Text = "order.invoiced".Traducir();
             tslSaldo.Text = "order.summary.balance".Traducir();
+
+            if (dgvPedidos.Columns.Count > 0)
+            {
+                ActualizarEncabezadosGrid();
+            }
+
+            if (_estados != null)
+            {
+                InicializarFiltros(true);
+            }
         }
 
         private void ConfigurarGrid()
@@ -88,6 +98,7 @@ namespace UI
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.NumeroPedido),
+                Name = nameof(PedidoRow.NumeroPedido),
                 HeaderText = "order.number".Traducir(),
                 FillWeight = 110,
                 MinimumWidth = 100
@@ -95,6 +106,7 @@ namespace UI
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.Cliente),
+                Name = nameof(PedidoRow.Cliente),
                 HeaderText = "order.client".Traducir(),
                 FillWeight = 180,
                 MinimumWidth = 160
@@ -102,6 +114,7 @@ namespace UI
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.Estado),
+                Name = nameof(PedidoRow.Estado),
                 HeaderText = "order.state".Traducir(),
                 FillWeight = 110,
                 MinimumWidth = 110
@@ -109,6 +122,7 @@ namespace UI
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.FechaCreacion),
+                Name = nameof(PedidoRow.FechaCreacion),
                 HeaderText = "order.createdAt".Traducir(),
                 FillWeight = 110,
                 MinimumWidth = 110,
@@ -117,6 +131,7 @@ namespace UI
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.FechaEntrega),
+                Name = nameof(PedidoRow.FechaEntrega),
                 HeaderText = "order.deadline".Traducir(),
                 FillWeight = 110,
                 MinimumWidth = 110,
@@ -125,6 +140,7 @@ namespace UI
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.Total),
+                Name = nameof(PedidoRow.Total),
                 HeaderText = "order.summary.total".Traducir(),
                 FillWeight = 100,
                 MinimumWidth = 100,
@@ -133,6 +149,7 @@ namespace UI
             dgvPedidos.Columns.Add(new DataGridViewCheckBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.Facturado),
+                Name = nameof(PedidoRow.Facturado),
                 HeaderText = "order.invoiced".Traducir(),
                 FillWeight = 80,
                 MinimumWidth = 80
@@ -140,14 +157,36 @@ namespace UI
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.SaldoPendiente),
+                Name = nameof(PedidoRow.SaldoPendiente),
                 HeaderText = "order.summary.balance".Traducir(),
                 FillWeight = 100,
                 MinimumWidth = 100,
-                DefaultCellStyle = { Format = "C2" }
+                DefaultCellStyle = { Format = "N2" }
             });
 
             _rows = new BindingList<PedidoRow>();
             bindingSource.DataSource = _rows;
+        }
+
+        private void ActualizarEncabezadosGrid()
+        {
+            SetHeaderText(nameof(PedidoRow.NumeroPedido), "order.number");
+            SetHeaderText(nameof(PedidoRow.Cliente), "order.client");
+            SetHeaderText(nameof(PedidoRow.Estado), "order.state");
+            SetHeaderText(nameof(PedidoRow.FechaCreacion), "order.createdAt");
+            SetHeaderText(nameof(PedidoRow.FechaEntrega), "order.deadline");
+            SetHeaderText(nameof(PedidoRow.Total), "order.summary.total");
+            SetHeaderText(nameof(PedidoRow.Facturado), "order.invoiced");
+            SetHeaderText(nameof(PedidoRow.SaldoPendiente), "order.summary.balance");
+        }
+
+        private void SetHeaderText(string columnName, string resourceKey)
+        {
+            var column = dgvPedidos.Columns[columnName];
+            if (column != null)
+            {
+                column.HeaderText = resourceKey.Traducir();
+            }
         }
 
         private void CargarEstados()
@@ -155,27 +194,65 @@ namespace UI
             _estados = _pedidoService.ObtenerEstadosPedido().OrderBy(e => e.NombreEstadoPedido).ToList();
         }
 
-        private void InicializarFiltros()
+        private void InicializarFiltros(bool mantenerSeleccion = false)
         {
+            if (_estados == null)
+                return;
+
+            var estadoSeleccionado = mantenerSeleccion ? ObtenerEstadoFiltro() : (Guid?)null;
+            var facturadoSeleccion = mantenerSeleccion ? cmbFacturado.SelectedIndex : 0;
+            var saldoSeleccion = mantenerSeleccion ? cmbSaldo.SelectedIndex : 0;
+
             cmbEstado.Items.Clear();
             cmbEstado.Items.Add("order.filter.all".Traducir());
             foreach (var estado in _estados)
             {
                 cmbEstado.Items.Add(new ComboItem(estado.IdEstadoPedido, estado.NombreEstadoPedido));
             }
-            cmbEstado.SelectedIndex = 0;
+
+            var seleccionado = false;
+            if (mantenerSeleccion && estadoSeleccionado.HasValue)
+            {
+                for (var i = 1; i < cmbEstado.Items.Count; i++)
+                {
+                    if (cmbEstado.Items[i] is ComboItem item && item.Id == estadoSeleccionado.Value)
+                    {
+                        cmbEstado.SelectedIndex = i;
+                        seleccionado = true;
+                        break;
+                    }
+                }
+            }
+            if (!seleccionado)
+            {
+                cmbEstado.SelectedIndex = 0;
+            }
 
             cmbFacturado.Items.Clear();
             cmbFacturado.Items.Add("order.filter.all".Traducir());
             cmbFacturado.Items.Add("order.filter.invoiced".Traducir());
             cmbFacturado.Items.Add("order.filter.notInvoiced".Traducir());
-            cmbFacturado.SelectedIndex = 0;
+            if (mantenerSeleccion && facturadoSeleccion >= 0 && facturadoSeleccion < cmbFacturado.Items.Count)
+            {
+                cmbFacturado.SelectedIndex = facturadoSeleccion;
+            }
+            else
+            {
+                cmbFacturado.SelectedIndex = 0;
+            }
 
             cmbSaldo.Items.Clear();
             cmbSaldo.Items.Add("order.filter.all".Traducir());
             cmbSaldo.Items.Add("order.filter.balancePending".Traducir());
             cmbSaldo.Items.Add("order.filter.balanceClear".Traducir());
-            cmbSaldo.SelectedIndex = 0;
+            if (mantenerSeleccion && saldoSeleccion >= 0 && saldoSeleccion < cmbSaldo.Items.Count)
+            {
+                cmbSaldo.SelectedIndex = saldoSeleccion;
+            }
+            else
+            {
+                cmbSaldo.SelectedIndex = 0;
+            }
         }
 
         private void BuscarPedidos()

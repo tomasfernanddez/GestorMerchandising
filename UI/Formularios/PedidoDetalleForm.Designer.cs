@@ -36,8 +36,6 @@
             this.dtpFechaLimite = new System.Windows.Forms.DateTimePicker();
             this.lblFicha = new System.Windows.Forms.Label();
             this.chkFicha = new System.Windows.Forms.CheckBox();
-            this.lblProveedorPersonalizacion = new System.Windows.Forms.Label();
-            this.cmbProveedorPersonalizacion = new System.Windows.Forms.ComboBox();
             this.lblNotas = new System.Windows.Forms.Label();
             this.txtNotas = new System.Windows.Forms.TextBox();
             this.gbLogos = new System.Windows.Forms.GroupBox();
@@ -80,14 +78,12 @@
             this.tableLayoutPanel1.Controls.Add(this.panelFecha, 1, 6);
             this.tableLayoutPanel1.Controls.Add(this.lblFicha, 0, 7);
             this.tableLayoutPanel1.Controls.Add(this.chkFicha, 1, 7);
-            this.tableLayoutPanel1.Controls.Add(this.lblProveedorPersonalizacion, 0, 8);
-            this.tableLayoutPanel1.Controls.Add(this.cmbProveedorPersonalizacion, 1, 8);
-            this.tableLayoutPanel1.Controls.Add(this.lblNotas, 0, 9);
-            this.tableLayoutPanel1.Controls.Add(this.txtNotas, 1, 9);
+            this.tableLayoutPanel1.Controls.Add(this.lblNotas, 0, 8);
+            this.tableLayoutPanel1.Controls.Add(this.txtNotas, 1, 8);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 12);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 10;
+            this.tableLayoutPanel1.RowCount = 9;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
@@ -96,9 +92,8 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(680, 292);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(680, 264);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // lblProducto
@@ -119,8 +114,8 @@
             this.cmbProducto.Name = "cmbProducto";
             this.cmbProducto.Size = new System.Drawing.Size(436, 21);
             this.cmbProducto.TabIndex = 1;
-            this.cmbProducto.TextUpdate += new System.EventHandler(this.cmbProducto_TextUpdate);
             this.cmbProducto.SelectedIndexChanged += new System.EventHandler(this.cmbProducto_SelectedIndexChanged);
+            this.cmbProducto.TextUpdate += new System.EventHandler(this.cmbProducto_TextUpdate);
             // 
             // lblCategoria
             // 
@@ -128,7 +123,7 @@
             this.lblCategoria.AutoSize = true;
             this.lblCategoria.Location = new System.Drawing.Point(3, 35);
             this.lblCategoria.Name = "lblCategoria";
-            this.lblCategoria.Size = new System.Drawing.Size(52, 13);
+            this.lblCategoria.Size = new System.Drawing.Size(54, 13);
             this.lblCategoria.TabIndex = 2;
             this.lblCategoria.Text = "Categoría";
             // 
@@ -189,6 +184,7 @@
             this.nudCantidad.Name = "nudCantidad";
             this.nudCantidad.Size = new System.Drawing.Size(436, 20);
             this.nudCantidad.TabIndex = 7;
+            this.nudCantidad.ThousandsSeparator = true;
             this.nudCantidad.Value = new decimal(new int[] {
             1,
             0,
@@ -201,7 +197,7 @@
             this.lblPrecio.AutoSize = true;
             this.lblPrecio.Location = new System.Drawing.Point(3, 119);
             this.lblPrecio.Name = "lblPrecio";
-            this.lblPrecio.Size = new System.Drawing.Size(58, 13);
+            this.lblPrecio.Size = new System.Drawing.Size(67, 13);
             this.lblPrecio.TabIndex = 8;
             this.lblPrecio.Text = "Precio s/IVA";
             // 
@@ -218,6 +214,7 @@
             this.nudPrecio.Name = "nudPrecio";
             this.nudPrecio.Size = new System.Drawing.Size(436, 20);
             this.nudPrecio.TabIndex = 9;
+            this.nudPrecio.ThousandsSeparator = true;
             // 
             // lblEstado
             // 
@@ -243,9 +240,9 @@
             // 
             this.lblFechaLimite.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblFechaLimite.AutoSize = true;
-            this.lblFechaLimite.Location = new System.Drawing.Point(3, 178);
+            this.lblFechaLimite.Location = new System.Drawing.Point(3, 177);
             this.lblFechaLimite.Name = "lblFechaLimite";
-            this.lblFechaLimite.Size = new System.Drawing.Size(66, 13);
+            this.lblFechaLimite.Size = new System.Drawing.Size(65, 13);
             this.lblFechaLimite.TabIndex = 12;
             this.lblFechaLimite.Text = "Fecha límite";
             // 
@@ -267,7 +264,7 @@
             this.chkFechaLimite.AutoSize = true;
             this.chkFechaLimite.Location = new System.Drawing.Point(3, 3);
             this.chkFechaLimite.Name = "chkFechaLimite";
-            this.chkFechaLimite.Size = new System.Drawing.Size(68, 17);
+            this.chkFechaLimite.Size = new System.Drawing.Size(64, 17);
             this.chkFechaLimite.TabIndex = 0;
             this.chkFechaLimite.Text = "Habilitar";
             this.chkFechaLimite.UseVisualStyleBackColor = true;
@@ -277,7 +274,7 @@
             // 
             this.dtpFechaLimite.Enabled = false;
             this.dtpFechaLimite.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpFechaLimite.Location = new System.Drawing.Point(77, 3);
+            this.dtpFechaLimite.Location = new System.Drawing.Point(73, 3);
             this.dtpFechaLimite.Name = "dtpFechaLimite";
             this.dtpFechaLimite.Size = new System.Drawing.Size(140, 20);
             this.dtpFechaLimite.TabIndex = 1;
@@ -288,7 +285,7 @@
             this.lblFicha.AutoSize = true;
             this.lblFicha.Location = new System.Drawing.Point(3, 207);
             this.lblFicha.Name = "lblFicha";
-            this.lblFicha.Size = new System.Drawing.Size(77, 13);
+            this.lblFicha.Size = new System.Drawing.Size(84, 13);
             this.lblFicha.TabIndex = 14;
             this.lblFicha.Text = "Ficha aplicación";
             // 
@@ -301,31 +298,11 @@
             this.chkFicha.TabIndex = 15;
             this.chkFicha.UseVisualStyleBackColor = true;
             // 
-            // lblProveedorPersonalizacion
-            // 
-            this.lblProveedorPersonalizacion.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblProveedorPersonalizacion.AutoSize = true;
-            this.lblProveedorPersonalizacion.Location = new System.Drawing.Point(3, 235);
-            this.lblProveedorPersonalizacion.Name = "lblProveedorPersonalizacion";
-            this.lblProveedorPersonalizacion.Size = new System.Drawing.Size(156, 13);
-            this.lblProveedorPersonalizacion.TabIndex = 16;
-            this.lblProveedorPersonalizacion.Text = "Proveedor de personalización";
-            // 
-            // cmbProveedorPersonalizacion
-            // 
-            this.cmbProveedorPersonalizacion.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cmbProveedorPersonalizacion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbProveedorPersonalizacion.FormattingEnabled = true;
-            this.cmbProveedorPersonalizacion.Location = new System.Drawing.Point(241, 231);
-            this.cmbProveedorPersonalizacion.Name = "cmbProveedorPersonalizacion";
-            this.cmbProveedorPersonalizacion.Size = new System.Drawing.Size(436, 21);
-            this.cmbProveedorPersonalizacion.TabIndex = 17;
-            // 
             // lblNotas
             // 
             this.lblNotas.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblNotas.AutoSize = true;
-            this.lblNotas.Location = new System.Drawing.Point(3, 271);
+            this.lblNotas.Location = new System.Drawing.Point(3, 239);
             this.lblNotas.Name = "lblNotas";
             this.lblNotas.Size = new System.Drawing.Size(35, 13);
             this.lblNotas.TabIndex = 18;
@@ -334,7 +311,7 @@
             // txtNotas
             // 
             this.txtNotas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtNotas.Location = new System.Drawing.Point(241, 259);
+            this.txtNotas.Location = new System.Drawing.Point(241, 231);
             this.txtNotas.Multiline = true;
             this.txtNotas.Name = "txtNotas";
             this.txtNotas.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -346,10 +323,10 @@
             this.gbLogos.Controls.Add(this.dgvLogos);
             this.gbLogos.Controls.Add(this.panelLogosBotones);
             this.gbLogos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gbLogos.Location = new System.Drawing.Point(12, 304);
+            this.gbLogos.Location = new System.Drawing.Point(12, 276);
             this.gbLogos.Name = "gbLogos";
             this.gbLogos.Padding = new System.Windows.Forms.Padding(10, 6, 10, 10);
-            this.gbLogos.Size = new System.Drawing.Size(680, 200);
+            this.gbLogos.Size = new System.Drawing.Size(680, 234);
             this.gbLogos.TabIndex = 1;
             this.gbLogos.TabStop = false;
             this.gbLogos.Text = "Logos";
@@ -367,7 +344,7 @@
             this.dgvLogos.ReadOnly = true;
             this.dgvLogos.RowHeadersVisible = false;
             this.dgvLogos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvLogos.Size = new System.Drawing.Size(660, 134);
+            this.dgvLogos.Size = new System.Drawing.Size(660, 176);
             this.dgvLogos.TabIndex = 0;
             // 
             // panelLogosBotones
@@ -379,9 +356,9 @@
             this.panelLogosBotones.Controls.Add(this.btnEliminarLogo);
             this.panelLogosBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panelLogosBotones.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.panelLogosBotones.Location = new System.Drawing.Point(10, 153);
+            this.panelLogosBotones.Location = new System.Drawing.Point(10, 195);
             this.panelLogosBotones.Name = "panelLogosBotones";
-            this.panelLogosBotones.Size = new System.Drawing.Size(660, 37);
+            this.panelLogosBotones.Size = new System.Drawing.Size(660, 29);
             this.panelLogosBotones.TabIndex = 1;
             // 
             // btnAgregarLogo
@@ -509,8 +486,6 @@
         private System.Windows.Forms.DateTimePicker dtpFechaLimite;
         private System.Windows.Forms.Label lblFicha;
         private System.Windows.Forms.CheckBox chkFicha;
-        private System.Windows.Forms.Label lblProveedorPersonalizacion;
-        private System.Windows.Forms.ComboBox cmbProveedorPersonalizacion;
         private System.Windows.Forms.Label lblNotas;
         private System.Windows.Forms.TextBox txtNotas;
         private System.Windows.Forms.GroupBox gbLogos;

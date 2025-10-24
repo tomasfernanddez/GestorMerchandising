@@ -119,6 +119,9 @@ usuario.perfil=Perfil:
 # FORMULARIOS
 form.cancel=Cancelar
 form.cerrar=Cerrar
+form.filter=Filtrar
+form.accept=Aceptar
+form.select.optional=-- Seleccione --
 form.save=Guardar
 
 # MENSAJES
@@ -152,6 +155,10 @@ product.provider=Proveedor
 product.lastUsed=Último uso
 product.usageCount=Usos
 product.active=Activo
+product.filter.status=Estado
+product.filter.status.active=Solo activos
+product.filter.status.inactive=Solo inactivos
+product.filter.status.all=Activos e inactivos
 product.confirm.activate=¿Desea activar el producto seleccionado?
 product.confirm.deactivate=¿Desea desactivar el producto seleccionado?
 product.validation.name=El nombre del producto es obligatorio.
@@ -231,6 +238,7 @@ order.detail.validation.category=Seleccione la categoría del producto.
 order.detail.validation.provider=Seleccione el proveedor del producto.
 order.detail.validation.quantity=Ingrese una cantidad válida.
 order.detail.validation.price=Ingrese un precio válido.
+order.detail.validation.deadlineOrder=La fecha límite del producto debe ser anterior a la fecha límite del pedido ({0}).
 order.detail.deadline.enable=Establecer fecha límite
 order.logo.title=Logo del pedido
 order.logo.technique=Técnica

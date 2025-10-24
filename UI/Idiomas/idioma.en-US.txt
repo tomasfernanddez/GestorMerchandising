@@ -115,6 +115,9 @@ usuario.perfil=Profile:
 # FORMS
 form.cancel=Cancel
 form.cerrar=Close
+form.filter=Filter
+form.accept=Accept
+form.select.optional=-- Select --
 form.save=Save
 
 # MESSAGES
@@ -148,6 +151,10 @@ product.provider=Supplier
 product.lastUsed=Last used
 product.usageCount=Uses
 product.active=Active
+product.filter.status=Status
+product.filter.status.active=Only active
+product.filter.status.inactive=Only inactive
+product.filter.status.all=Active and inactive
 product.confirm.activate=Do you want to activate the selected product?
 product.confirm.deactivate=Do you want to deactivate the selected product?
 product.validation.name=Product name is required.
@@ -227,6 +234,7 @@ order.detail.validation.category=Select the product category.
 order.detail.validation.provider=Select the product supplier.
 order.detail.validation.quantity=Enter a valid quantity.
 order.detail.validation.price=Enter a valid price.
+order.detail.validation.deadlineOrder=The product deadline must be earlier than the order deadline ({0}).
 order.detail.deadline.enable=Set deadline
 order.logo.title=Order logo
 order.logo.technique=Technique
