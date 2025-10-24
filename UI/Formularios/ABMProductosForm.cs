@@ -264,18 +264,29 @@ namespace UI
             try
             {
                 var items = new List<EstadoComboItem>
-                {
-                    new EstadoComboItem { Estado = EstadoFiltro.SoloActivos, Texto = "product.filter.status.active".Traducir() },
-                    new EstadoComboItem { Estado = EstadoFiltro.SoloInactivos, Texto = "product.filter.status.inactive".Traducir() },
-                    new EstadoComboItem { Estado = EstadoFiltro.Todos, Texto = "product.filter.status.all".Traducir() }
-                };
+        {
+            new EstadoComboItem { Estado = EstadoFiltro.SoloActivos, Texto = "product.filter.status.active".Traducir() },
+            new EstadoComboItem { Estado = EstadoFiltro.SoloInactivos, Texto = "product.filter.status.inactive".Traducir() },
+            new EstadoComboItem { Estado = EstadoFiltro.Todos, Texto = "product.filter.status.all".Traducir() }
+        };
 
                 cboEstado.ComboBox.DisplayMember = nameof(EstadoComboItem.Texto);
                 cboEstado.ComboBox.ValueMember = nameof(EstadoComboItem.Estado);
                 cboEstado.ComboBox.DataSource = items;
 
                 var index = items.FindIndex(i => i.Estado == seleccionado);
-                cboEstado.ComboBox.SelectedIndex = index >= 0 ? index : 0;
+
+                // ⭐ FIX: Verificar que el índice sea válido Y que el ComboBox tenga items
+                if (index >= 0 && cboEstado.ComboBox.Items.Count > 0 && index < cboEstado.ComboBox.Items.Count)
+                {
+                    cboEstado.ComboBox.SelectedIndex = index;
+                }
+                else if (cboEstado.ComboBox.Items.Count > 0)
+                {
+                    // Si el índice no es válido pero hay items, seleccionar el primero
+                    cboEstado.ComboBox.SelectedIndex = 0;
+                }
+                // Si no hay items, no hacer nada (evitar excepción)
             }
             finally
             {
@@ -285,13 +296,20 @@ namespace UI
 
         private EstadoFiltro ObtenerFiltroEstado()
         {
-            if (cboEstado.ComboBox.SelectedItem is EstadoComboItem item)
-                return item.Estado;
+            try
+            {
+                if (cboEstado?.ComboBox != null && cboEstado.ComboBox.SelectedItem is EstadoComboItem item)
+                    return item.Estado;
 
-            if (cboEstado.ComboBox.SelectedValue is EstadoFiltro estado)
-                return estado;
+                if (cboEstado?.ComboBox != null && cboEstado.ComboBox.SelectedValue is EstadoFiltro estado)
+                    return estado;
+            }
+            catch
+            {
+                // Si hay cualquier error, devolver el valor por defecto
+            }
 
-            return EstadoFiltro.SoloActivos;
+            return EstadoFiltro.SoloActivos; // Valor por defecto seguro
         }
 
         private void BuscarProductos()
