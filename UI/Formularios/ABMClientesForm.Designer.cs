@@ -13,8 +13,8 @@ namespace UI
         private ToolStripButton tsbEditar;
         private ToolStripButton tsbEliminar;
         private ToolStripSeparator toolStripSeparator1;
+        private ToolStripLabel tslBuscar;
         private ToolStripTextBox txtBuscar;
-        private ToolStripButton tsbBuscar;
         private ToolStripButton tsbActualizar;
         private DataGridView dgvClientes;
         private BindingSource bsClientes;
@@ -33,8 +33,8 @@ namespace UI
             this.tsbEditar = new System.Windows.Forms.ToolStripButton();
             this.tsbEliminar = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tslBuscar = new System.Windows.Forms.ToolStripLabel();
             this.txtBuscar = new System.Windows.Forms.ToolStripTextBox();
-            this.tsbBuscar = new System.Windows.Forms.ToolStripButton();
             this.tsbActualizar = new System.Windows.Forms.ToolStripButton();
             this.dgvClientes = new System.Windows.Forms.DataGridView();
             this.bsClientes = new System.Windows.Forms.BindingSource(this.components);
@@ -51,8 +51,8 @@ namespace UI
             this.tsbEditar,
             this.tsbEliminar,
             this.toolStripSeparator1,
+            this.tslBuscar,
             this.txtBuscar,
-            this.tsbBuscar,
             this.tsbActualizar});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
@@ -86,19 +86,19 @@ namespace UI
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
+            // tslBuscar
+            //
+            this.tslBuscar.Margin = new System.Windows.Forms.Padding(10, 1, 0, 2);
+            this.tslBuscar.Name = "tslBuscar";
+            this.tslBuscar.Size = new System.Drawing.Size(45, 22);
+            this.tslBuscar.Text = "Buscar";
+            //
             // txtBuscar
             // 
             this.txtBuscar.AutoSize = false;
             this.txtBuscar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtBuscar.Name = "txtBuscar";
             this.txtBuscar.Size = new System.Drawing.Size(240, 25);
-            // 
-            // tsbBuscar
-            // 
-            this.tsbBuscar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbBuscar.Name = "tsbBuscar";
-            this.tsbBuscar.Size = new System.Drawing.Size(42, 22);
-            this.tsbBuscar.Text = "Buscar";
             // 
             // tsbActualizar
             // 

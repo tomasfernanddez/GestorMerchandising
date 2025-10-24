@@ -496,7 +496,17 @@ namespace UI
             }
             else if (e.KeyCode == Keys.Enter)
             {
-                if (_listaSugerencias.SelectedItem is ProductoSuggestion sugerencia)
+                ProductoSuggestion sugerencia = null;
+                if (_listaSugerencias.SelectedItem is ProductoSuggestion seleccionada)
+                {
+                    sugerencia = seleccionada;
+                }
+                else if (_listaSugerencias.Items.Count > 0)
+                {
+                    sugerencia = _listaSugerencias.Items[0] as ProductoSuggestion;
+                }
+
+                if (sugerencia != null)
                 {
                     AplicarSugerencia(sugerencia);
                     e.Handled = true;
@@ -609,6 +619,9 @@ namespace UI
             var form = new PedidoLogoForm(_tecnicas, _ubicaciones, _proveedoresPersonalizacion);
             if (form.ShowDialog(this) == DialogResult.OK && form.LogoResult != null)
             {
+                if (!ValidarCantidadLogo(form.LogoResult))
+                    return;
+
                 _logos.Add(form.LogoResult);
             }
         }
@@ -623,6 +636,9 @@ namespace UI
             if (form.ShowDialog(this) == DialogResult.OK && form.LogoResult != null)
             {
                 var index = _logos.IndexOf(logo);
+                if (!ValidarCantidadLogo(form.LogoResult))
+                    return;
+
                 _logos[index] = form.LogoResult;
             }
         }
@@ -646,6 +662,20 @@ namespace UI
                 return logo;
             }
             return null;
+        }
+
+        private bool ValidarCantidadLogo(PedidoLogoViewModel logo)
+        {
+            if (logo == null)
+                return true;
+
+            if (logo.Cantidad > (int)nudCantidad.Value)
+            {
+                MessageBox.Show("order.detail.logo.validation.quantity".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            return true;
         }
 
         private void btnAceptar_Click(object sender, EventArgs e)
@@ -709,7 +739,13 @@ namespace UI
                 dtpFechaLimite.Focus();
                 return;
             }
-            
+
+            if (_logos.Any(l => l.Cantidad > (int)nudCantidad.Value))
+            {
+                MessageBox.Show("order.detail.logo.validation.quantity".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             DetalleResult = new PedidoDetalleViewModel
             {
                 IdDetallePedido = _detalleOriginal?.IdDetallePedido ?? Guid.Empty,

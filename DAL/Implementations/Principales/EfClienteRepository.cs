@@ -94,7 +94,8 @@ namespace DAL.Implementations.Principales
 
             var termino = razonSocial.Trim().ToLower();
 
-            return _dbSet.Where(c => c.RazonSocial.ToLower().Contains(termino))
+            return _dbSet.Where(c => c.RazonSocial.ToLower().Contains(termino)
+                                   || (c.Alias != null && c.Alias.ToLower().Contains(termino)))
                         .Include(c => c.TipoEmpresa)
                         .Include(c => c.CondicionIva)
                         .OrderBy(c => c.RazonSocial)
@@ -111,7 +112,8 @@ namespace DAL.Implementations.Principales
 
             var termino = razonSocial.Trim().ToLower();
 
-            return await _dbSet.Where(c => c.RazonSocial.ToLower().Contains(termino))
+            return await _dbSet.Where(c => c.RazonSocial.ToLower().Contains(termino)
+                                         || (c.Alias != null && c.Alias.ToLower().Contains(termino)))
                               .Include(c => c.TipoEmpresa)
                               .Include(c => c.CondicionIva)
                               .OrderBy(c => c.RazonSocial)

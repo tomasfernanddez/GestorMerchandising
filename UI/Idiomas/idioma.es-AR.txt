@@ -54,6 +54,7 @@ abm.usuarios.title=Gestión de Usuarios
 # CLIENTE
 # ============================================
 cliente.activo=Activo
+cliente.alias=Alias
 cliente.condicionIVA=Condición IVA
 cliente.cuit=CUIT
 cliente.domicilio=Domicilio
@@ -61,17 +62,19 @@ cliente.localidad=Localidad
 cliente.pais=País
 cliente.provincia=Provincia
 cliente.razonSocial=Razón Social
+cliente.tipoEmpresa=Tipo de Empresa
 
 # ============================================
 # PROVEEDOR
 # ============================================
+supplier.alias=Alias
+supplier.column.alias=Alias
 supplier.column.razon=Razón Social
 supplier.column.cuit=CUIT
 supplier.column.type=Tipo
 supplier.column.location=Localidad
 supplier.column.status=Estado
-supplier.filter.razon=Razón Social
-supplier.filter.cuit=CUIT
+supplier.filter.razon=Búsqueda
 supplier.filter.type=Tipo
 supplier.filter.status=Estado
 supplier.filter.type.all=Todos los tipos
@@ -98,6 +101,25 @@ supplier.group.tecnicas=Técnicas de Personalización
 supplier.group.observaciones=Observaciones
 supplier.validation.tecnica=Seleccione al menos una técnica de personalización
 supplier.validation.observaciones=Las observaciones no pueden superar los 500 caracteres
+
+# PAGOS DE PEDIDO
+order.payment.title=Registrar pago
+order.payment.amount=Monto del pago
+order.payment.add=Agregar pago
+order.payment.undo=Deshacer último pago
+order.payment.confirm=¿Confirma registrar un pago por {0:C}?
+order.payment.undo.confirm=¿Desea deshacer el último pago registrado por {0:C}?
+order.payment.undo.empty=No hay pagos para deshacer.
+order.payment.validation.amount=Ingrese un monto mayor que cero.
+order.timeline.productChange=Producto "{0}" actualizado al estado "{1}" por {2}.
+
+# DETALLE DE PEDIDO
+order.detail.logo.validation.quantity=La cantidad del logo no puede superar la cantidad del producto.
+order.detail.logoCount=Cant. logos
+order.detail.personalizationProvider=Proveedor de personalización
+
+# LISTA DE PEDIDOS
+order.list.items=Productos
 
 # Valores de catálogo para condiciones
 supplier.payment.cash=Contado

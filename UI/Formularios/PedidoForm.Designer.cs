@@ -33,7 +33,10 @@
             this.chkFechaEntrega = new System.Windows.Forms.CheckBox();
             this.dtpFechaEntrega = new System.Windows.Forms.DateTimePicker();
             this.lblMontoPagado = new System.Windows.Forms.Label();
-            this.nudMontoPagado = new System.Windows.Forms.NumericUpDown();
+            this.panelPagos = new System.Windows.Forms.FlowLayoutPanel();
+            this.lblMontoPagadoValor = new System.Windows.Forms.Label();
+            this.btnAgregarPago = new System.Windows.Forms.Button();
+            this.btnDeshacerPago = new System.Windows.Forms.Button();
             this.lblFacturado = new System.Windows.Forms.Label();
             this.panelFactura = new System.Windows.Forms.FlowLayoutPanel();
             this.chkFacturado = new System.Windows.Forms.CheckBox();
@@ -89,13 +92,13 @@
             this.tabGeneral.SuspendLayout();
             this.tableGeneral.SuspendLayout();
             this.panelFechaEntrega.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudMontoPagado)).BeginInit();
             this.panelFactura.SuspendLayout();
             this.tabDetalles.SuspendLayout();
             this.tableDetalles.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalles)).BeginInit();
             this.panelDetallesBotones.SuspendLayout();
             this.panelResumen.SuspendLayout();
+            this.panelPagos.SuspendLayout();
             this.tabNotas.SuspendLayout();
             this.tableNotas.SuspendLayout();
             this.gbHistorialEstados.SuspendLayout();
@@ -143,8 +146,6 @@
             this.tableGeneral.Controls.Add(this.cmbEstadoPedido, 1, 3);
             this.tableGeneral.Controls.Add(this.lblFechaEntrega, 0, 4);
             this.tableGeneral.Controls.Add(this.panelFechaEntrega, 1, 4);
-            this.tableGeneral.Controls.Add(this.lblMontoPagado, 0, 5);
-            this.tableGeneral.Controls.Add(this.nudMontoPagado, 1, 5);
             this.tableGeneral.Controls.Add(this.lblFacturado, 0, 6);
             this.tableGeneral.Controls.Add(this.panelFactura, 1, 6);
             this.tableGeneral.Controls.Add(this.lblOC, 0, 7);
@@ -303,31 +304,6 @@
             this.dtpFechaEntrega.Name = "dtpFechaEntrega";
             this.dtpFechaEntrega.Size = new System.Drawing.Size(140, 20);
             this.dtpFechaEntrega.TabIndex = 1;
-            // 
-            // lblMontoPagado
-            // 
-            this.lblMontoPagado.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblMontoPagado.AutoSize = true;
-            this.lblMontoPagado.Location = new System.Drawing.Point(3, 151);
-            this.lblMontoPagado.Name = "lblMontoPagado";
-            this.lblMontoPagado.Size = new System.Drawing.Size(75, 13);
-            this.lblMontoPagado.TabIndex = 10;
-            this.lblMontoPagado.Text = "Monto pagado";
-            // 
-            // nudMontoPagado
-            // 
-            this.nudMontoPagado.DecimalPlaces = 2;
-            this.nudMontoPagado.Dock = System.Windows.Forms.DockStyle.Left;
-            this.nudMontoPagado.Location = new System.Drawing.Point(283, 147);
-            this.nudMontoPagado.Maximum = new decimal(new int[] {
-            100000000,
-            0,
-            0,
-            0});
-            this.nudMontoPagado.Name = "nudMontoPagado";
-            this.nudMontoPagado.Size = new System.Drawing.Size(160, 20);
-            this.nudMontoPagado.TabIndex = 11;
-            this.nudMontoPagado.ThousandsSeparator = true;
             // 
             // lblFacturado
             // 
@@ -604,11 +580,12 @@
             // 
             // panelResumen
             // 
-            this.panelResumen.ColumnCount = 4;
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.panelResumen.ColumnCount = 5;
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.panelResumen.Controls.Add(this.lblTotalSinIva, 0, 0);
             this.panelResumen.Controls.Add(this.lblTotalSinIvaValor, 0, 1);
             this.panelResumen.Controls.Add(this.lblMontoIva, 1, 0);
@@ -617,6 +594,8 @@
             this.panelResumen.Controls.Add(this.lblTotalConIvaValor, 2, 1);
             this.panelResumen.Controls.Add(this.lblSaldoPendiente, 3, 0);
             this.panelResumen.Controls.Add(this.lblSaldoPendienteValor, 3, 1);
+            this.panelResumen.Controls.Add(this.panelPagos, 4, 0);
+            this.panelResumen.SetRowSpan(this.panelPagos, 2);
             this.panelResumen.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelResumen.Location = new System.Drawing.Point(3, 491);
             this.panelResumen.Name = "panelResumen";
@@ -625,6 +604,68 @@
             this.panelResumen.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
             this.panelResumen.Size = new System.Drawing.Size(930, 64);
             this.panelResumen.TabIndex = 2;
+            //
+            // panelPagos
+            //
+            this.panelPagos.AutoSize = true;
+            this.panelPagos.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panelPagos.Controls.Add(this.lblMontoPagado);
+            this.panelPagos.Controls.Add(this.lblMontoPagadoValor);
+            this.panelPagos.Controls.Add(this.btnAgregarPago);
+            this.panelPagos.Controls.Add(this.btnDeshacerPago);
+            this.panelPagos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelPagos.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.panelPagos.Location = new System.Drawing.Point(747, 0);
+            this.panelPagos.Margin = new System.Windows.Forms.Padding(0);
+            this.panelPagos.Name = "panelPagos";
+            this.panelPagos.Padding = new System.Windows.Forms.Padding(8, 6, 0, 0);
+            this.panelPagos.Size = new System.Drawing.Size(183, 64);
+            this.panelPagos.TabIndex = 4;
+            this.panelPagos.WrapContents = false;
+            //
+            // lblMontoPagado
+            //
+            this.lblMontoPagado.AutoSize = true;
+            this.lblMontoPagado.Margin = new System.Windows.Forms.Padding(0, 6, 6, 0);
+            this.lblMontoPagado.Name = "lblMontoPagado";
+            this.lblMontoPagado.Size = new System.Drawing.Size(86, 13);
+            this.lblMontoPagado.TabIndex = 0;
+            this.lblMontoPagado.Text = "order.paidAmount";
+            //
+            // lblMontoPagadoValor
+            //
+            this.lblMontoPagadoValor.AutoSize = true;
+            this.lblMontoPagadoValor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
+            this.lblMontoPagadoValor.Location = new System.Drawing.Point(98, 6);
+            this.lblMontoPagadoValor.Margin = new System.Windows.Forms.Padding(0, 6, 12, 0);
+            this.lblMontoPagadoValor.Name = "lblMontoPagadoValor";
+            this.lblMontoPagadoValor.Size = new System.Drawing.Size(46, 15);
+            this.lblMontoPagadoValor.TabIndex = 1;
+            this.lblMontoPagadoValor.Text = "$0,00";
+            //
+            // btnAgregarPago
+            //
+            this.btnAgregarPago.AutoSize = true;
+            this.btnAgregarPago.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnAgregarPago.Location = new System.Drawing.Point(156, 6);
+            this.btnAgregarPago.Margin = new System.Windows.Forms.Padding(0, 4, 6, 0);
+            this.btnAgregarPago.Name = "btnAgregarPago";
+            this.btnAgregarPago.Size = new System.Drawing.Size(107, 23);
+            this.btnAgregarPago.TabIndex = 2;
+            this.btnAgregarPago.Text = "order.payment.add";
+            this.btnAgregarPago.UseVisualStyleBackColor = true;
+            //
+            // btnDeshacerPago
+            //
+            this.btnDeshacerPago.AutoSize = true;
+            this.btnDeshacerPago.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnDeshacerPago.Location = new System.Drawing.Point(269, 6);
+            this.btnDeshacerPago.Margin = new System.Windows.Forms.Padding(0, 4, 0, 0);
+            this.btnDeshacerPago.Name = "btnDeshacerPago";
+            this.btnDeshacerPago.Size = new System.Drawing.Size(141, 23);
+            this.btnDeshacerPago.TabIndex = 3;
+            this.btnDeshacerPago.Text = "order.payment.undo";
+            this.btnDeshacerPago.UseVisualStyleBackColor = true;
             // 
             // lblTotalSinIva
             // 
@@ -904,7 +945,6 @@
             this.tableGeneral.PerformLayout();
             this.panelFechaEntrega.ResumeLayout(false);
             this.panelFechaEntrega.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudMontoPagado)).EndInit();
             this.panelFactura.ResumeLayout(false);
             this.panelFactura.PerformLayout();
             this.tabDetalles.ResumeLayout(false);
@@ -913,6 +953,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalles)).EndInit();
             this.panelDetallesBotones.ResumeLayout(false);
             this.panelDetallesBotones.PerformLayout();
+            this.panelPagos.ResumeLayout(false);
+            this.panelPagos.PerformLayout();
             this.panelResumen.ResumeLayout(false);
             this.panelResumen.PerformLayout();
             this.tabNotas.ResumeLayout(false);
@@ -949,7 +991,6 @@
         private System.Windows.Forms.CheckBox chkFechaEntrega;
         private System.Windows.Forms.DateTimePicker dtpFechaEntrega;
         private System.Windows.Forms.Label lblMontoPagado;
-        private System.Windows.Forms.NumericUpDown nudMontoPagado;
         private System.Windows.Forms.Label lblFacturado;
         private System.Windows.Forms.FlowLayoutPanel panelFactura;
         private System.Windows.Forms.CheckBox chkFacturado;
@@ -984,6 +1025,10 @@
         private System.Windows.Forms.Label lblTotalConIvaValor;
         private System.Windows.Forms.Label lblSaldoPendiente;
         private System.Windows.Forms.Label lblSaldoPendienteValor;
+        private System.Windows.Forms.FlowLayoutPanel panelPagos;
+        private System.Windows.Forms.Label lblMontoPagadoValor;
+        private System.Windows.Forms.Button btnAgregarPago;
+        private System.Windows.Forms.Button btnDeshacerPago;
         private System.Windows.Forms.TabPage tabNotas;
         private System.Windows.Forms.TableLayoutPanel tableNotas;
         private System.Windows.Forms.GroupBox gbHistorialEstados;

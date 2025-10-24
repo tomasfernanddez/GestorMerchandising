@@ -73,7 +73,12 @@ namespace DAL.Implementations.Base
         }
         public IPedidoMuestraRepository PedidosMuestra => throw new NotImplementedException();
         public IFacturaCabeceraRepository FacturasCabecera => throw new NotImplementedException();
-        public ITipoEmpresaRepository TiposEmpresa => throw new NotImplementedException();
+
+        private ITipoEmpresaRepository _tiposEmpresa;
+        public ITipoEmpresaRepository TiposEmpresa
+        {
+            get { return _tiposEmpresa ?? (_tiposEmpresa = new EfTipoEmpresaRepository(_context)); }
+        }
 
         public ITipoProveedorRepository TiposProveedor
         {

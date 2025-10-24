@@ -226,8 +226,10 @@ namespace BLL.Services
 
         public IEnumerable<TipoEmpresa> ObtenerTiposEmpresa()
         {
-            // TODO: Implementar cuando tengamos ITipoEmpresaRepository
-            throw new NotImplementedException("Pendiente implementar TipoEmpresaRepository");
+            if (_unitOfWork.TiposEmpresa == null)
+                return new List<TipoEmpresa>();
+
+            return _unitOfWork.TiposEmpresa.GetTiposOrdenados();
         }
 
         public object ObtenerEstadisticasClientes()
@@ -251,6 +253,7 @@ namespace BLL.Services
                 return;
 
             cliente.RazonSocial = cliente.RazonSocial?.Trim();
+            cliente.Alias = string.IsNullOrWhiteSpace(cliente.Alias) ? null : cliente.Alias.Trim();
 
             if (!string.IsNullOrWhiteSpace(cliente.CUIT))
                 cliente.CUIT = new string(cliente.CUIT.Where(char.IsDigit).ToArray());
@@ -285,6 +288,9 @@ namespace BLL.Services
 
             if (!string.IsNullOrWhiteSpace(cliente.Domicilio) && cliente.Domicilio.Length > 150)
                 return ResultadoOperacion.Error("El domicilio no puede superar los 150 caracteres");
+
+            if (!string.IsNullOrWhiteSpace(cliente.Alias) && cliente.Alias.Length > 100)
+                return ResultadoOperacion.Error("El alias no puede superar los 100 caracteres");
 
             if (!string.IsNullOrWhiteSpace(cliente.Localidad) && cliente.Localidad.Length > 100)
                 return ResultadoOperacion.Error("La localidad no puede superar los 100 caracteres");

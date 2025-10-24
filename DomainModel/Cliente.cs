@@ -19,6 +19,9 @@ namespace DomainModel
         [StringLength(100)]
         public string RazonSocial { get; set; }
 
+        [StringLength(100)]
+        public string Alias { get; set; }
+
         [Required]
         [StringLength(15)]
         public string CUIT { get; set; }

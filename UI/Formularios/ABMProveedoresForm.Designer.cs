@@ -16,13 +16,10 @@ namespace UI
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripLabel lblBuscarRazon;
         private ToolStripTextBox txtBuscarRazon;
-        private ToolStripLabel lblBuscarCuit;
-        private ToolStripTextBox txtBuscarCuit;
         private ToolStripLabel lblFiltroTipo;
         private ToolStripComboBox cboFiltroTipo;
         private ToolStripLabel lblFiltroEstado;
         private ToolStripComboBox cboFiltroEstado;
-        private ToolStripButton tsbBuscar;
         private ToolStripButton tsbActualizar;
         private DataGridView dgvProveedores;
         private BindingSource bsProveedores;
@@ -44,13 +41,10 @@ namespace UI
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.lblBuscarRazon = new System.Windows.Forms.ToolStripLabel();
             this.txtBuscarRazon = new System.Windows.Forms.ToolStripTextBox();
-            this.lblBuscarCuit = new System.Windows.Forms.ToolStripLabel();
-            this.txtBuscarCuit = new System.Windows.Forms.ToolStripTextBox();
             this.lblFiltroTipo = new System.Windows.Forms.ToolStripLabel();
             this.cboFiltroTipo = new System.Windows.Forms.ToolStripComboBox();
             this.lblFiltroEstado = new System.Windows.Forms.ToolStripLabel();
             this.cboFiltroEstado = new System.Windows.Forms.ToolStripComboBox();
-            this.tsbBuscar = new System.Windows.Forms.ToolStripButton();
             this.tsbActualizar = new System.Windows.Forms.ToolStripButton();
             this.dgvProveedores = new System.Windows.Forms.DataGridView();
             this.bsProveedores = new System.Windows.Forms.BindingSource(this.components);
@@ -70,13 +64,10 @@ namespace UI
             this.toolStripSeparator1,
             this.lblBuscarRazon,
             this.txtBuscarRazon,
-            this.lblBuscarCuit,
-            this.txtBuscarCuit,
             this.lblFiltroTipo,
             this.cboFiltroTipo,
             this.lblFiltroEstado,
             this.cboFiltroEstado,
-            this.tsbBuscar,
             this.tsbActualizar});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
@@ -130,19 +121,6 @@ namespace UI
             this.txtBuscarRazon.Name = "txtBuscarRazon";
             this.txtBuscarRazon.Size = new System.Drawing.Size(160, 25);
             // 
-            // lblBuscarCuit
-            // 
-            this.lblBuscarCuit.Name = "lblBuscarCuit";
-            this.lblBuscarCuit.Size = new System.Drawing.Size(101, 22);
-            this.lblBuscarCuit.Text = "supplier.filter.cuit";
-            // 
-            // txtBuscarCuit
-            // 
-            this.txtBuscarCuit.AutoSize = false;
-            this.txtBuscarCuit.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtBuscarCuit.Name = "txtBuscarCuit";
-            this.txtBuscarCuit.Size = new System.Drawing.Size(120, 25);
-            // 
             // lblFiltroTipo
             // 
             this.lblFiltroTipo.Name = "lblFiltroTipo";
@@ -168,13 +146,6 @@ namespace UI
             this.cboFiltroEstado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboFiltroEstado.Name = "cboFiltroEstado";
             this.cboFiltroEstado.Size = new System.Drawing.Size(120, 25);
-            // 
-            // tsbBuscar
-            // 
-            this.tsbBuscar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbBuscar.Name = "tsbBuscar";
-            this.tsbBuscar.Size = new System.Drawing.Size(42, 22);
-            this.tsbBuscar.Text = "abm.common.search";
             // 
             // tsbActualizar
             // 

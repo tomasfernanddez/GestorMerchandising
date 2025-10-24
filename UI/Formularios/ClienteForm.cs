@@ -23,6 +23,7 @@ namespace UI
         private readonly bool _esEdicion;
         private Cliente _model;
         private IList<CondicionIva> _condicionesIva = new List<CondicionIva>();
+        private IList<TipoEmpresa> _tiposEmpresa = new List<TipoEmpresa>();
 
         private class Item { public Guid Id { get; set; } public string Nombre { get; set; } }
 
@@ -48,6 +49,7 @@ namespace UI
         {
             ApplyTexts();
             CargarCondicionIVA();
+            CargarTiposEmpresa();
             CargarCombosGeo();  // País -> Prov -> Loc
             CargarModelo();
             WireUp();
@@ -74,14 +76,31 @@ namespace UI
                 chkActivo.Checked = true;
                 if (cboCondIVA.Items.Count > 0)
                     cboCondIVA.SelectedIndex = 0;
+                if (cboTipoEmpresa.Items.Count > 0)
+                    cboTipoEmpresa.SelectedIndex = 0;
                 return;
             }
 
             txtRazon.Text = _model.RazonSocial;
+            txtAlias.Text = _model.Alias;
             txtCUIT.Text = _model.CUIT;
             txtDomicilio.Text = _model.Domicilio;
             SeleccionarCondicionIva(_model.IdCondicionIva);
             chkActivo.Checked = _model.Activo;
+
+            if (_model.IdTipoEmpresa.HasValue)
+            {
+                for (int i = 0; i < cboTipoEmpresa.Items.Count; i++)
+                    if (cboTipoEmpresa.Items[i] is Item item && item.Id == _model.IdTipoEmpresa.Value)
+                    {
+                        cboTipoEmpresa.SelectedIndex = i;
+                        break;
+                    }
+            }
+            else if (cboTipoEmpresa.Items.Count > 0)
+            {
+                cboTipoEmpresa.SelectedIndex = 0;
+            }
 
             // País (dispara provincias)
             if (_model.IdPais.HasValue)
@@ -137,10 +156,17 @@ namespace UI
                 var digits = Regex.Replace(txtCUIT.Text, "[^0-9]", "");
                 if (digits.Length != 11) { errorProvider1.SetError(txtCUIT, "msg.cuit_invalid".Traducir()); ok = false; }
             }
-            if (cboCondIVA.SelectedItem == null) { errorProvider1.SetError(cboCondIVA, "msg.required".Traducir()); ok = false; }
-            if (cboPais.SelectedItem == null) { errorProvider1.SetError(cboPais, "msg.required".Traducir()); ok = false; }
-            if (cboProvincia.SelectedItem == null) { errorProvider1.SetError(cboProvincia, "msg.required".Traducir()); ok = false; }
-            if (cboLocalidad.SelectedItem == null) { errorProvider1.SetError(cboLocalidad, "msg.required".Traducir()); ok = false; }
+            var cond = cboCondIVA.SelectedItem as Item;
+            if (cond == null || cond.Id == Guid.Empty) { errorProvider1.SetError(cboCondIVA, "msg.required".Traducir()); ok = false; }
+
+            var pais = cboPais.SelectedItem as Item;
+            if (pais == null || pais.Id == Guid.Empty) { errorProvider1.SetError(cboPais, "msg.required".Traducir()); ok = false; }
+
+            var prov = cboProvincia.SelectedItem as Item;
+            if (prov == null || prov.Id == Guid.Empty) { errorProvider1.SetError(cboProvincia, "msg.required".Traducir()); ok = false; }
+
+            var loc = cboLocalidad.SelectedItem as Item;
+            if (loc == null || loc.Id == Guid.Empty) { errorProvider1.SetError(cboLocalidad, "msg.required".Traducir()); ok = false; }
 
             return ok;
         }
@@ -154,17 +180,20 @@ namespace UI
                 var itPais = cboPais.SelectedItem as Item;
                 var itProv = cboProvincia.SelectedItem as Item;
                 var itLoc = cboLocalidad.SelectedItem as Item;
+                var itTipo = cboTipoEmpresa.SelectedItem as Item;
+                var condicionSeleccionada = cboCondIVA.SelectedItem as Item;
 
                 _model.RazonSocial = txtRazon.Text.Trim();
+                _model.Alias = string.IsNullOrWhiteSpace(txtAlias.Text) ? null : txtAlias.Text.Trim();
                 _model.CUIT = Regex.Replace(txtCUIT.Text, "[^0-9]", "");
                 _model.Domicilio = txtDomicilio.Text.Trim();
-                var condicionSeleccionada = cboCondIVA.SelectedItem as Item;
                 _model.IdCondicionIva = condicionSeleccionada?.Id ?? Guid.Empty;
                 _model.Activo = chkActivo.Checked;
-                _model.IdPais = itPais?.Id;
-                _model.IdProvincia = itProv?.Id;
-                _model.IdLocalidad = itLoc?.Id;
-                _model.Localidad = itLoc?.Nombre;
+                _model.IdTipoEmpresa = itTipo != null && itTipo.Id != Guid.Empty ? itTipo.Id : (Guid?)null;
+                _model.IdPais = itPais != null && itPais.Id != Guid.Empty ? itPais.Id : (Guid?)null;
+                _model.IdProvincia = itProv != null && itProv.Id != Guid.Empty ? itProv.Id : (Guid?)null;
+                _model.IdLocalidad = itLoc != null && itLoc.Id != Guid.Empty ? itLoc.Id : (Guid?)null;
+                _model.Localidad = itLoc != null && itLoc.Id != Guid.Empty ? itLoc.Nombre : null;
 
                 ResultadoOperacion res;
                 if (_esEdicion)
@@ -199,9 +228,15 @@ namespace UI
         {
             // País
             var paises = _geoService.ListarPaises() ?? new List<GeoDTO>();
-            cboPais.DisplayMember = "Nombre";
-            cboPais.ValueMember = "Id";
-            cboPais.DataSource = paises.Select(p => new Item { Id = p.Id, Nombre = p.Nombre }).ToList();
+            var paisItems = paises
+                .Select(p => new Item { Id = p.Id, Nombre = p.Nombre })
+                .ToList();
+
+            paisItems.Insert(0, new Item { Id = Guid.Empty, Nombre = "-- Seleccione --".Traducir() });
+
+            cboPais.DisplayMember = nameof(Item.Nombre);
+            cboPais.ValueMember = nameof(Item.Id);
+            cboPais.DataSource = paisItems;
 
             cboPais.DropDownStyle = ComboBoxStyle.DropDownList;
             cboProvincia.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -216,12 +251,32 @@ namespace UI
         private void CargarCondicionIVA()
         {
             _condicionesIva = _condicionIvaService.ObtenerTodas()?.ToList() ?? new List<CondicionIva>();
-            cboCondIVA.DisplayMember = nameof(CondicionIva.Nombre);
-            cboCondIVA.ValueMember = nameof(CondicionIva.IdCondicionIva);
-            cboCondIVA.DataSource = _condicionesIva.Select(ci => new Item { Id = ci.IdCondicionIva, Nombre = ci.Nombre }).ToList();
+            var items = _condicionesIva
+                .Select(ci => new Item { Id = ci.IdCondicionIva, Nombre = ci.Nombre })
+                .ToList();
 
-            if (cboCondIVA.Items.Count > 0)
-                cboCondIVA.SelectedIndex = 0;
+            items.Insert(0, new Item { Id = Guid.Empty, Nombre = "-- Seleccione --".Traducir() });
+
+            cboCondIVA.DisplayMember = nameof(Item.Nombre);
+            cboCondIVA.ValueMember = nameof(Item.Id);
+            cboCondIVA.DataSource = items;
+            cboCondIVA.SelectedIndex = items.Count > 1 ? 1 : 0;
+        }
+
+        private void CargarTiposEmpresa()
+        {
+            _tiposEmpresa = _clienteService.ObtenerTiposEmpresa()?.ToList() ?? new List<TipoEmpresa>();
+
+            var items = _tiposEmpresa
+                .Select(te => new Item { Id = te.IdTipoEmpresa, Nombre = te.TipoEmpresaNombre })
+                .ToList();
+
+            items.Insert(0, new Item { Id = Guid.Empty, Nombre = "-- Seleccione --".Traducir() });
+
+            cboTipoEmpresa.DisplayMember = nameof(Item.Nombre);
+            cboTipoEmpresa.ValueMember = nameof(Item.Id);
+            cboTipoEmpresa.DataSource = items;
+            cboTipoEmpresa.SelectedIndex = 0;
         }
 
         private void CargarProvincias()
@@ -231,9 +286,15 @@ namespace UI
             var idPais = (cboPais.SelectedItem as Item)?.Id ?? Guid.Empty;
             var provincias = idPais != Guid.Empty ? _geoService.ListarProvinciasPorPais(idPais) : new List<GeoDTO>();
 
-            cboProvincia.DisplayMember = "Nombre";
-            cboProvincia.ValueMember = "Id";
-            cboProvincia.DataSource = provincias.Select(x => new Item { Id = x.Id, Nombre = x.Nombre }).ToList();
+            var provinciaItems = provincias
+                .Select(x => new Item { Id = x.Id, Nombre = x.Nombre })
+                .ToList();
+
+            provinciaItems.Insert(0, new Item { Id = Guid.Empty, Nombre = "-- Seleccione --".Traducir() });
+
+            cboProvincia.DisplayMember = nameof(Item.Nombre);
+            cboProvincia.ValueMember = nameof(Item.Id);
+            cboProvincia.DataSource = provinciaItems;
 
             if (cboProvincia.Items.Count > 0) cboProvincia.SelectedIndex = 0;
         }
@@ -245,9 +306,15 @@ namespace UI
             var idProv = (cboProvincia.SelectedItem as Item)?.Id ?? Guid.Empty;
             var localidades = idProv != Guid.Empty ? _geoService.ListarLocalidadesPorProvincia(idProv) : new List<GeoDTO>();
 
-            cboLocalidad.DisplayMember = "Nombre";
-            cboLocalidad.ValueMember = "Id";
-            cboLocalidad.DataSource = localidades.Select(x => new Item { Id = x.Id, Nombre = x.Nombre }).ToList();
+            var localidadItems = localidades
+                .Select(x => new Item { Id = x.Id, Nombre = x.Nombre })
+                .ToList();
+
+            localidadItems.Insert(0, new Item { Id = Guid.Empty, Nombre = "-- Seleccione --".Traducir() });
+
+            cboLocalidad.DisplayMember = nameof(Item.Nombre);
+            cboLocalidad.ValueMember = nameof(Item.Id);
+            cboLocalidad.DataSource = localidadItems;
 
             if (cboLocalidad.Items.Count > 0) cboLocalidad.SelectedIndex = 0;
         }
