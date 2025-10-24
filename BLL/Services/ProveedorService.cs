@@ -52,9 +52,19 @@ namespace BLL.Services
             return _unitOfWork.Proveedores.Buscar(razonSocial, cuit, idTipoProveedor, activo);
         }
 
+        public IEnumerable<Proveedor> BuscarProveedores(string razonSocial, Guid? idTipoProveedor, bool? activo)
+        {
+            return BuscarProveedores(razonSocial, null, idTipoProveedor, activo);
+        }
+
         public async Task<IEnumerable<Proveedor>> BuscarProveedoresAsync(string razonSocial, string cuit, Guid? idTipoProveedor, bool? activo)
         {
             return await _unitOfWork.Proveedores.BuscarAsync(razonSocial, cuit, idTipoProveedor, activo);
+        }
+
+        public async Task<IEnumerable<Proveedor>> BuscarProveedoresAsync(string razonSocial, Guid? idTipoProveedor, bool? activo)
+        {
+            return await BuscarProveedoresAsync(razonSocial, null, idTipoProveedor, activo);
         }
 
         public Proveedor ObtenerProveedorPorCUIT(string cuit)
