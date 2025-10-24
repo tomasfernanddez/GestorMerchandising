@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
@@ -28,6 +29,9 @@ namespace UI
         private string _textoProveedorCorto;
         private readonly DateTime? _fechaLimitePedido;
         private bool _combosInicializados;
+        private ListBox _listaSugerencias;
+        private bool _seleccionandoSugerencia;
+        private bool _formateandoPrecio;
 
         public PedidoDetalleViewModel DetalleResult { get; private set; }
 
@@ -67,6 +71,7 @@ namespace UI
             _textoProveedorCorto = "order.detail.provider.short".Traducir();
 
             InitializeComponent();
+            InicializarControlesPersonalizados();
         }
 
         private void PedidoDetalleForm_Load(object sender, EventArgs e)
@@ -75,6 +80,125 @@ namespace UI
             ConfigurarCombos();
             ConfigurarGrillaLogos();
             CargarDetalle();
+            ActualizarUbicacionSugerencias();
+            FormatearPrecio(true);
+        }
+
+        private void InicializarControlesPersonalizados()
+        {
+            _listaSugerencias = new ListBox
+            {
+                Visible = false,
+                IntegralHeight = false,
+                Height = 150,
+                Width = cmbProducto.Width,
+                SelectionMode = SelectionMode.One,
+                Font = cmbProducto.Font,
+                TabStop = false
+            };
+            _listaSugerencias.Click += ListaSugerencias_Click;
+            _listaSugerencias.KeyDown += ListaSugerencias_KeyDown;
+            _listaSugerencias.Leave += ListaSugerencias_Leave;
+
+            Controls.Add(_listaSugerencias);
+            _listaSugerencias.BringToFront();
+
+            cmbProducto.LocationChanged += (s, e) => ActualizarUbicacionSugerencias();
+            cmbProducto.SizeChanged += (s, e) => ActualizarUbicacionSugerencias();
+            tableLayoutPanel1.LocationChanged += (s, e) => ActualizarUbicacionSugerencias();
+            tableLayoutPanel1.SizeChanged += (s, e) => ActualizarUbicacionSugerencias();
+            SizeChanged += (s, e) => ActualizarUbicacionSugerencias();
+            Move += (s, e) => ActualizarUbicacionSugerencias();
+
+            nudPrecio.ThousandsSeparator = true;
+            nudPrecio.ValueChanged += nudPrecio_ValueChanged;
+            nudPrecio.Leave += nudPrecio_Leave;
+        }
+
+        private void ActualizarUbicacionSugerencias()
+        {
+            if (_listaSugerencias == null || _listaSugerencias.IsDisposed)
+                return;
+            if (cmbProducto == null || cmbProducto.IsDisposed)
+                return;
+
+            var ubicacionPantalla = cmbProducto.PointToScreen(new Point(0, cmbProducto.Height));
+            var ubicacionCliente = PointToClient(ubicacionPantalla);
+            _listaSugerencias.Location = ubicacionCliente;
+            _listaSugerencias.Width = cmbProducto.Width;
+
+            if (_listaSugerencias.Visible)
+                _listaSugerencias.BringToFront();
+        }
+
+        private void MostrarSugerencias(List<ProductoSuggestion> sugerencias)
+        {
+            if (_listaSugerencias == null)
+                return;
+
+            ActualizarUbicacionSugerencias();
+
+            _listaSugerencias.BeginUpdate();
+            _listaSugerencias.Items.Clear();
+            foreach (var sugerencia in sugerencias)
+            {
+                _listaSugerencias.Items.Add(sugerencia);
+            }
+            _listaSugerencias.EndUpdate();
+
+            if (_listaSugerencias.Items.Count > 0)
+            {
+                var itemHeight = _listaSugerencias.ItemHeight <= 0 ? 18 : _listaSugerencias.ItemHeight;
+                var visibles = Math.Min(8, _listaSugerencias.Items.Count);
+                _listaSugerencias.Height = Math.Max(60, itemHeight * visibles + 6);
+                _listaSugerencias.SelectedIndex = 0;
+                _listaSugerencias.Visible = true;
+                _listaSugerencias.BringToFront();
+            }
+            else
+            {
+                _listaSugerencias.Visible = false;
+            }
+        }
+
+        private void OcultarSugerencias()
+        {
+            if (_listaSugerencias == null)
+                return;
+
+            _listaSugerencias.Visible = false;
+            _listaSugerencias.SelectedIndex = -1;
+        }
+
+        private void AplicarSugerencia(ProductoSuggestion sugerencia)
+        {
+            if (sugerencia == null)
+                return;
+
+            _seleccionandoSugerencia = true;
+            try
+            {
+                _productoSeleccionado = sugerencia.Producto;
+                cmbProducto.Text = sugerencia.Producto.NombreProducto;
+                cmbProducto.SelectionStart = cmbProducto.Text.Length;
+                cmbProducto.SelectionLength = 0;
+
+                if (_productoSeleccionado.IdCategoria.HasValue && cmbCategoria.Items.Count > 0)
+                {
+                    cmbCategoria.SelectedValue = _productoSeleccionado.IdCategoria.Value;
+                }
+
+                if (_productoSeleccionado.IdProveedor.HasValue && cmbProveedor.Items.Count > 0)
+                {
+                    cmbProveedor.SelectedValue = _productoSeleccionado.IdProveedor.Value;
+                }
+            }
+            finally
+            {
+                _seleccionandoSugerencia = false;
+            }
+
+            OcultarSugerencias();
         }
 
         private void ApplyTexts()
@@ -257,6 +381,7 @@ namespace UI
 
             nudCantidad.Value = Math.Max(1, _detalleOriginal.Cantidad);
             nudPrecio.Value = _detalleOriginal.PrecioUnitario >= 0 ? _detalleOriginal.PrecioUnitario : 0;
+            FormatearPrecio(true);
 
             if (_detalleOriginal.IdEstadoProducto.HasValue)
             {
@@ -293,11 +418,15 @@ namespace UI
 
         private void cmbProducto_TextUpdate(object sender, EventArgs e)
         {
+            if (_seleccionandoSugerencia)
+                return;
+
             var textoActual = cmbProducto.Text ?? string.Empty;
             var terminoBusqueda = textoActual.Trim();
             if (terminoBusqueda.Length < 2)
             {
                 _productoSeleccionado = null;
+                OcultarSugerencias();
                 return;
             }
 
@@ -306,26 +435,14 @@ namespace UI
                 _productoSeleccionado = null;
                 var sugerencias = _productoService.BuscarParaAutocomplete(terminoBusqueda, 12)
                     .Where(p => p != null && p.Activo)
+                    .Select(p => new ProductoSuggestion(p, FormatearDescripcionProducto(p)))
                     .ToList();
 
-                cmbProducto.BeginUpdate();
-                var caret = cmbProducto.SelectionStart;
-                cmbProducto.Items.Clear();
-                foreach (var producto in sugerencias)
-                {
-                    var descripcion = FormatearDescripcionProducto(producto);
-                    cmbProducto.Items.Add(new ProductoSuggestion(producto, descripcion));
-                }
-                cmbProducto.EndUpdate();
-
-                cmbProducto.DroppedDown = sugerencias.Any();
-                cmbProducto.Text = textoActual;
-                cmbProducto.SelectionStart = Math.Min(caret, cmbProducto.Text.Length);
-                cmbProducto.SelectionLength = Math.Max(0, cmbProducto.Text.Length - cmbProducto.SelectionStart);
+                MostrarSugerencias(sugerencias);
             }
             catch
             {
-                // Ignorar errores de autocompletado para no afectar la carga del formulario
+                OcultarSugerencias();
             }
         }
 
@@ -343,18 +460,142 @@ namespace UI
 
         private void cmbProducto_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_seleccionandoSugerencia)
+                return;
+
             if (cmbProducto.SelectedItem is ProductoSuggestion sugerencia)
             {
-                _productoSeleccionado = sugerencia.Producto;
-                cmbProducto.Text = sugerencia.Producto.NombreProducto;
-                if (_productoSeleccionado.IdCategoria.HasValue)
+                AplicarSugerencia(sugerencia);
+            }
+        }
+
+        private void cmbProducto_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (_listaSugerencias == null || !_listaSugerencias.Visible)
+                return;
+
+            if (e.KeyCode == Keys.Down)
+            {
+                if (_listaSugerencias.SelectedIndex < _listaSugerencias.Items.Count - 1)
+                    _listaSugerencias.SelectedIndex++;
+                else if (_listaSugerencias.Items.Count > 0)
+                    _listaSugerencias.SelectedIndex = 0;
+
+                _listaSugerencias.Focus();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Up)
+            {
+                if (_listaSugerencias.SelectedIndex > 0)
+                    _listaSugerencias.SelectedIndex--;
+                else if (_listaSugerencias.Items.Count > 0)
+                    _listaSugerencias.SelectedIndex = _listaSugerencias.Items.Count - 1;
+
+                _listaSugerencias.Focus();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Enter)
+            {
+                if (_listaSugerencias.SelectedItem is ProductoSuggestion sugerencia)
                 {
-                    cmbCategoria.SelectedValue = _productoSeleccionado.IdCategoria.Value;
+                    AplicarSugerencia(sugerencia);
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
                 }
-                if (_productoSeleccionado.IdProveedor.HasValue)
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                OcultarSugerencias();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private void cmbProducto_Leave(object sender, EventArgs e)
+        {
+            BeginInvoke(new Action(() =>
+            {
+                if (_listaSugerencias == null)
+                    return;
+
+                if (!_listaSugerencias.Focused)
                 {
-                    cmbProveedor.SelectedValue = _productoSeleccionado.IdProveedor.Value;
+                    OcultarSugerencias();
                 }
+            }));
+        }
+
+        private void ListaSugerencias_Click(object sender, EventArgs e)
+        {
+            if (_listaSugerencias?.SelectedItem is ProductoSuggestion sugerencia)
+            {
+                AplicarSugerencia(sugerencia);
+            }
+        }
+
+        private void ListaSugerencias_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (_listaSugerencias?.SelectedItem is ProductoSuggestion sugerencia)
+                {
+                    AplicarSugerencia(sugerencia);
+                    e.Handled = true;
+                }
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                OcultarSugerencias();
+                cmbProducto.Focus();
+                e.Handled = true;
+            }
+        }
+
+        private void ListaSugerencias_Leave(object sender, EventArgs e)
+        {
+            BeginInvoke(new Action(() =>
+            {
+                if (!cmbProducto.Focused)
+                {
+                    OcultarSugerencias();
+                }
+            }));
+        }
+
+        private void nudPrecio_ValueChanged(object sender, EventArgs e)
+        {
+            if (!nudPrecio.Focused)
+            {
+                FormatearPrecio(true);
+            }
+        }
+
+        private void nudPrecio_Leave(object sender, EventArgs e)
+        {
+            FormatearPrecio(true);
+        }
+
+        private void FormatearPrecio(bool forzar = false)
+        {
+            if (_formateandoPrecio)
+                return;
+
+            if (!forzar && nudPrecio.Focused)
+                return;
+
+            if (!(nudPrecio.Controls.OfType<TextBox>().FirstOrDefault() is TextBox txt))
+                return;
+
+            _formateandoPrecio = true;
+            try
+            {
+                txt.Text = nudPrecio.Value.ToString("N2", CultureInfo.CurrentCulture);
+                txt.SelectionStart = txt.Text.Length;
+                txt.SelectionLength = 0;
+            }
+            finally
+            {
+                _formateandoPrecio = false;
             }
         }
 
@@ -409,6 +650,7 @@ namespace UI
 
         private void btnAceptar_Click(object sender, EventArgs e)
         {
+            OcultarSugerencias();
             var textoIngresado = cmbProducto.Text ?? string.Empty;
             var nombreProducto = textoIngresado.Trim();
             if (_productoSeleccionado != null && !string.IsNullOrWhiteSpace(_productoSeleccionado.NombreProducto))

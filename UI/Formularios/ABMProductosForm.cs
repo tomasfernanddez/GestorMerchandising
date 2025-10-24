@@ -275,7 +275,7 @@ namespace UI
                 cboEstado.ComboBox.DataSource = items;
 
                 var index = items.FindIndex(i => i.Estado == seleccionado);
-                cboEstado.SelectedIndex = index >= 0 ? index : 0;
+                cboEstado.ComboBox.SelectedIndex = index >= 0 ? index : 0;
             }
             finally
             {
@@ -285,7 +285,7 @@ namespace UI
 
         private EstadoFiltro ObtenerFiltroEstado()
         {
-            if (cboEstado.SelectedItem is EstadoComboItem item)
+            if (cboEstado.ComboBox.SelectedItem is EstadoComboItem item)
                 return item.Estado;
 
             if (cboEstado.ComboBox.SelectedValue is EstadoFiltro estado)

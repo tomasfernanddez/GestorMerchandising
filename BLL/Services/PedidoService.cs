@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using BLL.Helpers;
 using BLL.Interfaces;
@@ -13,6 +14,7 @@ namespace BLL.Services
     public class PedidoService : IPedidoService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private Guid? _estadoProduccionIdCache;
         private const decimal IVA_DEFAULT = 0.21m;
 
         public PedidoService(IUnitOfWork unitOfWork)
@@ -105,7 +107,7 @@ namespace BLL.Services
             }
             catch (Exception ex)
             {
-                return ResultadoOperacion.Error($"Error al crear el pedido: {ex.Message}");
+                return ResultadoOperacion.Error($"Error al crear el pedido: {ObtenerMensajeProfundo(ex)}");
             }
         }
 
@@ -134,6 +136,7 @@ namespace BLL.Services
                 existente.Cliente_DireccionEntrega = pedido.Cliente_DireccionEntrega;
                 existente.IdTipoPago = pedido.IdTipoPago;
                 existente.IdEstadoPedido = pedido.IdEstadoPedido;
+                AsegurarEstadoPorDefecto(existente);
                 existente.NumeroRemito = pedido.NumeroRemito;
                 existente.Facturado = pedido.Facturado;
                 existente.RutaFacturaPdf = pedido.RutaFacturaPdf;
@@ -166,14 +169,13 @@ namespace BLL.Services
                 SincronizarDetalles(existente, pedido.Detalles ?? new List<PedidoDetalle>());
 
                 RecalcularTotales(existente);
-                _unitOfWork.Pedidos.Update(existente);
                 _unitOfWork.SaveChanges();
 
                 return ResultadoOperacion.Exitoso("Pedido actualizado correctamente", existente.IdPedido);
             }
             catch (Exception ex)
             {
-                return ResultadoOperacion.Error($"Error al actualizar el pedido: {ex.Message}");
+                return ResultadoOperacion.Error($"Error al actualizar el pedido: {ObtenerMensajeProfundo(ex)}");
             }
         }
 
@@ -303,6 +305,8 @@ namespace BLL.Services
             {
                 pedido.NumeroPedido = pedido.NumeroPedido.Trim();
             }
+
+            AsegurarEstadoPorDefecto(pedido);
 
             if (pedido.Detalles == null)
             {
@@ -467,6 +471,49 @@ namespace BLL.Services
             pedido.MontoIva = Math.Round(pedido.TotalSinIva * IVA_DEFAULT, 2);
             pedido.TotalConIva = Math.Round(pedido.TotalSinIva + pedido.MontoIva, 2);
             pedido.SaldoPendiente = Math.Max(0, Math.Round(pedido.TotalConIva - pedido.MontoPagado, 2));
+        }
+
+        private void AsegurarEstadoPorDefecto(Pedido pedido)
+        {
+            if (pedido == null || pedido.IdEstadoPedido.HasValue)
+                return;
+
+            var estado = ObtenerEstadoProduccionPorDefecto();
+            if (estado.HasValue)
+            {
+                pedido.IdEstadoPedido = estado.Value;
+            }
+        }
+
+        private Guid? ObtenerEstadoProduccionPorDefecto()
+        {
+            if (_estadoProduccionIdCache.HasValue)
+                return _estadoProduccionIdCache;
+
+            var estados = _unitOfWork.EstadosPedido?.GetEstadosOrdenados();
+            var estadoProduccion = estados?.FirstOrDefault(e => EsEstadoProduccion(e.NombreEstadoPedido));
+            if (estadoProduccion != null)
+            {
+                _estadoProduccionIdCache = estadoProduccion.IdEstadoPedido;
+                return _estadoProduccionIdCache;
+            }
+
+            return null;
+        }
+
+        private static bool EsEstadoProduccion(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return false;
+
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            return compare.IndexOf(nombre, "producción", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                   || compare.IndexOf(nombre, "produccion", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
+        }
+
+        private static string ObtenerMensajeProfundo(Exception ex)
+        {
+            return ex?.GetBaseException().Message ?? ex?.Message ?? string.Empty;
         }
 
         private static int ParseNumeroPedido(string numero)
