@@ -142,26 +142,91 @@ namespace BLL.Services
                 existente.RutaFacturaPdf = pedido.RutaFacturaPdf;
                 existente.MontoPagado = pedido.MontoPagado;
 
-                // Reemplazar notas
-                existente.Notas.Clear();
-                foreach (var nota in pedido.Notas ?? new List<PedidoNota>())
+                var ctx = ObtenerContexto();
+
+                // Sincronizar notas
+                var notasNuevas = pedido.Notas?.ToList() ?? new List<PedidoNota>();
+                var notasActuales = existente.Notas?.ToList() ?? new List<PedidoNota>();
+                var notasProcesadas = new HashSet<Guid>();
+
+                foreach (var notaActual in notasActuales)
                 {
-                    nota.IdNota = nota.IdNota == Guid.Empty ? Guid.NewGuid() : nota.IdNota;
-                    nota.IdPedido = existente.IdPedido;
-                    existente.Notas.Add(nota);
+                    var notaEntrante = notasNuevas.FirstOrDefault(n => n.IdNota != Guid.Empty && n.IdNota == notaActual.IdNota);
+                    if (notaEntrante == null)
+                    {
+                        if (ctx != null)
+                        {
+                            ctx.PedidoNotas.Remove(notaActual);
+                        }
+
+                        existente.Notas.Remove(notaActual);
+                        continue;
+                    }
+
+                    notaActual.Nota = notaEntrante.Nota?.Trim();
+                    notaActual.Usuario = notaEntrante.Usuario;
+                    notaActual.Fecha = notaEntrante.Fecha == default ? notaActual.Fecha : notaEntrante.Fecha;
+                    notasProcesadas.Add(notaActual.IdNota);
+                }
+
+                foreach (var notaEntrante in notasNuevas)
+                {
+                    if (notaEntrante.IdNota != Guid.Empty && notasProcesadas.Contains(notaEntrante.IdNota))
+                        continue;
+
+                    notaEntrante.IdNota = notaEntrante.IdNota == Guid.Empty ? Guid.NewGuid() : notaEntrante.IdNota;
+                    notaEntrante.IdPedido = existente.IdPedido;
+                    notaEntrante.Nota = notaEntrante.Nota?.Trim();
+                    if (notaEntrante.Fecha == default)
+                        notaEntrante.Fecha = DateTime.UtcNow;
+
+                    existente.Notas.Add(notaEntrante);
                 }
 
                 // Reemplazar historial de estados si llega información nueva
                 if (pedido.HistorialEstados != null && pedido.HistorialEstados.Any())
                 {
-                    existente.HistorialEstados.Clear();
-                    foreach (var hist in pedido.HistorialEstados)
+                    var historialNuevos = pedido.HistorialEstados.ToList();
+                    var historialActuales = existente.HistorialEstados?.ToList() ?? new List<PedidoEstadoHistorial>();
+                    var historialProcesados = new HashSet<Guid>();
+
+                    foreach (var historialActual in historialActuales)
                     {
-                        hist.IdHistorial = hist.IdHistorial == Guid.Empty ? Guid.NewGuid() : hist.IdHistorial;
-                        hist.IdPedido = existente.IdPedido;
-                        if (hist.FechaCambio == default)
-                            hist.FechaCambio = DateTime.UtcNow;
-                        existente.HistorialEstados.Add(hist);
+                        var historialEntrante = historialNuevos.FirstOrDefault(h => h.IdHistorial != Guid.Empty && h.IdHistorial == historialActual.IdHistorial);
+                        if (historialEntrante == null)
+                        {
+                            if (ctx != null)
+                            {
+                                ctx.PedidosEstadoHistorial.Remove(historialActual);
+                            }
+
+                            existente.HistorialEstados.Remove(historialActual);
+                            continue;
+                        }
+
+                        historialActual.IdEstadoPedido = historialEntrante.IdEstadoPedido;
+                        historialActual.Comentario = historialEntrante.Comentario;
+                        historialActual.Usuario = historialEntrante.Usuario;
+                        historialActual.FechaCambio = historialEntrante.FechaCambio == default
+                            ? historialActual.FechaCambio
+                            : historialEntrante.FechaCambio;
+
+                        historialProcesados.Add(historialActual.IdHistorial);
+                    }
+
+                    foreach (var historialEntrante in historialNuevos)
+                    {
+                        if (historialEntrante.IdHistorial != Guid.Empty && historialProcesados.Contains(historialEntrante.IdHistorial))
+                            continue;
+
+                        historialEntrante.IdHistorial = historialEntrante.IdHistorial == Guid.Empty
+                            ? Guid.NewGuid()
+                            : historialEntrante.IdHistorial;
+                        historialEntrante.IdPedido = existente.IdPedido;
+                        if (historialEntrante.FechaCambio == default)
+                            historialEntrante.FechaCambio = DateTime.UtcNow;
+
+                        existente.HistorialEstados.Add(historialEntrante);
                     }
                 }
 
@@ -415,6 +480,16 @@ namespace BLL.Services
             {
                 if (!nuevos.Any(d => d.IdDetallePedido == detalleExistente.IdDetallePedido))
                 {
+                    if (ctx != null)
+                    {
+                        if (detalleExistente.LogosPedido?.Any() == true)
+                        {
+                            ctx.LogosPedidos.RemoveRange(detalleExistente.LogosPedido.ToList());
+                        }
+
+                        ctx.PedidoDetalles.Remove(detalleExistente);
+                    }
+
                     destino.Detalles.Remove(detalleExistente);
                 }
             }

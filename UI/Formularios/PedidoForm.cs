@@ -753,7 +753,11 @@ namespace UI
 
         private Pedido ConstruirPedido()
         {
-            var pedido = _pedidoOriginal ?? new Pedido();
+            var pedidoId = _pedidoOriginal?.IdPedido;
+            var pedido = new Pedido
+            {
+                IdPedido = pedidoId ?? Guid.NewGuid()
+            };
 
             pedido.NumeroPedido = txtNumeroPedido.Text?.Trim();
             pedido.IdCliente = (Guid)cmbCliente.SelectedValue;
@@ -780,7 +784,7 @@ namespace UI
                 _historial.Add(new PedidoEstadoHistorial
                 {
                     IdHistorial = Guid.NewGuid(),
-                    IdPedido = pedido.IdPedido,
+                    IdPedido = pedidoId ?? pedido.IdPedido,
                     IdEstadoPedido = pedido.IdEstadoPedido ?? Guid.Empty,
                     Comentario = string.Format("order.timeline.manualChange".Traducir(), estado, SessionContext.NombreUsuario),
                     FechaCambio = DateTime.UtcNow,
