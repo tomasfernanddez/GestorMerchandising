@@ -25,10 +25,14 @@ namespace DomainModel
         public Guid? IdTecnicaPersonalizacion { get; set; }
         public Guid? IdUbicacionLogo { get; set; }
 
+        public Guid? IdProveedor { get; set; }
+
         /// <summary>
         /// Costo adicional de este logo/personalización
         /// </summary>
         public decimal CostoPersonalizacion { get; set; } = 0;
+
+        public int Cantidad { get; set; } = 1;
 
         /// <summary>
         /// Descripción adicional del logo (ej: "Logo en 2 colores", "Medida 10x15cm")
@@ -40,6 +44,7 @@ namespace DomainModel
         public virtual PedidoDetalle DetallePedido { get; set; }
         public virtual TecnicaPersonalizacion TecnicaPersonalizacion { get; set; }
         public virtual UbicacionLogo UbicacionLogo { get; set; }
+        public virtual Proveedor Proveedor { get; set; }
 
         #region Implementación de IComponentePersonalizacion (Patrón Composite - Leaf)
 

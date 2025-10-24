@@ -57,8 +57,14 @@
     <Compile Include="Implementations\Base\EfRepository.cs" />
     <Compile Include="Implementations\Base\EfUnitOfWork.cs" />
     <Compile Include="Implementations\Principales\EfClienteRepository.cs" />
+    <Compile Include="Implementations\Principales\EfPedidoDetalleRepository.cs" />
+    <Compile Include="Implementations\Principales\EfPedidoRepository.cs" />
+    <Compile Include="Implementations\Principales\EfProductoRepository.cs" />
+    <Compile Include="Implementations\Referencia\EfCategoriaProductoRepository.cs" />
     <Compile Include="Implementations\Referencia\EfCondicionIvaRepository.cs" />
     <Compile Include="Implementations\Principales\EfProveedorRepository.cs" />
+    <Compile Include="Implementations\Referencia\EfEstadoPedidoRepository.cs" />
+    <Compile Include="Implementations\Referencia\EfEstadoProductoRepository.cs" />
     <Compile Include="Implementations\Referencia\EfTipoEmpresaRepository.cs" />
     <Compile Include="Implementations\Referencia\EfTipoProveedorRepository.cs" />
     <Compile Include="Interfaces\Base\IHasDbContext.cs" />
@@ -97,6 +103,11 @@
     <Compile Include="Migrations\202510230620266_TiposProveedor.Designer.cs">
       <DependentUpon>202510230620266_TiposProveedor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510232010476_CategoriaProducto.cs" />
+    <Compile Include="Migrations\202510232010476_CategoriaProducto.Designer.cs">
+      <DependentUpon>202510232010476_CategoriaProducto.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\ActualizarCategoriaProducto.cs" />
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
     <Compile Include="Migrations\AgregarModuloProveedores.cs" />
@@ -131,6 +142,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510230620266_TiposProveedor.resx">
       <DependentUpon>202510230620266_TiposProveedor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510232010476_CategoriaProducto.resx">
+      <DependentUpon>202510232010476_CategoriaProducto.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

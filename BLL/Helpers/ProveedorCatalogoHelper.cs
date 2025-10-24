@@ -34,6 +34,23 @@ namespace BLL.Helpers
             return tipoNombre.IndexOf("personal", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
+        public static bool EsTipoProducto(TipoProveedor tipoProveedor)
+        {
+            if (tipoProveedor == null)
+                return false;
+
+            return EsTipoProducto(tipoProveedor.TipoProveedorNombre);
+        }
+
+        public static bool EsTipoProducto(string tipoNombre)
+        {
+            if (string.IsNullOrWhiteSpace(tipoNombre))
+                return false;
+
+            return tipoNombre.IndexOf("producto", StringComparison.OrdinalIgnoreCase) >= 0
+                   || tipoNombre.IndexOf("product", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         public static bool EsCondicionPagoValida(string condicion)
         {
             if (string.IsNullOrWhiteSpace(condicion))
