@@ -45,6 +45,7 @@ namespace UI
             public Guid IdCliente { get; set; }
             public string RazonSocial { get; set; }
             public string CUIT { get; set; }
+            public string Alias { get; set; }
             public string Domicilio { get; set; }
             public string Localidad { get; set; }
             public string Provincia { get; set; }
@@ -88,6 +89,15 @@ namespace UI
                 HeaderText = "RazonSocial",
                 FillWeight = 220,
                 MinimumWidth = 160
+            });
+
+            dgvClientes.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ClienteGridRow.Alias),
+                Name = "Alias",
+                HeaderText = "Alias",
+                FillWeight = 160,
+                MinimumWidth = 140
             });
 
             dgvClientes.Columns.Add(new DataGridViewTextBoxColumn
@@ -159,6 +169,7 @@ namespace UI
         private void ApplyTexts()
         {
             dgvClientes.Columns["RazonSocial"].HeaderText = "cliente.razonSocial".Traducir();
+            dgvClientes.Columns["Alias"].HeaderText = "cliente.alias".Traducir();
             dgvClientes.Columns["CUIT"].HeaderText = "cliente.cuit".Traducir();
             dgvClientes.Columns["Domicilio"].HeaderText = "cliente.domicilio".Traducir();
             dgvClientes.Columns["Localidad"].HeaderText = "cliente.localidad".Traducir();
@@ -169,6 +180,7 @@ namespace UI
 
             // Usa un helper que no rompe si la columna no existe
             SetHeaderSafe("RazonSocial", "cliente.razonSocial");
+            SetHeaderSafe("Alias", "cliente.alias");
             SetHeaderSafe("CUIT", "cliente.cuit");
             SetHeaderSafe("Domicilio", "cliente.domicilio");
             SetHeaderSafe("Localidad", "cliente.localidad");
@@ -297,6 +309,7 @@ namespace UI
                 {
                     IdCliente = c.IdCliente,
                     RazonSocial = c.RazonSocial,
+                    Alias = c.Alias,
                     CUIT = c.CUIT,
                     Domicilio = c.Domicilio,
                     Localidad = localidad,

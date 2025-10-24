@@ -82,7 +82,8 @@ namespace DAL.Implementations.Principales
 
             var termino = razonSocial.Trim().ToLower();
             return QueryBase()
-                .Where(p => p.RazonSocial.ToLower().Contains(termino))
+                .Where(p => p.RazonSocial.ToLower().Contains(termino)
+                        || (p.Alias != null && p.Alias.ToLower().Contains(termino)))
                 .OrderBy(p => p.RazonSocial)
                 .ToList();
         }
@@ -94,7 +95,8 @@ namespace DAL.Implementations.Principales
 
             var termino = razonSocial.Trim().ToLower();
             return await QueryBase()
-                .Where(p => p.RazonSocial.ToLower().Contains(termino))
+                .Where(p => p.RazonSocial.ToLower().Contains(termino)
+                        || (p.Alias != null && p.Alias.ToLower().Contains(termino)))
                 .OrderBy(p => p.RazonSocial)
                 .ToListAsync();
         }
@@ -144,7 +146,8 @@ namespace DAL.Implementations.Principales
             if (!string.IsNullOrWhiteSpace(razonSocial))
             {
                 var termino = razonSocial.Trim().ToLower();
-                query = query.Where(p => p.RazonSocial.ToLower().Contains(termino));
+                query = query.Where(p => p.RazonSocial.ToLower().Contains(termino)
+                                         || (p.Alias != null && p.Alias.ToLower().Contains(termino)));
             }
 
             if (!string.IsNullOrWhiteSpace(cuit))
@@ -176,7 +179,8 @@ namespace DAL.Implementations.Principales
             if (!string.IsNullOrWhiteSpace(razonSocial))
             {
                 var termino = razonSocial.Trim().ToLower();
-                query = query.Where(p => p.RazonSocial.ToLower().Contains(termino));
+                query = query.Where(p => p.RazonSocial.ToLower().Contains(termino)
+                                         || (p.Alias != null && p.Alias.ToLower().Contains(termino)));
             }
 
             if (!string.IsNullOrWhiteSpace(cuit))

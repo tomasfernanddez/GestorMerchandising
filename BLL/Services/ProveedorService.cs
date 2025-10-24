@@ -96,6 +96,7 @@ namespace BLL.Services
                 proveedor.Domicilio = proveedor.Domicilio?.Trim();
                 proveedor.CodigoPostal = proveedor.CodigoPostal?.Trim();
                 proveedor.Localidad = proveedor.Localidad?.Trim();
+                proveedor.Alias = string.IsNullOrWhiteSpace(proveedor.Alias) ? null : proveedor.Alias.Trim();
 
                 SincronizarTipos(proveedor, tiposProveedor);
                 SincronizarTecnicas(proveedor, tecnicasPersonalizacion);
@@ -132,6 +133,7 @@ namespace BLL.Services
                 proveedor.Domicilio = proveedor.Domicilio?.Trim();
                 proveedor.CodigoPostal = proveedor.CodigoPostal?.Trim();
                 proveedor.Localidad = proveedor.Localidad?.Trim();
+                proveedor.Alias = string.IsNullOrWhiteSpace(proveedor.Alias) ? null : proveedor.Alias.Trim();
 
                 SincronizarTipos(proveedor, tiposProveedor);
                 SincronizarTecnicas(proveedor, tecnicasPersonalizacion);
@@ -180,6 +182,7 @@ namespace BLL.Services
                 proveedorExistente.CondicionesPago = NormalizarCondicionPago(proveedor.CondicionesPago);
                 proveedorExistente.Observaciones = proveedor.Observaciones?.Trim();
                 proveedorExistente.Activo = proveedor.Activo;
+                proveedorExistente.Alias = string.IsNullOrWhiteSpace(proveedor.Alias) ? null : proveedor.Alias.Trim();
 
                 SincronizarTipos(proveedorExistente, tiposProveedor);
                 ActualizarTecnicas(proveedorExistente, tecnicasPersonalizacion);
@@ -332,6 +335,9 @@ namespace BLL.Services
 
             if (!string.IsNullOrWhiteSpace(proveedor.Observaciones) && proveedor.Observaciones.Length > 500)
                 return ResultadoOperacion.Error("Las observaciones no pueden superar los 500 caracteres");
+
+            if (!string.IsNullOrWhiteSpace(proveedor.Alias) && proveedor.Alias.Length > 100)
+                return ResultadoOperacion.Error("El alias no puede superar los 100 caracteres");
 
             return ResultadoOperacion.Exitoso("Validación exitosa");
         }
