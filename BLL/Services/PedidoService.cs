@@ -406,6 +406,7 @@ namespace BLL.Services
 
         private void SincronizarDetalles(Pedido destino, IEnumerable<PedidoDetalle> nuevosDetalles)
         {
+            var ctx = ObtenerContexto();
             var nuevos = nuevosDetalles.ToList();
             var existentes = destino.Detalles.ToList();
 
@@ -440,15 +441,51 @@ namespace BLL.Services
                     existente.IdProducto = productoActualizado.IdProducto;
                     existente.Producto = productoActualizado;
 
-                    // Reemplazar logos
-                    existente.LogosPedido.Clear();
-                    foreach (var logo in detalleNuevo.LogosPedido ?? new List<LogosPedido>())
+                    var logosNuevos = (detalleNuevo.LogosPedido ?? new List<LogosPedido>()).ToList();
+                    var idsLogosNuevos = new HashSet<Guid>(
+                        logosNuevos.Where(l => l.IdLogoPedido != Guid.Empty).Select(l => l.IdLogoPedido));
+                    var logosExistentes = existente.LogosPedido?.ToList() ?? new List<LogosPedido>();
+
+                    var logosAEliminar = logosExistentes
+                        .Where(l => l.IdLogoPedido != Guid.Empty && !idsLogosNuevos.Contains(l.IdLogoPedido))
+                        .ToList();
+
+                    if (logosAEliminar.Any())
                     {
-                        logo.IdLogoPedido = logo.IdLogoPedido == Guid.Empty ? Guid.NewGuid() : logo.IdLogoPedido;
-                        logo.IdDetallePedido = existente.IdDetallePedido;
-                        if (logo.Cantidad <= 0)
-                            logo.Cantidad = 1;
-                        existente.LogosPedido.Add(logo);
+                        ctx?.LogosPedidos.RemoveRange(logosAEliminar);
+                        foreach (var logoEliminar in logosAEliminar)
+                        {
+                            existente.LogosPedido.Remove(logoEliminar);
+                        }
+                    }
+
+                    foreach (var logo in logosNuevos)
+                    {
+                        var logoExistente = logo.IdLogoPedido == Guid.Empty
+                            ? null
+                            : existente.LogosPedido.FirstOrDefault(l => l.IdLogoPedido == logo.IdLogoPedido);
+
+                        if (logoExistente == null)
+                        {
+                            logo.IdLogoPedido = logo.IdLogoPedido == Guid.Empty ? Guid.NewGuid() : logo.IdLogoPedido;
+                            logo.IdDetallePedido = existente.IdDetallePedido;
+                            if (logo.Cantidad <= 0)
+                                logo.Cantidad = 1;
+                            existente.LogosPedido.Add(logo);
+                        }
+                        else
+                        {
+                            logoExistente.IdDetallePedido = existente.IdDetallePedido;
+                            logoExistente.IdTecnicaPersonalizacion = logo.IdTecnicaPersonalizacion;
+                            logoExistente.IdUbicacionLogo = logo.IdUbicacionLogo;
+                            logoExistente.IdProveedor = logo.IdProveedor;
+                            logoExistente.CostoPersonalizacion = logo.CostoPersonalizacion;
+                            logoExistente.Cantidad = logo.Cantidad <= 0 ? 1 : logo.Cantidad;
+                            logoExistente.Descripcion = logo.Descripcion;
+                            logoExistente.TecnicaPersonalizacion = logo.TecnicaPersonalizacion;
+                            logoExistente.UbicacionLogo = logo.UbicacionLogo;
+                            logoExistente.Proveedor = logo.Proveedor;
+                        }
                     }
                 }
             }
