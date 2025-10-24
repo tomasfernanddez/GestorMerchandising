@@ -24,6 +24,7 @@ namespace UI
 
         private BindingList<PedidoRow> _rows;
         private List<EstadoPedido> _estados;
+        private bool _suspendSearch;
 
         private sealed class PedidoRow
         {
@@ -33,6 +34,7 @@ namespace UI
             public string Estado { get; set; }
             public DateTime FechaCreacion { get; set; }
             public DateTime? FechaEntrega { get; set; }
+            public int CantidadProductos { get; set; }
             public decimal Total { get; set; }
             public bool Facturado { get; set; }
             public decimal SaldoPendiente { get; set; }
@@ -63,7 +65,10 @@ namespace UI
             ApplyTexts();
             ConfigurarGrid();
             CargarEstados();
+            _suspendSearch = true;
             InicializarFiltros();
+            _suspendSearch = false;
+            txtBuscar.TextChanged += (s, args) => { if (!_suspendSearch) BuscarPedidos(); };
             BuscarPedidos();
         }
 
@@ -121,6 +126,14 @@ namespace UI
             });
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
+                DataPropertyName = nameof(PedidoRow.CantidadProductos),
+                Name = nameof(PedidoRow.CantidadProductos),
+                HeaderText = "order.list.items".Traducir(),
+                FillWeight = 90,
+                MinimumWidth = 90
+            });
+            dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
+            {
                 DataPropertyName = nameof(PedidoRow.FechaCreacion),
                 Name = nameof(PedidoRow.FechaCreacion),
                 HeaderText = "order.createdAt".Traducir(),
@@ -173,6 +186,7 @@ namespace UI
             SetHeaderText(nameof(PedidoRow.NumeroPedido), "order.number");
             SetHeaderText(nameof(PedidoRow.Cliente), "order.client");
             SetHeaderText(nameof(PedidoRow.Estado), "order.state");
+            SetHeaderText(nameof(PedidoRow.CantidadProductos), "order.list.items");
             SetHeaderText(nameof(PedidoRow.FechaCreacion), "order.createdAt");
             SetHeaderText(nameof(PedidoRow.FechaEntrega), "order.deadline");
             SetHeaderText(nameof(PedidoRow.Total), "order.summary.total");
@@ -199,60 +213,47 @@ namespace UI
             if (_estados == null)
                 return;
 
-            var estadoSeleccionado = mantenerSeleccion ? ObtenerEstadoFiltro() : (Guid?)null;
-            var facturadoSeleccion = mantenerSeleccion ? cmbFacturado.SelectedIndex : 0;
-            var saldoSeleccion = mantenerSeleccion ? cmbSaldo.SelectedIndex : 0;
+            var estadoIndice = mantenerSeleccion ? cmbEstado.SelectedIndex : 1;
+            var facturadoIndice = mantenerSeleccion ? cmbFacturado.SelectedIndex : 1;
+            var saldoIndice = mantenerSeleccion ? cmbSaldo.SelectedIndex : 1;
+
+            var previousSuspend = _suspendSearch;
+            _suspendSearch = true;
 
             cmbEstado.Items.Clear();
+            cmbEstado.Items.Add("form.select.optional".Traducir());
             cmbEstado.Items.Add("order.filter.all".Traducir());
             foreach (var estado in _estados)
             {
                 cmbEstado.Items.Add(new ComboItem(estado.IdEstadoPedido, estado.NombreEstadoPedido));
             }
 
-            var seleccionado = false;
-            if (mantenerSeleccion && estadoSeleccionado.HasValue)
-            {
-                for (var i = 1; i < cmbEstado.Items.Count; i++)
-                {
-                    if (cmbEstado.Items[i] is ComboItem item && item.Id == estadoSeleccionado.Value)
-                    {
-                        cmbEstado.SelectedIndex = i;
-                        seleccionado = true;
-                        break;
-                    }
-                }
-            }
-            if (!seleccionado)
-            {
-                cmbEstado.SelectedIndex = 0;
-            }
+           if (estadoIndice >= 0 && estadoIndice < cmbEstado.Items.Count)
+                cmbEstado.SelectedIndex = estadoIndice;
+            else
+                cmbEstado.SelectedIndex = Math.Min(1, cmbEstado.Items.Count - 1);
 
             cmbFacturado.Items.Clear();
+            cmbFacturado.Items.Add("form.select.optional".Traducir());
             cmbFacturado.Items.Add("order.filter.all".Traducir());
             cmbFacturado.Items.Add("order.filter.invoiced".Traducir());
             cmbFacturado.Items.Add("order.filter.notInvoiced".Traducir());
-            if (mantenerSeleccion && facturadoSeleccion >= 0 && facturadoSeleccion < cmbFacturado.Items.Count)
-            {
-                cmbFacturado.SelectedIndex = facturadoSeleccion;
-            }
+            if (facturadoIndice >= 0 && facturadoIndice < cmbFacturado.Items.Count)
+                cmbFacturado.SelectedIndex = facturadoIndice;
             else
-            {
-                cmbFacturado.SelectedIndex = 0;
-            }
+                cmbFacturado.SelectedIndex = 1;
 
             cmbSaldo.Items.Clear();
+            cmbSaldo.Items.Add("form.select.optional".Traducir());
             cmbSaldo.Items.Add("order.filter.all".Traducir());
             cmbSaldo.Items.Add("order.filter.balancePending".Traducir());
             cmbSaldo.Items.Add("order.filter.balanceClear".Traducir());
-            if (mantenerSeleccion && saldoSeleccion >= 0 && saldoSeleccion < cmbSaldo.Items.Count)
-            {
-                cmbSaldo.SelectedIndex = saldoSeleccion;
-            }
+            if (saldoIndice >= 0 && saldoIndice < cmbSaldo.Items.Count)
+                cmbSaldo.SelectedIndex = saldoIndice;
             else
-            {
-                cmbSaldo.SelectedIndex = 0;
-            }
+                cmbSaldo.SelectedIndex = 1;
+
+            _suspendSearch = previousSuspend;
         }
 
         private void BuscarPedidos()
@@ -264,7 +265,8 @@ namespace UI
                     NumeroPedido = string.IsNullOrWhiteSpace(txtBuscar.Text) ? null : txtBuscar.Text.Trim(),
                     IdEstado = ObtenerEstadoFiltro(),
                     Facturado = ObtenerFacturadoFiltro(),
-                    ConSaldoPendiente = ObtenerSaldoFiltro()
+                    ConSaldoPendiente = ObtenerSaldoFiltro(),
+                    IncluirDetalles = true
                 };
 
                 var pedidos = _pedidoService.ObtenerPedidos(filtro).ToList();
@@ -272,6 +274,7 @@ namespace UI
 
                 foreach (var pedido in pedidos)
                 {
+                    var cantidadProductos = pedido.Detalles?.Sum(d => d.Cantidad) ?? 0;
                     _rows.Add(new PedidoRow
                     {
                         IdPedido = pedido.IdPedido,
@@ -280,6 +283,7 @@ namespace UI
                         Estado = pedido.EstadoPedido?.NombreEstadoPedido ?? _estados.FirstOrDefault(e => e.IdEstadoPedido == pedido.IdEstadoPedido)?.NombreEstadoPedido,
                         FechaCreacion = pedido.FechaCreacion,
                         FechaEntrega = pedido.FechaLimiteEntrega,
+                        CantidadProductos = cantidadProductos,
                         Total = pedido.TotalConIva,
                         Facturado = pedido.Facturado,
                         SaldoPendiente = pedido.SaldoPendiente
@@ -309,8 +313,8 @@ namespace UI
         {
             switch (cmbFacturado.SelectedIndex)
             {
-                case 1: return true;
-                case 2: return false;
+                case 2: return true;
+                case 3: return false;
                 default: return null;
             }
         }
@@ -319,8 +323,8 @@ namespace UI
         {
             switch (cmbSaldo.SelectedIndex)
             {
-                case 1: return true;
-                case 2: return false;
+                case 2: return true;
+                case 3: return false;
                 default: return null;
             }
         }
@@ -360,17 +364,20 @@ namespace UI
 
         private void cmbEstado_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BuscarPedidos();
+            if (!_suspendSearch)
+                BuscarPedidos();
         }
 
         private void cmbFacturado_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BuscarPedidos();
+            if (!_suspendSearch)
+                BuscarPedidos();
         }
 
         private void cmbSaldo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            BuscarPedidos();
+            if (!_suspendSearch)
+                BuscarPedidos();
         }
 
         private void dgvPedidos_CellDoubleClick(object sender, DataGridViewCellEventArgs e)

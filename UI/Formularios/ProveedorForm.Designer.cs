@@ -12,6 +12,8 @@ namespace UI
         private Label lblRazonSocial;
         private TextBox txtRazonSocial;
         private Label lblCUIT;
+        private TextBox txtAlias;
+        private Label lblAlias;
         private TextBox txtCUIT;
         private Label lblCondicionIVA;
         private ComboBox cboCondicionIVA;
@@ -64,6 +66,8 @@ namespace UI
             this.lblCUIT = new System.Windows.Forms.Label();
             this.txtRazonSocial = new System.Windows.Forms.TextBox();
             this.lblRazonSocial = new System.Windows.Forms.Label();
+            this.txtAlias = new System.Windows.Forms.TextBox();
+            this.lblAlias = new System.Windows.Forms.Label();
             this.grpUbicacion = new System.Windows.Forms.GroupBox();
             this.cboLocalidad = new System.Windows.Forms.ComboBox();
             this.lblLocalidad = new System.Windows.Forms.Label();
@@ -102,6 +106,8 @@ namespace UI
             this.grpGenerales.Controls.Add(this.lblCondicionIVA);
             this.grpGenerales.Controls.Add(this.txtCUIT);
             this.grpGenerales.Controls.Add(this.lblCUIT);
+            this.grpGenerales.Controls.Add(this.txtAlias);
+            this.grpGenerales.Controls.Add(this.lblAlias);
             this.grpGenerales.Controls.Add(this.txtRazonSocial);
             this.grpGenerales.Controls.Add(this.lblRazonSocial);
             this.grpGenerales.Location = new System.Drawing.Point(16, 15);
@@ -143,14 +149,14 @@ namespace UI
             // 
             this.cboCondicionesPago.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboCondicionesPago.FormattingEnabled = true;
-            this.cboCondicionesPago.Location = new System.Drawing.Point(140, 170);
+            this.cboCondicionesPago.Location = new System.Drawing.Point(140, 180);
             this.cboCondicionesPago.Name = "cboCondicionesPago";
             this.cboCondicionesPago.Size = new System.Drawing.Size(280, 21);
             this.cboCondicionesPago.TabIndex = 9;
             // 
             // lblCondicionesPago
             // 
-            this.lblCondicionesPago.Location = new System.Drawing.Point(20, 170);
+            this.lblCondicionesPago.Location = new System.Drawing.Point(20, 180);
             this.lblCondicionesPago.Name = "lblCondicionesPago";
             this.lblCondicionesPago.Size = new System.Drawing.Size(110, 20);
             this.lblCondicionesPago.TabIndex = 8;
@@ -161,14 +167,14 @@ namespace UI
             //
             this.clbTiposProveedor.CheckOnClick = true;
             this.clbTiposProveedor.FormattingEnabled = true;
-            this.clbTiposProveedor.Location = new System.Drawing.Point(140, 110);
+            this.clbTiposProveedor.Location = new System.Drawing.Point(140, 126);
             this.clbTiposProveedor.Name = "clbTiposProveedor";
             this.clbTiposProveedor.Size = new System.Drawing.Size(280, 49);
             this.clbTiposProveedor.TabIndex = 7;
             // 
             // lblTipoProveedor
             // 
-            this.lblTipoProveedor.Location = new System.Drawing.Point(20, 110);
+            this.lblTipoProveedor.Location = new System.Drawing.Point(20, 126);
             this.lblTipoProveedor.Name = "lblTipoProveedor";
             this.lblTipoProveedor.Size = new System.Drawing.Size(110, 20);
             this.lblTipoProveedor.TabIndex = 6;
@@ -179,14 +185,14 @@ namespace UI
             // 
             this.cboCondicionIVA.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboCondicionIVA.FormattingEnabled = true;
-            this.cboCondicionIVA.Location = new System.Drawing.Point(140, 75);
+            this.cboCondicionIVA.Location = new System.Drawing.Point(140, 99);
             this.cboCondicionIVA.Name = "cboCondicionIVA";
             this.cboCondicionIVA.Size = new System.Drawing.Size(280, 21);
             this.cboCondicionIVA.TabIndex = 5;
             // 
             // lblCondicionIVA
             // 
-            this.lblCondicionIVA.Location = new System.Drawing.Point(20, 75);
+            this.lblCondicionIVA.Location = new System.Drawing.Point(20, 99);
             this.lblCondicionIVA.Name = "lblCondicionIVA";
             this.lblCondicionIVA.Size = new System.Drawing.Size(110, 20);
             this.lblCondicionIVA.TabIndex = 4;
@@ -195,14 +201,14 @@ namespace UI
             // 
             // txtCUIT
             // 
-            this.txtCUIT.Location = new System.Drawing.Point(140, 45);
+            this.txtCUIT.Location = new System.Drawing.Point(140, 72);
             this.txtCUIT.Name = "txtCUIT";
             this.txtCUIT.Size = new System.Drawing.Size(180, 20);
             this.txtCUIT.TabIndex = 3;
             // 
             // lblCUIT
             // 
-            this.lblCUIT.Location = new System.Drawing.Point(20, 45);
+            this.lblCUIT.Location = new System.Drawing.Point(20, 72);
             this.lblCUIT.Name = "lblCUIT";
             this.lblCUIT.Size = new System.Drawing.Size(110, 20);
             this.lblCUIT.TabIndex = 2;
@@ -224,6 +230,22 @@ namespace UI
             this.lblRazonSocial.TabIndex = 0;
             this.lblRazonSocial.Text = "supplier.razonSocial";
             this.lblRazonSocial.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // txtAlias
+            //
+            this.txtAlias.Location = new System.Drawing.Point(140, 45);
+            this.txtAlias.Name = "txtAlias";
+            this.txtAlias.Size = new System.Drawing.Size(360, 20);
+            this.txtAlias.TabIndex = 2;
+            //
+            // lblAlias
+            //
+            this.lblAlias.Location = new System.Drawing.Point(20, 45);
+            this.lblAlias.Name = "lblAlias";
+            this.lblAlias.Size = new System.Drawing.Size(110, 20);
+            this.lblAlias.TabIndex = 13;
+            this.lblAlias.Text = "supplier.alias";
+            this.lblAlias.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // grpUbicacion
             // 

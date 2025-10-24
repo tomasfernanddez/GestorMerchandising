@@ -52,6 +52,7 @@ abm.usuarios.title=User Management
 
 # CLIENT
 cliente.activo=Active
+cliente.alias=Alias
 cliente.condicionIVA=VAT Condition
 cliente.cuit=Tax ID
 cliente.domicilio=Address
@@ -59,17 +60,19 @@ cliente.localidad=City
 cliente.pais=Country
 cliente.provincia=State/Province
 cliente.razonSocial=Business Name
+cliente.tipoEmpresa=Business Type
 
 # ============================================
 # SUPPLIER
 # ============================================
+supplier.alias=Alias
+supplier.column.alias=Alias
 supplier.column.razon=Business Name
 supplier.column.cuit=Tax ID
 supplier.column.type=Supplier Type
 supplier.column.location=City
 supplier.column.status=Status
-supplier.filter.razon=Business Name
-supplier.filter.cuit=Tax ID
+supplier.filter.razon=Search
 supplier.filter.type=Type
 supplier.filter.status=Status
 supplier.filter.type.all=All types
@@ -100,6 +103,25 @@ supplier.payment.cash=Cash
 supplier.payment.30=30 days EOM
 supplier.payment.60=60 days EOM
 supplier.payment.90=90 days EOM
+
+# ORDER PAYMENTS
+order.payment.title=Register payment
+order.payment.amount=Payment amount
+order.payment.add=Add payment
+order.payment.undo=Undo last payment
+order.payment.confirm=Do you confirm registering a payment of {0:C}?
+order.payment.undo.confirm=Do you want to undo the last payment of {0:C}?
+order.payment.undo.empty=There are no payments to undo.
+order.payment.validation.amount=Enter an amount greater than zero.
+order.timeline.productChange=Product "{0}" updated to status "{1}" by {2}.
+
+# ORDER DETAIL
+order.detail.logo.validation.quantity=Logo quantity cannot exceed the product quantity.
+order.detail.logoCount=Logo qty.
+order.detail.personalizationProvider=Personalization provider
+
+# ORDER LIST
+order.list.items=Items
 
 # USER
 usuario.activo=Active

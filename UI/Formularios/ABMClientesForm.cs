@@ -178,6 +178,8 @@ namespace UI
             dgvClientes.Columns["CondicionIva"].HeaderText = "cliente.condicionIVA".Traducir();
             dgvClientes.Columns["Activo"].HeaderText = "cliente.activo".Traducir();
 
+            tslBuscar.Text = "form.search".Traducir();
+
             // Usa un helper que no rompe si la columna no existe
             SetHeaderSafe("RazonSocial", "cliente.razonSocial");
             SetHeaderSafe("Alias", "cliente.alias");
@@ -199,8 +201,8 @@ namespace UI
         private void WireUp()
         {
             tsbActualizar.Click += (s, e) => CargarClientes();
-            tsbBuscar.Click += (s, e) => Buscar();
             txtBuscar.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; Buscar(); } };
+            txtBuscar.TextChanged += (s, e) => Buscar();
 
             tsbNuevo.Click += (s, e) => NuevoCliente();
             tsbEditar.Click += (s, e) => EditarSeleccionado();

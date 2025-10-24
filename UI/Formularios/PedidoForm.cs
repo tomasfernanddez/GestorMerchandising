@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Drawing;
 using BLL.Helpers;
 using BLL.Interfaces;
 using DomainModel;
@@ -40,6 +41,10 @@ namespace UI
         private List<TecnicaPersonalizacion> _tecnicas;
         private List<UbicacionLogo> _ubicaciones;
         private List<TipoPago> _tiposPago;
+        private decimal _montoPagadoBase;
+        private decimal _montoPagadoActual;
+        private readonly List<decimal> _pagosRegistrados = new List<decimal>();
+        private ContextMenuStrip _contextMenuEstados;
 
         public PedidoForm(
             IPedidoService pedidoService,
@@ -61,6 +66,9 @@ namespace UI
             _pedidoId = pedidoId;
 
             InitializeComponent();
+
+            btnAgregarPago.Click += btnAgregarPago_Click;
+            btnDeshacerPago.Click += btnDeshacerPago_Click;
         }
 
         private void PedidoForm_Load(object sender, EventArgs e)
@@ -114,6 +122,8 @@ namespace UI
             lblMontoIva.Text = "order.summary.tax".Traducir();
             lblTotalConIva.Text = "order.summary.total".Traducir();
             lblSaldoPendiente.Text = "order.summary.balance".Traducir();
+            btnAgregarPago.Text = "order.payment.add".Traducir();
+            btnDeshacerPago.Text = "order.payment.undo".Traducir();
 
             gbHistorialEstados.Text = "order.timeline".Traducir();
             columnFecha.Text = "order.timeline.date".Traducir();
@@ -160,6 +170,8 @@ namespace UI
                 _ubicaciones = _pedidoService.ObtenerUbicacionesLogo().OrderBy(u => u.NombreUbicacionLogo).ToList();
 
                 ConfigurarCombosGenerales();
+                if (_contextMenuEstados != null)
+                    ConfigurarMenuContextualEstados();
             }
             catch (Exception ex)
             {
@@ -329,6 +341,16 @@ namespace UI
 
             dgvDetalles.DataSource = _detalles;
             dgvDetalles.CellDoubleClick += dgvDetalles_CellDoubleClick;
+            dgvDetalles.CellMouseDown += DgvDetalles_CellMouseDown;
+
+            if (_contextMenuEstados == null)
+            {
+                _contextMenuEstados = new ContextMenuStrip();
+                _contextMenuEstados.Opening += ContextMenuEstados_Opening;
+                dgvDetalles.ContextMenuStrip = _contextMenuEstados;
+            }
+
+            ConfigurarMenuContextualEstados();
         }
 
         private void ActualizarEncabezadosDetalles()
@@ -340,6 +362,27 @@ namespace UI
             SetDetalleHeader(nameof(PedidoDetalleViewModel.PrecioUnitario), "order.detail.price");
             SetDetalleHeader(nameof(PedidoDetalleViewModel.EstadoProducto), "order.detail.state");
             SetDetalleHeader(nameof(PedidoDetalleViewModel.FechaLimite), "order.detail.deadline");
+        }
+
+        private void ConfigurarMenuContextualEstados()
+        {
+            if (_contextMenuEstados == null)
+                return;
+
+            _contextMenuEstados.Items.Clear();
+
+            if (_estadosProducto == null)
+                return;
+
+            foreach (var estado in _estadosProducto)
+            {
+                var item = new ToolStripMenuItem(estado.NombreEstadoProducto)
+                {
+                    Tag = estado
+                };
+                item.Click += ContextMenuEstado_Click;
+                _contextMenuEstados.Items.Add(item);
+            }
         }
 
         private void SetDetalleHeader(string columnName, string resourceKey)
@@ -360,6 +403,51 @@ namespace UI
             if (detalle != null)
             {
                 AbrirDetalle(detalle);
+            }
+        }
+
+        private void DgvDetalles_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
+            {
+                dgvDetalles.ClearSelection();
+                dgvDetalles.Rows[e.RowIndex].Selected = true;
+                var columnIndex = e.ColumnIndex >= 0 ? e.ColumnIndex : 0;
+                dgvDetalles.CurrentCell = dgvDetalles.Rows[e.RowIndex].Cells[columnIndex];
+            }
+        }
+
+        private void ContextMenuEstados_Opening(object sender, CancelEventArgs e)
+        {
+            var detalle = ObtenerDetalleSeleccionado();
+            if (detalle == null || _contextMenuEstados == null || _contextMenuEstados.Items.Count == 0)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            foreach (var item in _contextMenuEstados.Items.OfType<ToolStripMenuItem>())
+            {
+                if (item.Tag is EstadoProducto estado)
+                {
+                    var idDetalle = detalle.IdEstadoProducto ?? Guid.Empty;
+                    item.Checked = idDetalle != Guid.Empty && idDetalle == estado.IdEstadoProducto;
+                }
+            }
+        }
+
+        private void ContextMenuEstado_Click(object sender, EventArgs e)
+        {
+            if (sender is ToolStripMenuItem menuItem && menuItem.Tag is EstadoProducto estado)
+            {
+                var detalle = ObtenerDetalleSeleccionado();
+                if (detalle == null)
+                    return;
+
+                if (detalle.IdEstadoProducto.HasValue && detalle.IdEstadoProducto.Value == estado.IdEstadoProducto)
+                    return;
+
+                CambiarEstadoDetalle(detalle, estado);
             }
         }
 
@@ -388,7 +476,10 @@ namespace UI
                     dtpFechaEntrega.Value = _pedidoOriginal.FechaLimiteEntrega.Value;
                 }
 
-                nudMontoPagado.Value = _pedidoOriginal.MontoPagado;
+                _montoPagadoBase = _pedidoOriginal.MontoPagado;
+                _montoPagadoActual = _montoPagadoBase;
+                _pagosRegistrados.Clear();
+                ActualizarMontoPagadoUI();
                 chkFacturado.Checked = _pedidoOriginal.Facturado;
                 txtFactura.Text = _pedidoOriginal.RutaFacturaPdf;
 
@@ -423,6 +514,10 @@ namespace UI
             _notas = new List<PedidoNota>();
             _historial = new List<PedidoEstadoHistorial>();
             SeleccionarEstadoProduccion();
+            _montoPagadoBase = 0m;
+            _montoPagadoActual = 0m;
+            _pagosRegistrados.Clear();
+            ActualizarMontoPagadoUI();
         }
 
         private PedidoDetalleViewModel MapearDetalle(PedidoDetalle detalle)
@@ -534,12 +629,117 @@ namespace UI
             decimal totalSinIva = Math.Round(totalProductos, 2);
             decimal iva = Math.Round(totalSinIva * 0.21m, 2);
             decimal totalConIva = Math.Round(totalSinIva + iva, 2);
-            decimal saldo = Math.Max(0, Math.Round(totalConIva - nudMontoPagado.Value, 2));
+            decimal saldo = Math.Max(0, Math.Round(totalConIva - _montoPagadoActual, 2));
 
             lblTotalSinIvaValor.Text = totalSinIva.ToString("N2");
             lblMontoIvaValor.Text = iva.ToString("N2");
             lblTotalConIvaValor.Text = totalConIva.ToString("N2");
             lblSaldoPendienteValor.Text = saldo.ToString("N2");
+            lblMontoPagadoValor.Text = _montoPagadoActual.ToString("N2");
+            btnDeshacerPago.Enabled = _pagosRegistrados.Count > 0;
+        }
+
+        private void ActualizarMontoPagadoUI()
+        {
+            ActualizarResumen();
+        }
+
+        private void btnAgregarPago_Click(object sender, EventArgs e)
+        {
+            if (!TrySolicitarMontoPago(out var monto))
+                return;
+
+            if (monto <= 0)
+            {
+                MessageBox.Show("order.payment.validation.amount".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var mensaje = string.Format("order.payment.confirm".Traducir(), monto);
+            if (MessageBox.Show(mensaje, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            _pagosRegistrados.Add(monto);
+            _montoPagadoActual = Math.Round(_montoPagadoActual + monto, 2);
+            ActualizarMontoPagadoUI();
+        }
+
+        private void btnDeshacerPago_Click(object sender, EventArgs e)
+        {
+            if (_pagosRegistrados.Count == 0)
+            {
+                MessageBox.Show("order.payment.undo.empty".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var monto = _pagosRegistrados[_pagosRegistrados.Count - 1];
+            var mensaje = string.Format("order.payment.undo.confirm".Traducir(), monto);
+            if (MessageBox.Show(mensaje, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            _pagosRegistrados.RemoveAt(_pagosRegistrados.Count - 1);
+            _montoPagadoActual = Math.Max(0, Math.Round(_montoPagadoActual - monto, 2));
+            ActualizarMontoPagadoUI();
+        }
+
+        private bool TrySolicitarMontoPago(out decimal monto)
+        {
+            using (var dialog = new Form())
+            {
+                dialog.Text = "order.payment.title".Traducir();
+                dialog.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dialog.StartPosition = FormStartPosition.CenterParent;
+                dialog.MinimizeBox = false;
+                dialog.MaximizeBox = false;
+                dialog.ShowIcon = false;
+                dialog.ClientSize = new Size(260, 130);
+
+                var lbl = new Label
+                {
+                    AutoSize = true,
+                    Text = "order.payment.amount".Traducir(),
+                    Location = new Point(12, 15)
+                };
+
+                var nud = new NumericUpDown
+                {
+                    DecimalPlaces = 2,
+                    Minimum = 0,
+                    Maximum = 1000000000,
+                    Location = new Point(15, 40),
+                    Width = 220,
+                    ThousandsSeparator = true
+                };
+
+                var btnOk = new Button
+                {
+                    Text = "form.accept".Traducir(),
+                    DialogResult = DialogResult.OK,
+                    Location = new Point(45, 85),
+                    AutoSize = true
+                };
+
+                var btnCancel = new Button
+                {
+                    Text = "form.cancel".Traducir(),
+                    DialogResult = DialogResult.Cancel,
+                    Location = new Point(135, 85),
+                    AutoSize = true
+                };
+
+                dialog.Controls.AddRange(new Control[] { lbl, nud, btnOk, btnCancel });
+                dialog.AcceptButton = btnOk;
+                dialog.CancelButton = btnCancel;
+
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    monto = nud.Value;
+                    return true;
+                }
+            }
+
+            monto = 0m;
+            return false;
         }
 
         private void chkFechaEntrega_CheckedChanged(object sender, EventArgs e)
@@ -601,6 +801,23 @@ namespace UI
             return dgvDetalles.CurrentRow?.DataBoundItem as PedidoDetalleViewModel;
         }
 
+        private void CambiarEstadoDetalle(PedidoDetalleViewModel detalle, EstadoProducto nuevoEstado)
+        {
+            if (detalle == null || nuevoEstado == null || _detalles == null)
+                return;
+
+            detalle.IdEstadoProducto = nuevoEstado.IdEstadoProducto;
+            detalle.EstadoProducto = nuevoEstado.NombreEstadoProducto;
+
+            var index = _detalles.IndexOf(detalle);
+            if (index >= 0)
+                _detalles.ResetItem(index);
+            else
+                dgvDetalles.Refresh();
+
+            RegistrarHistorialProducto(detalle, nuevoEstado);
+        }
+
         private void AbrirDetalle(PedidoDetalleViewModel detalle)
         {
             var form = new PedidoDetalleForm(
@@ -617,6 +834,8 @@ namespace UI
             if (form.ShowDialog(this) == DialogResult.OK && form.DetalleResult != null)
             {
                 var result = form.DetalleResult;
+                var estadoAnteriorId = detalle?.IdEstadoProducto;
+
                 if (detalle == null)
                 {
                     if (result.IdDetallePedido == Guid.Empty)
@@ -627,6 +846,13 @@ namespace UI
                 {
                     var index = _detalles.IndexOf(detalle);
                     _detalles[index] = result;
+
+                    if ((estadoAnteriorId ?? Guid.Empty) != (result.IdEstadoProducto ?? Guid.Empty))
+                    {
+                        var nuevoEstado = ObtenerEstadoProducto(result.IdEstadoProducto);
+                        if (nuevoEstado != null)
+                            RegistrarHistorialProducto(result, nuevoEstado);
+                    }
                 }
 
                 ActualizarResumen();
@@ -764,7 +990,7 @@ namespace UI
             pedido.IdTipoPago = (Guid?)cmbTipoPago.SelectedValue;
             pedido.IdEstadoPedido = (Guid?)cmbEstadoPedido.SelectedValue;
             pedido.FechaLimiteEntrega = chkFechaEntrega.Checked ? dtpFechaEntrega.Value.Date : (DateTime?)null;
-            pedido.MontoPagado = nudMontoPagado.Value;
+            pedido.MontoPagado = _montoPagadoActual;
             pedido.Facturado = chkFacturado.Checked;
             pedido.RutaFacturaPdf = chkFacturado.Checked ? txtFactura.Text?.Trim() : null;
             pedido.Cliente_OC = txtOC.Text?.Trim();
@@ -790,6 +1016,14 @@ namespace UI
                     FechaCambio = DateTime.UtcNow,
                     Usuario = SessionContext.NombreUsuario ?? "Sistema"
                 });
+            }
+
+            if (_historial != null)
+            {
+                foreach (var historial in _historial.Where(h => h.IdPedido == Guid.Empty))
+                {
+                    historial.IdPedido = pedido.IdPedido;
+                }
             }
 
             pedido.HistorialEstados = _historial.Select(CloneHistorial).ToList();
@@ -834,6 +1068,53 @@ namespace UI
                 CostoPersonalizacion = vm.Costo,
                 Descripcion = vm.Descripcion
             };
+        }
+
+        private void RegistrarHistorialProducto(PedidoDetalleViewModel detalle, EstadoProducto estado)
+        {
+            if (detalle == null || estado == null)
+                return;
+
+            if (_historial == null)
+                _historial = new List<PedidoEstadoHistorial>();
+
+            var usuario = SessionContext.NombreUsuario ?? "Sistema";
+            var comentario = string.Format("order.timeline.productChange".Traducir(),
+                detalle.NombreProducto ?? string.Empty,
+                estado.NombreEstadoProducto,
+                usuario);
+
+            var historial = new PedidoEstadoHistorial
+            {
+                IdHistorial = Guid.NewGuid(),
+                IdPedido = _pedidoOriginal?.IdPedido ?? _pedidoId ?? Guid.Empty,
+                IdEstadoPedido = ObtenerEstadoPedidoActual(),
+                Comentario = comentario,
+                FechaCambio = DateTime.UtcNow,
+                Usuario = usuario
+            };
+
+            _historial.Add(historial);
+            RefrescarHistorial();
+        }
+
+        private Guid ObtenerEstadoPedidoActual()
+        {
+            if (cmbEstadoPedido.SelectedValue is Guid estadoId && estadoId != Guid.Empty)
+                return estadoId;
+
+            if (_pedidoOriginal?.IdEstadoPedido.HasValue == true)
+                return _pedidoOriginal.IdEstadoPedido.Value;
+
+            return Guid.Empty;
+        }
+
+        private EstadoProducto ObtenerEstadoProducto(Guid? idEstado)
+        {
+            if (!idEstado.HasValue || idEstado.Value == Guid.Empty)
+                return null;
+
+            return _estadosProducto?.FirstOrDefault(e => e.IdEstadoProducto == idEstado.Value);
         }
     }
 }

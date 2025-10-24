@@ -17,11 +17,13 @@ namespace UI
         private readonly ICondicionIvaService _condicionIvaService;
         private bool _puedeEliminar;
         private IList<DomainModel.Entidades.TipoProveedor> _tiposProveedor = new List<DomainModel.Entidades.TipoProveedor>();
+        private bool _cargandoFiltros;
 
         private sealed class ProveedorGridRow
         {
             public Guid IdProveedor { get; set; }
             public string RazonSocial { get; set; }
+            public string Alias { get; set; }
             public string CUIT { get; set; }
             public string TipoProveedor { get; set; }
             public string Localidad { get; set; }
@@ -85,6 +87,14 @@ namespace UI
             });
             dgvProveedores.Columns.Add(new DataGridViewTextBoxColumn
             {
+                DataPropertyName = nameof(ProveedorGridRow.Alias),
+                Name = nameof(ProveedorGridRow.Alias),
+                HeaderText = "supplier.column.alias".Traducir(),
+                FillWeight = 160,
+                MinimumWidth = 140
+            });
+            dgvProveedores.Columns.Add(new DataGridViewTextBoxColumn
+            {
                 DataPropertyName = nameof(ProveedorGridRow.CUIT),
                 Name = nameof(ProveedorGridRow.CUIT),
                 HeaderText = "supplier.column.cuit".Traducir(),
@@ -125,15 +135,14 @@ namespace UI
             tsbEditar.Text = "abm.common.edit".Traducir();
             tsbEliminar.Text = "abm.common.delete".Traducir();
             tsbActivar.Text = "supplier.tool.activate".Traducir();
-            tsbBuscar.Text = "abm.common.search".Traducir();
             tsbActualizar.Text = "abm.common.refresh".Traducir();
 
             lblBuscarRazon.Text = "supplier.filter.razon".Traducir();
-            lblBuscarCuit.Text = "supplier.filter.cuit".Traducir();
             lblFiltroTipo.Text = "supplier.filter.type".Traducir();
             lblFiltroEstado.Text = "supplier.filter.status".Traducir();
 
             SetHeaderSafe(nameof(ProveedorGridRow.RazonSocial), "supplier.column.razon");
+            SetHeaderSafe(nameof(ProveedorGridRow.Alias), "supplier.column.alias");
             SetHeaderSafe(nameof(ProveedorGridRow.CUIT), "supplier.column.cuit");
             SetHeaderSafe(nameof(ProveedorGridRow.TipoProveedor), "supplier.column.type");
             SetHeaderSafe(nameof(ProveedorGridRow.Localidad), "supplier.column.location");
@@ -153,17 +162,19 @@ namespace UI
             tsbEditar.Click += (s, e) => EditarSeleccionado();
             tsbEliminar.Click += (s, e) => EliminarSeleccionado();
             tsbActivar.Click += (s, e) => ActivarSeleccionado();
-            tsbBuscar.Click += (s, e) => Buscar();
             tsbActualizar.Click += (s, e) => CargarProveedores();
             dgvProveedores.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) EditarSeleccionado(); };
             txtBuscarRazon.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; Buscar(); } };
-            txtBuscarCuit.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; Buscar(); } };
+            txtBuscarRazon.TextChanged += (s, e) => Buscar();
+            cboFiltroTipo.ComboBox.SelectedIndexChanged += (s, e) => { if (!_cargandoFiltros) Buscar(); };
+            cboFiltroEstado.ComboBox.SelectedIndexChanged += (s, e) => { if (!_cargandoFiltros) Buscar(); };
         }
 
         private void CargarFiltros()
         {
             try
             {
+                _cargandoFiltros = true;
                 _tiposProveedor = _proveedorService.ObtenerTiposProveedor()?.ToList() ?? new List<DomainModel.Entidades.TipoProveedor>();
 
                 cboFiltroTipo.ComboBox.DisplayMember = "TipoProveedorNombre";
@@ -171,7 +182,7 @@ namespace UI
 
                 var tipos = new List<DomainModel.Entidades.TipoProveedor>
                 {
-                    new DomainModel.Entidades.TipoProveedor { IdTipoProveedor = Guid.Empty, TipoProveedorNombre = "supplier.filter.type.all".Traducir() }
+                    new DomainModel.Entidades.TipoProveedor { IdTipoProveedor = Guid.Empty, TipoProveedorNombre = "form.select.optional".Traducir() }
                 };
                 tipos.AddRange(_tiposProveedor);
                 cboFiltroTipo.ComboBox.DataSource = tipos;
@@ -179,6 +190,7 @@ namespace UI
 
                 cboFiltroEstado.ComboBox.Items.Clear();
                 cboFiltroEstado.ComboBox.Items.Add(new ComboItem(null, "supplier.status.all".Traducir()));
+                cboFiltroEstado.ComboBox.Items.Add(new ComboItem(null, "form.select.optional".Traducir()));
                 cboFiltroEstado.ComboBox.Items.Add(new ComboItem(true, "supplier.status.active".Traducir()));
                 cboFiltroEstado.ComboBox.Items.Add(new ComboItem(false, "supplier.status.inactive".Traducir()));
                 cboFiltroEstado.ComboBox.SelectedIndex = 1; // Activos por defecto
@@ -188,6 +200,10 @@ namespace UI
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cargando filtros de proveedores / Error loading supplier filters", ex, "Proveedores", SessionContext.NombreUsuario);
                 MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _cargandoFiltros = false;
             }
         }
 
@@ -206,7 +222,6 @@ namespace UI
 
                 var proveedores = _proveedorService.BuscarProveedores(
                     txtBuscarRazon.Text,
-                    txtBuscarCuit.Text,
                     idTipo,
                     estadoSeleccionado);
 
@@ -215,6 +230,7 @@ namespace UI
                     {
                         IdProveedor = p.IdProveedor,
                         RazonSocial = p.RazonSocial,
+                        Alias = p.Alias,
                         CUIT = FormatearCuit(p.CUIT),
                         TipoProveedor = string.Join(", ",
                             (p.TiposProveedor ?? Enumerable.Empty<DomainModel.Entidades.TipoProveedor>())

@@ -84,6 +84,7 @@ namespace UI
             grpObservaciones.Text = "supplier.group.observaciones".Traducir();
 
             lblRazonSocial.Text = "supplier.razonSocial".Traducir();
+            lblAlias.Text = "supplier.alias".Traducir();
             lblCUIT.Text = "supplier.cuit".Traducir();
             lblCondicionIVA.Text = "supplier.condicionIVA".Traducir();
             lblTipoProveedor.Text = "supplier.tipoProveedor".Traducir();
@@ -124,13 +125,16 @@ namespace UI
             _condicionesIva = _condicionIvaService.ObtenerTodas()?.ToList() ?? new List<CondicionIva>();
             cboCondicionIVA.DisplayMember = nameof(Item.Nombre);
             cboCondicionIVA.ValueMember = nameof(Item.Id);
-            cboCondicionIVA.DataSource = _condicionesIva
+            var condiciones = _condicionesIva
                 .Select(ci => new Item { Id = ci.IdCondicionIva, Nombre = ci.Nombre })
                 .ToList();
+            condiciones.Insert(0, new Item { Id = Guid.Empty, Nombre = "form.select.optional".Traducir() });
+            cboCondicionIVA.DataSource = condiciones;
             if (cboCondicionIVA.Items.Count > 0)
                 cboCondicionIVA.SelectedIndex = 0;
 
             cboCondicionesPago.Items.Clear();
+            cboCondicionesPago.Items.Add("form.select.optional".Traducir());
             foreach (var item in ProveedorCatalogoHelper.CondicionesPago)
             {
                 cboCondicionesPago.Items.Add(item);
@@ -156,7 +160,9 @@ namespace UI
         private void CargarCombosGeo()
         {
             _paises = _geoService.ListarPaises() ?? new List<GeoDTO>();
-            cboPais.DataSource = _paises.Select(p => new Item { Id = p.Id, Nombre = p.Nombre }).ToList();
+            var paises = new List<Item> { new Item { Id = Guid.Empty, Nombre = "form.select.optional".Traducir() } };
+            paises.AddRange(_paises.Select(p => new Item { Id = p.Id, Nombre = p.Nombre }));
+            cboPais.DataSource = paises;
             cboPais.DisplayMember = nameof(Item.Nombre);
             cboPais.ValueMember = nameof(Item.Id);
 
@@ -172,7 +178,9 @@ namespace UI
             if (cboPais.SelectedItem is Item pais)
             {
                 _provincias = _geoService.ListarProvinciasPorPais(pais.Id) ?? new List<GeoDTO>();
-                cboProvincia.DataSource = _provincias.Select(p => new Item { Id = p.Id, Nombre = p.Nombre }).ToList();
+                var provincias = new List<Item> { new Item { Id = Guid.Empty, Nombre = "form.select.optional".Traducir() } };
+                provincias.AddRange(_provincias.Select(p => new Item { Id = p.Id, Nombre = p.Nombre }));
+                cboProvincia.DataSource = provincias;
                 cboProvincia.DisplayMember = nameof(Item.Nombre);
                 cboProvincia.ValueMember = nameof(Item.Id);
                 if (cboProvincia.Items.Count > 0)
@@ -189,7 +197,9 @@ namespace UI
             if (cboProvincia.SelectedItem is Item provincia)
             {
                 _localidades = _geoService.ListarLocalidadesPorProvincia(provincia.Id) ?? new List<GeoDTO>();
-                cboLocalidad.DataSource = _localidades.Select(l => new Item { Id = l.Id, Nombre = l.Nombre }).ToList();
+                var localidades = new List<Item> { new Item { Id = Guid.Empty, Nombre = "form.select.optional".Traducir() } };
+                localidades.AddRange(_localidades.Select(l => new Item { Id = l.Id, Nombre = l.Nombre }));
+                cboLocalidad.DataSource = localidades;
                 cboLocalidad.DisplayMember = nameof(Item.Nombre);
                 cboLocalidad.ValueMember = nameof(Item.Id);
                 if (cboLocalidad.Items.Count > 0)
@@ -213,11 +223,13 @@ namespace UI
 
                 chkActivo.Checked = true;
                 lblFechaAltaValor.Text = DateTime.Now.ToString("dd/MM/yyyy");
+                txtAlias.Text = string.Empty;
                 ActualizarVisibilidadTecnicas();
                 return;
             }
 
             txtRazonSocial.Text = _model.RazonSocial;
+            txtAlias.Text = _model.Alias;
             txtCUIT.Text = FormatearCuit(_model.CUIT);
             txtDomicilio.Text = _model.Domicilio;
             txtCodigoPostal.Text = _model.CodigoPostal;
@@ -324,16 +336,21 @@ namespace UI
                     .ToList();
 
                 _model.RazonSocial = txtRazonSocial.Text.Trim();
+                _model.Alias = string.IsNullOrWhiteSpace(txtAlias.Text) ? null : txtAlias.Text.Trim();
                 _model.CUIT = ObtenerCuitLimpio();
                 var condicionSeleccionada = cboCondicionIVA.SelectedItem as Item;
-                _model.IdCondicionIva = condicionSeleccionada?.Id ?? Guid.Empty;
-                _model.CondicionesPago = cboCondicionesPago.SelectedItem?.ToString();
+                _model.IdCondicionIva = condicionSeleccionada != null && condicionSeleccionada.Id != Guid.Empty
+                    ? condicionSeleccionada.Id
+                    : Guid.Empty;
+                _model.CondicionesPago = cboCondicionesPago.SelectedIndex > 0
+                    ? cboCondicionesPago.SelectedItem?.ToString()
+                    : null;
                 _model.Domicilio = txtDomicilio.Text.Trim();
                 _model.CodigoPostal = txtCodigoPostal.Text.Trim();
-                _model.IdPais = itPais?.Id;
-                _model.IdProvincia = itProvincia?.Id;
-                _model.IdLocalidad = itLocalidad?.Id;
-                _model.Localidad = itLocalidad?.Nombre;
+                _model.IdPais = itPais != null && itPais.Id != Guid.Empty ? itPais.Id : (Guid?)null;
+                _model.IdProvincia = itProvincia != null && itProvincia.Id != Guid.Empty ? itProvincia.Id : (Guid?)null;
+                _model.IdLocalidad = itLocalidad != null && itLocalidad.Id != Guid.Empty ? itLocalidad.Id : (Guid?)null;
+                _model.Localidad = itLocalidad != null && itLocalidad.Id != Guid.Empty ? itLocalidad.Nombre : null;
                 _model.Observaciones = txtObservaciones.Text.Trim();
                 _model.Activo = chkActivo.Checked;
                 _model.TiposProveedor = _tiposProveedor
