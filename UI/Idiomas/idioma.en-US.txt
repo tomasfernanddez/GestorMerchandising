@@ -118,6 +118,22 @@ order.payment.cancel.prompt=Select the payment you want to cancel.
 order.payment.cancel.confirm=Do you want to cancel the payment of {0:C}?
 order.payment.cancel.empty=There are no payments to cancel.
 order.payment.entry=Recorded on {0}: {1} / Registrado el {0}: {1}
+order.payment.amount.label=Amount to pay
+order.payment.percent.label=Percentage to apply
+order.payment.input.hint=Enter an exact amount or a percentage of the outstanding balance.
+order.payment.quickOptions=Quick options:
+order.payment.quickOption={0}%
+order.payment.preview=Estimated amount: {0}
+order.payment.input.invalid=The value entered is not valid.
+order.payment.input.required=Please enter an amount or a percentage to continue.
+order.payment.input.percentRange=The percentage must be between 1 and 100.
+order.payment.input.mismatch=The amount entered does not match the selected percentage. The suggested amount is {0}.
+order.payment.input.exceed=The amount cannot exceed the outstanding balance ({0}).
+order.payment.amount.confirmButton=Confirm payment
+order.payment.cancel.confirmButton=Confirm cancellation
+order.payment.confirm=Do you confirm registering a payment of {0}? {1}
+order.payment.confirm.percentInfo=It represents {0}% of the outstanding balance.
+order.payment.confirm.manualInfo=This is a custom amount.
 order.timeline.productChange=Product "{0}" updated to status "{1}" by {2}.
 
 # ORDER DETAIL

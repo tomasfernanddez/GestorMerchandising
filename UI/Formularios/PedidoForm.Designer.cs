@@ -581,11 +581,11 @@
             // panelResumen
             // 
             this.panelResumen.ColumnCount = 5;
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 19F));
+            this.panelResumen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
             this.panelResumen.Controls.Add(this.lblTotalSinIva, 0, 0);
             this.panelResumen.Controls.Add(this.lblTotalSinIvaValor, 0, 1);
             this.panelResumen.Controls.Add(this.lblMontoIva, 1, 0);
@@ -697,12 +697,13 @@
             this.panelPagos.Controls.Add(this.btnAgregarPago);
             this.panelPagos.Controls.Add(this.btnDeshacerPago);
             this.panelPagos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelPagos.Location = new System.Drawing.Point(760, 0);
+            this.panelPagos.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.panelPagos.Location = new System.Drawing.Point(667, 0);
             this.panelPagos.Margin = new System.Windows.Forms.Padding(0);
             this.panelPagos.Name = "panelPagos";
-            this.panelPagos.Padding = new System.Windows.Forms.Padding(8, 6, 0, 0);
+            this.panelPagos.Padding = new System.Windows.Forms.Padding(8, 6, 8, 0);
             this.panelResumen.SetRowSpan(this.panelPagos, 2);
-            this.panelPagos.Size = new System.Drawing.Size(194, 64);
+            this.panelPagos.Size = new System.Drawing.Size(287, 64);
             this.panelPagos.TabIndex = 4;
             this.panelPagos.WrapContents = false;
             // 
