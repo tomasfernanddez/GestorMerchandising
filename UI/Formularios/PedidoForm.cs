@@ -845,7 +845,7 @@ namespace UI
                     Margin = new Padding(0, 6, 6, 0)
                 };
                 panelOpciones.Controls.Add(lblOpciones);
-                for (var porcentajeRapido in new[] { 30m, 50m, 100m })
+                foreach (var porcentajeRapido in new[] { 30m, 50m, 100m })
                 {
                     var btnOpcion = new Button
                     {
@@ -918,6 +918,9 @@ namespace UI
                 txtPorcentaje.TextChanged += (s, e) => ActualizarResultado();
                 ActualizarResultado();
 
+                decimal montoSeleccionado = 0m;
+                decimal? porcentajeSeleccionado = null;
+
                 btnConfirmar.Click += (s, e) =>
                 {
                     decimal? montoIngresado = null;
@@ -986,14 +989,16 @@ namespace UI
                         porcentajeIngresado = Math.Round((montoIngresado.Value / saldoPendiente) * 100m, 2);
                     }
 
-                    monto = montoIngresado.Value;
-                    porcentaje = porcentajeIngresado;
+                    montoSeleccionado = montoIngresado.Value;
+                    porcentajeSeleccionado = porcentajeIngresado;
                     dialog.DialogResult = DialogResult.OK;
                     dialog.Close();
                 };
 
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
+                    monto = montoSeleccionado;
+                    porcentaje = porcentajeSeleccionado;
                     return true;
                 }
             }
