@@ -30,6 +30,7 @@ namespace UI
         private readonly DateTime? _fechaLimitePedido;
         private bool _combosInicializados;
         private ListBox _listaSugerencias;
+        private List<ProductoSuggestion> _sugerenciasActuales = new List<ProductoSuggestion>();
         private bool _seleccionandoSugerencia;
         private bool _formateandoPrecio;
 
@@ -136,11 +137,12 @@ namespace UI
             if (_listaSugerencias == null)
                 return;
 
+            _sugerenciasActuales = sugerencias?.ToList() ?? new List<ProductoSuggestion>();
             ActualizarUbicacionSugerencias();
 
             _listaSugerencias.BeginUpdate();
             _listaSugerencias.Items.Clear();
-            foreach (var sugerencia in sugerencias)
+            foreach (var sugerencia in _sugerenciasActuales)
             {
                 _listaSugerencias.Items.Add(sugerencia);
             }
@@ -426,6 +428,7 @@ namespace UI
             if (terminoBusqueda.Length < 2)
             {
                 _productoSeleccionado = null;
+                _sugerenciasActuales.Clear();
                 OcultarSugerencias();
                 return;
             }
@@ -442,6 +445,7 @@ namespace UI
             }
             catch
             {
+                _sugerenciasActuales.Clear();
                 OcultarSugerencias();
             }
         }
@@ -471,6 +475,30 @@ namespace UI
 
         private void cmbProducto_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.Enter)
+            {
+                ProductoSuggestion sugerencia = null;
+                if (_listaSugerencias != null && _listaSugerencias.Visible)
+                {
+                    if (_listaSugerencias.SelectedItem is ProductoSuggestion seleccionada)
+                        sugerencia = seleccionada;
+                    else if (_listaSugerencias.Items.Count > 0)
+                        sugerencia = _listaSugerencias.Items[0] as ProductoSuggestion;
+                }
+                else if (_sugerenciasActuales != null && _sugerenciasActuales.Count > 0)
+                {
+                    sugerencia = _sugerenciasActuales[0];
+                }
+
+                if (sugerencia != null)
+                {
+                    AplicarSugerencia(sugerencia);
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+                return;
+            }
+
             if (_listaSugerencias == null || !_listaSugerencias.Visible)
                 return;
 
@@ -493,25 +521,6 @@ namespace UI
 
                 _listaSugerencias.Focus();
                 e.Handled = true;
-            }
-            else if (e.KeyCode == Keys.Enter)
-            {
-                ProductoSuggestion sugerencia = null;
-                if (_listaSugerencias.SelectedItem is ProductoSuggestion seleccionada)
-                {
-                    sugerencia = seleccionada;
-                }
-                else if (_listaSugerencias.Items.Count > 0)
-                {
-                    sugerencia = _listaSugerencias.Items[0] as ProductoSuggestion;
-                }
-
-                if (sugerencia != null)
-                {
-                    AplicarSugerencia(sugerencia);
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                }
             }
             else if (e.KeyCode == Keys.Escape)
             {

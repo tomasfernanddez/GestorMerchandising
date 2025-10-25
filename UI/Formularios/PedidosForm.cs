@@ -274,12 +274,12 @@ namespace UI
 
                 foreach (var pedido in pedidos)
                 {
-                    var cantidadProductos = pedido.Detalles?.Sum(d => d.Cantidad) ?? 0;
+                    var cantidadProductos = pedido.Detalles?.Count ?? 0;
                     _rows.Add(new PedidoRow
                     {
                         IdPedido = pedido.IdPedido,
                         NumeroPedido = pedido.NumeroPedido,
-                        Cliente = pedido.Cliente?.RazonSocial,
+                        Cliente = FormatearNombreCliente(pedido.Cliente),
                         Estado = pedido.EstadoPedido?.NombreEstadoPedido ?? _estados.FirstOrDefault(e => e.IdEstadoPedido == pedido.IdEstadoPedido)?.NombreEstadoPedido,
                         FechaCreacion = pedido.FechaCreacion,
                         FechaEntrega = pedido.FechaLimiteEntrega,
@@ -409,7 +409,8 @@ namespace UI
                     _proveedorService,
                     _bitacoraService,
                     _logService,
-                    idPedido))
+                    idPedido,
+                    abrirEnProductos: idPedido.HasValue))
                 {
                     if (form.ShowDialog(this) == DialogResult.OK)
                     {
@@ -435,6 +436,26 @@ namespace UI
             public Guid Id { get; }
             public string Texto { get; }
             public override string ToString() => Texto;
+        }
+
+        private static string FormatearNombreCliente(Cliente cliente)
+        {
+            if (cliente == null)
+                return string.Empty;
+
+            var razon = cliente.RazonSocial?.Trim();
+            var alias = cliente.Alias?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(razon) && !string.IsNullOrWhiteSpace(alias))
+                return $"{razon} ({alias})";
+
+            if (!string.IsNullOrWhiteSpace(razon))
+                return razon;
+
+            if (!string.IsNullOrWhiteSpace(alias))
+                return alias;
+
+            return string.Empty;
         }
     }
 }
