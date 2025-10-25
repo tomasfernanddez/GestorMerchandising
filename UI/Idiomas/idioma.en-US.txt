@@ -105,20 +105,24 @@ supplier.payment.60=60 days EOM
 supplier.payment.90=90 days EOM
 
 # ORDER PAYMENTS
-order.payment.title=Register payment
-order.payment.amount=Payment amount
-order.payment.add=Add payment
-order.payment.undo=Undo last payment
-order.payment.confirm=Do you confirm registering a payment of {0:C}?
-order.payment.undo.confirm=Do you want to undo the last payment of {0:C}?
-order.payment.undo.empty=There are no payments to undo.
-order.payment.validation.amount=Enter an amount greater than zero.
+order.payment.addPercent=Add payment (%)
+order.payment.cancel=Cancel payment
+order.payment.percent.title=Choose a payment percentage
+order.payment.percent.remaining=Outstanding balance: {0}
+order.payment.percent.prompt=Select the percentage to apply over the outstanding balance.
+order.payment.percent.option={0}% - {1}
+order.payment.percent.confirm=Do you confirm registering a payment of {0:C} ({1}% of the balance)?
+order.payment.nonePending=There is no outstanding balance to register payments.
+order.payment.cancel.title=Cancel payment
+order.payment.cancel.prompt=Select the payment you want to cancel.
+order.payment.cancel.confirm=Do you want to cancel the payment of {0:C}?
+order.payment.cancel.empty=There are no payments to cancel.
+order.payment.entry=Recorded on {0}: {1} / Registrado el {0}: {1}
 order.timeline.productChange=Product "{0}" updated to status "{1}" by {2}.
 
 # ORDER DETAIL
 order.detail.logo.validation.quantity=Logo quantity cannot exceed the product quantity.
-order.detail.logoCount=Logo qty.
-order.detail.personalizationProvider=Personalization provider
+order.detail.logo.count=Logos count
 
 # ORDER LIST
 order.list.items=Items

@@ -274,7 +274,7 @@ namespace UI
 
                 foreach (var pedido in pedidos)
                 {
-                    var cantidadProductos = pedido.Detalles?.Sum(d => d.Cantidad) ?? 0;
+                    var cantidadProductos = pedido.Detalles?.Count ?? 0;
                     _rows.Add(new PedidoRow
                     {
                         IdPedido = pedido.IdPedido,

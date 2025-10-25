@@ -103,20 +103,24 @@ supplier.validation.tecnica=Seleccione al menos una técnica de personalización
 supplier.validation.observaciones=Las observaciones no pueden superar los 500 caracteres
 
 # PAGOS DE PEDIDO
-order.payment.title=Registrar pago
-order.payment.amount=Monto del pago
-order.payment.add=Agregar pago
-order.payment.undo=Deshacer último pago
-order.payment.confirm=¿Confirma registrar un pago por {0:C}?
-order.payment.undo.confirm=¿Desea deshacer el último pago registrado por {0:C}?
-order.payment.undo.empty=No hay pagos para deshacer.
-order.payment.validation.amount=Ingrese un monto mayor que cero.
+order.payment.addPercent=Agregar pago (%)
+order.payment.cancel=Cancelar pago
+order.payment.percent.title=Seleccioná el porcentaje de pago
+order.payment.percent.remaining=Saldo pendiente: {0}
+order.payment.percent.prompt=Elegí el porcentaje a aplicar sobre el saldo pendiente.
+order.payment.percent.option={0}% - {1}
+order.payment.percent.confirm=¿Confirmás registrar un pago de {0:C} ({1}% del saldo)?
+order.payment.nonePending=No hay saldo pendiente para registrar pagos.
+order.payment.cancel.title=Cancelar pago
+order.payment.cancel.prompt=Seleccioná el pago que querés cancelar.
+order.payment.cancel.confirm=¿Deseás cancelar el pago registrado por {0:C}?
+order.payment.cancel.empty=No hay pagos para cancelar.
+order.payment.entry=Registrado el {0}: {1} / Recorded on {0}: {1}
 order.timeline.productChange=Producto "{0}" actualizado al estado "{1}" por {2}.
 
 # DETALLE DE PEDIDO
 order.detail.logo.validation.quantity=La cantidad del logo no puede superar la cantidad del producto.
-order.detail.logoCount=Cant. logos
-order.detail.personalizationProvider=Proveedor de personalización
+order.detail.logo.count=Cantidad de logos
 
 # LISTA DE PEDIDOS
 order.list.items=Productos

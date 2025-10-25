@@ -43,8 +43,45 @@ namespace UI
         private List<TipoPago> _tiposPago;
         private decimal _montoPagadoBase;
         private decimal _montoPagadoActual;
-        private readonly List<decimal> _pagosRegistrados = new List<decimal>();
+        private readonly List<PagoRegistrado> _pagosRegistrados = new List<PagoRegistrado>();
         private ContextMenuStrip _contextMenuEstados;
+
+        private sealed class PagoRegistrado
+        {
+            public PagoRegistrado(decimal monto, decimal porcentaje)
+            {
+                Monto = monto;
+                Porcentaje = porcentaje;
+                Fecha = DateTime.UtcNow;
+            }
+
+            public decimal Monto { get; }
+            public decimal Porcentaje { get; }
+            public DateTime Fecha { get; }
+
+            public string ObtenerDescripcion()
+            {
+                var fechaTexto = Fecha.ToLocalTime().ToString("g");
+                var porcentajeTexto = Porcentaje > 0 ? $"{Porcentaje:0}%" : string.Empty;
+                var montoTexto = Monto.ToString("C2");
+                var detalle = string.IsNullOrEmpty(porcentajeTexto) ? montoTexto : $"{porcentajeTexto} - {montoTexto}";
+                return string.Format("order.payment.entry".Traducir(), fechaTexto, detalle);
+            }
+
+            public override string ToString() => ObtenerDescripcion();
+        }
+
+        private sealed class PagoOpcion
+        {
+            public PagoOpcion(decimal porcentaje, decimal monto)
+            {
+                Porcentaje = porcentaje;
+                Monto = monto;
+            }
+
+            public decimal Porcentaje { get; }
+            public decimal Monto { get; }
+        }
 
         public PedidoForm(
             IPedidoService pedidoService,
@@ -68,7 +105,7 @@ namespace UI
             InitializeComponent();
 
             btnAgregarPago.Click += btnAgregarPago_Click;
-            btnDeshacerPago.Click += btnDeshacerPago_Click;
+            btnDeshacerPago.Click += btnCancelarPago_Click;
         }
 
         private void PedidoForm_Load(object sender, EventArgs e)
@@ -122,8 +159,8 @@ namespace UI
             lblMontoIva.Text = "order.summary.tax".Traducir();
             lblTotalConIva.Text = "order.summary.total".Traducir();
             lblSaldoPendiente.Text = "order.summary.balance".Traducir();
-            btnAgregarPago.Text = "order.payment.add".Traducir();
-            btnDeshacerPago.Text = "order.payment.undo".Traducir();
+            btnAgregarPago.Text = "order.payment.addPercent".Traducir();
+            btnDeshacerPago.Text = "order.payment.cancel".Traducir();
 
             gbHistorialEstados.Text = "order.timeline".Traducir();
             columnFecha.Text = "order.timeline.date".Traducir();
@@ -290,14 +327,6 @@ namespace UI
             });
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
-                DataPropertyName = nameof(PedidoDetalleViewModel.Categoria),
-                Name = nameof(PedidoDetalleViewModel.Categoria),
-                HeaderText = "order.detail.category".Traducir(),
-                FillWeight = 140,
-                MinimumWidth = 110
-            });
-            dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
-            {
                 DataPropertyName = nameof(PedidoDetalleViewModel.Proveedor),
                 Name = nameof(PedidoDetalleViewModel.Proveedor),
                 HeaderText = "order.detail.provider".Traducir(),
@@ -338,6 +367,22 @@ namespace UI
                 MinimumWidth = 90,
                 DefaultCellStyle = { Format = "d" }
             });
+            dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(PedidoDetalleViewModel.CantidadLogos),
+                Name = nameof(PedidoDetalleViewModel.CantidadLogos),
+                HeaderText = "order.detail.logo.count".Traducir(),
+                FillWeight = 80,
+                MinimumWidth = 80
+            });
+            dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(PedidoDetalleViewModel.ProveedorPersonalizacion),
+                Name = nameof(PedidoDetalleViewModel.ProveedorPersonalizacion),
+                HeaderText = "order.detail.provider.personalization".Traducir(),
+                FillWeight = 160,
+                MinimumWidth = 140
+            });
 
             dgvDetalles.DataSource = _detalles;
             dgvDetalles.CellDoubleClick += dgvDetalles_CellDoubleClick;
@@ -356,12 +401,13 @@ namespace UI
         private void ActualizarEncabezadosDetalles()
         {
             SetDetalleHeader(nameof(PedidoDetalleViewModel.NombreProducto), "order.detail.product");
-            SetDetalleHeader(nameof(PedidoDetalleViewModel.Categoria), "order.detail.category");
             SetDetalleHeader(nameof(PedidoDetalleViewModel.Proveedor), "order.detail.provider");
             SetDetalleHeader(nameof(PedidoDetalleViewModel.Cantidad), "order.detail.quantity");
             SetDetalleHeader(nameof(PedidoDetalleViewModel.PrecioUnitario), "order.detail.price");
             SetDetalleHeader(nameof(PedidoDetalleViewModel.EstadoProducto), "order.detail.state");
             SetDetalleHeader(nameof(PedidoDetalleViewModel.FechaLimite), "order.detail.deadline");
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.CantidadLogos), "order.detail.logo.count");
+            SetDetalleHeader(nameof(PedidoDetalleViewModel.ProveedorPersonalizacion), "order.detail.provider.personalization");
         }
 
         private void ConfigurarMenuContextualEstados()
@@ -620,10 +666,10 @@ namespace UI
             }
         }
 
-        private void ActualizarResumen()
+        private (decimal totalSinIva, decimal iva, decimal totalConIva, decimal saldoPendiente) CalcularTotales()
         {
             if (_detalles == null)
-                return;
+                return (0m, 0m, 0m, 0m);
 
             decimal totalProductos = _detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
             decimal totalSinIva = Math.Round(totalProductos, 2);
@@ -631,11 +677,19 @@ namespace UI
             decimal totalConIva = Math.Round(totalSinIva + iva, 2);
             decimal saldo = Math.Max(0, Math.Round(totalConIva - _montoPagadoActual, 2));
 
-            lblTotalSinIvaValor.Text = totalSinIva.ToString("N2");
-            lblMontoIvaValor.Text = iva.ToString("N2");
-            lblTotalConIvaValor.Text = totalConIva.ToString("N2");
-            lblSaldoPendienteValor.Text = saldo.ToString("N2");
+            return (totalSinIva, iva, totalConIva, saldo);
+        }
+
+        private void ActualizarResumen()
+        {
+            var totales = CalcularTotales();
+
+            lblTotalSinIvaValor.Text = totales.totalSinIva.ToString("N2");
+            lblMontoIvaValor.Text = totales.iva.ToString("N2");
+            lblTotalConIvaValor.Text = totales.totalConIva.ToString("N2");
+            lblSaldoPendienteValor.Text = totales.saldoPendiente.ToString("N2");
             lblMontoPagadoValor.Text = _montoPagadoActual.ToString("N2");
+            lblMontoPagadoValor.Visible = true;
             btnDeshacerPago.Enabled = _pagosRegistrados.Count > 0;
         }
 
@@ -646,100 +700,273 @@ namespace UI
 
         private void btnAgregarPago_Click(object sender, EventArgs e)
         {
-            if (!TrySolicitarMontoPago(out var monto))
+            if (!TrySeleccionarMontoPago(out var monto, out var porcentaje))
                 return;
 
-            if (monto <= 0)
-            {
-                MessageBox.Show("order.payment.validation.amount".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var mensaje = string.Format("order.payment.confirm".Traducir(), monto);
+            var mensaje = string.Format("order.payment.percent.confirm".Traducir(), monto, porcentaje);
             if (MessageBox.Show(mensaje, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
-            _pagosRegistrados.Add(monto);
+            var registro = new PagoRegistrado(monto, porcentaje);
+            _pagosRegistrados.Add(registro);
             _montoPagadoActual = Math.Round(_montoPagadoActual + monto, 2);
             ActualizarMontoPagadoUI();
+            RegistrarPagoAgregado(registro);
         }
 
-        private void btnDeshacerPago_Click(object sender, EventArgs e)
+        private void btnCancelarPago_Click(object sender, EventArgs e)
         {
             if (_pagosRegistrados.Count == 0)
             {
-                MessageBox.Show("order.payment.undo.empty".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("order.payment.cancel.empty".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var monto = _pagosRegistrados[_pagosRegistrados.Count - 1];
-            var mensaje = string.Format("order.payment.undo.confirm".Traducir(), monto);
+            if (!TrySeleccionarPagoParaCancelar(out var pago))
+                return;
+
+            var mensaje = string.Format("order.payment.cancel.confirm".Traducir(), pago.Monto);
             if (MessageBox.Show(mensaje, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
-            _pagosRegistrados.RemoveAt(_pagosRegistrados.Count - 1);
-            _montoPagadoActual = Math.Max(0, Math.Round(_montoPagadoActual - monto, 2));
+            _pagosRegistrados.Remove(pago);
+            _montoPagadoActual = Math.Max(0, Math.Round(_montoPagadoActual - pago.Monto, 2));
             ActualizarMontoPagadoUI();
+            RegistrarPagoCancelado(pago);
         }
 
-        private bool TrySolicitarMontoPago(out decimal monto)
+        private bool TrySeleccionarMontoPago(out decimal monto, out decimal porcentaje)
         {
+            monto = 0m;
+            porcentaje = 0m;
+
+            var (_, _, _, saldoPendiente) = CalcularTotales();
+            if (saldoPendiente <= 0)
+            {
+                MessageBox.Show("order.payment.nonePending".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+
+            var opciones = new[] { 30m, 50m, 100m }
+                .Select(p => new PagoOpcion(p, p >= 100m ? saldoPendiente : Math.Round(saldoPendiente * (p / 100m), 2)))
+                .ToList();
+
             using (var dialog = new Form())
             {
-                dialog.Text = "order.payment.title".Traducir();
+                dialog.Text = "order.payment.percent.title".Traducir();
                 dialog.FormBorderStyle = FormBorderStyle.FixedDialog;
                 dialog.StartPosition = FormStartPosition.CenterParent;
                 dialog.MinimizeBox = false;
                 dialog.MaximizeBox = false;
                 dialog.ShowIcon = false;
-                dialog.ClientSize = new Size(260, 130);
+                dialog.ClientSize = new Size(360, 220);
+
+                var table = new TableLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    ColumnCount = 1,
+                    RowCount = 4,
+                    Padding = new Padding(12)
+                };
+                table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                table.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+                table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+                var lblSaldo = new Label
+                {
+                    AutoSize = true,
+                    Text = string.Format("order.payment.percent.remaining".Traducir(), saldoPendiente.ToString("C2"))
+                };
+                table.Controls.Add(lblSaldo, 0, 0);
+
+                var lblSeleccion = new Label
+                {
+                    AutoSize = true,
+                    Margin = new Padding(0, 10, 0, 6),
+                    Text = "order.payment.percent.prompt".Traducir()
+                };
+                table.Controls.Add(lblSeleccion, 0, 1);
+
+                var panelOpciones = new FlowLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    FlowDirection = FlowDirection.TopDown,
+                    WrapContents = false,
+                    AutoScroll = true
+                };
+
+                RadioButton opcionPorDefecto = null;
+                foreach (var opcion in opciones)
+                {
+                    var radio = new RadioButton
+                    {
+                        AutoSize = true,
+                        Tag = opcion,
+                        Text = string.Format("order.payment.percent.option".Traducir(), opcion.Porcentaje.ToString("0"), opcion.Monto.ToString("C2"))
+                    };
+                    if (opcionPorDefecto == null)
+                    {
+                        radio.Checked = true;
+                        opcionPorDefecto = radio;
+                    }
+                    panelOpciones.Controls.Add(radio);
+                }
+
+                table.Controls.Add(panelOpciones, 0, 2);
+
+                var panelBotones = new FlowLayoutPanel
+                {
+                    FlowDirection = FlowDirection.RightToLeft,
+                    Dock = DockStyle.Fill,
+                    AutoSize = true
+                };
+
+                var btnAceptar = new Button
+                {
+                    Text = "form.accept".Traducir(),
+                    DialogResult = DialogResult.OK,
+                    AutoSize = true
+                };
+
+                var btnCancelar = new Button
+                {
+                    Text = "form.cancel".Traducir(),
+                    DialogResult = DialogResult.Cancel,
+                    AutoSize = true
+                };
+
+                dialog.Controls.Add(table);
+                dialog.AcceptButton = btnAceptar;
+                dialog.CancelButton = btnCancelar;
+
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    var seleccion = panelOpciones.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
+                    if (seleccion?.Tag is PagoOpcion opcion)
+                    {
+                        monto = opcion.Monto;
+                        porcentaje = opcion.Porcentaje;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool TrySeleccionarPagoParaCancelar(out PagoRegistrado pago)
+        {
+            pago = null;
+
+            using (var dialog = new Form())
+            {
+                dialog.Text = "order.payment.cancel.title".Traducir();
+                dialog.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dialog.StartPosition = FormStartPosition.CenterParent;
+                dialog.MinimizeBox = false;
+                dialog.MaximizeBox = false;
+                dialog.ShowIcon = false;
+                dialog.ClientSize = new Size(380, 260);
+
+                var table = new TableLayoutPanel
+                {
+                    Dock = DockStyle.Fill,
+                    ColumnCount = 1,
+                    RowCount = 3,
+                    Padding = new Padding(12)
+                };
+                table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                table.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+                table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
                 var lbl = new Label
                 {
                     AutoSize = true,
-                    Text = "order.payment.amount".Traducir(),
-                    Location = new Point(12, 15)
+                    Text = "order.payment.cancel.prompt".Traducir()
                 };
+                table.Controls.Add(lbl, 0, 0);
 
-                var nud = new NumericUpDown
+                var lista = new ListBox
                 {
-                    DecimalPlaces = 2,
-                    Minimum = 0,
-                    Maximum = 1000000000,
-                    Location = new Point(15, 40),
-                    Width = 220,
-                    ThousandsSeparator = true
+                    Dock = DockStyle.Fill,
+                    SelectionMode = SelectionMode.One
                 };
+                foreach (var registro in _pagosRegistrados)
+                {
+                    lista.Items.Add(registro);
+                }
+                if (lista.Items.Count > 0)
+                {
+                    lista.SelectedIndex = 0;
+                }
+                table.Controls.Add(lista, 0, 1);
 
-                var btnOk = new Button
+                var panelBotones = new FlowLayoutPanel
+                {
+                    FlowDirection = FlowDirection.RightToLeft,
+                    Dock = DockStyle.Fill,
+                    AutoSize = true
+                };
+                var btnAceptar = new Button
                 {
                     Text = "form.accept".Traducir(),
                     DialogResult = DialogResult.OK,
-                    Location = new Point(45, 85),
                     AutoSize = true
                 };
-
-                var btnCancel = new Button
+                var btnCancelar = new Button
                 {
                     Text = "form.cancel".Traducir(),
                     DialogResult = DialogResult.Cancel,
-                    Location = new Point(135, 85),
                     AutoSize = true
                 };
+                panelBotones.Controls.Add(btnAceptar);
+                panelBotones.Controls.Add(btnCancelar);
+                table.Controls.Add(panelBotones, 0, 2);
 
-                dialog.Controls.AddRange(new Control[] { lbl, nud, btnOk, btnCancel });
-                dialog.AcceptButton = btnOk;
-                dialog.CancelButton = btnCancel;
+                dialog.Controls.Add(table);
+                dialog.AcceptButton = btnAceptar;
+                dialog.CancelButton = btnCancelar;
 
-                if (dialog.ShowDialog(this) == DialogResult.OK)
+                if (dialog.ShowDialog(this) == DialogResult.OK && lista.SelectedItem is PagoRegistrado seleccionado)
                 {
-                    monto = nud.Value;
+                    pago = seleccionado;
                     return true;
                 }
             }
 
-            monto = 0m;
             return false;
+        }
+
+        private void RegistrarPagoAgregado(PagoRegistrado pago)
+        {
+            if (pago == null)
+                return;
+
+            var mensaje = $"Pago registrado ({pago.Porcentaje:0}% saldo) / Payment registered ({pago.Porcentaje:0}% balance): {pago.Monto.ToString("C2")}";
+            RegistrarMovimientoPago("Pedido.Pago.Agregar", mensaje);
+        }
+
+        private void RegistrarPagoCancelado(PagoRegistrado pago)
+        {
+            if (pago == null)
+                return;
+
+            var mensaje = $"Pago cancelado ({pago.Porcentaje:0}% saldo) / Payment cancelled ({pago.Porcentaje:0}% balance): {pago.Monto.ToString("C2")}";
+            RegistrarMovimientoPago("Pedido.Pago.Cancelar", mensaje);
+        }
+
+        private void RegistrarMovimientoPago(string accion, string mensaje)
+        {
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos");
+                _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
+            }
+            catch
+            {
+                // Evitar que fallos en registro de auditoría interrumpan el flujo de pagos.
+            }
         }
 
         private void chkFechaEntrega_CheckedChanged(object sender, EventArgs e)

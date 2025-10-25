@@ -172,7 +172,7 @@
             // 
             this.lblDescripcion.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblDescripcion.AutoSize = true;
-            this.lblDescripcion.Location = new System.Drawing.Point(3, 158);
+            this.lblDescripcion.Location = new System.Drawing.Point(3, 130);
             this.lblDescripcion.Name = "lblDescripcion";
             this.lblDescripcion.Size = new System.Drawing.Size(63, 13);
             this.lblDescripcion.TabIndex = 8;
@@ -185,7 +185,7 @@
             this.txtDescripcion.Multiline = true;
             this.txtDescripcion.Name = "txtDescripcion";
             this.txtDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDescripcion.Size = new System.Drawing.Size(293, 72);
+            this.txtDescripcion.Size = new System.Drawing.Size(293, 44);
             this.txtDescripcion.TabIndex = 9;
             // 
             // panelBotones
@@ -196,15 +196,15 @@
             this.panelBotones.Controls.Add(this.btnAceptar);
             this.panelBotones.Controls.Add(this.btnCancelar);
             this.panelBotones.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.panelBotones.Location = new System.Drawing.Point(278, 180);
+            this.panelBotones.Location = new System.Drawing.Point(310, 180);
             this.panelBotones.Name = "panelBotones";
-            this.panelBotones.Size = new System.Drawing.Size(194, 29);
+            this.panelBotones.Size = new System.Drawing.Size(162, 29);
             this.panelBotones.TabIndex = 1;
             // 
             // btnAceptar
             // 
             this.btnAceptar.AutoSize = true;
-            this.btnAceptar.Location = new System.Drawing.Point(116, 3);
+            this.btnAceptar.Location = new System.Drawing.Point(84, 3);
             this.btnAceptar.Name = "btnAceptar";
             this.btnAceptar.Size = new System.Drawing.Size(75, 23);
             this.btnAceptar.TabIndex = 0;
@@ -216,7 +216,7 @@
             // 
             this.btnCancelar.AutoSize = true;
             this.btnCancelar.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancelar.Location = new System.Drawing.Point(35, 3);
+            this.btnCancelar.Location = new System.Drawing.Point(3, 3);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(75, 23);
             this.btnCancelar.TabIndex = 1;

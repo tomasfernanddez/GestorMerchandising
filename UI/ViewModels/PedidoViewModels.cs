@@ -22,6 +22,7 @@ namespace UI.ViewModels
         public Guid? IdProveedorPersonalizacion { get; set; }
         public string ProveedorPersonalizacion { get; set; }
         public List<PedidoLogoViewModel> Logos { get; set; } = new List<PedidoLogoViewModel>();
+        public int CantidadLogos => Logos?.Count ?? 0;
     }
 
     public class PedidoLogoViewModel

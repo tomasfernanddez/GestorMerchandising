@@ -32,8 +32,20 @@ namespace BLL.Services
 
             if (!string.IsNullOrWhiteSpace(filtro.NumeroPedido))
             {
-                var termino = filtro.NumeroPedido.Trim().ToLower();
-                pedidos = pedidos.Where(p => p.NumeroPedido != null && p.NumeroPedido.ToLower().Contains(termino));
+                var termino = filtro.NumeroPedido.Trim();
+                var compare = CultureInfo.InvariantCulture.CompareInfo;
+                pedidos = pedidos.Where(p =>
+                {
+                    var numero = p.NumeroPedido ?? string.Empty;
+                    var numeroNormalizado = NormalizarNumeroPedido(numero);
+                    var cliente = p.Cliente?.RazonSocial ?? string.Empty;
+                    var alias = p.Cliente?.Alias ?? string.Empty;
+
+                    return compare.IndexOf(numero, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                        || (!string.IsNullOrWhiteSpace(numeroNormalizado) && compare.IndexOf(numeroNormalizado, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0)
+                        || compare.IndexOf(cliente, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                        || compare.IndexOf(alias, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
+                });
             }
 
             if (filtro.IdCliente.HasValue)
@@ -317,7 +329,7 @@ namespace BLL.Services
                 .DefaultIfEmpty(0)
                 .Max();
 
-            return $"PED-{(max + 1).ToString("D4")}";
+            return (max + 1).ToString("D4");
         }
 
         public IEnumerable<EstadoPedido> ObtenerEstadosPedido()
@@ -628,16 +640,22 @@ namespace BLL.Services
             return ex?.GetBaseException().Message ?? ex?.Message ?? string.Empty;
         }
 
-        private static int ParseNumeroPedido(string numero)
+        private static string NormalizarNumeroPedido(string numero)
         {
             if (string.IsNullOrWhiteSpace(numero))
+                return string.Empty;
+
+            var digits = new string(numero.Where(char.IsDigit).ToArray());
+            return digits;
+        }
+
+        private static int ParseNumeroPedido(string numero)
+        {
+            var normalizado = NormalizarNumeroPedido(numero);
+            if (string.IsNullOrEmpty(normalizado))
                 return 0;
 
-            var partes = numero.Split('-');
-            if (partes.Length != 2)
-                return 0;
-
-            return int.TryParse(partes[1], out var valor) ? valor : 0;
+            return int.TryParse(normalizado, out var valor) ? valor : 0;
         }
 
         private GestorMerchandisingContext ObtenerContexto()

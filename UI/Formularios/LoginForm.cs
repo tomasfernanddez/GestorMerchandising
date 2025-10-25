@@ -47,6 +47,8 @@ namespace UI
             Shown += (s, e) => txtUsuario.Focus();
             btnIniciar.Click += btnIniciar_Click;
             lnkRecuperacion.LinkClicked += lnkRecuperacion_LinkClicked;
+            lblMostrar.Cursor = Cursors.Hand;
+            lblMostrar.Click += (s, e) => chkMostrarPassword.Checked = !chkMostrarPassword.Checked;
         }
 
         private void ApplyTexts()
