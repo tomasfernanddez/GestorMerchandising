@@ -107,7 +107,6 @@ namespace UI
             Text = "sample.list.title".Traducir();
             foreach (var kvp in _diccionarioTextos)
             {
-                kvp.Key.Text = kvp.Value.Traducir();
                 var texto = kvp.Value.Traducir();
                 if (kvp.Key is Control control)
                 {
@@ -409,7 +408,7 @@ namespace UI
                 }
 
                 var resultado = _pedidoMuestraService.FacturarPendientes(pedido.IdPedidoMuestra, precios, generarPedido);
-                if (resultado.Exitoso)
+                if (resultado.EsValido)
                 {
                     var mensaje = $"Muestras facturadas ({pedido.NumeroCorrelativo}) / Samples invoiced ({pedido.NumeroCorrelativo})";
                     _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "PedidoMuestra.Facturar", mensaje, "PedidosMuestra");
