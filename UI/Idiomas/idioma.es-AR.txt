@@ -23,6 +23,7 @@ menu.security=Seguridad
 menu.suppliers=Proveedores
 menu.users=Usuarios
 menu.orders=Pedidos
+menu.sampleOrders=Pedidos de Muestra
 
 # BARRA DE ESTADO
 status.role=Perfil: {0}
@@ -37,6 +38,58 @@ abm.common.refresh=Actualizar
 abm.common.search=Buscar
 abm.products.title=Productos
 abm.suppliers.title=Proveedores
+
+# PEDIDOS DE MUESTRA
+sample.list.title=Pedidos de muestra
+sample.list.new=Nuevo pedido de muestra
+sample.list.edit=Editar pedido de muestra
+sample.list.loanNote=Nota de préstamo
+sample.list.invoice=Facturar
+sample.list.onlyExpired=Solo vencidos
+sample.number=Número
+sample.client=Cliente
+sample.state=Estado
+sample.deliveryDate=Fecha de entrega
+sample.delivery.noDate=Sin fecha
+sample.expectedReturn=Fecha devolución esperada
+sample.extraDays=Prórroga (días)
+sample.invoiced=Facturado
+sample.invoicedAmount=Monto facturado
+sample.contact=Contacto
+sample.contact.email=Email
+sample.contact.phone=Teléfono
+sample.notes=Observaciones
+sample.detail.add=Agregar muestra
+sample.detail.remove=Eliminar muestra
+sample.detail.product=Producto
+sample.detail.state=Estado
+sample.detail.returnDate=Devolución real
+sample.detail.price=Precio facturación
+sample.detail.invoiced=Facturado
+sample.detail.comment=Comentario
+sample.new.title=Nuevo pedido de muestra
+sample.edit.title=Editar pedido de muestra
+sample.validation.client=Debe seleccionar un cliente.
+sample.validation.details=Debe agregar al menos una muestra.
+sample.validation.product=Debe seleccionar un producto.
+sample.validation.duplicateProduct=Cada producto solo puede agregarse una vez.
+sample.validation.price=El precio debe ser mayor o igual a cero.
+sample.save.error=No se pudo guardar el pedido de muestra: {0}
+sample.search.error=Error buscando pedidos de muestra: {0}
+sample.references.error=Error cargando datos de referencia: {0}
+sample.loadStates.error=Error cargando estados de muestra: {0}
+sample.select.warning=Seleccione un pedido de muestra.
+sample.load.error=No se pudo cargar el pedido seleccionado.
+sample.loanNote.success=Nota de préstamo generada: {0}
+sample.loanNote.error=Error generando nota de préstamo: {0}
+sample.invoice.none=No hay muestras pendientes de facturar.
+sample.invoice.dialog.title=Facturar muestras
+sample.invoice.createOrder=Generar pedido de facturación
+sample.invoice.negative=El precio no puede ser negativo.
+sample.invoice.success=Las muestras fueron facturadas correctamente.
+sample.invoice.error=Error facturando muestras: {0}
+sample.create.error=Error creando pedido de muestra: {0}
+sample.edit.error=Error editando pedido de muestra: {0}
 
 # ABM USUARIOS
 abm.usuarios.activar=Activar/Desactivar

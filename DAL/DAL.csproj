@@ -58,6 +58,7 @@
     <Compile Include="Implementations\Base\EfUnitOfWork.cs" />
     <Compile Include="Implementations\Principales\EfClienteRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoDetalleRepository.cs" />
+    <Compile Include="Implementations\Principales\EfPedidoMuestraRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoRepository.cs" />
     <Compile Include="Implementations\Principales\EfProductoRepository.cs" />
     <Compile Include="Implementations\Referencia\EfCategoriaProductoRepository.cs" />

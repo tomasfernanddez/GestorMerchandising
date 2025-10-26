@@ -17,8 +17,16 @@ namespace DomainModel
 
         public Guid IdCliente { get; set; }
 
+        [StringLength(20)]
+        public string NumeroCorrelativo { get; set; }
+
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+
         public DateTime? FechaEntrega { get; set; }
-        public DateTime? FechaDevolucion { get; set; }
+
+        public DateTime? FechaDevolucionEsperada { get; set; }
+
+        public DateTime? FechaDevolucionReal { get; set; }
 
         [StringLength(150)]
         public string DireccionEntrega { get; set; }
@@ -31,6 +39,15 @@ namespace DomainModel
 
         [StringLength(30)]
         public string TelefonoContacto { get; set; }
+
+        [StringLength(300)]
+        public string Observaciones { get; set; }
+
+        public int DiasProrroga { get; set; }
+
+        public bool Facturado { get; set; }
+
+        public decimal TotalFacturado { get; set; }
 
         public Guid? IdEstadoPedidoMuestra { get; set; }
 

@@ -20,6 +20,17 @@ namespace DomainModel
 
         public Guid? IdEstadoMuestra { get; set; }
 
+        public DateTime? FechaDevolucion { get; set; }
+
+        [StringLength(200)]
+        public string ComentarioDevolucion { get; set; }
+
+        public decimal? PrecioFacturacion { get; set; }
+
+        public bool Facturado { get; set; }
+
+        public DateTime? FechaFacturacion { get; set; }
+
         // Navegación
         public virtual PedidoMuestra PedidoMuestra { get; set; }
         public virtual Producto Producto { get; set; }

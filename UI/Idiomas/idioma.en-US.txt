@@ -23,6 +23,7 @@ menu.roles=Roles
 menu.security=Security
 menu.suppliers=Suppliers
 menu.users=Users
+menu.sampleOrders=Sample loans
 
 # STATUS BAR
 status.role=Role: {0}
@@ -37,6 +38,58 @@ abm.common.refresh=Refresh
 abm.common.search=Search
 abm.products.title=Products
 abm.suppliers.title=Suppliers
+
+# SAMPLE LOANS
+sample.list.title=Sample loan orders
+sample.list.new=New sample loan
+sample.list.edit=Edit sample loan
+sample.list.loanNote=Loan note
+sample.list.invoice=Invoice
+sample.list.onlyExpired=Only overdue
+sample.number=Number
+sample.client=Customer
+sample.state=Status
+sample.deliveryDate=Delivery date
+sample.delivery.noDate=No date
+sample.expectedReturn=Expected return date
+sample.extraDays=Extra days
+sample.invoiced=Invoiced
+sample.invoicedAmount=Invoiced amount
+sample.contact=Contact
+sample.contact.email=Email
+sample.contact.phone=Phone
+sample.notes=Notes
+sample.detail.add=Add sample
+sample.detail.remove=Remove sample
+sample.detail.product=Product
+sample.detail.state=Status
+sample.detail.returnDate=Actual return
+sample.detail.price=Billing price
+sample.detail.invoiced=Invoiced
+sample.detail.comment=Comment
+sample.new.title=New sample loan
+sample.edit.title=Edit sample loan
+sample.validation.client=Please select a customer.
+sample.validation.details=Add at least one sample item.
+sample.validation.product=Select a product.
+sample.validation.duplicateProduct=Each product can only be added once.
+sample.validation.price=Price must be zero or higher.
+sample.save.error=Unable to save the sample loan: {0}
+sample.search.error=Error fetching sample loans: {0}
+sample.references.error=Error loading reference data: {0}
+sample.loadStates.error=Error loading sample states: {0}
+sample.select.warning=Please select a sample loan.
+sample.load.error=Unable to load the selected sample loan.
+sample.loanNote.success=Loan note generated: {0}
+sample.loanNote.error=Error generating loan note: {0}
+sample.invoice.none=There are no samples pending for invoicing.
+sample.invoice.dialog.title=Invoice samples
+sample.invoice.createOrder=Generate billing order
+sample.invoice.negative=Price cannot be negative.
+sample.invoice.success=Samples were invoiced successfully.
+sample.invoice.error=Error invoicing samples: {0}
+sample.create.error=Error creating sample loan: {0}
+sample.edit.error=Error updating sample loan: {0}
 
 # ABM USERS
 abm.usuarios.activar=Activate/Deactivate
