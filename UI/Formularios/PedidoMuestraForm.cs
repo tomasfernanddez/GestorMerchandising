@@ -22,12 +22,12 @@ namespace UI
         private readonly PedidoMuestra _pedidoOriginal;
         private readonly bool _esEdicion;
         private readonly List<EstadoMuestra> _estadosMuestra;
-        private readonly Dictionary<Control, string> _diccionarioTextos = new();
+        private readonly Dictionary<Control, string> _diccionarioTextos = new Dictionary<Control, string>();
 
-        private BindingList<PedidoMuestraDetalleViewModel> _detalles = new();
-        private List<Cliente> _clientes = new();
-        private List<Producto> _productos = new();
-        private List<EstadoPedidoMuestra> _estadosPedido = new();
+        private BindingList<PedidoMuestraDetalleViewModel> _detalles = new BindingList<PedidoMuestraDetalleViewModel>();
+        private List<Cliente> _clientes = new List<Cliente>();
+        private List<Producto> _productos = new List<Producto>();
+        private List<EstadoPedidoMuestra> _estadosPedido = new List<EstadoPedidoMuestra>();
 
         public PedidoMuestraForm(
             IPedidoMuestraService pedidoMuestraService,
@@ -360,7 +360,7 @@ namespace UI
                     resultado = _pedidoMuestraService.CrearPedido(pedido);
                 }
 
-                if (resultado.Exitoso)
+                if (resultado.EsValido)
                 {
                     var mensaje = _esEdicion
                         ? $"Pedido de muestra actualizado ({pedido.NumeroCorrelativo}) / Sample loan order updated ({pedido.NumeroCorrelativo})"

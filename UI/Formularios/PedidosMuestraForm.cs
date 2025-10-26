@@ -22,10 +22,10 @@ namespace UI
         private readonly IBitacoraService _bitacoraService;
         private readonly ILogService _logService;
 
-        private readonly Dictionary<Control, string> _diccionarioTextos = new();
-        private BindingList<PedidoRow> _rows = new();
-        private List<EstadoPedidoMuestra> _estadosPedido = new();
-        private List<EstadoMuestra> _estadosMuestra = new();
+        private readonly Dictionary<object, string> _diccionarioTextos = new Dictionary<object, string>();
+        private BindingList<PedidoRow> _rows = new BindingList<PedidoRow>();
+        private List<EstadoPedidoMuestra> _estadosPedido = new List<EstadoPedidoMuestra>();
+        private List<EstadoMuestra> _estadosMuestra = new List<EstadoMuestra>();
 
         private sealed class PedidoRow
         {
@@ -108,6 +108,15 @@ namespace UI
             foreach (var kvp in _diccionarioTextos)
             {
                 kvp.Key.Text = kvp.Value.Traducir();
+                var texto = kvp.Value.Traducir();
+                if (kvp.Key is Control control)
+                {
+                    control.Text = texto;
+                }
+                else if (kvp.Key is ToolStripItem item)
+                {
+                    item.Text = texto;
+                }
             }
 
             if (dgvPedidos.Columns.Count > 0)
