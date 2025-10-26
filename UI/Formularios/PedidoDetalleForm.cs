@@ -526,11 +526,9 @@ namespace UI
         {
             if (e.KeyCode == Keys.Enter)
             {
-                if (TryAplicarPrimeraSugerencia())
-                {
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                }
+                // La lógica principal para Enter se maneja en ProcessCmdKey para evitar cerrar el formulario.
+                e.Handled = true;
+                e.SuppressKeyPress = true;
                 return;
             }
 
@@ -564,6 +562,31 @@ namespace UI
                 e.SuppressKeyPress = true;
             }
         }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Enter)
+            {
+                if (cmbProducto != null && cmbProducto.Focused)
+                {
+                    TryAplicarPrimeraSugerencia();
+                    return true;
+                }
+
+                if (_listaSugerencias != null && _listaSugerencias.Focused)
+                {
+                    if (_listaSugerencias.SelectedItem is ProductoSuggestion sugerencia)
+                        AplicarSugerencia(sugerencia);
+                    else
+                        TryAplicarPrimeraSugerencia();
+
+                    return true;
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
 
         private void cmbProducto_Leave(object sender, EventArgs e)
         {
