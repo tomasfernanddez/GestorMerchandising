@@ -1524,7 +1524,8 @@ namespace UI
         private static DateTime ObtenerFechaArgentina()
         {
             var utcAhora = DateTime.UtcNow;
-            return TimeZoneInfo.ConvertTimeFromUtc(utcAhora, ArgentinaTimeZone);
+            var fechaLocal = TimeZoneInfo.ConvertTimeFromUtc(utcAhora, ArgentinaTimeZone);
+            return DateTime.SpecifyKind(fechaLocal, DateTimeKind.Local);
         }
 
         private static bool TryParseDecimalFlexible(string texto, out decimal valor)

@@ -67,7 +67,9 @@
             this.lblTotalConIvaValor = new System.Windows.Forms.Label();
             this.lblSaldoPendiente = new System.Windows.Forms.Label();
             this.lblSaldoPendienteValor = new System.Windows.Forms.Label();
-            this.panelPagos = new System.Windows.Forms.FlowLayoutPanel();
+            this.tablePagos = new System.Windows.Forms.TableLayoutPanel();
+            this.flowPagoResumen = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowPagoAcciones = new System.Windows.Forms.FlowLayoutPanel();
             this.lblMontoPagado = new System.Windows.Forms.Label();
             this.lblMontoPagadoValor = new System.Windows.Forms.Label();
             this.btnAgregarPago = new System.Windows.Forms.Button();
@@ -98,7 +100,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalles)).BeginInit();
             this.panelDetallesBotones.SuspendLayout();
             this.panelResumen.SuspendLayout();
-            this.panelPagos.SuspendLayout();
+            this.tablePagos.SuspendLayout();
+            this.flowPagoResumen.SuspendLayout();
+            this.flowPagoAcciones.SuspendLayout();
             this.tabNotas.SuspendLayout();
             this.tableNotas.SuspendLayout();
             this.gbHistorialEstados.SuspendLayout();
@@ -594,7 +598,7 @@
             this.panelResumen.Controls.Add(this.lblTotalConIvaValor, 2, 1);
             this.panelResumen.Controls.Add(this.lblSaldoPendiente, 3, 0);
             this.panelResumen.Controls.Add(this.lblSaldoPendienteValor, 3, 1);
-            this.panelResumen.Controls.Add(this.panelPagos, 4, 0);
+            this.panelResumen.Controls.Add(this.tablePagos, 4, 0);
             this.panelResumen.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelResumen.Location = new System.Drawing.Point(3, 515);
             this.panelResumen.Name = "panelResumen";
@@ -687,31 +691,65 @@
             this.lblSaldoPendienteValor.Size = new System.Drawing.Size(40, 17);
             this.lblSaldoPendienteValor.TabIndex = 7;
             this.lblSaldoPendienteValor.Text = "$0,0";
-            // 
-            // panelPagos
-            // 
-            this.panelPagos.AutoSize = true;
-            this.panelPagos.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panelPagos.Controls.Add(this.lblMontoPagado);
-            this.panelPagos.Controls.Add(this.lblMontoPagadoValor);
-            this.panelPagos.Controls.Add(this.btnAgregarPago);
-            this.panelPagos.Controls.Add(this.btnDeshacerPago);
-            this.panelPagos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelPagos.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.panelPagos.Location = new System.Drawing.Point(667, 0);
-            this.panelPagos.Margin = new System.Windows.Forms.Padding(0);
-            this.panelPagos.Name = "panelPagos";
-            this.panelPagos.Padding = new System.Windows.Forms.Padding(8, 6, 8, 0);
-            this.panelResumen.SetRowSpan(this.panelPagos, 2);
-            this.panelPagos.Size = new System.Drawing.Size(287, 64);
-            this.panelPagos.TabIndex = 4;
-            this.panelPagos.WrapContents = false;
+            //
+            // tablePagos
+            //
+            this.tablePagos.AutoSize = true;
+            this.tablePagos.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tablePagos.ColumnCount = 1;
+            this.tablePagos.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tablePagos.Controls.Add(this.flowPagoResumen, 0, 0);
+            this.tablePagos.Controls.Add(this.flowPagoAcciones, 0, 1);
+            this.tablePagos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tablePagos.Location = new System.Drawing.Point(667, 0);
+            this.tablePagos.Margin = new System.Windows.Forms.Padding(0);
+            this.tablePagos.Name = "tablePagos";
+            this.panelResumen.SetRowSpan(this.tablePagos, 2);
+            this.tablePagos.RowCount = 2;
+            this.tablePagos.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55F));
+            this.tablePagos.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45F));
+            this.tablePagos.Size = new System.Drawing.Size(287, 64);
+            this.tablePagos.TabIndex = 4;
+            //
+            // flowPagoResumen
+            //
+            this.flowPagoResumen.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.flowPagoResumen.AutoSize = true;
+            this.flowPagoResumen.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowPagoResumen.BackColor = System.Drawing.Color.Transparent;
+            this.flowPagoResumen.Controls.Add(this.lblMontoPagado);
+            this.flowPagoResumen.Controls.Add(this.lblMontoPagadoValor);
+            this.flowPagoResumen.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.flowPagoResumen.Location = new System.Drawing.Point(50, 3);
+            this.flowPagoResumen.Margin = new System.Windows.Forms.Padding(0);
+            this.flowPagoResumen.Name = "flowPagoResumen";
+            this.flowPagoResumen.Padding = new System.Windows.Forms.Padding(6, 6, 6, 0);
+            this.flowPagoResumen.Size = new System.Drawing.Size(186, 27);
+            this.flowPagoResumen.TabIndex = 0;
+            this.flowPagoResumen.WrapContents = false;
+            //
+            // flowPagoAcciones
+            //
+            this.flowPagoAcciones.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.flowPagoAcciones.AutoSize = true;
+            this.flowPagoAcciones.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowPagoAcciones.BackColor = System.Drawing.Color.Transparent;
+            this.flowPagoAcciones.Controls.Add(this.btnAgregarPago);
+            this.flowPagoAcciones.Controls.Add(this.btnDeshacerPago);
+            this.flowPagoAcciones.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.flowPagoAcciones.Location = new System.Drawing.Point(41, 36);
+            this.flowPagoAcciones.Margin = new System.Windows.Forms.Padding(0);
+            this.flowPagoAcciones.Name = "flowPagoAcciones";
+            this.flowPagoAcciones.Padding = new System.Windows.Forms.Padding(6, 3, 6, 6);
+            this.flowPagoAcciones.Size = new System.Drawing.Size(206, 28);
+            this.flowPagoAcciones.TabIndex = 1;
+            this.flowPagoAcciones.WrapContents = false;
             // 
             // lblMontoPagado
             // 
             this.lblMontoPagado.AutoSize = true;
-            this.lblMontoPagado.Location = new System.Drawing.Point(8, 12);
-            this.lblMontoPagado.Margin = new System.Windows.Forms.Padding(0, 6, 6, 0);
+            this.lblMontoPagado.Location = new System.Drawing.Point(6, 6);
+            this.lblMontoPagado.Margin = new System.Windows.Forms.Padding(0, 0, 6, 0);
             this.lblMontoPagado.Name = "lblMontoPagado";
             this.lblMontoPagado.Size = new System.Drawing.Size(90, 13);
             this.lblMontoPagado.TabIndex = 0;
@@ -721,8 +759,8 @@
             // 
             this.lblMontoPagadoValor.AutoSize = true;
             this.lblMontoPagadoValor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
-            this.lblMontoPagadoValor.Location = new System.Drawing.Point(104, 12);
-            this.lblMontoPagadoValor.Margin = new System.Windows.Forms.Padding(0, 6, 12, 0);
+            this.lblMontoPagadoValor.Location = new System.Drawing.Point(112, 6);
+            this.lblMontoPagadoValor.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.lblMontoPagadoValor.Name = "lblMontoPagadoValor";
             this.lblMontoPagadoValor.Size = new System.Drawing.Size(43, 15);
             this.lblMontoPagadoValor.TabIndex = 1;
@@ -732,8 +770,8 @@
             // 
             this.btnAgregarPago.AutoSize = true;
             this.btnAgregarPago.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnAgregarPago.Location = new System.Drawing.Point(159, 10);
-            this.btnAgregarPago.Margin = new System.Windows.Forms.Padding(0, 4, 6, 0);
+            this.btnAgregarPago.Location = new System.Drawing.Point(6, 3);
+            this.btnAgregarPago.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.btnAgregarPago.Name = "btnAgregarPago";
             this.btnAgregarPago.Size = new System.Drawing.Size(142, 23);
             this.btnAgregarPago.TabIndex = 2;
@@ -744,8 +782,8 @@
             // 
             this.btnDeshacerPago.AutoSize = true;
             this.btnDeshacerPago.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnDeshacerPago.Location = new System.Drawing.Point(307, 10);
-            this.btnDeshacerPago.Margin = new System.Windows.Forms.Padding(0, 4, 0, 0);
+            this.btnDeshacerPago.Location = new System.Drawing.Point(153, 3);
+            this.btnDeshacerPago.Margin = new System.Windows.Forms.Padding(0);
             this.btnDeshacerPago.Name = "btnDeshacerPago";
             this.btnDeshacerPago.Size = new System.Drawing.Size(119, 23);
             this.btnDeshacerPago.TabIndex = 3;
@@ -955,8 +993,12 @@
             this.panelDetallesBotones.PerformLayout();
             this.panelResumen.ResumeLayout(false);
             this.panelResumen.PerformLayout();
-            this.panelPagos.ResumeLayout(false);
-            this.panelPagos.PerformLayout();
+            this.tablePagos.ResumeLayout(false);
+            this.tablePagos.PerformLayout();
+            this.flowPagoResumen.ResumeLayout(false);
+            this.flowPagoResumen.PerformLayout();
+            this.flowPagoAcciones.ResumeLayout(false);
+            this.flowPagoAcciones.PerformLayout();
             this.tabNotas.ResumeLayout(false);
             this.tableNotas.ResumeLayout(false);
             this.gbHistorialEstados.ResumeLayout(false);
@@ -1025,7 +1067,9 @@
         private System.Windows.Forms.Label lblTotalConIvaValor;
         private System.Windows.Forms.Label lblSaldoPendiente;
         private System.Windows.Forms.Label lblSaldoPendienteValor;
-        private System.Windows.Forms.FlowLayoutPanel panelPagos;
+        private System.Windows.Forms.TableLayoutPanel tablePagos;
+        private System.Windows.Forms.FlowLayoutPanel flowPagoResumen;
+        private System.Windows.Forms.FlowLayoutPanel flowPagoAcciones;
         private System.Windows.Forms.Label lblMontoPagadoValor;
         private System.Windows.Forms.Button btnAgregarPago;
         private System.Windows.Forms.Button btnDeshacerPago;
