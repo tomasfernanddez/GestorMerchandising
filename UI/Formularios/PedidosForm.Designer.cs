@@ -22,6 +22,7 @@
             this.tsbNuevo = new System.Windows.Forms.ToolStripButton();
             this.tsbEditar = new System.Windows.Forms.ToolStripButton();
             this.tsbActualizar = new System.Windows.Forms.ToolStripButton();
+            this.tsbCancelarPedido = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tslBuscar = new System.Windows.Forms.ToolStripLabel();
             this.txtBuscar = new System.Windows.Forms.ToolStripTextBox();
@@ -49,6 +50,7 @@
             this.tsbNuevo,
             this.tsbEditar,
             this.tsbActualizar,
+            this.tsbCancelarPedido,
             this.toolStripSeparator1,
             this.tslBuscar,
             this.txtBuscar,
@@ -86,6 +88,13 @@
             this.tsbActualizar.Size = new System.Drawing.Size(79, 22);
             this.tsbActualizar.Text = "Actualizar";
             this.tsbActualizar.Click += new System.EventHandler(this.tsbActualizar_Click);
+            //
+            // tsbCancelarPedido
+            //
+            this.tsbCancelarPedido.Name = "tsbCancelarPedido";
+            this.tsbCancelarPedido.Size = new System.Drawing.Size(101, 22);
+            this.tsbCancelarPedido.Text = "Cancelar pedido";
+            this.tsbCancelarPedido.Click += new System.EventHandler(this.tsbCancelarPedido_Click);
             // 
             // toolStripSeparator1
             // 
@@ -222,6 +231,7 @@
         private System.Windows.Forms.ToolStripButton tsbNuevo;
         private System.Windows.Forms.ToolStripButton tsbEditar;
         private System.Windows.Forms.ToolStripButton tsbActualizar;
+        private System.Windows.Forms.ToolStripButton tsbCancelarPedido;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripLabel tslBuscar;
         private System.Windows.Forms.ToolStripTextBox txtBuscar;

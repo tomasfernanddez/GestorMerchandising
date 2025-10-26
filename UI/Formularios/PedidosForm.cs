@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Globalization;
 using System.Windows.Forms;
 using BLL.Interfaces;
 using Services.BLL.Interfaces;
@@ -9,6 +10,7 @@ using UI.Localization;
 using UI.ViewModels;
 using DomainModel;
 using DomainModel.Entidades;
+using UI.Helpers;
 
 namespace UI
 {
@@ -25,6 +27,7 @@ namespace UI
         private BindingList<PedidoRow> _rows;
         private List<EstadoPedido> _estados;
         private bool _suspendSearch;
+        private Guid? _estadoCanceladoId;
 
         private sealed class PedidoRow
         {
@@ -32,6 +35,7 @@ namespace UI
             public string NumeroPedido { get; set; }
             public string Cliente { get; set; }
             public string Estado { get; set; }
+            public Guid? IdEstado { get; set; }
             public DateTime FechaCreacion { get; set; }
             public DateTime? FechaEntrega { get; set; }
             public int CantidadProductos { get; set; }
@@ -65,6 +69,7 @@ namespace UI
             ApplyTexts();
             ConfigurarGrid();
             CargarEstados();
+            ActualizarAccionesCancelacion();
             _suspendSearch = true;
             InicializarFiltros();
             _suspendSearch = false;
@@ -78,6 +83,7 @@ namespace UI
             tsbNuevo.Text = "order.list.new".Traducir();
             tsbEditar.Text = "order.list.edit".Traducir();
             tsbActualizar.Text = "form.refresh".Traducir();
+            tsbCancelarPedido.Text = "order.cancel.button".Traducir();
             tslBuscar.Text = "form.search".Traducir();
             btnBuscar.Text = "form.filter".Traducir();
             tslEstado.Text = "order.state".Traducir();
@@ -179,6 +185,7 @@ namespace UI
 
             _rows = new BindingList<PedidoRow>();
             bindingSource.DataSource = _rows;
+            bindingSource.CurrentChanged += (s, e) => ActualizarAccionesCancelacion();
         }
 
         private void ActualizarEncabezadosGrid()
@@ -203,9 +210,39 @@ namespace UI
             }
         }
 
+        private void ActualizarAccionesCancelacion()
+        {
+            if (tsbCancelarPedido == null)
+                return;
+
+            var habilitado = _estadoCanceladoId.HasValue;
+            if (habilitado)
+            {
+                var row = ObtenerFilaSeleccionada();
+                if (row == null || (row.IdEstado.HasValue && _estadoCanceladoId.HasValue && row.IdEstado.Value == _estadoCanceladoId.Value))
+                {
+                    habilitado = false;
+                }
+            }
+
+            tsbCancelarPedido.Enabled = habilitado;
+        }
+
+        private static bool EsEstadoCancelado(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return false;
+
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            return compare.IndexOf(nombre, "cancelado", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                   || compare.IndexOf(nombre, "cancelled", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
+        }
+
         private void CargarEstados()
         {
             _estados = _pedidoService.ObtenerEstadosPedido().OrderBy(e => e.NombreEstadoPedido).ToList();
+            var cancelado = _estados.FirstOrDefault(e => EsEstadoCancelado(e.NombreEstadoPedido));
+            _estadoCanceladoId = cancelado?.IdEstadoPedido;
         }
 
         private void InicializarFiltros(bool mantenerSeleccion = false)
@@ -270,6 +307,17 @@ namespace UI
                 };
 
                 var pedidos = _pedidoService.ObtenerPedidos(filtro).ToList();
+                var mostrarSoloCancelados = _estadoCanceladoId.HasValue
+                    && filtro.IdEstado.HasValue
+                    && filtro.IdEstado.Value == _estadoCanceladoId.Value;
+
+                if (!mostrarSoloCancelados && _estadoCanceladoId.HasValue)
+                {
+                    pedidos = pedidos
+                        .Where(p => p.IdEstadoPedido != _estadoCanceladoId.Value)
+                        .ToList();
+                }
+
                 _rows.Clear();
 
                 foreach (var pedido in pedidos)
@@ -281,8 +329,9 @@ namespace UI
                         NumeroPedido = pedido.NumeroPedido,
                         Cliente = FormatearNombreCliente(pedido.Cliente),
                         Estado = pedido.EstadoPedido?.NombreEstadoPedido ?? _estados.FirstOrDefault(e => e.IdEstadoPedido == pedido.IdEstadoPedido)?.NombreEstadoPedido,
-                        FechaCreacion = pedido.FechaCreacion,
-                        FechaEntrega = pedido.FechaLimiteEntrega,
+                        IdEstado = pedido.IdEstadoPedido,
+                        FechaCreacion = ArgentinaDateTimeHelper.ToArgentina(pedido.FechaCreacion),
+                        FechaEntrega = ArgentinaDateTimeHelper.ToArgentina(pedido.FechaLimiteEntrega),
                         CantidadProductos = cantidadProductos,
                         Total = pedido.TotalConIva,
                         Facturado = pedido.Facturado,
@@ -291,6 +340,7 @@ namespace UI
                 }
 
                 tslResumen.Text = "order.list.summary".Traducir(_rows.Count);
+                ActualizarAccionesCancelacion();
             }
             catch (Exception ex)
             {
@@ -346,6 +396,46 @@ namespace UI
         private void tsbActualizar_Click(object sender, EventArgs e)
         {
             BuscarPedidos();
+        }
+
+        private void tsbCancelarPedido_Click(object sender, EventArgs e)
+        {
+            var row = ObtenerFilaSeleccionada();
+            if (row == null || !_estadoCanceladoId.HasValue)
+                return;
+
+            var confirmacion = MessageBox.Show(
+                string.Format("order.cancel.confirm".Traducir(), row.NumeroPedido),
+                Text,
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirmacion != DialogResult.Yes)
+                return;
+
+            try
+            {
+                var usuario = SessionContext.NombreUsuario ?? "Sistema";
+                var comentario = $"Pedido cancelado por {usuario} / Order cancelled by {usuario}";
+                var resultado = _pedidoService.CancelarPedido(row.IdPedido, usuario, comentario);
+                if (!resultado.EsValido)
+                {
+                    MessageBox.Show("order.cancel.error".Traducir(resultado.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var mensaje = $"Pedido cancelado / Order cancelled: {row.NumeroPedido}";
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Pedido.Cancelar", mensaje, "Pedidos");
+                _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
+
+                MessageBox.Show("order.cancel.success".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                BuscarPedidos();
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError("Error cancelando pedido / Error cancelling order", ex, "Pedidos", SessionContext.NombreUsuario);
+                MessageBox.Show("order.cancel.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnBuscar_Click(object sender, EventArgs e)

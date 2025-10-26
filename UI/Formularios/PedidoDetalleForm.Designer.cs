@@ -115,9 +115,9 @@
             this.cmbProducto.Size = new System.Drawing.Size(436, 21);
             this.cmbProducto.TabIndex = 1;
             this.cmbProducto.SelectedIndexChanged += new System.EventHandler(this.cmbProducto_SelectedIndexChanged);
+            this.cmbProducto.TextUpdate += new System.EventHandler(this.cmbProducto_TextUpdate);
             this.cmbProducto.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cmbProducto_KeyDown);
             this.cmbProducto.Leave += new System.EventHandler(this.cmbProducto_Leave);
-            this.cmbProducto.TextUpdate += new System.EventHandler(this.cmbProducto_TextUpdate);
             // 
             // lblCategoria
             // 

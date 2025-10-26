@@ -291,6 +291,58 @@ namespace BLL.Services
             }
         }
 
+        public ResultadoOperacion CancelarPedido(Guid idPedido, string usuario, string comentario)
+        {
+            if (idPedido == Guid.Empty)
+                return ResultadoOperacion.Error("Datos inválidos para cancelar el pedido");
+
+            try
+            {
+                var pedido = _unitOfWork.Pedidos.GetPedidoConDetalles(idPedido);
+                if (pedido == null)
+                    return ResultadoOperacion.Error("Pedido inexistente");
+
+                var estados = _unitOfWork.EstadosPedido?.GetEstadosOrdenados();
+                var estadoCancelado = estados?.FirstOrDefault(e => EsEstadoCancelado(e.NombreEstadoPedido));
+                if (estadoCancelado == null)
+                    return ResultadoOperacion.Error("Estado 'Cancelado' no disponible");
+
+                if (pedido.IdEstadoPedido.HasValue && pedido.IdEstadoPedido.Value == estadoCancelado.IdEstadoPedido)
+                    return ResultadoOperacion.Error("El pedido ya se encuentra cancelado");
+
+                pedido.IdEstadoPedido = estadoCancelado.IdEstadoPedido;
+
+                if (pedido.HistorialEstados == null)
+                    pedido.HistorialEstados = new List<PedidoEstadoHistorial>();
+
+                var comentarioFinal = string.IsNullOrWhiteSpace(comentario)
+                    ? $"Pedido cancelado / Order cancelled ({usuario ?? "Sistema"})"
+                    : comentario.Trim();
+
+                pedido.HistorialEstados.Add(new PedidoEstadoHistorial
+                {
+                    IdPedido = pedido.IdPedido,
+                    IdEstadoPedido = estadoCancelado.IdEstadoPedido,
+                    Comentario = comentarioFinal,
+                    Usuario = string.IsNullOrWhiteSpace(usuario) ? "Sistema" : usuario,
+                    FechaCambio = DateTime.UtcNow
+                });
+
+                RecalcularTotales(pedido);
+                pedido.MontoPagado = pedido.TotalConIva;
+                pedido.SaldoPendiente = 0m;
+
+                _unitOfWork.Pedidos.Update(pedido);
+                _unitOfWork.SaveChanges();
+
+                return ResultadoOperacion.Exitoso("Pedido cancelado correctamente", pedido.IdPedido);
+            }
+            catch (Exception ex)
+            {
+                return ResultadoOperacion.Error($"Error al cancelar el pedido: {ex.Message}");
+            }
+        }
+
         public ResultadoOperacion RegistrarNota(Guid idPedido, string nota, string usuario)
         {
             if (idPedido == Guid.Empty || string.IsNullOrWhiteSpace(nota))
@@ -633,6 +685,16 @@ namespace BLL.Services
             var compare = CultureInfo.InvariantCulture.CompareInfo;
             return compare.IndexOf(nombre, "producción", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
                    || compare.IndexOf(nombre, "produccion", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
+        }
+
+        private static bool EsEstadoCancelado(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return false;
+
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            return compare.IndexOf(nombre, "cancelado", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                   || compare.IndexOf(nombre, "cancelled", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
         private static string ObtenerMensajeProfundo(Exception ex)
