@@ -25,6 +25,7 @@ namespace BLL.Interfaces
         ResultadoOperacion CrearPedido(Pedido pedido);
         ResultadoOperacion ActualizarPedido(Pedido pedido);
         ResultadoOperacion CambiarEstado(Guid idPedido, Guid idEstado, string comentario, string usuario);
+        ResultadoOperacion CancelarPedido(Guid idPedido, string usuario, string comentario);
         ResultadoOperacion RegistrarNota(Guid idPedido, string nota, string usuario);
         string GenerarProximoNumeroPedido();
         IEnumerable<EstadoPedido> ObtenerEstadosPedido();

@@ -932,6 +932,7 @@
             this.panelAcciones.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panelAcciones.Controls.Add(this.btnGuardar);
             this.panelAcciones.Controls.Add(this.btnCancelar);
+            this.panelAcciones.Controls.Add(this.btnCancelarPedido);
             this.panelAcciones.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panelAcciones.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.panelAcciones.Location = new System.Drawing.Point(0, 624);
@@ -960,6 +961,17 @@
             this.btnCancelar.TabIndex = 1;
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.UseVisualStyleBackColor = true;
+            //
+            // btnCancelarPedido
+            //
+            this.btnCancelarPedido.AutoSize = true;
+            this.btnCancelarPedido.Location = new System.Drawing.Point(684, 3);
+            this.btnCancelarPedido.Name = "btnCancelarPedido";
+            this.btnCancelarPedido.Size = new System.Drawing.Size(95, 31);
+            this.btnCancelarPedido.TabIndex = 2;
+            this.btnCancelarPedido.Text = "Cancelar pedido";
+            this.btnCancelarPedido.UseVisualStyleBackColor = true;
+            this.btnCancelarPedido.Visible = false;
             // 
             // PedidoForm
             // 
@@ -1089,5 +1101,6 @@
         private System.Windows.Forms.FlowLayoutPanel panelAcciones;
         private System.Windows.Forms.Button btnGuardar;
         private System.Windows.Forms.Button btnCancelar;
+        private System.Windows.Forms.Button btnCancelarPedido;
     }
 }

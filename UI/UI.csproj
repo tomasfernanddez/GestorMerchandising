@@ -129,6 +129,7 @@
     <Compile Include="Formularios\UsuarioForm.Designer.cs">
       <DependentUpon>UsuarioForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ArgentinaDateTimeHelper.cs" />
     <Compile Include="Localization\Localization.cs" />
     <Compile Include="Localization\LocalizationExtensions.cs" />
     <Compile Include="Formularios\LoginForm.cs">

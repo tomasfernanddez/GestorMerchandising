@@ -13,6 +13,7 @@ using DomainModel.Entidades;
 using Services.BLL.Interfaces;
 using UI.Localization;
 using UI.ViewModels;
+using UI.Helpers;
 
 namespace UI
 {
@@ -46,8 +47,8 @@ namespace UI
         private decimal _montoPagadoActual;
         private readonly List<PagoRegistrado> _pagosRegistrados = new List<PagoRegistrado>();
         private ContextMenuStrip _contextMenuEstados;
-
-        private static readonly TimeZoneInfo ArgentinaTimeZone = ObtenerZonaHorariaArgentina();
+        private Guid? _estadoCanceladoId;
+        private bool _pedidoCancelado;
 
         private sealed class PagoRegistrado
         {
@@ -57,7 +58,7 @@ namespace UI
                 Porcentaje = porcentaje.HasValue && porcentaje.Value > 0
                     ? Math.Round(porcentaje.Value, 2)
                     : (decimal?)null;
-                Fecha = ObtenerFechaArgentina();
+                Fecha = ArgentinaDateTimeHelper.Now();
             }
 
             public decimal Monto { get; }
@@ -119,6 +120,7 @@ namespace UI
 
             btnAgregarPago.Click += btnAgregarPago_Click;
             btnDeshacerPago.Click += btnCancelarPago_Click;
+            btnCancelarPedido.Click += btnCancelarPedido_Click;
         }
 
         private void PedidoForm_Load(object sender, EventArgs e)
@@ -189,6 +191,7 @@ namespace UI
 
             btnGuardar.Text = "form.save".Traducir();
             btnCancelar.Text = "form.cancel".Traducir();
+            btnCancelarPedido.Text = "order.cancel.button".Traducir();
 
             if (_clientes != null)
             {
@@ -218,6 +221,8 @@ namespace UI
                     .ToList();
 
                 _estadosPedido = _pedidoService.ObtenerEstadosPedido().OrderBy(e => e.NombreEstadoPedido).ToList();
+                var estadoCancelado = _estadosPedido.FirstOrDefault(e => EsEstadoCancelado(e.NombreEstadoPedido));
+                _estadoCanceladoId = estadoCancelado?.IdEstadoPedido;
                 _tiposPago = _pedidoService.ObtenerTiposPago().OrderBy(t => t.NombreTipoPago).ToList();
 
                 _estadosProducto = _pedidoService.ObtenerEstadosProducto().OrderBy(e => e.NombreEstadoProducto).ToList();
@@ -281,7 +286,14 @@ namespace UI
             {
                 new EstadoPedido { IdEstadoPedido = Guid.Empty, NombreEstadoPedido = "form.select.optional".Traducir() }
             };
-            estados.AddRange(_estadosPedido);
+
+            var estadosDisponibles = _estadosPedido?
+                .Where(e => !_estadoCanceladoId.HasValue
+                             || e.IdEstadoPedido != _estadoCanceladoId.Value
+                             || (_pedidoCancelado && e.IdEstadoPedido == _estadoCanceladoId.Value))
+                .ToList() ?? new List<EstadoPedido>();
+
+            estados.AddRange(estadosDisponibles);
             cmbEstadoPedido.DisplayMember = nameof(EstadoPedido.NombreEstadoPedido);
             cmbEstadoPedido.ValueMember = nameof(EstadoPedido.IdEstadoPedido);
             cmbEstadoPedido.DataSource = estados;
@@ -294,6 +306,9 @@ namespace UI
             {
                 SeleccionarEstadoProduccion();
             }
+
+            cmbEstadoPedido.Enabled = !_pedidoCancelado;
+            ActualizarAccionesCancelacion();
         }
 
         private bool EsProveedorProducto(Proveedor proveedor)
@@ -319,6 +334,18 @@ namespace UI
             }
         }
 
+        private void ActualizarAccionesCancelacion()
+        {
+            if (btnCancelarPedido == null)
+                return;
+
+            var visible = _pedidoId.HasValue;
+            var habilitado = visible && !_pedidoCancelado && _estadoCanceladoId.HasValue;
+
+            btnCancelarPedido.Visible = visible;
+            btnCancelarPedido.Enabled = habilitado;
+        }
+
         private static bool EsEstadoProduccion(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
@@ -327,6 +354,16 @@ namespace UI
             var compare = CultureInfo.InvariantCulture.CompareInfo;
             return compare.IndexOf(nombre, "producción", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
                 || compare.IndexOf(nombre, "produccion", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
+        }
+
+        private static bool EsEstadoCancelado(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return false;
+
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            return compare.IndexOf(nombre, "cancelado", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                || compare.IndexOf(nombre, "cancelled", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
         private void ConfigurarGrillaDetalles()
@@ -527,6 +564,11 @@ namespace UI
                     return;
                 }
 
+                _pedidoCancelado = _estadoCanceladoId.HasValue
+                    && _pedidoOriginal.IdEstadoPedido.HasValue
+                    && _pedidoOriginal.IdEstadoPedido.Value == _estadoCanceladoId.Value;
+                ConfigurarCombosGenerales(true);
+
                 txtNumeroPedido.Text = _pedidoOriginal.NumeroPedido;
                 cmbCliente.SelectedValue = _pedidoOriginal.IdCliente;
                 if (_pedidoOriginal.IdTipoPago.HasValue)
@@ -537,7 +579,7 @@ namespace UI
                 if (_pedidoOriginal.FechaLimiteEntrega.HasValue)
                 {
                     chkFechaEntrega.Checked = true;
-                    dtpFechaEntrega.Value = _pedidoOriginal.FechaLimiteEntrega.Value;
+                    dtpFechaEntrega.Value = ArgentinaDateTimeHelper.ToArgentina(_pedidoOriginal.FechaLimiteEntrega.Value);
                 }
 
                 _montoPagadoBase = _pedidoOriginal.MontoPagado;
@@ -561,6 +603,8 @@ namespace UI
 
                 _notas = _pedidoOriginal.Notas?.OrderBy(n => n.Fecha).Select(CloneNota).ToList() ?? new List<PedidoNota>();
                 _historial = _pedidoOriginal.HistorialEstados?.OrderBy(h => h.FechaCambio).Select(CloneHistorial).ToList() ?? new List<PedidoEstadoHistorial>();
+                
+                ActualizarAccionesCancelacion();
             }
             catch (Exception ex)
             {
@@ -582,6 +626,8 @@ namespace UI
             _montoPagadoActual = 0m;
             _pagosRegistrados.Clear();
             ActualizarMontoPagadoUI();
+            _pedidoCancelado = false;
+            ActualizarAccionesCancelacion();
         }
 
         private PedidoDetalleViewModel MapearDetalle(PedidoDetalle detalle)
@@ -599,7 +645,7 @@ namespace UI
                 PrecioUnitario = detalle.PrecioUnitario,
                 IdEstadoProducto = detalle.IdEstadoProducto,
                 EstadoProducto = detalle.EstadoProducto?.NombreEstadoProducto,
-                FechaLimite = detalle.FechaLimiteProduccion,
+                FechaLimite = ArgentinaDateTimeHelper.ToArgentina(detalle.FechaLimiteProduccion),
                 FichaAplicacion = detalle.FichaAplicacion,
                 Notas = detalle.Notas,
                 IdProveedorPersonalizacion = detalle.IdProveedorPersonalizacion,
@@ -632,7 +678,7 @@ namespace UI
                 IdNota = nota.IdNota,
                 IdPedido = nota.IdPedido,
                 Nota = nota.Nota,
-                Fecha = nota.Fecha,
+                Fecha = ArgentinaDateTimeHelper.ToArgentina(nota.Fecha),
                 Usuario = nota.Usuario
             };
         }
@@ -646,7 +692,7 @@ namespace UI
                 IdEstadoPedido = historial.IdEstadoPedido,
                 EstadoPedido = historial.EstadoPedido,
                 Comentario = historial.Comentario,
-                FechaCambio = historial.FechaCambio,
+                FechaCambio = ArgentinaDateTimeHelper.ToArgentina(historial.FechaCambio),
                 Usuario = historial.Usuario
             };
         }
@@ -1268,7 +1314,7 @@ namespace UI
             {
                 IdNota = Guid.NewGuid(),
                 Nota = texto,
-                Fecha = ObtenerFechaArgentina(),
+                Fecha = ArgentinaDateTimeHelper.Now(),
                 Usuario = SessionContext.NombreUsuario ?? "Sistema"
             };
 
@@ -1317,6 +1363,55 @@ namespace UI
             {
                 _logService.LogError("Error guardando pedido / Error saving order", ex, "Pedidos", SessionContext.NombreUsuario);
                 MessageBox.Show("order.save.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnCancelarPedido_Click(object sender, EventArgs e)
+        {
+            if (!_pedidoId.HasValue || !_estadoCanceladoId.HasValue)
+                return;
+
+            var numeroPedido = txtNumeroPedido.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(numeroPedido))
+                numeroPedido = _pedidoOriginal?.NumeroPedido;
+
+            var confirmacion = MessageBox.Show(
+                string.Format("order.cancel.confirm".Traducir(), numeroPedido),
+                Text,
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirmacion != DialogResult.Yes)
+                return;
+
+            try
+            {
+                var usuario = SessionContext.NombreUsuario ?? "Sistema";
+                var comentario = $"Pedido cancelado por {usuario} / Order cancelled by {usuario}";
+                var resultado = _pedidoService.CancelarPedido(_pedidoId.Value, usuario, comentario);
+                if (!resultado.EsValido)
+                {
+                    MessageBox.Show("order.cancel.error".Traducir(resultado.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var totales = CalcularTotales();
+                _montoPagadoActual = totales.totalConIva;
+                ActualizarResumen();
+
+                var mensaje = $"Pedido cancelado / Order cancelled: {numeroPedido}";
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Pedido.Cancelar", mensaje, "Pedidos");
+                _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
+
+                MessageBox.Show("order.cancel.success".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                DialogResult = DialogResult.OK;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError("Error cancelando pedido / Error cancelling order", ex, "Pedidos", SessionContext.NombreUsuario);
+                MessageBox.Show("order.cancel.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1395,6 +1490,12 @@ namespace UI
             pedido.Detalles = _detalles.Select(MapearDetalleDominio).ToList();
             pedido.Notas = _notas.Select(CloneNota).ToList();
 
+            var totales = CalcularTotales();
+            pedido.TotalSinIva = totales.totalSinIva;
+            pedido.MontoIva = totales.iva;
+            pedido.TotalConIva = totales.totalConIva;
+            pedido.SaldoPendiente = totales.saldoPendiente;
+
             if (_pedidoOriginal != null && pedido.IdEstadoPedido != _pedidoOriginal.IdEstadoPedido)
             {
                 var estado = _estadosPedido.FirstOrDefault(e => e.IdEstadoPedido == pedido.IdEstadoPedido)?.NombreEstadoPedido;
@@ -1404,7 +1505,7 @@ namespace UI
                     IdPedido = pedidoId ?? pedido.IdPedido,
                     IdEstadoPedido = pedido.IdEstadoPedido ?? Guid.Empty,
                     Comentario = string.Format("order.timeline.manualChange".Traducir(), estado, SessionContext.NombreUsuario),
-                    FechaCambio = ObtenerFechaArgentina(),
+                    FechaCambio = ArgentinaDateTimeHelper.Now(),
                     Usuario = SessionContext.NombreUsuario ?? "Sistema"
                 });
             }
@@ -1481,7 +1582,7 @@ namespace UI
                 IdPedido = _pedidoOriginal?.IdPedido ?? _pedidoId ?? Guid.Empty,
                 IdEstadoPedido = ObtenerEstadoPedidoActual(),
                 Comentario = comentario,
-                FechaCambio = ObtenerFechaArgentina(),
+                FechaCambio = ArgentinaDateTimeHelper.Now(),
                 Usuario = usuario
             };
 
@@ -1506,26 +1607,6 @@ namespace UI
                 return null;
 
             return _estadosProducto?.FirstOrDefault(e => e.IdEstadoProducto == idEstado.Value);
-        }
-
-        private static TimeZoneInfo ObtenerZonaHorariaArgentina()
-        {
-            var ids = new[] { "Argentina Standard Time", "America/Argentina/Buenos_Aires", "America/Buenos_Aires" };
-            foreach (var id in ids)
-            {
-                try { return TimeZoneInfo.FindSystemTimeZoneById(id); }
-                catch (TimeZoneNotFoundException) { }
-                catch (InvalidTimeZoneException) { }
-            }
-
-            return TimeZoneInfo.CreateCustomTimeZone("UTC-3", TimeSpan.FromHours(-3), "UTC-3", "UTC-3");
-        }
-
-        private static DateTime ObtenerFechaArgentina()
-        {
-            var utcAhora = DateTime.UtcNow;
-            var fechaLocal = TimeZoneInfo.ConvertTimeFromUtc(utcAhora, ArgentinaTimeZone);
-            return DateTime.SpecifyKind(fechaLocal, DateTimeKind.Local);
         }
 
         private static bool TryParseDecimalFlexible(string texto, out decimal valor)

@@ -203,6 +203,55 @@ namespace UI
             OcultarSugerencias();
         }
 
+        private bool TryAplicarPrimeraSugerencia()
+        {
+            if (_productoSeleccionado != null)
+                return true;
+
+            ProductoSuggestion sugerencia = null;
+
+            if (_listaSugerencias != null && _listaSugerencias.Visible)
+            {
+                if (_listaSugerencias.SelectedItem is ProductoSuggestion seleccionada)
+                    sugerencia = seleccionada;
+                else if (_listaSugerencias.Items.Count > 0)
+                    sugerencia = _listaSugerencias.Items[0] as ProductoSuggestion;
+            }
+
+            if (sugerencia == null && _sugerenciasActuales != null && _sugerenciasActuales.Count > 0)
+            {
+                sugerencia = _sugerenciasActuales[0];
+            }
+
+            if (sugerencia == null)
+            {
+                var texto = cmbProducto.Text?.Trim();
+                if (!string.IsNullOrWhiteSpace(texto))
+                {
+                    try
+                    {
+                        var sugerencias = _productoService.BuscarParaAutocomplete(texto, 1)
+                            .Where(p => p != null && p.Activo)
+                            .Select(p => new ProductoSuggestion(p, FormatearDescripcionProducto(p)))
+                            .ToList();
+                        if (sugerencias.Count > 0)
+                            sugerencia = sugerencias[0];
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            if (sugerencia != null)
+            {
+                AplicarSugerencia(sugerencia);
+                return true;
+            }
+
+            return false;
+        }
+
         private void ApplyTexts()
         {
             Text = _detalleOriginal == null ? "order.detail.addTitle".Traducir() : "order.detail.editTitle".Traducir();
@@ -477,22 +526,8 @@ namespace UI
         {
             if (e.KeyCode == Keys.Enter)
             {
-                ProductoSuggestion sugerencia = null;
-                if (_listaSugerencias != null && _listaSugerencias.Visible)
+                if (TryAplicarPrimeraSugerencia())
                 {
-                    if (_listaSugerencias.SelectedItem is ProductoSuggestion seleccionada)
-                        sugerencia = seleccionada;
-                    else if (_listaSugerencias.Items.Count > 0)
-                        sugerencia = _listaSugerencias.Items[0] as ProductoSuggestion;
-                }
-                else if (_sugerenciasActuales != null && _sugerenciasActuales.Count > 0)
-                {
-                    sugerencia = _sugerenciasActuales[0];
-                }
-
-                if (sugerencia != null)
-                {
-                    AplicarSugerencia(sugerencia);
                     e.Handled = true;
                     e.SuppressKeyPress = true;
                 }
@@ -690,6 +725,7 @@ namespace UI
         private void btnAceptar_Click(object sender, EventArgs e)
         {
             OcultarSugerencias();
+            TryAplicarPrimeraSugerencia();
             var textoIngresado = cmbProducto.Text ?? string.Empty;
             var nombreProducto = textoIngresado.Trim();
             if (_productoSeleccionado != null && !string.IsNullOrWhiteSpace(_productoSeleccionado.NombreProducto))
