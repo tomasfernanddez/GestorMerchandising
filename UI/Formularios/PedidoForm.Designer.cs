@@ -90,6 +90,7 @@
             this.panelAcciones = new System.Windows.Forms.FlowLayoutPanel();
             this.btnGuardar = new System.Windows.Forms.Button();
             this.btnCancelar = new System.Windows.Forms.Button();
+            this.btnCancelarPedido = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tableGeneral.SuspendLayout();
