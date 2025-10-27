@@ -43,8 +43,6 @@
             this.txtDireccion = new System.Windows.Forms.TextBox();
             this.lblFechaEntrega = new System.Windows.Forms.Label();
             this.dtpFechaEntrega = new System.Windows.Forms.DateTimePicker();
-            this.lblFechaDevolucion = new System.Windows.Forms.Label();
-            this.dtpFechaDevolucionEsperada = new System.Windows.Forms.DateTimePicker();
             this.lblEstadoPedido = new System.Windows.Forms.Label();
             this.cmbEstadoPedido = new System.Windows.Forms.ComboBox();
             this.lblObservaciones = new System.Windows.Forms.Label();
@@ -140,8 +138,6 @@
             this.layoutGeneral.Controls.Add(this.txtDireccion, 1, 4);
             this.layoutGeneral.Controls.Add(this.lblFechaEntrega, 2, 0);
             this.layoutGeneral.Controls.Add(this.dtpFechaEntrega, 3, 0);
-            this.layoutGeneral.Controls.Add(this.lblFechaDevolucion, 2, 1);
-            this.layoutGeneral.Controls.Add(this.dtpFechaDevolucionEsperada, 3, 1);
             this.layoutGeneral.Controls.Add(this.lblEstadoPedido, 2, 2);
             this.layoutGeneral.Controls.Add(this.cmbEstadoPedido, 3, 2);
             this.layoutGeneral.Controls.Add(this.lblObservaciones, 0, 5);
@@ -274,25 +270,6 @@
             this.dtpFechaEntrega.ShowCheckBox = true;
             this.dtpFechaEntrega.Size = new System.Drawing.Size(200, 20);
             this.dtpFechaEntrega.TabIndex = 11;
-            // 
-            // lblFechaDevolucion
-            // 
-            this.lblFechaDevolucion.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblFechaDevolucion.AutoSize = true;
-            this.lblFechaDevolucion.Location = new System.Drawing.Point(430, 38);
-            this.lblFechaDevolucion.Name = "lblFechaDevolucion";
-            this.lblFechaDevolucion.Size = new System.Drawing.Size(140, 13);
-            this.lblFechaDevolucion.TabIndex = 12;
-            this.lblFechaDevolucion.Text = "sampleOrder.return.expected";
-            // 
-            // dtpFechaDevolucionEsperada
-            // 
-            this.dtpFechaDevolucionEsperada.CustomFormat = "dd/MM/yyyy";
-            this.dtpFechaDevolucionEsperada.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpFechaDevolucionEsperada.Location = new System.Drawing.Point(570, 33);
-            this.dtpFechaDevolucionEsperada.Name = "dtpFechaDevolucionEsperada";
-            this.dtpFechaDevolucionEsperada.Size = new System.Drawing.Size(200, 20);
-            this.dtpFechaDevolucionEsperada.TabIndex = 13;
             // 
             // lblEstadoPedido
             // 
@@ -739,8 +716,6 @@
         private System.Windows.Forms.TextBox txtDireccion;
         private System.Windows.Forms.Label lblFechaEntrega;
         private System.Windows.Forms.DateTimePicker dtpFechaEntrega;
-        private System.Windows.Forms.Label lblFechaDevolucion;
-        private System.Windows.Forms.DateTimePicker dtpFechaDevolucionEsperada;
         private System.Windows.Forms.Label lblEstadoPedido;
         private System.Windows.Forms.ComboBox cmbEstadoPedido;
         private System.Windows.Forms.Label lblObservaciones;

@@ -14,6 +14,7 @@ namespace BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly Dictionary<string, Guid> _estadoMuestraCache = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<Guid, string> _estadoMuestraNombreCache = new Dictionary<Guid, string>();
 
         public PedidoMuestraService(IUnitOfWork unitOfWork)
         {
@@ -28,6 +29,17 @@ namespace BLL.Services
             }
 
             IEnumerable<PedidoMuestra> pedidos = _unitOfWork.PedidosMuestra.GetAll();
+
+            if (!string.IsNullOrWhiteSpace(filtro.TextoBusqueda))
+            {
+                var texto = filtro.TextoBusqueda.Trim();
+                pedidos = pedidos.Where(p =>
+                    (!string.IsNullOrEmpty(p.Cliente?.RazonSocial) && p.Cliente.RazonSocial.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(p.PersonaContacto) && p.PersonaContacto.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(p.EmailContacto) && p.EmailContacto.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(p.Observaciones) && p.Observaciones.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    p.Detalles.Any(d => !string.IsNullOrEmpty(d.Producto?.NombreProducto) && d.Producto.NombreProducto.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0));
+            }
 
             if (filtro.IdCliente.HasValue)
             {
@@ -144,6 +156,60 @@ namespace BLL.Services
             }
         }
 
+        public ResultadoOperacion CancelarPedidoMuestra(Guid idPedidoMuestra, string usuario, string comentario = null)
+        {
+            if (idPedidoMuestra == Guid.Empty)
+                return ResultadoOperacion.Error("Datos inválidos para cancelar el pedido de muestra");
+
+            try
+            {
+                var pedido = _unitOfWork.PedidosMuestra.GetMuestraConDetalles(idPedidoMuestra);
+                if (pedido == null)
+                    return ResultadoOperacion.Error("Pedido de muestra inexistente");
+
+                var estados = _unitOfWork.EstadosPedidoMuestra?.GetEstadosOrdenados();
+                var estadoCancelado = estados?.FirstOrDefault(e =>
+                    string.Equals(e.NombreEstadoPedidoMuestra, "Cancelado", StringComparison.OrdinalIgnoreCase));
+                if (estadoCancelado == null)
+                    return ResultadoOperacion.Error("Estado 'Cancelado' no disponible");
+
+                if (pedido.IdEstadoPedidoMuestra.HasValue && pedido.IdEstadoPedidoMuestra.Value == estadoCancelado.IdEstadoPedidoMuestra)
+                    return ResultadoOperacion.Error("El pedido de muestra ya se encuentra cancelado");
+
+                pedido.IdEstadoPedidoMuestra = estadoCancelado.IdEstadoPedidoMuestra;
+                pedido.Facturado = false;
+
+                if (pedido.Detalles != null)
+                {
+                    foreach (var detalle in pedido.Detalles)
+                    {
+                        detalle.Subtotal = 0m;
+                        if (detalle.IdEstadoMuestra.HasValue)
+                            continue;
+
+                        var estadoPendiente = ObtenerEstadoMuestraPorNombre("Pendiente de Envío");
+                        if (estadoPendiente.HasValue)
+                        {
+                            detalle.IdEstadoMuestra = estadoPendiente.Value;
+                        }
+                    }
+                }
+
+                pedido.MontoTotal = Math.Round(pedido.Detalles?.Sum(d => d.Subtotal) ?? 0m, 2);
+                pedido.MontoPagado = pedido.MontoTotal;
+                pedido.SaldoPendiente = 0m;
+
+                _unitOfWork.PedidosMuestra.Update(pedido);
+                _unitOfWork.SaveChanges();
+
+                return ResultadoOperacion.Exitoso("Pedido de muestra cancelado", pedido.IdPedidoMuestra);
+            }
+            catch (Exception ex)
+            {
+                return ResultadoOperacion.Error($"Error al cancelar el pedido de muestra: {ObtenerMensajeProfundo(ex)}");
+            }
+        }
+
         public IEnumerable<EstadoPedidoMuestra> ObtenerEstadosPedido()
         {
             return _unitOfWork.EstadosPedidoMuestra.GetEstadosOrdenados();
@@ -183,7 +249,7 @@ namespace BLL.Services
                     detalle.Cantidad = 1;
                 }
 
-                detalle.Subtotal = Math.Round(detalle.Cantidad * detalle.PrecioUnitario, 2);
+                detalle.Subtotal = CalcularSubtotal(detalle);
 
                 if (!detalle.IdEstadoMuestra.HasValue)
                 {
@@ -239,7 +305,7 @@ namespace BLL.Services
                 actual.IdProducto = entrante.IdProducto;
                 actual.Cantidad = entrante.Cantidad <= 0 ? 1 : entrante.Cantidad;
                 actual.PrecioUnitario = entrante.PrecioUnitario;
-                actual.Subtotal = Math.Round(actual.Cantidad * actual.PrecioUnitario, 2);
+                actual.Subtotal = CalcularSubtotal(actual);
                 actual.IdEstadoMuestra = entrante.IdEstadoMuestra ?? ObtenerEstadoMuestraPorNombre("Pendiente de Envío");
                 actual.FechaDevolucion = entrante.FechaDevolucion;
 
@@ -255,11 +321,51 @@ namespace BLL.Services
                 entrante.IdPedidoMuestra = existente.IdPedidoMuestra;
                 if (entrante.Cantidad <= 0)
                     entrante.Cantidad = 1;
-                entrante.Subtotal = Math.Round(entrante.Cantidad * entrante.PrecioUnitario, 2);
+                entrante.Subtotal = CalcularSubtotal(entrante);
                 entrante.IdEstadoMuestra = entrante.IdEstadoMuestra ?? ObtenerEstadoMuestraPorNombre("Pendiente de Envío");
 
                 existente.Detalles.Add(entrante);
             }
+        }
+
+        private decimal CalcularSubtotal(DetalleMuestra detalle)
+        {
+            if (detalle == null)
+                return 0m;
+
+            var monto = Math.Round(Math.Max(1, detalle.Cantidad) * detalle.PrecioUnitario, 2);
+            var estado = detalle.EstadoMuestra?.NombreEstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
+
+            if (string.Equals(estado, "Facturar", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(estado, "Facturado", StringComparison.OrdinalIgnoreCase))
+            {
+                return monto;
+            }
+
+            return 0m;
+        }
+
+        private string ObtenerNombreEstado(Guid? idEstado)
+        {
+            if (!idEstado.HasValue || idEstado.Value == Guid.Empty)
+                return string.Empty;
+
+            if (_estadoMuestraNombreCache.TryGetValue(idEstado.Value, out var nombre))
+                return nombre;
+
+            var estados = _unitOfWork.EstadosMuestra.GetEstadosOrdenados();
+            var estado = estados.FirstOrDefault(e => e.IdEstadoMuestra == idEstado.Value);
+            if (estado != null)
+            {
+                _estadoMuestraNombreCache[idEstado.Value] = estado.NombreEstadoMuestra;
+                if (!_estadoMuestraCache.ContainsKey(estado.NombreEstadoMuestra))
+                {
+                    _estadoMuestraCache[estado.NombreEstadoMuestra] = estado.IdEstadoMuestra;
+                }
+                return estado.NombreEstadoMuestra;
+            }
+
+            return string.Empty;
         }
 
         private Guid? ObtenerEstadoMuestraPorNombre(string nombre)

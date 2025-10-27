@@ -33,24 +33,26 @@
             this.tsbEditar = new System.Windows.Forms.ToolStripButton();
             this.tsbActualizar = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbCancelar = new System.Windows.Forms.ToolStripButton();
             this.tsbPedirFacturacion = new System.Windows.Forms.ToolStripButton();
             this.tsbExtenderDias = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tslBuscar = new System.Windows.Forms.ToolStripLabel();
+            this.txtBuscar = new System.Windows.Forms.ToolStripTextBox();
+            this.btnBuscar = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.tslCliente = new System.Windows.Forms.ToolStripLabel();
+            this.cmbCliente = new System.Windows.Forms.ToolStripComboBox();
+            this.tslEstado = new System.Windows.Forms.ToolStripLabel();
+            this.cmbEstado = new System.Windows.Forms.ToolStripComboBox();
+            this.tslFacturado = new System.Windows.Forms.ToolStripLabel();
+            this.cmbFacturado = new System.Windows.Forms.ToolStripComboBox();
+            this.tslSaldo = new System.Windows.Forms.ToolStripLabel();
+            this.cmbSaldo = new System.Windows.Forms.ToolStripComboBox();
             this.layoutMain = new System.Windows.Forms.TableLayoutPanel();
-            this.flowFiltros = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblClienteFiltro = new System.Windows.Forms.Label();
-            this.cmbClienteFiltro = new System.Windows.Forms.ComboBox();
-            this.lblEstadoFiltro = new System.Windows.Forms.Label();
-            this.cmbEstadoFiltro = new System.Windows.Forms.ComboBox();
-            this.chkFacturadoFiltro = new System.Windows.Forms.CheckBox();
-            this.chkSaldoFiltro = new System.Windows.Forms.CheckBox();
-            this.lblDiasExtension = new System.Windows.Forms.Label();
-            this.nudDiasExtension = new System.Windows.Forms.NumericUpDown();
-            this.btnFiltrar = new System.Windows.Forms.Button();
             this.dgvPedidos = new System.Windows.Forms.DataGridView();
             this.toolStrip.SuspendLayout();
             this.layoutMain.SuspendLayout();
-            this.flowFiltros.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDiasExtension)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPedidos)).BeginInit();
             this.SuspendLayout();
             // 
@@ -60,9 +62,23 @@
             this.tsbNuevo,
             this.tsbEditar,
             this.tsbActualizar,
+            this.tsbCancelar,
             this.toolStripSeparator1,
             this.tsbPedirFacturacion,
-            this.tsbExtenderDias});
+            this.tsbExtenderDias,
+            this.toolStripSeparator2,
+            this.tslBuscar,
+            this.txtBuscar,
+            this.btnBuscar,
+            this.toolStripSeparator3,
+            this.tslCliente,
+            this.cmbCliente,
+            this.tslEstado,
+            this.cmbEstado,
+            this.tslFacturado,
+            this.cmbFacturado,
+            this.tslSaldo,
+            this.cmbSaldo});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(884, 25);
@@ -92,6 +108,14 @@
             this.tsbActualizar.Size = new System.Drawing.Size(74, 22);
             this.tsbActualizar.Text = "form.refresh";
             this.tsbActualizar.Click += new System.EventHandler(this.tsbActualizar_Click);
+            //
+            // tsbCancelar
+            //
+            this.tsbCancelar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbCancelar.Name = "tsbCancelar";
+            this.tsbCancelar.Size = new System.Drawing.Size(96, 22);
+            this.tsbCancelar.Text = "order.cancel.button";
+            this.tsbCancelar.Click += new System.EventHandler(this.tsbCancelar_Click);
             // 
             // toolStripSeparator1
             // 
@@ -113,142 +137,100 @@
             this.tsbExtenderDias.Size = new System.Drawing.Size(129, 22);
             this.tsbExtenderDias.Text = "sampleOrder.extend.due";
             this.tsbExtenderDias.Click += new System.EventHandler(this.tsbExtenderDias_Click);
+            //
+            // toolStripSeparator2
+            //
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            //
+            // tslBuscar
+            //
+            this.tslBuscar.Name = "tslBuscar";
+            this.tslBuscar.Size = new System.Drawing.Size(62, 22);
+            this.tslBuscar.Text = "form.search";
+            //
+            // txtBuscar
+            //
+            this.txtBuscar.Name = "txtBuscar";
+            this.txtBuscar.Size = new System.Drawing.Size(160, 25);
+            //
+            // btnBuscar
+            //
+            this.btnBuscar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnBuscar.Name = "btnBuscar";
+            this.btnBuscar.Size = new System.Drawing.Size(74, 22);
+            this.btnBuscar.Text = "form.filter";
+            this.btnBuscar.Click += new System.EventHandler(this.btnBuscar_Click);
+            //
+            // toolStripSeparator3
+            //
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+            //
+            // tslCliente
+            //
+            this.tslCliente.Name = "tslCliente";
+            this.tslCliente.Size = new System.Drawing.Size(97, 22);
+            this.tslCliente.Text = "sampleOrder.client";
+            //
+            // cmbCliente
+            //
+            this.cmbCliente.AutoSize = false;
+            this.cmbCliente.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbCliente.Name = "cmbCliente";
+            this.cmbCliente.Size = new System.Drawing.Size(160, 25);
+            //
+            // tslEstado
+            //
+            this.tslEstado.Name = "tslEstado";
+            this.tslEstado.Size = new System.Drawing.Size(97, 22);
+            this.tslEstado.Text = "sampleOrder.state";
+            //
+            // cmbEstado
+            //
+            this.cmbEstado.AutoSize = false;
+            this.cmbEstado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbEstado.Name = "cmbEstado";
+            this.cmbEstado.Size = new System.Drawing.Size(140, 25);
+            //
+            // tslFacturado
+            //
+            this.tslFacturado.Name = "tslFacturado";
+            this.tslFacturado.Size = new System.Drawing.Size(132, 22);
+            this.tslFacturado.Text = "sampleOrder.invoiced.only";
+            //
+            // cmbFacturado
+            //
+            this.cmbFacturado.AutoSize = false;
+            this.cmbFacturado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbFacturado.Name = "cmbFacturado";
+            this.cmbFacturado.Size = new System.Drawing.Size(120, 25);
+            //
+            // tslSaldo
+            //
+            this.tslSaldo.Name = "tslSaldo";
+            this.tslSaldo.Size = new System.Drawing.Size(148, 22);
+            this.tslSaldo.Text = "sampleOrder.summary.balance";
+            //
+            // cmbSaldo
+            //
+            this.cmbSaldo.AutoSize = false;
+            this.cmbSaldo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSaldo.Name = "cmbSaldo";
+            this.cmbSaldo.Size = new System.Drawing.Size(120, 25);
             // 
             // layoutMain
             // 
             this.layoutMain.ColumnCount = 1;
             this.layoutMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.layoutMain.Controls.Add(this.flowFiltros, 0, 0);
-            this.layoutMain.Controls.Add(this.dgvPedidos, 0, 1);
+            this.layoutMain.Controls.Add(this.dgvPedidos, 0, 0);
             this.layoutMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutMain.Location = new System.Drawing.Point(0, 25);
             this.layoutMain.Name = "layoutMain";
-            this.layoutMain.RowCount = 2;
-            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.layoutMain.RowCount = 1;
             this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.layoutMain.Size = new System.Drawing.Size(884, 636);
             this.layoutMain.TabIndex = 1;
-            // 
-            // flowFiltros
-            // 
-            this.flowFiltros.AutoSize = true;
-            this.flowFiltros.Controls.Add(this.lblClienteFiltro);
-            this.flowFiltros.Controls.Add(this.cmbClienteFiltro);
-            this.flowFiltros.Controls.Add(this.lblEstadoFiltro);
-            this.flowFiltros.Controls.Add(this.cmbEstadoFiltro);
-            this.flowFiltros.Controls.Add(this.chkFacturadoFiltro);
-            this.flowFiltros.Controls.Add(this.chkSaldoFiltro);
-            this.flowFiltros.Controls.Add(this.lblDiasExtension);
-            this.flowFiltros.Controls.Add(this.nudDiasExtension);
-            this.flowFiltros.Controls.Add(this.btnFiltrar);
-            this.flowFiltros.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowFiltros.Location = new System.Drawing.Point(3, 3);
-            this.flowFiltros.Name = "flowFiltros";
-            this.flowFiltros.Size = new System.Drawing.Size(878, 32);
-            this.flowFiltros.TabIndex = 0;
-            // 
-            // lblClienteFiltro
-            // 
-            this.lblClienteFiltro.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblClienteFiltro.AutoSize = true;
-            this.lblClienteFiltro.Location = new System.Drawing.Point(3, 9);
-            this.lblClienteFiltro.Name = "lblClienteFiltro";
-            this.lblClienteFiltro.Size = new System.Drawing.Size(94, 13);
-            this.lblClienteFiltro.TabIndex = 0;
-            this.lblClienteFiltro.Text = "sampleOrder.client";
-            // 
-            // cmbClienteFiltro
-            // 
-            this.cmbClienteFiltro.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbClienteFiltro.FormattingEnabled = true;
-            this.cmbClienteFiltro.Location = new System.Drawing.Point(103, 3);
-            this.cmbClienteFiltro.Name = "cmbClienteFiltro";
-            this.cmbClienteFiltro.Size = new System.Drawing.Size(180, 21);
-            this.cmbClienteFiltro.TabIndex = 1;
-            // 
-            // lblEstadoFiltro
-            // 
-            this.lblEstadoFiltro.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblEstadoFiltro.AutoSize = true;
-            this.lblEstadoFiltro.Location = new System.Drawing.Point(289, 9);
-            this.lblEstadoFiltro.Name = "lblEstadoFiltro";
-            this.lblEstadoFiltro.Size = new System.Drawing.Size(97, 13);
-            this.lblEstadoFiltro.TabIndex = 2;
-            this.lblEstadoFiltro.Text = "sampleOrder.state";
-            // 
-            // cmbEstadoFiltro
-            // 
-            this.cmbEstadoFiltro.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbEstadoFiltro.FormattingEnabled = true;
-            this.cmbEstadoFiltro.Location = new System.Drawing.Point(392, 3);
-            this.cmbEstadoFiltro.Name = "cmbEstadoFiltro";
-            this.cmbEstadoFiltro.Size = new System.Drawing.Size(160, 21);
-            this.cmbEstadoFiltro.TabIndex = 3;
-            // 
-            // chkFacturadoFiltro
-            // 
-            this.chkFacturadoFiltro.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.chkFacturadoFiltro.AutoSize = true;
-            this.chkFacturadoFiltro.Location = new System.Drawing.Point(558, 7);
-            this.chkFacturadoFiltro.Name = "chkFacturadoFiltro";
-            this.chkFacturadoFiltro.Size = new System.Drawing.Size(157, 17);
-            this.chkFacturadoFiltro.TabIndex = 4;
-            this.chkFacturadoFiltro.Text = "sampleOrder.invoiced.only";
-            this.chkFacturadoFiltro.UseVisualStyleBackColor = true;
-            // 
-            // chkSaldoFiltro
-            // 
-            this.chkSaldoFiltro.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.chkSaldoFiltro.AutoSize = true;
-            this.chkSaldoFiltro.Location = new System.Drawing.Point(721, 7);
-            this.chkSaldoFiltro.Name = "chkSaldoFiltro";
-            this.chkSaldoFiltro.Size = new System.Drawing.Size(153, 17);
-            this.chkSaldoFiltro.TabIndex = 5;
-            this.chkSaldoFiltro.Text = "sampleOrder.balance.only";
-            this.chkSaldoFiltro.UseVisualStyleBackColor = true;
-            // 
-            // lblDiasExtension
-            // 
-            this.lblDiasExtension.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblDiasExtension.AutoSize = true;
-            this.lblDiasExtension.Location = new System.Drawing.Point(3, 39);
-            this.lblDiasExtension.Name = "lblDiasExtension";
-            this.lblDiasExtension.Size = new System.Drawing.Size(139, 13);
-            this.lblDiasExtension.TabIndex = 6;
-            this.lblDiasExtension.Text = "sampleOrder.extend.days";
-            // 
-            // nudDiasExtension
-            // 
-            this.nudDiasExtension.Location = new System.Drawing.Point(148, 35);
-            this.nudDiasExtension.Maximum = new decimal(new int[] {
-            60,
-            0,
-            0,
-            0});
-            this.nudDiasExtension.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nudDiasExtension.Name = "nudDiasExtension";
-            this.nudDiasExtension.Size = new System.Drawing.Size(60, 20);
-            this.nudDiasExtension.TabIndex = 7;
-            this.nudDiasExtension.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // btnFiltrar
-            // 
-            this.btnFiltrar.AutoSize = true;
-            this.btnFiltrar.Location = new System.Drawing.Point(3, 62);
-            this.btnFiltrar.Name = "btnFiltrar";
-            this.btnFiltrar.Size = new System.Drawing.Size(85, 25);
-            this.btnFiltrar.TabIndex = 8;
-            this.btnFiltrar.Text = "form.filter";
-            this.btnFiltrar.UseVisualStyleBackColor = true;
-            this.btnFiltrar.Click += new System.EventHandler(this.btnFiltrar_Click);
             // 
             // dgvPedidos
             // 
@@ -258,12 +240,12 @@
             this.dgvPedidos.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvPedidos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvPedidos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvPedidos.Location = new System.Drawing.Point(3, 41);
+            this.dgvPedidos.Location = new System.Drawing.Point(3, 3);
             this.dgvPedidos.MultiSelect = false;
             this.dgvPedidos.Name = "dgvPedidos";
             this.dgvPedidos.ReadOnly = true;
             this.dgvPedidos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvPedidos.Size = new System.Drawing.Size(878, 592);
+            this.dgvPedidos.Size = new System.Drawing.Size(878, 630);
             this.dgvPedidos.TabIndex = 1;
             this.dgvPedidos.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPedidos_CellDoubleClick);
             // 
@@ -282,10 +264,6 @@
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             this.layoutMain.ResumeLayout(false);
-            this.layoutMain.PerformLayout();
-            this.flowFiltros.ResumeLayout(false);
-            this.flowFiltros.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDiasExtension)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPedidos)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -298,20 +276,24 @@
         private System.Windows.Forms.ToolStripButton tsbNuevo;
         private System.Windows.Forms.ToolStripButton tsbEditar;
         private System.Windows.Forms.ToolStripButton tsbActualizar;
+        private System.Windows.Forms.ToolStripButton tsbCancelar;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton tsbPedirFacturacion;
         private System.Windows.Forms.ToolStripButton tsbExtenderDias;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripLabel tslBuscar;
+        private System.Windows.Forms.ToolStripTextBox txtBuscar;
+        private System.Windows.Forms.ToolStripButton btnBuscar;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripLabel tslCliente;
+        private System.Windows.Forms.ToolStripComboBox cmbCliente;
+        private System.Windows.Forms.ToolStripLabel tslEstado;
+        private System.Windows.Forms.ToolStripComboBox cmbEstado;
+        private System.Windows.Forms.ToolStripLabel tslFacturado;
+        private System.Windows.Forms.ToolStripComboBox cmbFacturado;
+        private System.Windows.Forms.ToolStripLabel tslSaldo;
+        private System.Windows.Forms.ToolStripComboBox cmbSaldo;
         private System.Windows.Forms.TableLayoutPanel layoutMain;
-        private System.Windows.Forms.FlowLayoutPanel flowFiltros;
-        private System.Windows.Forms.Label lblClienteFiltro;
-        private System.Windows.Forms.ComboBox cmbClienteFiltro;
-        private System.Windows.Forms.Label lblEstadoFiltro;
-        private System.Windows.Forms.ComboBox cmbEstadoFiltro;
-        private System.Windows.Forms.CheckBox chkFacturadoFiltro;
-        private System.Windows.Forms.CheckBox chkSaldoFiltro;
-        private System.Windows.Forms.Label lblDiasExtension;
-        private System.Windows.Forms.NumericUpDown nudDiasExtension;
-        private System.Windows.Forms.Button btnFiltrar;
         private System.Windows.Forms.DataGridView dgvPedidos;
     }
 }

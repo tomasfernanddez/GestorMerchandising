@@ -53,13 +53,29 @@ namespace UI
 
         private void CargarCombos()
         {
+            var placeholder = "form.select.optional".Traducir();
+
+            var productos = new List<Producto> { new Producto { IdProducto = Guid.Empty, NombreProducto = placeholder } };
+            productos.AddRange(_productos);
             cmbProducto.DisplayMember = nameof(Producto.NombreProducto);
             cmbProducto.ValueMember = nameof(Producto.IdProducto);
-            cmbProducto.DataSource = _productos;
+            cmbProducto.DataSource = productos;
+            cmbProducto.SelectedIndex = 0;
 
+            var estados = new List<EstadoMuestra> { new EstadoMuestra { IdEstadoMuestra = Guid.Empty, NombreEstadoMuestra = placeholder } };
+            estados.AddRange(_estados);
             cmbEstado.DisplayMember = nameof(EstadoMuestra.NombreEstadoMuestra);
             cmbEstado.ValueMember = nameof(EstadoMuestra.IdEstadoMuestra);
-            cmbEstado.DataSource = _estados;
+            cmbEstado.DataSource = estados;
+            var pendiente = estados.FirstOrDefault(e => string.Equals(e.NombreEstadoMuestra, "Pendiente de Envío", StringComparison.OrdinalIgnoreCase));
+            if (pendiente != null)
+            {
+                cmbEstado.SelectedValue = pendiente.IdEstadoMuestra;
+            }
+            else
+            {
+                cmbEstado.SelectedIndex = 0;
+            }
         }
 
         private void CargarDetalle()
@@ -99,7 +115,7 @@ namespace UI
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            if (cmbProducto.SelectedItem == null)
+            if (!(cmbProducto.SelectedItem is Producto producto) || producto.IdProducto == Guid.Empty)
             {
                 MessageBox.Show("sampleOrder.detail.product.required".Traducir(), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -113,8 +129,11 @@ namespace UI
                 return;
             }
 
-            var producto = (Producto)cmbProducto.SelectedItem;
             var estado = cmbEstado.SelectedItem as EstadoMuestra;
+            if (estado != null && estado.IdEstadoMuestra == Guid.Empty)
+            {
+                estado = null;
+            }
 
             var idDetalle = _detalleOriginal?.IdDetalleMuestra ?? Guid.Empty;
 

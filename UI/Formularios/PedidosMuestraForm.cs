@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using BLL.Interfaces;
@@ -24,8 +25,23 @@ namespace UI
         private List<EstadoPedidoMuestra> _estadosPedido;
         private List<EstadoMuestra> _estadosMuestra;
         private bool _mostroAlertaVencidos;
+        private bool _suspendFilters;
 
         private const string ESTADO_A_FACTURAR = "Facturar";
+
+        private sealed class FiltroOpcion<T>
+        {
+            public FiltroOpcion(string texto, T valor)
+            {
+                Texto = texto;
+                Valor = valor;
+            }
+
+            public string Texto { get; }
+            public T Valor { get; }
+
+            public override string ToString() => Texto;
+        }
 
         private sealed class PedidoMuestraRow
         {
@@ -61,6 +77,8 @@ namespace UI
             CargarDatosReferencia();
             ConfigurarGrid();
             CargarPedidos();
+            ConfigurarFiltros();
+            WireEvents();
         }
 
         private void ApplyTexts()
@@ -69,15 +87,15 @@ namespace UI
             tsbNuevo.Text = "sampleOrder.list.new".Traducir();
             tsbEditar.Text = "sampleOrder.list.edit".Traducir();
             tsbActualizar.Text = "form.refresh".Traducir();
+            tsbCancelar.Text = "order.cancel.button".Traducir();
             tsbPedirFacturacion.Text = "sampleOrder.request.billing".Traducir();
             tsbExtenderDias.Text = "sampleOrder.extend.due".Traducir();
-
-            lblClienteFiltro.Text = "sampleOrder.client".Traducir();
-            lblEstadoFiltro.Text = "sampleOrder.state".Traducir();
-            chkFacturadoFiltro.Text = "sampleOrder.invoiced.only".Traducir();
-            chkSaldoFiltro.Text = "sampleOrder.balance.only".Traducir();
-            btnFiltrar.Text = "form.filter".Traducir();
-            lblDiasExtension.Text = "sampleOrder.extend.days".Traducir();
+            tslBuscar.Text = "form.search".Traducir();
+            btnBuscar.Text = "form.filter".Traducir();
+            tslCliente.Text = "sampleOrder.client".Traducir();
+            tslEstado.Text = "sampleOrder.state".Traducir();
+            tslFacturado.Text = "sampleOrder.invoiced.filter".Traducir();
+            tslSaldo.Text = "sampleOrder.balance.filter".Traducir();
 
             if (dgvPedidos.Columns.Count > 0)
             {
@@ -98,16 +116,6 @@ namespace UI
                 _clientes = _clienteService.ObtenerClientesActivos().OrderBy(c => c.RazonSocial).ToList();
                 _estadosPedido = _pedidoMuestraService.ObtenerEstadosPedido().OrderBy(e => e.NombreEstadoPedidoMuestra).ToList();
                 _estadosMuestra = _pedidoMuestraService.ObtenerEstadosMuestra().ToList();
-
-                cmbClienteFiltro.DisplayMember = nameof(Cliente.RazonSocial);
-                cmbClienteFiltro.ValueMember = nameof(Cliente.IdCliente);
-                cmbClienteFiltro.DataSource = _clientes;
-                cmbClienteFiltro.SelectedIndex = -1;
-
-                cmbEstadoFiltro.DisplayMember = nameof(EstadoPedidoMuestra.NombreEstadoPedidoMuestra);
-                cmbEstadoFiltro.ValueMember = nameof(EstadoPedidoMuestra.IdEstadoPedidoMuestra);
-                cmbEstadoFiltro.DataSource = _estadosPedido;
-                cmbEstadoFiltro.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
@@ -182,6 +190,111 @@ namespace UI
 
             _rows = new BindingList<PedidoMuestraRow>();
             dgvPedidos.DataSource = _rows;
+            dgvPedidos.SelectionChanged += (s, e) => ActualizarAcciones();
+        }
+
+        private void ConfigurarFiltros()
+        {
+            _suspendFilters = true;
+            try
+            {
+                var placeholder = "form.select.optional".Traducir();
+
+                var clientes = new List<Cliente>();
+                clientes.Add(new Cliente { IdCliente = Guid.Empty, RazonSocial = placeholder });
+                if (_clientes != null)
+                {
+                    clientes.AddRange(_clientes);
+                }
+
+                var comboClientes = cmbCliente.ComboBox;
+                comboClientes.DisplayMember = nameof(Cliente.RazonSocial);
+                comboClientes.ValueMember = nameof(Cliente.IdCliente);
+                comboClientes.DataSource = clientes;
+                comboClientes.SelectedValue = Guid.Empty;
+
+                var estados = new List<EstadoPedidoMuestra>();
+                estados.Add(new EstadoPedidoMuestra
+                {
+                    IdEstadoPedidoMuestra = Guid.Empty,
+                    NombreEstadoPedidoMuestra = placeholder
+                });
+                if (_estadosPedido != null)
+                {
+                    estados.AddRange(_estadosPedido);
+                }
+
+                var comboEstados = cmbEstado.ComboBox;
+                comboEstados.DisplayMember = nameof(EstadoPedidoMuestra.NombreEstadoPedidoMuestra);
+                comboEstados.ValueMember = nameof(EstadoPedidoMuestra.IdEstadoPedidoMuestra);
+                comboEstados.DataSource = estados;
+                comboEstados.SelectedValue = Guid.Empty;
+
+                var opcionesFacturado = new List<FiltroOpcion<bool?>>
+                {
+                    new FiltroOpcion<bool?>(placeholder, null),
+                    new FiltroOpcion<bool?>("form.filter.yes".Traducir(), true),
+                    new FiltroOpcion<bool?>("form.filter.no".Traducir(), false)
+                };
+                var comboFacturado = cmbFacturado.ComboBox;
+                comboFacturado.DisplayMember = nameof(FiltroOpcion<bool?>.Texto);
+                comboFacturado.ValueMember = nameof(FiltroOpcion<bool?>.Valor);
+                comboFacturado.DataSource = opcionesFacturado;
+                comboFacturado.SelectedIndex = 0;
+
+                var opcionesSaldo = new List<FiltroOpcion<bool?>>
+                {
+                    new FiltroOpcion<bool?>(placeholder, null),
+                    new FiltroOpcion<bool?>("sampleOrder.balance.with".Traducir(), true),
+                    new FiltroOpcion<bool?>("sampleOrder.balance.without".Traducir(), false)
+                };
+                var comboSaldo = cmbSaldo.ComboBox;
+                comboSaldo.DisplayMember = nameof(FiltroOpcion<bool?>.Texto);
+                comboSaldo.ValueMember = nameof(FiltroOpcion<bool?>.Valor);
+                comboSaldo.DataSource = opcionesSaldo;
+                comboSaldo.SelectedIndex = 0;
+            }
+            finally
+            {
+                _suspendFilters = false;
+            }
+
+            ActualizarAcciones();
+        }
+
+        private void WireEvents()
+        {
+            txtBuscar.TextChanged += (s, e) => { if (!_suspendFilters) AplicarFiltros(); };
+            txtBuscar.KeyDown += TxtBuscar_KeyDown;
+            cmbCliente.SelectedIndexChanged += Filtros_SelectedIndexChanged;
+            cmbEstado.SelectedIndexChanged += Filtros_SelectedIndexChanged;
+            cmbFacturado.SelectedIndexChanged += Filtros_SelectedIndexChanged;
+            cmbSaldo.SelectedIndexChanged += Filtros_SelectedIndexChanged;
+            dgvPedidos.SelectionChanged += (s, e) => ActualizarAcciones();
+        }
+
+        private void TxtBuscar_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                AplicarFiltros();
+            }
+        }
+
+        private void Filtros_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_suspendFilters)
+                return;
+
+            AplicarFiltros();
+        }
+
+        private void AplicarFiltros()
+        {
+            _mostroAlertaVencidos = false;
+            CargarPedidos();
         }
 
         private void CargarPedidos()
@@ -190,11 +303,12 @@ namespace UI
             {
                 var filtro = new PedidoMuestraFiltro
                 {
-                    IdCliente = cmbClienteFiltro.SelectedItem is Cliente cliente ? cliente.IdCliente : (Guid?)null,
-                    IdEstadoPedido = cmbEstadoFiltro.SelectedItem is EstadoPedidoMuestra estado ? estado.IdEstadoPedidoMuestra : (Guid?)null,
-                    Facturado = chkFacturadoFiltro.Checked ? true : (bool?)null,
-                    ConSaldoPendiente = chkSaldoFiltro.Checked ? true : (bool?)null,
-                    IncluirDetalles = false
+                    IdCliente = ObtenerGuidSeleccionado(cmbCliente),
+                    IdEstadoPedido = ObtenerGuidSeleccionado(cmbEstado),
+                    Facturado = ObtenerValorSeleccionado(cmbFacturado),
+                    ConSaldoPendiente = ObtenerValorSeleccionado(cmbSaldo),
+                    TextoBusqueda = ObtenerTextoBusqueda(),
+                    IncluirDetalles = true
                 };
 
                 var pedidos = _pedidoMuestraService.ObtenerPedidosMuestra(filtro);
@@ -202,13 +316,14 @@ namespace UI
                 _rows.Clear();
                 foreach (var pedido in pedidos)
                 {
+                    var fechaEsperada = CalcularFechaDevolucionEsperada(pedido);
                     _rows.Add(new PedidoMuestraRow
                     {
                         IdPedidoMuestra = pedido.IdPedidoMuestra,
                         Cliente = pedido.Cliente?.RazonSocial ?? string.Empty,
                         Estado = pedido.EstadoPedidoMuestra?.NombreEstadoPedidoMuestra,
                         FechaEntrega = pedido.FechaEntrega,
-                        FechaDevolucionEsperada = pedido.FechaDevolucionEsperada,
+                        FechaDevolucionEsperada = fechaEsperada,
                         Facturado = pedido.Facturado,
                         SaldoPendiente = pedido.SaldoPendiente,
                         Contacto = pedido.PersonaContacto
@@ -217,6 +332,7 @@ namespace UI
 
                 ResaltarVencidos();
                 MostrarAlertaVencidos();
+                ActualizarAcciones();
             }
             catch (Exception ex)
             {
@@ -250,6 +366,118 @@ namespace UI
             }
         }
 
+        private Guid? ObtenerGuidSeleccionado(ToolStripComboBox combo)
+        {
+            if (combo?.ComboBox?.SelectedValue is Guid guid && guid != Guid.Empty)
+                return guid;
+
+            return null;
+        }
+
+        private bool? ObtenerValorSeleccionado(ToolStripComboBox combo)
+            => (combo?.SelectedItem as FiltroOpcion<bool?>)?.Valor;
+
+        private string ObtenerTextoBusqueda()
+        {
+            var texto = txtBuscar.Text?.Trim();
+            return string.IsNullOrWhiteSpace(texto) ? null : texto;
+        }
+
+        private DateTime? CalcularFechaDevolucionEsperada(PedidoMuestra pedido)
+        {
+            if (pedido == null)
+                return null;
+
+            var fechas = pedido.Detalles?
+                .Where(d => d.FechaDevolucion.HasValue)
+                .Select(d => d.FechaDevolucion.Value.Date)
+                .OrderBy(f => f)
+                .ToList();
+
+            if (fechas != null && fechas.Count > 0)
+                return fechas.First();
+
+            return pedido.FechaDevolucionEsperada;
+        }
+
+        private void ActualizarAcciones()
+        {
+            var haySeleccion = dgvPedidos.CurrentRow?.DataBoundItem is PedidoMuestraRow;
+            tsbCancelar.Enabled = haySeleccion;
+            tsbEditar.Enabled = haySeleccion;
+            tsbPedirFacturacion.Enabled = haySeleccion;
+            tsbExtenderDias.Enabled = haySeleccion;
+        }
+
+        private int? PedirDiasExtension()
+        {
+            using (var dialog = new Form())
+            {
+                dialog.Text = "sampleOrder.extend.days".Traducir();
+                dialog.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dialog.StartPosition = FormStartPosition.CenterParent;
+                dialog.ClientSize = new Size(260, 110);
+                dialog.MinimizeBox = false;
+                dialog.MaximizeBox = false;
+                dialog.ShowInTaskbar = false;
+
+                var lblMensaje = new Label
+                {
+                    AutoSize = true,
+                    Text = "sampleOrder.extend.prompt".Traducir(),
+                    Location = new Point(12, 12)
+                };
+
+                var nudDias = new NumericUpDown
+                {
+                    Minimum = 1,
+                    Maximum = 60,
+                    Value = 1,
+                    Location = new Point(12, 40),
+                    Size = new Size(80, 20)
+                };
+
+                var btnAceptar = new Button
+                {
+                    Text = "form.accept".Traducir(),
+                    DialogResult = DialogResult.OK,
+                    Location = new Point(110, 70),
+                    Size = new Size(60, 25)
+                };
+
+                var btnCancelar = new Button
+                {
+                    Text = "form.cancel".Traducir(),
+                    DialogResult = DialogResult.Cancel,
+                    Location = new Point(180, 70),
+                    Size = new Size(60, 25)
+                };
+
+                dialog.Controls.Add(lblMensaje);
+                dialog.Controls.Add(nudDias);
+                dialog.Controls.Add(btnAceptar);
+                dialog.Controls.Add(btnCancelar);
+
+                dialog.AcceptButton = btnAceptar;
+                dialog.CancelButton = btnCancelar;
+
+                return dialog.ShowDialog(this) == DialogResult.OK
+                    ? (int?)nudDias.Value
+                    : null;
+            }
+        }
+
+        private bool EsDetalleDevuelto(DetalleMuestra detalle)
+        {
+            if (detalle == null)
+                return false;
+
+            var nombreEstado = detalle.EstadoMuestra?.NombreEstadoMuestra
+                ?? _estadosMuestra?.FirstOrDefault(e => e.IdEstadoMuestra == detalle.IdEstadoMuestra)?.NombreEstadoMuestra;
+
+            return string.Equals(nombreEstado, "Devuelto", StringComparison.OrdinalIgnoreCase);
+        }
+
         private void tsbNuevo_Click(object sender, EventArgs e)
         {
             AbrirEditor();
@@ -265,10 +493,49 @@ namespace UI
             CargarPedidos();
         }
 
-        private void btnFiltrar_Click(object sender, EventArgs e)
+        private void tsbCancelar_Click(object sender, EventArgs e)
         {
-            _mostroAlertaVencidos = false;
-            CargarPedidos();
+            var idPedido = ObtenerPedidoSeleccionado();
+            if (!idPedido.HasValue)
+                return;
+
+            var confirm = MessageBox.Show(
+                "sampleOrder.cancel.confirm".Traducir(),
+                Text,
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes)
+                return;
+
+            try
+            {
+                var resultado = _pedidoMuestraService.CancelarPedidoMuestra(
+                    idPedido.Value,
+                    SessionContext.NombreUsuario,
+                    "sampleOrder.log.cancelled".Traducir());
+
+                if (resultado.EsValido)
+                {
+                    RegistrarAccion("PedidoMuestra.Cancelar", "sampleOrder.log.cancelled".Traducir());
+                    _logService.LogInfo("sampleOrder.log.cancelled".Traducir(), "PedidosMuestra", SessionContext.NombreUsuario);
+                    CargarPedidos();
+                }
+                else
+                {
+                    MessageBox.Show(resultado.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError("Error cancelando pedido de muestra / Error cancelling sample order", ex, "PedidosMuestra", SessionContext.NombreUsuario);
+                MessageBox.Show("sampleOrder.cancel.error".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnBuscar_Click(object sender, EventArgs e)
+        {
+            AplicarFiltros();
         }
 
         private void AbrirEditor(Guid? idPedido = null)
@@ -338,7 +605,7 @@ namespace UI
                     return;
                 }
 
-                pedido.MontoPagado = pedido.MontoPagado; // asegurar no cambia
+                pedido.FechaDevolucionEsperada = CalcularFechaDevolucionEsperada(pedido);
                 var resultado = _pedidoMuestraService.ActualizarPedidoMuestra(pedido);
                 if (resultado.EsValido)
                 {
@@ -377,12 +644,24 @@ namespace UI
                     return;
                 }
 
-                var dias = (int)nudDiasExtension.Value;
-                pedido.FechaDevolucionEsperada = (pedido.FechaDevolucionEsperada ?? DateTime.Today).AddDays(dias);
+                var dias = PedirDiasExtension();
+                if (!dias.HasValue)
+                    return;
+
+                foreach (var detalle in pedido.Detalles)
+                {
+                    if (EsDetalleDevuelto(detalle))
+                        continue;
+
+                    var baseFecha = detalle.FechaDevolucion ?? pedido.FechaDevolucionEsperada ?? pedido.FechaEntrega ?? DateTime.Today;
+                    detalle.FechaDevolucion = baseFecha.AddDays(dias.Value);
+                }
+
+                pedido.FechaDevolucionEsperada = CalcularFechaDevolucionEsperada(pedido);
                 var resultado = _pedidoMuestraService.ActualizarPedidoMuestra(pedido);
                 if (resultado.EsValido)
                 {
-                    RegistrarAccion("PedidoMuestra.ExtenderVencimiento", string.Format("sampleOrder.log.extend".Traducir(), dias));
+                    RegistrarAccion("PedidoMuestra.ExtenderVencimiento", string.Format("sampleOrder.log.extend".Traducir(), dias.Value));
                     _mostroAlertaVencidos = false;
                     CargarPedidos();
                 }

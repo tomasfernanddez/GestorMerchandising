@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -32,10 +33,16 @@ namespace UI
         private readonly BindingList<PagoRegistrado> _pagosRegistrados = new BindingList<PagoRegistrado>();
         private decimal _montoPagadoBase;
         private decimal _montoPagadoActual;
+        private ContextMenuStrip _menuDetalles;
+        private ToolStripMenuItem _menuExtenderDetalle;
+        private ToolStripMenuItem _menuCambiarEstadoDetalle;
+        private Guid? _estadoPendientePedidoId;
+        private Guid? _estadoPendienteMuestraId;
 
         private const string ESTADO_DEVUELTO = "Devuelto";
         private const string ESTADO_A_FACTURAR = "Facturar";
         private const string ESTADO_PENDIENTE_ENVIO = "Pendiente de Envío";
+        private const string ESTADO_FACTURADO = "Facturado";
 
         private sealed class PagoRegistrado
         {
@@ -74,6 +81,7 @@ namespace UI
             InitializeComponent();
 
             lstPagos.DataSource = _pagosRegistrados;
+            ConfigurarMenuDetalles();
         }
 
         private void PedidoMuestraForm_Load(object sender, EventArgs e)
@@ -93,6 +101,7 @@ namespace UI
 
             ActualizarResumen();
             VerificarVencimiento();
+            dgvDetalles_SelectionChanged(this, EventArgs.Empty);
         }
 
         private void ApplyTexts()
@@ -108,7 +117,6 @@ namespace UI
             lblTelefono.Text = "sampleOrder.contact.phone".Traducir();
             lblDireccion.Text = "sampleOrder.contact.address".Traducir();
             lblFechaEntrega.Text = "sampleOrder.delivery.date".Traducir();
-            lblFechaDevolucion.Text = "sampleOrder.return.expected".Traducir();
             lblEstadoPedido.Text = "sampleOrder.state".Traducir();
             lblObservaciones.Text = "sampleOrder.notes".Traducir();
             chkFacturado.Text = "sampleOrder.invoiced".Traducir();
@@ -135,6 +143,17 @@ namespace UI
             {
                 ActualizarEncabezadosGrid();
             }
+
+            if (_menuExtenderDetalle != null)
+            {
+                _menuExtenderDetalle.Text = "sampleOrder.extend.due".Traducir();
+            }
+
+            if (_menuCambiarEstadoDetalle != null)
+            {
+                _menuCambiarEstadoDetalle.Text = "sampleOrder.detail.changeState".Traducir();
+                ActualizarMenuEstados();
+            }
         }
 
         private void CargarDatosReferencia()
@@ -146,13 +165,46 @@ namespace UI
                 _estadosMuestra = _pedidoMuestraService.ObtenerEstadosMuestra().OrderBy(e => e.NombreEstadoMuestra).ToList();
                 _estadosPedido = _pedidoMuestraService.ObtenerEstadosPedido().OrderBy(e => e.NombreEstadoPedidoMuestra).ToList();
 
+                var placeholder = "form.select.optional".Traducir();
+
+                var clientes = new List<Cliente> { new Cliente { IdCliente = Guid.Empty, RazonSocial = placeholder } };
+                clientes.AddRange(_clientes);
                 cmbCliente.DisplayMember = nameof(Cliente.RazonSocial);
                 cmbCliente.ValueMember = nameof(Cliente.IdCliente);
-                cmbCliente.DataSource = _clientes;
+                cmbCliente.DataSource = clientes;
+                cmbCliente.SelectedValue = Guid.Empty;
+
+                _estadoPendientePedidoId = _estadosPedido
+                    .FirstOrDefault(e => string.Equals(e.NombreEstadoPedidoMuestra, ESTADO_PENDIENTE_ENVIO, StringComparison.OrdinalIgnoreCase))?
+                    .IdEstadoPedidoMuestra;
+
+                var estadosPedido = new List<EstadoPedidoMuestra>
+                {
+                    new EstadoPedidoMuestra
+                    {
+                        IdEstadoPedidoMuestra = Guid.Empty,
+                        NombreEstadoPedidoMuestra = placeholder
+                    }
+                };
+                estadosPedido.AddRange(_estadosPedido);
 
                 cmbEstadoPedido.DisplayMember = nameof(EstadoPedidoMuestra.NombreEstadoPedidoMuestra);
                 cmbEstadoPedido.ValueMember = nameof(EstadoPedidoMuestra.IdEstadoPedidoMuestra);
-                cmbEstadoPedido.DataSource = _estadosPedido;
+                cmbEstadoPedido.DataSource = estadosPedido;
+                if (_estadoPendientePedidoId.HasValue)
+                {
+                    cmbEstadoPedido.SelectedValue = _estadoPendientePedidoId.Value;
+                }
+                else
+                {
+                    cmbEstadoPedido.SelectedIndex = 0;
+                }
+
+                _estadoPendienteMuestraId = _estadosMuestra
+                    .FirstOrDefault(e => string.Equals(e.NombreEstadoMuestra, ESTADO_PENDIENTE_ENVIO, StringComparison.OrdinalIgnoreCase))?
+                    .IdEstadoMuestra;
+
+                ActualizarMenuEstados();
             }
             catch (Exception ex)
             {
@@ -206,6 +258,46 @@ namespace UI
 
             _detalles = new BindingList<PedidoMuestraDetalleViewModel>();
             dgvDetalles.DataSource = _detalles;
+            dgvDetalles.CellMouseDown += DgvDetalles_CellMouseDown;
+            dgvDetalles.SelectionChanged += dgvDetalles_SelectionChanged;
+        }
+
+        private void ConfigurarMenuDetalles()
+        {
+            _menuDetalles = new ContextMenuStrip();
+            _menuExtenderDetalle = new ToolStripMenuItem("sampleOrder.extend.due".Traducir());
+            _menuExtenderDetalle.Click += (s, e) => ExtenderDetalleDesdeContexto();
+
+            _menuCambiarEstadoDetalle = new ToolStripMenuItem("sampleOrder.detail.changeState".Traducir());
+
+            _menuDetalles.Items.AddRange(new ToolStripItem[]
+            {
+                _menuExtenderDetalle,
+                _menuCambiarEstadoDetalle
+            });
+
+            dgvDetalles.ContextMenuStrip = _menuDetalles;
+        }
+
+        private void ActualizarMenuEstados()
+        {
+            if (_menuCambiarEstadoDetalle == null)
+                return;
+
+            _menuCambiarEstadoDetalle.DropDownItems.Clear();
+
+            if (_estadosMuestra == null)
+                return;
+
+            foreach (var estado in _estadosMuestra.OrderBy(e => e.NombreEstadoMuestra))
+            {
+                var item = new ToolStripMenuItem(estado.NombreEstadoMuestra)
+                {
+                    Tag = estado
+                };
+                item.Click += (s, e) => CambiarEstadoDetalle((EstadoMuestra)((ToolStripMenuItem)s).Tag);
+                _menuCambiarEstadoDetalle.DropDownItems.Add(item);
+            }
         }
 
         private void ActualizarEncabezadosGrid()
@@ -224,7 +316,6 @@ namespace UI
             _montoPagadoBase = 0;
             _montoPagadoActual = 0;
 
-            dtpFechaDevolucionEsperada.Value = DateTime.Today.AddDays(7);
             dtpFechaEntrega.Checked = false;
             txtContacto.Text = string.Empty;
             txtEmail.Text = string.Empty;
@@ -234,6 +325,22 @@ namespace UI
             txtFactura.Text = string.Empty;
             chkFacturado.Checked = false;
             nudDiasExtension.Value = 1;
+
+            if (_estadoPendientePedidoId.HasValue)
+            {
+                cmbEstadoPedido.SelectedValue = _estadoPendientePedidoId.Value;
+            }
+            else if (cmbEstadoPedido.Items.Count > 0)
+            {
+                cmbEstadoPedido.SelectedIndex = 0;
+            }
+
+            if (cmbCliente.Items.Count > 0)
+            {
+                cmbCliente.SelectedIndex = 0;
+            }
+
+            ActualizarFacturacionDisponible();
         }
 
         private void CargarPedidoExistente(Guid idPedido)
@@ -258,11 +365,6 @@ namespace UI
                 else
                 {
                     dtpFechaEntrega.Checked = false;
-                }
-
-                if (_pedidoOriginal.FechaDevolucionEsperada.HasValue)
-                {
-                    dtpFechaDevolucionEsperada.Value = _pedidoOriginal.FechaDevolucionEsperada.Value;
                 }
 
                 if (_pedidoOriginal.IdEstadoPedidoMuestra.HasValue)
@@ -300,6 +402,14 @@ namespace UI
 
                 _montoPagadoBase = _pedidoOriginal.MontoPagado;
                 _montoPagadoActual = _pedidoOriginal.MontoPagado;
+
+                foreach (var detalle in _detalles)
+                {
+                    RecalcularSubtotal(detalle);
+                }
+
+                ActualizarResumen();
+                ActualizarFacturacionDisponible();
             }
             catch (Exception ex)
             {
@@ -339,9 +449,16 @@ namespace UI
                     return;
                 }
 
-                nuevo.Subtotal = nuevo.PrecioUnitario;
+                if (!nuevo.IdEstadoMuestra.HasValue && _estadoPendienteMuestraId.HasValue)
+                {
+                    nuevo.IdEstadoMuestra = _estadoPendienteMuestraId;
+                    nuevo.EstadoMuestra = ESTADO_PENDIENTE_ENVIO;
+                }
+
+                RecalcularSubtotal(nuevo);
                 _detalles.Add(nuevo);
                 ActualizarResumen();
+                ActualizarFacturacionDisponible();
 
                 if (!string.IsNullOrWhiteSpace(nuevo.NombreProducto))
                 {
@@ -381,8 +498,10 @@ namespace UI
                 detalle.EstadoMuestra = actualizado.EstadoMuestra;
                 detalle.FechaDevolucion = actualizado.FechaDevolucion;
 
+                RecalcularSubtotal(detalle);
                 dgvDetalles.Refresh();
                 ActualizarResumen();
+                ActualizarFacturacionDisponible();
 
                 if (!string.IsNullOrWhiteSpace(actualizado.NombreProducto))
                 {
@@ -406,6 +525,7 @@ namespace UI
 
             _detalles.Remove(detalle);
             ActualizarResumen();
+            ActualizarFacturacionDisponible();
 
             if (!string.IsNullOrWhiteSpace(nombreProducto))
             {
@@ -444,25 +564,22 @@ namespace UI
                 {
                     detalle.IdEstadoMuestra = idFacturar;
                     detalle.EstadoMuestra = ESTADO_A_FACTURAR;
+                    RecalcularSubtotal(detalle);
                 }
             }
 
             dgvDetalles.Refresh();
             ActualizarResumen();
             RegistrarAccion("PedidoMuestra.PedirFacturacion", "sampleOrder.log.requestBilling".Traducir());
+            ActualizarFacturacionDisponible();
         }
 
         private void btnExtenderDias_Click(object sender, EventArgs e)
         {
-            if (_detalles.All(EsEstadoDevuelto))
+            if (!TryExtenderDetalleSeleccionado((int)nudDiasExtension.Value))
             {
-                MessageBox.Show("sampleOrder.extend.onlyPending".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
-            var dias = (int)nudDiasExtension.Value;
-            dtpFechaDevolucionEsperada.Value = dtpFechaDevolucionEsperada.Value.AddDays(dias);
-            RegistrarAccion("PedidoMuestra.ExtenderVencimiento", string.Format("sampleOrder.log.extend".Traducir(), dias));
         }
 
         private void btnAgregarPago_Click(object sender, EventArgs e)
@@ -495,6 +612,8 @@ namespace UI
             lblPagadoValor.Text = _montoPagadoActual.ToString("N2");
             var saldo = Math.Max(0, total - _montoPagadoActual);
             lblSaldoValor.Text = saldo.ToString("N2");
+
+            ActualizarFacturacionDisponible();
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
@@ -518,12 +637,18 @@ namespace UI
 
             try
             {
+                if (!(cmbCliente.SelectedValue is Guid idCliente) || idCliente == Guid.Empty)
+                {
+                    MessageBox.Show("sampleOrder.client.required".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 var pedido = new PedidoMuestra
                 {
                     IdPedidoMuestra = _pedidoOriginal?.IdPedidoMuestra ?? Guid.Empty,
-                    IdCliente = (Guid)cmbCliente.SelectedValue,
+                    IdCliente = idCliente,
                     FechaEntrega = dtpFechaEntrega.Checked ? dtpFechaEntrega.Value : (DateTime?)null,
-                    FechaDevolucionEsperada = dtpFechaDevolucionEsperada.Value,
+                    FechaDevolucionEsperada = ObtenerFechaDevolucionEsperadaGeneral(),
                     DireccionEntrega = txtDireccion.Text?.Trim(),
                     PersonaContacto = txtContacto.Text?.Trim(),
                     EmailContacto = txtEmail.Text?.Trim(),
@@ -531,7 +656,9 @@ namespace UI
                     Observaciones = txtObservaciones.Text?.Trim(),
                     Facturado = chkFacturado.Checked,
                     RutaFacturaPdf = txtFactura.Text,
-                    IdEstadoPedidoMuestra = cmbEstadoPedido.SelectedItem is EstadoPedidoMuestra estado ? estado.IdEstadoPedidoMuestra : (Guid?)null,
+                    IdEstadoPedidoMuestra = cmbEstadoPedido.SelectedItem is EstadoPedidoMuestra estado && estado.IdEstadoPedidoMuestra != Guid.Empty
+                        ? estado.IdEstadoPedidoMuestra
+                        : (Guid?)null,
                     MontoPagado = _montoPagadoActual
                 };
 
@@ -609,18 +736,212 @@ namespace UI
             }
         }
 
+        private void dgvDetalles_SelectionChanged(object sender, EventArgs e)
+        {
+            var haySeleccion = ObtenerDetalleSeleccionado() != null;
+            btnEditarDetalle.Enabled = haySeleccion;
+            btnEliminarDetalle.Enabled = haySeleccion;
+            btnExtenderDias.Enabled = haySeleccion;
+        }
+
+        private void DgvDetalles_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
+            {
+                dgvDetalles.ClearSelection();
+                dgvDetalles.Rows[e.RowIndex].Selected = true;
+                dgvDetalles.CurrentCell = dgvDetalles.Rows[e.RowIndex].Cells[Math.Max(e.ColumnIndex, 0)];
+            }
+        }
+
+        private void ExtenderDetalleDesdeContexto()
+        {
+            var dias = SolicitarDiasExtension();
+            if (dias.HasValue)
+            {
+                TryExtenderDetalleSeleccionado(dias.Value);
+            }
+        }
+
+        private bool TryExtenderDetalleSeleccionado(int dias)
+        {
+            var detalle = ObtenerDetalleSeleccionado();
+            if (detalle == null)
+            {
+                MessageBox.Show("sampleOrder.detail.selectRequired".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+
+            if (EsEstadoDevuelto(detalle))
+            {
+                MessageBox.Show("sampleOrder.extend.onlyPending".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+
+            var baseFecha = detalle.FechaDevolucion ?? DateTime.Today;
+            detalle.FechaDevolucion = baseFecha.AddDays(dias);
+            dgvDetalles.Refresh();
+            ActualizarResumen();
+
+            var nombreProducto = string.IsNullOrWhiteSpace(detalle.NombreProducto) ? "N/A" : detalle.NombreProducto;
+            RegistrarAccion(
+                "PedidoMuestra.Detalle.Extender",
+                string.Format("sampleOrder.log.detail.extend".Traducir(), nombreProducto, dias));
+
+            return true;
+        }
+
+        private int? SolicitarDiasExtension()
+        {
+            using (var dialog = new Form())
+            {
+                dialog.Text = "sampleOrder.extend.days".Traducir();
+                dialog.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dialog.StartPosition = FormStartPosition.CenterParent;
+                dialog.ClientSize = new Size(260, 110);
+                dialog.MinimizeBox = false;
+                dialog.MaximizeBox = false;
+                dialog.ShowInTaskbar = false;
+
+                var lblMensaje = new Label
+                {
+                    AutoSize = true,
+                    Text = "sampleOrder.extend.prompt".Traducir(),
+                    Location = new Point(12, 12)
+                };
+
+                var nudDias = new NumericUpDown
+                {
+                    Minimum = 1,
+                    Maximum = 60,
+                    Value = nudDiasExtension.Value,
+                    Location = new Point(12, 40),
+                    Size = new Size(80, 20)
+                };
+
+                var btnAceptar = new Button
+                {
+                    Text = "form.accept".Traducir(),
+                    DialogResult = DialogResult.OK,
+                    Location = new Point(110, 70),
+                    Size = new Size(60, 25)
+                };
+
+                var btnCancelar = new Button
+                {
+                    Text = "form.cancel".Traducir(),
+                    DialogResult = DialogResult.Cancel,
+                    Location = new Point(180, 70),
+                    Size = new Size(60, 25)
+                };
+
+                dialog.Controls.Add(lblMensaje);
+                dialog.Controls.Add(nudDias);
+                dialog.Controls.Add(btnAceptar);
+                dialog.Controls.Add(btnCancelar);
+
+                dialog.AcceptButton = btnAceptar;
+                dialog.CancelButton = btnCancelar;
+
+                return dialog.ShowDialog(this) == DialogResult.OK
+                    ? (int?)nudDias.Value
+                    : null;
+            }
+        }
+
+        private void CambiarEstadoDetalle(EstadoMuestra estado)
+        {
+            if (estado == null)
+                return;
+
+            var detalle = ObtenerDetalleSeleccionado();
+            if (detalle == null)
+            {
+                MessageBox.Show("sampleOrder.detail.selectRequired".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            detalle.IdEstadoMuestra = estado.IdEstadoMuestra;
+            detalle.EstadoMuestra = estado.NombreEstadoMuestra;
+
+            if (string.Equals(detalle.EstadoMuestra, ESTADO_DEVUELTO, StringComparison.OrdinalIgnoreCase) && !detalle.FechaDevolucion.HasValue)
+            {
+                detalle.FechaDevolucion = DateTime.Today;
+            }
+
+            RecalcularSubtotal(detalle);
+            dgvDetalles.Refresh();
+            ActualizarResumen();
+            ActualizarFacturacionDisponible();
+
+            var nombreProducto = string.IsNullOrWhiteSpace(detalle.NombreProducto) ? "N/A" : detalle.NombreProducto;
+            RegistrarAccion(
+                "PedidoMuestra.Detalle.CambiarEstado",
+                string.Format("sampleOrder.log.detail.stateChange".Traducir(), nombreProducto, estado.NombreEstadoMuestra));
+        }
+
         private bool EsEstadoDevuelto(PedidoMuestraDetalleViewModel detalle)
         {
             if (detalle == null)
                 return false;
 
-            return string.Equals(detalle.EstadoMuestra, ESTADO_DEVUELTO, StringComparison.OrdinalIgnoreCase);
+            var estado = detalle.EstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
+            return string.Equals(estado, ESTADO_DEVUELTO, StringComparison.OrdinalIgnoreCase);
         }
 
         private Guid? BuscarEstadoMuestraId(string nombre)
         {
             var estado = _estadosMuestra.FirstOrDefault(e => string.Equals(e.NombreEstadoMuestra, nombre, StringComparison.OrdinalIgnoreCase));
             return estado?.IdEstadoMuestra;
+        }
+
+        private DateTime? ObtenerFechaDevolucionEsperadaGeneral()
+        {
+            var fechas = _detalles
+                .Where(d => d.FechaDevolucion.HasValue)
+                .Select(d => d.FechaDevolucion.Value.Date)
+                .OrderBy(f => f)
+                .ToList();
+
+            return fechas.Count > 0 ? fechas.First() : (DateTime?)null;
+        }
+
+        private void RecalcularSubtotal(PedidoMuestraDetalleViewModel detalle)
+        {
+            if (detalle == null)
+                return;
+
+            detalle.Subtotal = EsDetalleFacturable(detalle)
+                ? detalle.PrecioUnitario
+                : 0m;
+        }
+
+        private void ActualizarFacturacionDisponible()
+        {
+            var hayFacturables = _detalles.Any(EsDetalleFacturable);
+            chkFacturado.Enabled = hayFacturables;
+            if (!hayFacturables)
+            {
+                chkFacturado.Checked = false;
+            }
+        }
+
+        private bool EsDetalleFacturable(PedidoMuestraDetalleViewModel detalle)
+        {
+            if (detalle == null)
+                return false;
+
+            var estado = detalle.EstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
+            return string.Equals(estado, ESTADO_A_FACTURAR, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(estado, ESTADO_FACTURADO, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private string ObtenerNombreEstado(Guid? idEstado)
+        {
+            if (!idEstado.HasValue || idEstado.Value == Guid.Empty)
+                return null;
+
+            return _estadosMuestra.FirstOrDefault(e => e.IdEstadoMuestra == idEstado.Value)?.NombreEstadoMuestra;
         }
 
         private void RegistrarAccion(string accion, string mensaje)
@@ -641,13 +962,17 @@ namespace UI
             if (_detalles.Count == 0)
                 return;
 
-            if (_detalles.Any(d => !EsEstadoDevuelto(d)))
+            var hayPendientes = _detalles.Any(d => !EsEstadoDevuelto(d));
+            if (!hayPendientes)
+                return;
+
+            var hayVencidas = _detalles
+                .Where(d => !EsEstadoDevuelto(d) && d.FechaDevolucion.HasValue)
+                .Any(d => d.FechaDevolucion.Value.Date < DateTime.Today);
+
+            if (hayVencidas)
             {
-                var vencida = dtpFechaDevolucionEsperada.Value.Date < DateTime.Today;
-                if (vencida)
-                {
-                    MessageBox.Show("sampleOrder.return.overdue".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+                MessageBox.Show("sampleOrder.return.overdue".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
     }

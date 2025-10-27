@@ -12,6 +12,7 @@ namespace BLL.Interfaces
         public Guid? IdEstadoPedido { get; set; }
         public bool? Facturado { get; set; }
         public bool? ConSaldoPendiente { get; set; }
+        public string TextoBusqueda { get; set; }
         public DateTime? FechaDesde { get; set; }
         public DateTime? FechaHasta { get; set; }
         public bool IncluirDetalles { get; set; }
@@ -23,6 +24,7 @@ namespace BLL.Interfaces
         PedidoMuestra ObtenerPedidoMuestra(Guid idPedidoMuestra, bool incluirDetalles = true);
         ResultadoOperacion CrearPedidoMuestra(PedidoMuestra pedido);
         ResultadoOperacion ActualizarPedidoMuestra(PedidoMuestra pedido);
+        ResultadoOperacion CancelarPedidoMuestra(Guid idPedidoMuestra, string usuario, string comentario = null);
         IEnumerable<EstadoPedidoMuestra> ObtenerEstadosPedido();
         IEnumerable<EstadoMuestra> ObtenerEstadosMuestra();
     }
