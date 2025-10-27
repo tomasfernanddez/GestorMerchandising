@@ -116,6 +116,10 @@
     <Compile Include="Migrations\202510262332099_PedidoMuestras.Designer.cs">
       <DependentUpon>202510262332099_PedidoMuestras.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510262346342_AgregarFechaEntregaPedidoMuestra.cs" />
+    <Compile Include="Migrations\202510262346342_AgregarFechaEntregaPedidoMuestra.Designer.cs">
+      <DependentUpon>202510262346342_AgregarFechaEntregaPedidoMuestra.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ActualizarCategoriaProducto.cs" />
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
@@ -160,6 +164,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510262332099_PedidoMuestras.resx">
       <DependentUpon>202510262332099_PedidoMuestras.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510262346342_AgregarFechaEntregaPedidoMuestra.resx">
+      <DependentUpon>202510262346342_AgregarFechaEntregaPedidoMuestra.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
