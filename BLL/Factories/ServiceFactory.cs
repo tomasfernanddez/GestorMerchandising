@@ -96,6 +96,12 @@ namespace BLL.Factories
             return new PedidoService(uow);
         }
 
+        public static IPedidoMuestraService CrearPedidoMuestraService()
+        {
+            var uow = CrearUnitOfWorkNegocio();
+            return new PedidoMuestraService(uow);
+        }
+
         public static ICondicionIvaService CrearCondicionIvaService()
         {
             var uow = CrearUnitOfWorkNegocio();

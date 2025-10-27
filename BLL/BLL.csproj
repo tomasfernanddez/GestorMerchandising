@@ -60,6 +60,7 @@
     <Compile Include="Interfaces\IClienteService.cs" />
     <Compile Include="Interfaces\ICondicionIvaService.cs" />
     <Compile Include="Interfaces\IGeoService.cs" />
+    <Compile Include="Interfaces\IPedidoMuestraService.cs" />
     <Compile Include="Interfaces\IPedidoService.cs" />
     <Compile Include="Interfaces\IProductoService.cs" />
     <Compile Include="Interfaces\IProveedorService.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Services\CondicionIvaService.cs" />
     <Compile Include="Services\GeoService.cs" />
     <Compile Include="Services\LocalizacionService.cs" />
+    <Compile Include="Services\PedidoMuestraService.cs" />
     <Compile Include="Services\PedidoService.cs" />
     <Compile Include="Services\ProductoService.cs" />
     <Compile Include="Services\ProveedorService.cs" />

@@ -57,7 +57,10 @@
     <Compile Include="Implementations\Base\EfRepository.cs" />
     <Compile Include="Implementations\Base\EfUnitOfWork.cs" />
     <Compile Include="Implementations\Principales\EfClienteRepository.cs" />
+    <Compile Include="Implementations\Principales\EfEstadoMuestraRepository.cs" />
+    <Compile Include="Implementations\Principales\EfEstadoPedidoMuestraRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoDetalleRepository.cs" />
+    <Compile Include="Implementations\Principales\EfPedidoMuestraRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoRepository.cs" />
     <Compile Include="Implementations\Principales\EfProductoRepository.cs" />
     <Compile Include="Implementations\Referencia\EfCategoriaProductoRepository.cs" />
@@ -71,6 +74,8 @@
     <Compile Include="Interfaces\Base\IRepository.cs" />
     <Compile Include="Interfaces\Base\IUnitOfWork.cs" />
     <Compile Include="Interfaces\Principales\IClienteRepository.cs" />
+    <Compile Include="Interfaces\Principales\IEstadoMuestraRepository.cs" />
+    <Compile Include="Interfaces\Principales\IEstadoPedidoMuestraRepository.cs" />
     <Compile Include="Interfaces\Principales\IFacturaCabeceraRepository.cs" />
     <Compile Include="Interfaces\Principales\IPedidoDetalleRepository.cs" />
     <Compile Include="Interfaces\Principales\IPedidoMuestraRepository.cs" />
@@ -115,6 +120,7 @@
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
     <Compile Include="Migrations\AgregarModuloProveedores.cs" />
+    <Compile Include="Migrations\AgregarModulosPedidosMuestra.cs" />
     <Compile Include="Migrations\AgregarPatronCompositePersonalizacion.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\PermitirMultiplesTiposProveedor.cs" />

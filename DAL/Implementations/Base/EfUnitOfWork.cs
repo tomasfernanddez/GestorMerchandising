@@ -23,6 +23,7 @@ namespace DAL.Implementations.Base
         private IProductoRepository _productos;
         private IPedidoRepository _pedidos;
         private IPedidoDetalleRepository _pedidoDetalles;
+        private IPedidoMuestraRepository _pedidosMuestra;
 
         // Repositorios de referencia
         private ITipoProveedorRepository _tiposProveedor;
@@ -30,6 +31,8 @@ namespace DAL.Implementations.Base
         private ICategoriaProductoRepository _categoriasProducto;
         private IEstadoPedidoRepository _estadosPedido;
         private IEstadoProductoRepository _estadosProducto;
+        private IEstadoPedidoMuestraRepository _estadosPedidoMuestra;
+        private IEstadoMuestraRepository _estadosMuestra;
 
         // Repositorios futuros (por implementar)
         // private IProductoRepository _productos;
@@ -71,7 +74,10 @@ namespace DAL.Implementations.Base
         {
             get { return _pedidoDetalles ?? (_pedidoDetalles = new EfPedidoDetalleRepository(_context)); }
         }
-        public IPedidoMuestraRepository PedidosMuestra => throw new NotImplementedException();
+        public IPedidoMuestraRepository PedidosMuestra
+        {
+            get { return _pedidosMuestra ?? (_pedidosMuestra = new EfPedidoMuestraRepository(_context)); }
+        }
         public IFacturaCabeceraRepository FacturasCabecera => throw new NotImplementedException();
 
         private ITipoEmpresaRepository _tiposEmpresa;
@@ -101,6 +107,16 @@ namespace DAL.Implementations.Base
         public IEstadoProductoRepository EstadosProducto
         {
             get { return _estadosProducto ?? (_estadosProducto = new EfEstadoProductoRepository(_context)); }
+        }
+
+        public IEstadoPedidoMuestraRepository EstadosPedidoMuestra
+        {
+            get { return _estadosPedidoMuestra ?? (_estadosPedidoMuestra = new EfEstadoPedidoMuestraRepository(_context)); }
+        }
+
+        public IEstadoMuestraRepository EstadosMuestra
+        {
+            get { return _estadosMuestra ?? (_estadosMuestra = new EfEstadoMuestraRepository(_context)); }
         }
 
         // Operaciones de guardado
