@@ -1,53 +1,153 @@
 ﻿namespace DAL.Migrations
 {
     using System;
-    using System.CodeDom.Compiler;
     using System.Data.Entity.Migrations;
-    using System.Data.Entity.Migrations.Infrastructure;
 
     public partial class PedidoMuestraContacto : DbMigration
     {
         public override void Up()
         {
-            CreateTable(
-                "dbo.EstadoPedidoMuestra",
-                c => new
-                {
-                    IdEstadoPedidoMuestra = c.Guid(nullable: false),
-                    NombreEstadoPedidoMuestra = c.String(nullable: false, maxLength: 50),
-                })
-                .PrimaryKey(t => t.IdEstadoPedidoMuestra);
+            Sql(@"
+IF OBJECT_ID(N'dbo.EstadoPedidoMuestra', 'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[EstadoPedidoMuestra]
+    (
+        [IdEstadoPedidoMuestra] UNIQUEIDENTIFIER NOT NULL,
+        [NombreEstadoPedidoMuestra] NVARCHAR(50) NOT NULL,
+        CONSTRAINT [PK_dbo.EstadoPedidoMuestra] PRIMARY KEY CLUSTERED ([IdEstadoPedidoMuestra] ASC)
+    );
+END
+");
 
-            AddColumn("dbo.PedidoMuestra", "DireccionEntrega", c => c.String(maxLength: 150));
-            AddColumn("dbo.PedidoMuestra", "PersonaContacto", c => c.String(maxLength: 100));
-            AddColumn("dbo.PedidoMuestra", "EmailContacto", c => c.String(maxLength: 100));
-            AddColumn("dbo.PedidoMuestra", "TelefonoContacto", c => c.String(maxLength: 30));
-            AddColumn("dbo.PedidoMuestra", "IdEstadoPedidoMuestra", c => c.Guid());
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'DireccionEntrega') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] ADD [DireccionEntrega] NVARCHAR(150) NULL;
+END
+");
 
-            CreateIndex("dbo.PedidoMuestra", "IdEstadoPedidoMuestra");
-            AddForeignKey("dbo.PedidoMuestra", "IdEstadoPedidoMuestra", "dbo.EstadoPedidoMuestra", "IdEstadoPedidoMuestra");
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'PersonaContacto') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] ADD [PersonaContacto] NVARCHAR(100) NULL;
+END
+");
+
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'EmailContacto') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] ADD [EmailContacto] NVARCHAR(100) NULL;
+END
+");
+
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'TelefonoContacto') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] ADD [TelefonoContacto] NVARCHAR(30) NULL;
+END
+");
+
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'IdEstadoPedidoMuestra') IS NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] ADD [IdEstadoPedidoMuestra] UNIQUEIDENTIFIER NULL;
+END
+");
+
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'IdEstadoPedidoMuestra') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_IdEstadoPedidoMuestra'
+          AND object_id = OBJECT_ID(N'[dbo].[PedidoMuestra]')
+    )
+BEGIN
+    CREATE INDEX [IX_IdEstadoPedidoMuestra] ON [dbo].[PedidoMuestra]([IdEstadoPedidoMuestra]);
+END
+");
+
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'IdEstadoPedidoMuestra') IS NOT NULL
+   AND OBJECT_ID(N'dbo.EstadoPedidoMuestra', 'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.foreign_keys
+        WHERE name = N'FK_dbo.PedidoMuestra_dbo.EstadoPedidoMuestra_IdEstadoPedidoMuestra'
+    )
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra]
+        ADD CONSTRAINT [FK_dbo.PedidoMuestra_dbo.EstadoPedidoMuestra_IdEstadoPedidoMuestra]
+        FOREIGN KEY ([IdEstadoPedidoMuestra]) REFERENCES [dbo].[EstadoPedidoMuestra]([IdEstadoPedidoMuestra]);
+END
+");
         }
 
         public override void Down()
         {
-            DropForeignKey("dbo.PedidoMuestra", "IdEstadoPedidoMuestra", "dbo.EstadoPedidoMuestra");
-            DropIndex("dbo.PedidoMuestra", new[] { "IdEstadoPedidoMuestra" });
-            DropColumn("dbo.PedidoMuestra", "IdEstadoPedidoMuestra");
-            DropColumn("dbo.PedidoMuestra", "TelefonoContacto");
-            DropColumn("dbo.PedidoMuestra", "EmailContacto");
-            DropColumn("dbo.PedidoMuestra", "PersonaContacto");
-            DropColumn("dbo.PedidoMuestra", "DireccionEntrega");
-            DropTable("dbo.EstadoPedidoMuestra");
+            Sql(@"
+IF EXISTS (
+        SELECT 1
+        FROM sys.foreign_keys
+        WHERE name = N'FK_dbo.PedidoMuestra_dbo.EstadoPedidoMuestra_IdEstadoPedidoMuestra'
+    )
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra]
+        DROP CONSTRAINT [FK_dbo.PedidoMuestra_dbo.EstadoPedidoMuestra_IdEstadoPedidoMuestra];
+END
+");
+            Sql(@"
+IF EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_IdEstadoPedidoMuestra'
+          AND object_id = OBJECT_ID(N'[dbo].[PedidoMuestra]')
+    )
+BEGIN
+    DROP INDEX [IX_IdEstadoPedidoMuestra] ON [dbo].[PedidoMuestra];
+END
+");
+
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'IdEstadoPedidoMuestra') IS NOT NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] DROP COLUMN [IdEstadoPedidoMuestra];
+END
+");
+
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'TelefonoContacto') IS NOT NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] DROP COLUMN [TelefonoContacto];
+END
+");
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'EmailContacto') IS NOT NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] DROP COLUMN [EmailContacto];
+END
+");
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'PersonaContacto') IS NOT NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] DROP COLUMN [PersonaContacto];
+END
+");
+
+            Sql(@"
+IF COL_LENGTH('dbo.PedidoMuestra', 'DireccionEntrega') IS NOT NULL
+BEGIN
+    ALTER TABLE [dbo].[PedidoMuestra] DROP COLUMN [DireccionEntrega];
+END
+");
+
+            Sql(@"
+IF OBJECT_ID(N'dbo.EstadoPedidoMuestra', 'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = N'PK_dbo.EstadoPedidoMuestra')
+BEGIN
+    DROP TABLE [dbo].[EstadoPedidoMuestra];
+END
+");
         }
-    }
-
-    [GeneratedCode("Manual", "1.0.0")]
-    public sealed partial class PedidoMuestraContacto : IMigrationMetadata
-    {
-        string IMigrationMetadata.Id => "202510270900000_PedidoMuestraContacto";
-
-        string IMigrationMetadata.Source => null;
-
-        string IMigrationMetadata.Target => null;
     }
 }
