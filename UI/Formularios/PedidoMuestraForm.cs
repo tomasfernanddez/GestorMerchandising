@@ -34,7 +34,7 @@ namespace UI
         private decimal _montoPagadoActual;
 
         private const string ESTADO_DEVUELTO = "Devuelto";
-        private const string ESTADO_A_FACTURAR = "A Facturar";
+        private const string ESTADO_A_FACTURAR = "Facturar";
         private const string ESTADO_PENDIENTE_ENVIO = "Pendiente de Envío";
 
         private sealed class PagoRegistrado

@@ -25,7 +25,7 @@ namespace UI
         private List<EstadoMuestra> _estadosMuestra;
         private bool _mostroAlertaVencidos;
 
-        private const string ESTADO_A_FACTURAR = "A Facturar";
+        private const string ESTADO_A_FACTURAR = "Facturar";
 
         private sealed class PedidoMuestraRow
         {
