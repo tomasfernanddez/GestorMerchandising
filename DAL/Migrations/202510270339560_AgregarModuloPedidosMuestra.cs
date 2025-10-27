@@ -4,29 +4,38 @@ using System.Data.Entity.Migrations;
 namespace DAL.Migrations
 {
     /// <summary>
-    /// Crea las tablas y catálogos necesarios para el módulo de pedidos de muestra.
+    /// Migración para habilitar el módulo de pedidos de muestra: crea tablas y catálogos base.
     /// </summary>
     public partial class AgregarModuloPedidosMuestra : DbMigration
     {
         public override void Up()
         {
+            // Asegura que la migración pueda ejecutarse sobre bases que tengan tablas
+            // creadas manualmente o por scripts previos.
+            Sql("IF OBJECT_ID('dbo.DetalleMuestra', 'U') IS NOT NULL DROP TABLE dbo.DetalleMuestra;");
+            Sql("IF OBJECT_ID('dbo.PedidoMuestra', 'U') IS NOT NULL DROP TABLE dbo.PedidoMuestra;");
+            Sql("IF OBJECT_ID('dbo.EstadoMuestra', 'U') IS NOT NULL DROP TABLE dbo.EstadoMuestra;");
+            Sql("IF OBJECT_ID('dbo.EstadoPedidoMuestra', 'U') IS NOT NULL DROP TABLE dbo.EstadoPedidoMuestra;");
+
             CreateTable(
                 "dbo.EstadoPedidoMuestra",
                 c => new
                 {
                     IdEstadoPedidoMuestra = c.Guid(nullable: false),
-                    NombreEstadoPedidoMuestra = c.String(nullable: false, maxLength: 50)
+                    NombreEstadoPedidoMuestra = c.String(nullable: false, maxLength: 50),
                 })
-                .PrimaryKey(t => t.IdEstadoPedidoMuestra);
+                .PrimaryKey(t => t.IdEstadoPedidoMuestra)
+                .Index(t => t.NombreEstadoPedidoMuestra, unique: true, name: "IX_EstadoPedidoMuestra_Nombre");
 
             CreateTable(
                 "dbo.EstadoMuestra",
                 c => new
                 {
                     IdEstadoMuestra = c.Guid(nullable: false),
-                    NombreEstadoMuestra = c.String(nullable: false, maxLength: 50)
+                    NombreEstadoMuestra = c.String(nullable: false, maxLength: 50),
                 })
-                .PrimaryKey(t => t.IdEstadoMuestra);
+                .PrimaryKey(t => t.IdEstadoMuestra)
+                .Index(t => t.NombreEstadoMuestra, unique: true, name: "IX_EstadoMuestra_Nombre");
 
             CreateTable(
                 "dbo.PedidoMuestra",
@@ -34,20 +43,12 @@ namespace DAL.Migrations
                 {
                     IdPedidoMuestra = c.Guid(nullable: false),
                     IdCliente = c.Guid(nullable: false),
-                    FechaCreacion = c.DateTime(nullable: false, defaultValueSql: "GETUTCDATE()"),
                     FechaEntrega = c.DateTime(),
-                    FechaDevolucionEsperada = c.DateTime(),
                     FechaDevolucion = c.DateTime(),
                     DireccionEntrega = c.String(maxLength: 150),
                     PersonaContacto = c.String(maxLength: 100),
                     EmailContacto = c.String(maxLength: 100),
                     TelefonoContacto = c.String(maxLength: 30),
-                    Observaciones = c.String(maxLength: 500),
-                    Facturado = c.Boolean(nullable: false, defaultValue: false),
-                    RutaFacturaPdf = c.String(maxLength: 260),
-                    MontoTotal = c.Decimal(nullable: false, precision: 18, scale: 2, defaultValue: 0m),
-                    MontoPagado = c.Decimal(nullable: false, precision: 18, scale: 2, defaultValue: 0m),
-                    SaldoPendiente = c.Decimal(nullable: false, precision: 18, scale: 2, defaultValue: 0m),
                     IdEstadoPedidoMuestra = c.Guid(),
                 })
                 .PrimaryKey(t => t.IdPedidoMuestra)
@@ -63,11 +64,7 @@ namespace DAL.Migrations
                     IdDetalleMuestra = c.Guid(nullable: false),
                     IdPedidoMuestra = c.Guid(nullable: false),
                     IdProducto = c.Guid(nullable: false),
-                    Cantidad = c.Int(nullable: false, defaultValue: 1),
-                    PrecioUnitario = c.Decimal(nullable: false, precision: 18, scale: 2, defaultValue: 0m),
-                    Subtotal = c.Decimal(nullable: false, precision: 18, scale: 2, defaultValue: 0m),
                     IdEstadoMuestra = c.Guid(),
-                    FechaDevolucion = c.DateTime(),
                 })
                 .PrimaryKey(t => t.IdDetalleMuestra)
                 .ForeignKey("dbo.PedidoMuestra", t => t.IdPedidoMuestra, cascadeDelete: false)
@@ -77,9 +74,37 @@ namespace DAL.Migrations
                 .Index(t => t.IdProducto, name: "IX_DetalleMuestra_IdProducto")
                 .Index(t => t.IdEstadoMuestra, name: "IX_DetalleMuestra_IdEstado");
 
-            // Estados por defecto de pedidos de muestra
-            SeedEstadosPedidoMuestra();
-            SeedEstadosMuestra();
+            var estadosPedidoMuestra = new[]
+            {
+                new { Id = "58C671C8-0C4E-4F16-9C34-64B5BFC0AC91", Nombre = "Solicitado" },
+                new { Id = "1A8C6338-7AB9-4CF4-A0EF-E2BB6F91527E", Nombre = "En Preparación" },
+                new { Id = "69A5C669-1E44-4E4E-A341-8C0535A62140", Nombre = "Despachado" },
+                new { Id = "5A34F4D2-4BAE-4C6F-9F7B-0E48A6380163", Nombre = "Entregado" },
+                new { Id = "81FA4A4D-951D-4C17-9E18-7F7F3BC6CDAA", Nombre = "Cerrado" }
+            };
+
+            foreach (var estado in estadosPedidoMuestra)
+            {
+                Sql($@"IF NOT EXISTS (SELECT 1 FROM dbo.EstadoPedidoMuestra WHERE IdEstadoPedidoMuestra = '{estado.Id}')
+                        INSERT INTO dbo.EstadoPedidoMuestra (IdEstadoPedidoMuestra, NombreEstadoPedidoMuestra)
+                        VALUES ('{estado.Id}', '{estado.Nombre}');");
+            }
+
+            var estadosMuestra = new[]
+            {
+                new { Id = "F4E46C08-0ED9-4F4B-8B0D-BC7A905E78C4", Nombre = "Pendiente de envío" },
+                new { Id = "D0D39E8A-B560-4B1D-A5BD-34D6D6BFA646", Nombre = "En tránsito" },
+                new { Id = "9E1F1F0A-5B6E-4B8B-9C52-DA3C7C6E8A7C", Nombre = "En evaluación" },
+                new { Id = "2C9B6F34-34F4-4D80-9EE8-3F62FE7A020F", Nombre = "Devuelta" },
+                new { Id = "4EE5FEF4-9026-4C3F-8A8F-FE29F1D383AD", Nombre = "Perdida" }
+            };
+
+            foreach (var estado in estadosMuestra)
+            {
+                Sql($@"IF NOT EXISTS (SELECT 1 FROM dbo.EstadoMuestra WHERE IdEstadoMuestra = '{estado.Id}')
+                        INSERT INTO dbo.EstadoMuestra (IdEstadoMuestra, NombreEstadoMuestra)
+                        VALUES ('{estado.Id}', '{estado.Nombre}');");
+            }
         }
 
         public override void Down()
@@ -94,50 +119,12 @@ namespace DAL.Migrations
             DropIndex("dbo.DetalleMuestra", "IX_DetalleMuestra_IdPedido");
             DropIndex("dbo.PedidoMuestra", "IX_PedidoMuestra_IdEstado");
             DropIndex("dbo.PedidoMuestra", "IX_PedidoMuestra_IdCliente");
+            DropIndex("dbo.EstadoMuestra", "IX_EstadoMuestra_Nombre");
+            DropIndex("dbo.EstadoPedidoMuestra", "IX_EstadoPedidoMuestra_Nombre");
             DropTable("dbo.DetalleMuestra");
             DropTable("dbo.PedidoMuestra");
             DropTable("dbo.EstadoMuestra");
             DropTable("dbo.EstadoPedidoMuestra");
-        }
-
-        private void SeedEstadosPedidoMuestra()
-        {
-            var estadosPedido = new (Guid Id, string Nombre)[]
-            {
-                (Guid.Parse("7D4D7789-5FA9-4E55-B074-8B0DF0F2C1CF"), "Pendiente"),
-                (Guid.Parse("E5D5C6F4-85A3-4BAE-8C8D-3A3A7F6643AC"), "En Proceso"),
-                (Guid.Parse("6E2A00E0-88E2-4D8A-8CF6-81C712A2AB8C"), "Completado"),
-                (Guid.Parse("8C8F8D54-3C3B-4D7C-A84D-1D3F8D0FA2C4"), "Facturación Pendiente")
-            };
-
-            foreach (var estado in estadosPedido)
-            {
-                Sql($@"IF NOT EXISTS (SELECT 1 FROM dbo.EstadoPedidoMuestra WHERE IdEstadoPedidoMuestra = '{estado.Id}')
-BEGIN
-    INSERT INTO dbo.EstadoPedidoMuestra (IdEstadoPedidoMuestra, NombreEstadoPedidoMuestra)
-    VALUES ('{estado.Id}', '{estado.Nombre}')
-END");
-            }
-        }
-
-        private void SeedEstadosMuestra()
-        {
-            var estadosDetalle = new (Guid Id, string Nombre)[]
-            {
-                (Guid.Parse("5FE3C9D8-52DF-4B50-BD2B-0AE25C8E4419"), "Pendiente de Envío"),
-                (Guid.Parse("B5D0F04F-5E43-4ED2-8D09-36E32D7C99F7"), "En Cliente"),
-                (Guid.Parse("0E7C91C9-4F30-4B6D-95B2-07F4F21E1D47"), "Devuelto"),
-                (Guid.Parse("14C94961-6B5C-4A65-AB8E-BCA6D10B2A9D"), "A Facturar")
-            };
-
-            foreach (var estado in estadosDetalle)
-            {
-                Sql($@"IF NOT EXISTS (SELECT 1 FROM dbo.EstadoMuestra WHERE IdEstadoMuestra = '{estado.Id}')
-BEGIN
-    INSERT INTO dbo.EstadoMuestra (IdEstadoMuestra, NombreEstadoMuestra)
-    VALUES ('{estado.Id}', '{estado.Nombre}')
-END");
-            }
         }
     }
 }

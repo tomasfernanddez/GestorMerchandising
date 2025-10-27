@@ -116,11 +116,14 @@
     <Compile Include="Migrations\202510241942292_AliasClientesYProveedores.Designer.cs">
       <DependentUpon>202510241942292_AliasClientesYProveedores.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510270339560_AgregarModuloPedidosMuestra.cs" />
+    <Compile Include="Migrations\202510270339560_AgregarModuloPedidosMuestra.Designer.cs">
+      <DependentUpon>202510270339560_AgregarModuloPedidosMuestra.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ActualizarCategoriaProducto.cs" />
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
     <Compile Include="Migrations\AgregarModuloProveedores.cs" />
-    <Compile Include="Migrations\AgregarModulosPedidosMuestra.cs" />
     <Compile Include="Migrations\AgregarPatronCompositePersonalizacion.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\PermitirMultiplesTiposProveedor.cs" />
@@ -158,6 +161,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510241942292_AliasClientesYProveedores.resx">
       <DependentUpon>202510241942292_AliasClientesYProveedores.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510270339560_AgregarModuloPedidosMuestra.resx">
+      <DependentUpon>202510270339560_AgregarModuloPedidosMuestra.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
