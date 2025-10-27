@@ -124,8 +124,13 @@
     <Compile Include="Migrations\202510270204365_PedidoMuestraContacto.Designer.cs">
       <DependentUpon>202510270204365_PedidoMuestraContacto.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510270247039_AgregarEstadosMuestras.cs" />
+    <Compile Include="Migrations\202510270247039_AgregarEstadosMuestras.Designer.cs">
+      <DependentUpon>202510270247039_AgregarEstadosMuestras.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ActualizarCategoriaProducto.cs" />
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
+    <Compile Include="Migrations\AgregarEstadosMuestras.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
     <Compile Include="Migrations\AgregarModuloProveedores.cs" />
     <Compile Include="Migrations\AgregarPatronCompositePersonalizacion.cs" />
@@ -174,6 +179,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510270204365_PedidoMuestraContacto.resx">
       <DependentUpon>202510270204365_PedidoMuestraContacto.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510270247039_AgregarEstadosMuestras.resx">
+      <DependentUpon>202510270247039_AgregarEstadosMuestras.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
