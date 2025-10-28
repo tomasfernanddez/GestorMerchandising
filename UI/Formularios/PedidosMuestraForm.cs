@@ -240,7 +240,10 @@ namespace UI
                 comboFacturado.DisplayMember = nameof(FiltroOpcion<bool?>.Texto);
                 comboFacturado.ValueMember = nameof(FiltroOpcion<bool?>.Valor);
                 comboFacturado.DataSource = opcionesFacturado;
-                comboFacturado.SelectedIndex = 0;
+                if (comboFacturado.Items.Count > 0)
+                {
+                    comboFacturado.SelectedIndex = 0;
+                }
 
                 var opcionesSaldo = new List<FiltroOpcion<bool?>>
                 {
@@ -252,7 +255,10 @@ namespace UI
                 comboSaldo.DisplayMember = nameof(FiltroOpcion<bool?>.Texto);
                 comboSaldo.ValueMember = nameof(FiltroOpcion<bool?>.Valor);
                 comboSaldo.DataSource = opcionesSaldo;
-                comboSaldo.SelectedIndex = 0;
+                if (comboSaldo.Items.Count > 0)
+                {
+                    comboSaldo.SelectedIndex = 0;
+                }
             }
             finally
             {
