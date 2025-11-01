@@ -81,17 +81,26 @@
     <Compile Include="DAL\Interfaces\Base\IRepository.cs" />
     <Compile Include="DAL\Interfaces\Base\IUnitOfWork.cs" />
     <Compile Include="DAL\Interfaces\Base\IUsuarioRepository.cs" />
+    <Compile Include="DAL\MigrationsSeguridad\202511010649334_AgregarFuncionesYRelaciones.cs" />
+    <Compile Include="DAL\MigrationsSeguridad\202511010649334_AgregarFuncionesYRelaciones.Designer.cs">
+      <DependentUpon>202511010649334_AgregarFuncionesYRelaciones.cs</DependentUpon>
+    </Compile>
     <Compile Include="DomainModel\Entities\Bitacora.cs" />
     <Compile Include="DomainModel\Entities\Funcion.cs" />
     <Compile Include="DomainModel\Entities\Perfil.cs" />
     <Compile Include="DomainModel\Entities\Sesion.cs" />
     <Compile Include="DomainModel\Entities\Usuario.cs" />
+    <Compile Include="DAL\MigrationsSeguridad\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DAL\MigrationsSeguridad\202511010649334_AgregarFuncionesYRelaciones.resx">
+      <DependentUpon>202511010649334_AgregarFuncionesYRelaciones.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
