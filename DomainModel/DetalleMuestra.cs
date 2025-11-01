@@ -18,7 +18,17 @@ namespace DomainModel
         public Guid IdPedidoMuestra { get; set; }
         public Guid IdProducto { get; set; }
 
+        public int Cantidad { get; set; } = 1;
+
+        [Column(TypeName = "decimal")]
+        public decimal PrecioUnitario { get; set; }
+
+        [Column(TypeName = "decimal")]
+        public decimal Subtotal { get; set; }
+
         public Guid? IdEstadoMuestra { get; set; }
+
+        public DateTime? FechaDevolucion { get; set; }
 
         // Navegación
         public virtual PedidoMuestra PedidoMuestra { get; set; }

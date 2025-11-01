@@ -32,10 +32,12 @@ namespace DAL.Interfaces.Base
         ICategoriaProductoRepository CategoriasProducto { get; }
         IEstadoPedidoRepository EstadosPedido { get; }
         IEstadoProductoRepository EstadosProducto { get; }
+        IEstadoPedidoMuestraRepository EstadosPedidoMuestra { get; }
+        IEstadoMuestraRepository EstadosMuestra { get; }
 
-    //    ============================================================================
-    // OPERACIONES DE TRANSACCIÓN
-    //    ============================================================================
+        //    ============================================================================
+        // OPERACIONES DE TRANSACCIÓN
+        //    ============================================================================
         int SaveChanges();
         Task<int> SaveChangesAsync();
         void BeginTransaction();

@@ -57,6 +57,12 @@
     <Compile Include="Formularios\ABMClientesForm.Designer.cs">
       <DependentUpon>ABMClientesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Formularios\ABMPerfilesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\ABMPerfilesForm.Designer.cs">
+      <DependentUpon>ABMPerfilesForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\ABMProductosForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -105,11 +111,35 @@
     <Compile Include="Formularios\PedidoLogoForm.Designer.cs">
       <DependentUpon>PedidoLogoForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Formularios\PedidoMuestraDetalleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PedidoMuestraDetalleForm.Designer.cs">
+      <DependentUpon>PedidoMuestraDetalleForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\PedidoMuestraForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PedidoMuestraForm.Designer.cs">
+      <DependentUpon>PedidoMuestraForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\PedidosForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Formularios\PedidosForm.Designer.cs">
       <DependentUpon>PedidosForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\PedidosMuestraForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PedidosMuestraForm.Designer.cs">
+      <DependentUpon>PedidosMuestraForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\PerfilForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PerfilForm.Designer.cs">
+      <DependentUpon>PerfilForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Formularios\ProductoForm.cs">
       <SubType>Form</SubType>
@@ -130,6 +160,8 @@
       <DependentUpon>UsuarioForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ArgentinaDateTimeHelper.cs" />
+    <Compile Include="Helpers\PedidoEstadoHelper.cs" />
+    <Compile Include="Helpers\PedidoMuestraEstadoHelper.cs" />
     <Compile Include="Localization\Localization.cs" />
     <Compile Include="Localization\LocalizationExtensions.cs" />
     <Compile Include="Formularios\LoginForm.cs">
@@ -141,6 +173,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionContext.cs" />
+    <Compile Include="ViewModels\PedidoMuestraViewModels.cs" />
     <Compile Include="ViewModels\PedidoViewModels.cs" />
     <EmbeddedResource Include="Formularios\ABMUsuariosForm.resx">
       <DependentUpon>ABMUsuariosForm.cs</DependentUpon>
@@ -156,6 +189,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Formularios\PedidoLogoForm.resx">
       <DependentUpon>PedidoLogoForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\PedidoMuestraDetalleForm.resx">
+      <DependentUpon>PedidoMuestraDetalleForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\PedidosMuestraForm.resx">
+      <DependentUpon>PedidosMuestraForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

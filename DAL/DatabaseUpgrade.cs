@@ -1,8 +1,11 @@
 ﻿using DAL.Migrations;
+using System;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
+using System.Data.Entity.Migrations.Infrastructure;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Linq;
 
 namespace DAL
 {
@@ -24,7 +27,24 @@ namespace DAL
             cfg.TargetDatabase = new DbConnectionInfo(connectionString, "System.Data.SqlClient");
 
             var migrator = new DbMigrator(cfg);
-            migrator.Update(); // aplica SOLO las migraciones pendientes
+            var pendingMigrations = migrator.GetPendingMigrations().ToList();
+
+            if (!pendingMigrations.Any())
+            {
+                Trace.TraceInformation("No hay migraciones pendientes para la base de datos destino.");
+                return;
+            }
+
+            try
+            {
+                migrator.Update(); // aplica SOLO las migraciones pendientes
+            }
+            catch (AutomaticMigrationsDisabledException ex)
+            {
+                var mensaje = "Existen cambios en el modelo que no cuentan con una migración explícita. " +
+                              "Genere una nueva migración (Add-Migration) y ejecútela antes de iniciar la aplicación.";
+                throw new InvalidOperationException(mensaje, ex);
+            }
         }
 
         private static bool ShouldSkipAutomaticUpgrade(string connectionString)

@@ -57,7 +57,10 @@
     <Compile Include="Implementations\Base\EfRepository.cs" />
     <Compile Include="Implementations\Base\EfUnitOfWork.cs" />
     <Compile Include="Implementations\Principales\EfClienteRepository.cs" />
+    <Compile Include="Implementations\Principales\EfEstadoMuestraRepository.cs" />
+    <Compile Include="Implementations\Principales\EfEstadoPedidoMuestraRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoDetalleRepository.cs" />
+    <Compile Include="Implementations\Principales\EfPedidoMuestraRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoRepository.cs" />
     <Compile Include="Implementations\Principales\EfProductoRepository.cs" />
     <Compile Include="Implementations\Referencia\EfCategoriaProductoRepository.cs" />
@@ -71,6 +74,8 @@
     <Compile Include="Interfaces\Base\IRepository.cs" />
     <Compile Include="Interfaces\Base\IUnitOfWork.cs" />
     <Compile Include="Interfaces\Principales\IClienteRepository.cs" />
+    <Compile Include="Interfaces\Principales\IEstadoMuestraRepository.cs" />
+    <Compile Include="Interfaces\Principales\IEstadoPedidoMuestraRepository.cs" />
     <Compile Include="Interfaces\Principales\IFacturaCabeceraRepository.cs" />
     <Compile Include="Interfaces\Principales\IPedidoDetalleRepository.cs" />
     <Compile Include="Interfaces\Principales\IPedidoMuestraRepository.cs" />
@@ -110,6 +115,18 @@
     <Compile Include="Migrations\202510241942292_AliasClientesYProveedores.cs" />
     <Compile Include="Migrations\202510241942292_AliasClientesYProveedores.Designer.cs">
       <DependentUpon>202510241942292_AliasClientesYProveedores.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510270339560_AgregarModuloPedidosMuestra.cs" />
+    <Compile Include="Migrations\202510270339560_AgregarModuloPedidosMuestra.Designer.cs">
+      <DependentUpon>202510270339560_AgregarModuloPedidosMuestra.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510270359473_SincronizarModeloActual.cs" />
+    <Compile Include="Migrations\202510270359473_SincronizarModeloActual.Designer.cs">
+      <DependentUpon>202510270359473_SincronizarModeloActual.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202511010103229_NumeroPedidoMuestra.cs" />
+    <Compile Include="Migrations\202511010103229_NumeroPedidoMuestra.Designer.cs">
+      <DependentUpon>202511010103229_NumeroPedidoMuestra.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\ActualizarCategoriaProducto.cs" />
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
@@ -152,6 +169,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510241942292_AliasClientesYProveedores.resx">
       <DependentUpon>202510241942292_AliasClientesYProveedores.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510270339560_AgregarModuloPedidosMuestra.resx">
+      <DependentUpon>202510270339560_AgregarModuloPedidosMuestra.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510270359473_SincronizarModeloActual.resx">
+      <DependentUpon>202510270359473_SincronizarModeloActual.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202511010103229_NumeroPedidoMuestra.resx">
+      <DependentUpon>202511010103229_NumeroPedidoMuestra.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

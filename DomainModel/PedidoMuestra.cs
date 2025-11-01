@@ -17,7 +17,22 @@ namespace DomainModel
 
         public Guid IdCliente { get; set; }
 
+        [Required]
+        [StringLength(20)]
+        public string NumeroPedidoMuestra { get; set; }
+
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+
         public DateTime? FechaEntrega { get; set; }
+
+        /// <summary>
+        /// Fecha esperada de devolución de las muestras.
+        /// </summary>
+        public DateTime? FechaDevolucionEsperada { get; set; }
+
+        /// <summary>
+        /// Fecha efectiva en la que se registró la devolución completa.
+        /// </summary>
         public DateTime? FechaDevolucion { get; set; }
 
         [StringLength(150)]
@@ -31,6 +46,20 @@ namespace DomainModel
 
         [StringLength(30)]
         public string TelefonoContacto { get; set; }
+
+        [StringLength(500)]
+        public string Observaciones { get; set; }
+
+        public bool Facturado { get; set; }
+
+        [StringLength(260)]
+        public string RutaFacturaPdf { get; set; }
+
+        public decimal MontoTotal { get; set; }
+
+        public decimal MontoPagado { get; set; }
+
+        public decimal SaldoPendiente { get; set; }
 
         public Guid? IdEstadoPedidoMuestra { get; set; }
 
