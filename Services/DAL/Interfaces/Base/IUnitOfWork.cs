@@ -11,6 +11,7 @@ namespace Services.DAL.Interfaces.Base
         IUsuarioRepository Usuarios { get; }
         IBitacoraRepository Bitacoras { get; }
         IPerfilRepository Perfiles { get; }
+        IFuncionRepository Funciones { get; }
 
         //    ============================================================================
         // OPERACIONES DE TRANSACCIÓN

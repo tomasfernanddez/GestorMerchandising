@@ -128,6 +128,10 @@
     <Compile Include="Migrations\202511010103229_NumeroPedidoMuestra.Designer.cs">
       <DependentUpon>202511010103229_NumeroPedidoMuestra.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202511010616482_Perfiles.cs" />
+    <Compile Include="Migrations\202511010616482_Perfiles.Designer.cs">
+      <DependentUpon>202511010616482_Perfiles.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ActualizarCategoriaProducto.cs" />
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
@@ -178,6 +182,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202511010103229_NumeroPedidoMuestra.resx">
       <DependentUpon>202511010103229_NumeroPedidoMuestra.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202511010616482_Perfiles.resx">
+      <DependentUpon>202511010616482_Perfiles.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

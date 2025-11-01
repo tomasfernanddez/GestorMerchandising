@@ -57,5 +57,24 @@ namespace Services.DAL.Ef.Base
 
             return await _dbSet.FirstOrDefaultAsync(p => p.NombrePerfil == nombrePerfil.Trim());
         }
+
+        public IEnumerable<Perfil> GetAllWithFunciones()
+        {
+            return _dbSet
+                .Include(p => p.Funciones)
+                .ToList();
+        }
+
+        public Perfil GetByIdWithFunciones(Guid idPerfil)
+        {
+            if (idPerfil == Guid.Empty)
+            {
+                return null;
+            }
+
+            return _dbSet
+                .Include(p => p.Funciones)
+                .FirstOrDefault(p => p.IdPerfil == idPerfil);
+        }
     }
 }

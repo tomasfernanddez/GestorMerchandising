@@ -24,6 +24,7 @@ namespace UI
         private ToolStripMenuItem mnuProductos;
         private ToolStripMenuItem mnuPedidos;
         private ToolStripMenuItem mnuPedidosMuestra;
+        private ToolStripMenuItem mnuReportes;
 
         private ToolStripMenuItem mnuSeguridad;
         private ToolStripMenuItem mnuUsuarios;
@@ -62,6 +63,7 @@ namespace UI
             mnuProductos.Click += (s, e) => AbrirProductos();
             mnuPedidos.Click += (s, e) => AbrirPedidos();
             mnuPedidosMuestra.Click += (s, e) => AbrirPedidosMuestra();
+            mnuReportes.Click += (s, e) => AbrirReportes();
 
             mnuUsuarios.Click += (s, e) => AbrirGestionUsuarios();
             mnuPerfiles.Click += (s, e) => AbrirGestionPerfiles();
@@ -246,6 +248,43 @@ namespace UI
             }
         }
 
+        private void AbrirReportes()
+        {
+            var esAdmin = string.Equals(SessionContext.NombrePerfil, "Administrador", StringComparison.OrdinalIgnoreCase);
+            var tienePermiso = esAdmin
+                || SessionContext.TieneFuncion("REPORTES_OPERATIVOS")
+                || SessionContext.TieneFuncion("REPORTES_VENTAS")
+                || SessionContext.TieneFuncion("REPORTES_FINANCIEROS");
+
+            if (!tienePermiso)
+            {
+                MessageBox.Show("report.permission.denied".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                var reporteSvc = ServiceFactory.CrearReporteService();
+                var logSvc = ServicesFactory.CrearLogService();
+
+                logSvc.LogInfo("Abriendo módulo de reportes", "Reportes", SessionContext.NombreUsuario);
+
+                var form = new ReportesForm(reporteSvc);
+                form.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado módulo de reportes", "Reportes", SessionContext.NombreUsuario);
+                };
+
+                MostrarFormulario(form);
+            }
+            catch (Exception ex)
+            {
+                var logSvc = ServicesFactory.CrearLogService();
+                logSvc.LogError("Error abriendo módulo de reportes", ex, "Reportes", SessionContext.NombreUsuario);
+                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void ApplyTexts()
         {
             Text = "main.title".Traducir(); // SIGPM o lo que prefieras
@@ -261,6 +300,7 @@ namespace UI
             mnuProductos.Text = "menu.products".Traducir();
             mnuPedidos.Text = "menu.orders".Traducir();
             mnuPedidosMuestra.Text = "menu.sampleOrders".Traducir();
+            mnuReportes.Text = "menu.reports".Traducir();
 
             mnuSeguridad.Text = "menu.security".Traducir();
             mnuUsuarios.Text = "menu.users".Traducir();
@@ -278,9 +318,39 @@ namespace UI
 
         private void ApplyPermissions()
         {
-            // Mostrar Seguridad solo a Administrador (ajusta a tu lógica de perfiles)
             var esAdmin = string.Equals(SessionContext.NombrePerfil, "Administrador", StringComparison.OrdinalIgnoreCase);
-            mnuSeguridad.Visible = esAdmin;
+
+            var puedeClientes = esAdmin || SessionContext.TieneFuncion("CAT_CLIENTES");
+            var puedeProveedores = esAdmin || SessionContext.TieneFuncion("CAT_PROVEEDORES");
+            var puedeProductos = esAdmin || SessionContext.TieneFuncion("CAT_PRODUCTOS");
+
+            mnuClientes.Visible = puedeClientes;
+            mnuProveedores.Visible = puedeProveedores;
+            mnuProductos.Visible = puedeProductos;
+
+            var puedePedidos = esAdmin || SessionContext.TieneFuncion("PEDIDOS_VENTAS");
+            var puedePedidosMuestra = esAdmin || SessionContext.TieneFuncion("PEDIDOS_MUESTRAS");
+
+            mnuPedidos.Visible = puedePedidos;
+            mnuPedidosMuestra.Visible = puedePedidosMuestra;
+
+            mnuCatalogos.Visible = mnuClientes.Visible || mnuProveedores.Visible || mnuProductos.Visible ||
+                                   mnuPedidos.Visible || mnuPedidosMuestra.Visible;
+
+            var puedeReportesOperativos = esAdmin || SessionContext.TieneFuncion("REPORTES_OPERATIVOS");
+            var puedeReportesVentas = esAdmin || SessionContext.TieneFuncion("REPORTES_VENTAS");
+            var puedeReportesFinancieros = esAdmin || SessionContext.TieneFuncion("REPORTES_FINANCIEROS");
+
+            mnuReportes.Visible = puedeReportesOperativos || puedeReportesVentas || puedeReportesFinancieros;
+
+            var puedePerfiles = esAdmin || SessionContext.TieneFuncion("SEG_PERFILES");
+            var puedeUsuarios = esAdmin || SessionContext.TieneFuncion("SEG_USUARIOS");
+
+            mnuPerfiles.Visible = puedePerfiles;
+            mnuUsuarios.Visible = puedeUsuarios;
+
+            mnuLogsBitacora.Visible = esAdmin;
+            mnuSeguridad.Visible = mnuPerfiles.Visible || mnuUsuarios.Visible || mnuLogsBitacora.Visible;
         }
 
         private void UpdateStatus()
@@ -385,6 +455,7 @@ namespace UI
             this.mnuProductos = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuPedidos = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuPedidosMuestra = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuReportes = new System.Windows.Forms.ToolStripMenuItem();
 
             this.mnuSeguridad = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuLogsBitacora = new System.Windows.Forms.ToolStripMenuItem();
@@ -404,6 +475,7 @@ namespace UI
             this.menuStrip1.Items.AddRange(new ToolStripItem[] {
                 this.mnuArchivo,
                 this.mnuCatalogos,
+                this.mnuReportes,
                 this.mnuSeguridad,
                 this.mnuIdioma
             });
@@ -437,6 +509,8 @@ namespace UI
             this.mnuProductos.Name = "mnuProductos";
             this.mnuPedidos.Name = "mnuPedidos";
             this.mnuPedidosMuestra.Name = "mnuPedidosMuestra";
+
+            this.mnuReportes.Name = "mnuReportes";
 
             // Seguridad
             this.mnuSeguridad.DropDownItems.AddRange(new ToolStripItem[] {
@@ -497,8 +571,9 @@ namespace UI
         private void AbrirGestionPerfiles()
         {
             var esAdmin = string.Equals(SessionContext.NombrePerfil, "Administrador", StringComparison.OrdinalIgnoreCase);
+            var puedePerfiles = esAdmin || SessionContext.TieneFuncion("SEG_PERFILES");
 
-            if (!esAdmin)
+            if (!puedePerfiles)
             {
                 MessageBox.Show("profile.permission.denied".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -530,8 +605,9 @@ namespace UI
         {
             // Solo administradores pueden acceder
             var esAdmin = string.Equals(SessionContext.NombrePerfil, "Administrador", StringComparison.OrdinalIgnoreCase);
+            var puedeUsuarios = esAdmin || SessionContext.TieneFuncion("SEG_USUARIOS");
 
-            if (!esAdmin)
+            if (!puedeUsuarios)
             {
                 MessageBox.Show("No tiene permisos para gestionar usuarios.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;

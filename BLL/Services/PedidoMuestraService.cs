@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using BLL.Helpers;
 using BLL.Interfaces;
@@ -178,9 +179,9 @@ namespace BLL.Services
                 if (pedido == null)
                     return ResultadoOperacion.Error("Pedido de muestra inexistente");
 
-                var estados = _unitOfWork.EstadosPedidoMuestra?.GetEstadosOrdenados();
-                var estadoCancelado = estados?.FirstOrDefault(e =>
-                    string.Equals(e.NombreEstadoPedidoMuestra, "Cancelado", StringComparison.OrdinalIgnoreCase));
+                var estados = _unitOfWork.EstadosPedidoMuestra?.GetEstadosOrdenados()?.ToList();
+                var estadoCancelado = estados?
+                    .FirstOrDefault(e => string.Equals((e.NombreEstadoPedidoMuestra ?? string.Empty).Trim(), "Cancelado", StringComparison.OrdinalIgnoreCase));
                 if (estadoCancelado == null)
                     return ResultadoOperacion.Error("Estado 'Cancelado' no disponible");
 
@@ -188,6 +189,7 @@ namespace BLL.Services
                     return ResultadoOperacion.Error("El pedido de muestra ya se encuentra cancelado");
 
                 pedido.IdEstadoPedidoMuestra = estadoCancelado.IdEstadoPedidoMuestra;
+                pedido.EstadoPedidoMuestra = estadoCancelado;
                 pedido.Facturado = false;
 
                 if (pedido.Detalles != null)
@@ -326,6 +328,8 @@ namespace BLL.Services
             }
 
             pedido.SaldoPendiente = Math.Max(0, Math.Round(pedido.MontoTotal - pedido.MontoPagado, 2));
+
+            AplicarEstadoPorPagos(pedido, estadosPedidoCatalogo);
         }
 
         private string GenerarProximoNumeroPedidoMuestra()
@@ -460,10 +464,98 @@ namespace BLL.Services
             if (estado != null)
             {
                 _estadoMuestraCache[nombre] = estado.IdEstadoMuestra;
+                _estadoMuestraNombreCache[estado.IdEstadoMuestra] = estado.NombreEstadoMuestra;
                 return estado.IdEstadoMuestra;
             }
 
             return null;
+        }
+
+        private void AplicarEstadoPorPagos(PedidoMuestra pedido, List<EstadoPedidoMuestra> catalogoEstados)
+        {
+            if (pedido == null || catalogoEstados == null || catalogoEstados.Count == 0)
+                return;
+
+            var nombreActual = (pedido.EstadoPedidoMuestra?.NombreEstadoPedidoMuestra ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(nombreActual) && pedido.IdEstadoPedidoMuestra.HasValue)
+            {
+                nombreActual = catalogoEstados
+                    .FirstOrDefault(e => e.IdEstadoPedidoMuestra == pedido.IdEstadoPedidoMuestra.Value)?.NombreEstadoPedidoMuestra
+                    ?? string.Empty;
+            }
+
+            if (CoincideCon(nombreActual, "cancel") || CoincideCon(nombreActual, "final", "cerr"))
+            {
+                return;
+            }
+
+            var saldoCero = pedido.SaldoPendiente <= 0.01m;
+            var detalles = pedido.Detalles ?? new List<DetalleMuestra>();
+            var todosDevueltosOPagados = detalles.Any() && detalles.All(d =>
+            {
+                var estadoDetalle = (d.EstadoMuestra?.NombreEstadoMuestra ?? ObtenerNombreEstado(d.IdEstadoMuestra)) ?? string.Empty;
+                return CoincideCon(estadoDetalle, "devuel") || CoincideCon(estadoDetalle, "pag");
+            });
+
+            if (saldoCero && todosDevueltosOPagados)
+            {
+                var finalizado = BuscarEstadoPedido(catalogoEstados, "final", "cerr");
+                if (finalizado != null)
+                {
+                    pedido.IdEstadoPedidoMuestra = finalizado.IdEstadoPedidoMuestra;
+                    pedido.EstadoPedidoMuestra = finalizado;
+                    return;
+                }
+            }
+
+            if (saldoCero)
+            {
+                var pagado = BuscarEstadoPedido(catalogoEstados, "pag");
+                if (pagado != null)
+                {
+                    pedido.IdEstadoPedidoMuestra = pagado.IdEstadoPedidoMuestra;
+                    pedido.EstadoPedidoMuestra = pagado;
+                }
+            }
+        }
+
+        private EstadoPedidoMuestra BuscarEstadoPedido(IEnumerable<EstadoPedidoMuestra> estados, params string[] keywords)
+        {
+            if (estados == null)
+                return null;
+
+            foreach (var estado in estados)
+            {
+                if (estado == null)
+                    continue;
+
+                if (CoincideCon(estado.NombreEstadoPedidoMuestra, keywords))
+                    return estado;
+            }
+
+            return null;
+        }
+
+        private static bool CoincideCon(string texto, params string[] keywords)
+        {
+            if (keywords == null || keywords.Length == 0)
+                return false;
+
+            var valor = (texto ?? string.Empty).Trim();
+            if (valor.Length == 0)
+                return false;
+
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            foreach (var keyword in keywords)
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                    continue;
+
+                if (compare.IndexOf(valor, keyword, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0)
+                    return true;
+            }
+
+            return false;
         }
 
         private DbContext ObtenerContexto()

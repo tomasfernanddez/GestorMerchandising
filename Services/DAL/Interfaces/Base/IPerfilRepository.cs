@@ -16,5 +16,8 @@ namespace Services.DAL.Interfaces.Base
 
         Perfil GetPerfilPorNombre(string nombrePerfil);
         Task<Perfil> GetPerfilPorNombreAsync(string nombrePerfil);
+
+        IEnumerable<Perfil> GetAllWithFunciones();
+        Perfil GetByIdWithFunciones(Guid idPerfil);
     }
 }
