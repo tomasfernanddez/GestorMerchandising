@@ -40,11 +40,6 @@
             this.tslBuscar = new System.Windows.Forms.ToolStripLabel();
             this.txtBuscar = new System.Windows.Forms.ToolStripTextBox();
             this.btnBuscar = new System.Windows.Forms.ToolStripButton();
-            this.tslNumero = new System.Windows.Forms.ToolStripLabel();
-            this.txtNumero = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.tslCliente = new System.Windows.Forms.ToolStripLabel();
-            this.cmbCliente = new System.Windows.Forms.ToolStripComboBox();
             this.tslEstado = new System.Windows.Forms.ToolStripLabel();
             this.cmbEstado = new System.Windows.Forms.ToolStripComboBox();
             this.tslFacturado = new System.Windows.Forms.ToolStripLabel();
@@ -72,11 +67,6 @@
             this.tslBuscar,
             this.txtBuscar,
             this.btnBuscar,
-            this.tslNumero,
-            this.txtNumero,
-            this.toolStripSeparator3,
-            this.tslCliente,
-            this.cmbCliente,
             this.tslEstado,
             this.cmbEstado,
             this.tslFacturado,
@@ -166,36 +156,6 @@
             this.btnBuscar.Size = new System.Drawing.Size(64, 19);
             this.btnBuscar.Text = "form.filter";
             this.btnBuscar.Click += new System.EventHandler(this.btnBuscar_Click);
-            // 
-            // tslNumero
-            //
-            this.tslNumero.Name = "tslNumero";
-            this.tslNumero.Size = new System.Drawing.Size(115, 22);
-            this.tslNumero.Text = "sampleOrder.number";
-            //
-            // txtNumero
-            //
-            this.txtNumero.AutoSize = false;
-            this.txtNumero.Name = "txtNumero";
-            this.txtNumero.Size = new System.Drawing.Size(100, 25);
-            //
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tslCliente
-            // 
-            this.tslCliente.Name = "tslCliente";
-            this.tslCliente.Size = new System.Drawing.Size(107, 15);
-            this.tslCliente.Text = "sampleOrder.client";
-            // 
-            // cmbCliente
-            // 
-            this.cmbCliente.AutoSize = false;
-            this.cmbCliente.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbCliente.Name = "cmbCliente";
-            this.cmbCliente.Size = new System.Drawing.Size(160, 23);
             // 
             // tslEstado
             // 
@@ -301,11 +261,6 @@
         private System.Windows.Forms.ToolStripLabel tslBuscar;
         private System.Windows.Forms.ToolStripTextBox txtBuscar;
         private System.Windows.Forms.ToolStripButton btnBuscar;
-        private System.Windows.Forms.ToolStripLabel tslNumero;
-        private System.Windows.Forms.ToolStripTextBox txtNumero;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ToolStripLabel tslCliente;
-        private System.Windows.Forms.ToolStripComboBox cmbCliente;
         private System.Windows.Forms.ToolStripLabel tslEstado;
         private System.Windows.Forms.ToolStripComboBox cmbEstado;
         private System.Windows.Forms.ToolStripLabel tslFacturado;

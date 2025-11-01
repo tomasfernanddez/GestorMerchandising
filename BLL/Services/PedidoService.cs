@@ -435,7 +435,34 @@ namespace BLL.Services
                 pedido.NumeroPedido = pedido.NumeroPedido.Trim();
             }
 
-            AsegurarEstadoPorDefecto(pedido);
+            var estadosPedidoCatalogo = _unitOfWork.EstadosPedido?.GetEstadosOrdenados()?.ToList()
+                ?? new List<EstadoPedido>();
+
+            if (!pedido.IdEstadoPedido.HasValue)
+            {
+                var estadoProduccion = estadosPedidoCatalogo
+                    .FirstOrDefault(e => EsEstadoProduccion(e?.NombreEstadoPedido));
+
+                if (estadoProduccion != null)
+                {
+                    pedido.IdEstadoPedido = estadoProduccion.IdEstadoPedido;
+                }
+                else
+                {
+                    AsegurarEstadoPorDefecto(pedido);
+                    if (pedido.IdEstadoPedido.HasValue)
+                    {
+                        var estadoActual = estadosPedidoCatalogo
+                            .FirstOrDefault(e => e.IdEstadoPedido == pedido.IdEstadoPedido.Value)
+                            ?? _unitOfWork.EstadosPedido?.GetById(pedido.IdEstadoPedido.Value);
+
+                        if (estadoActual != null && estadosPedidoCatalogo.All(e => e.IdEstadoPedido != estadoActual.IdEstadoPedido))
+                        {
+                            estadosPedidoCatalogo.Add(estadoActual);
+                        }
+                    }
+                }
+            }
 
             if (pedido.Detalles == null)
             {
@@ -445,6 +472,52 @@ namespace BLL.Services
             foreach (var detalle in pedido.Detalles)
             {
                 PrepararDetalle(pedido, detalle);
+            }
+
+            var estadosProductoCatalogo = _unitOfWork.EstadosProducto?.GetEstadosOrdenados()
+                ?.ToDictionary(e => e.IdEstadoProducto, e => e.NombreEstadoProducto)
+                ?? new Dictionary<Guid, string>();
+
+            var estadosDetalle = pedido.Detalles
+                .Select(d =>
+                {
+                    if (!string.IsNullOrWhiteSpace(d.EstadoProducto?.NombreEstadoProducto))
+                        return d.EstadoProducto.NombreEstadoProducto;
+
+                    if (d.IdEstadoProducto.HasValue && estadosProductoCatalogo.TryGetValue(d.IdEstadoProducto.Value, out var nombre))
+                        return nombre;
+
+                    if (d.IdEstadoProducto.HasValue)
+                    {
+                        var estado = _unitOfWork.EstadosProducto?.GetById(d.IdEstadoProducto.Value);
+                        if (estado != null)
+                        {
+                            estadosProductoCatalogo[d.IdEstadoProducto.Value] = estado.NombreEstadoProducto;
+                            return estado.NombreEstadoProducto;
+                        }
+                    }
+
+                    return string.Empty;
+                })
+                .ToList();
+
+            var estadoCalculado = PedidoEstadoResolver.CalcularEstado(estadosDetalle, estadosPedidoCatalogo);
+            if (estadoCalculado != null && estadoCalculado.IdEstado.HasValue && estadoCalculado.IdEstado.Value != Guid.Empty)
+            {
+                pedido.IdEstadoPedido = estadoCalculado.IdEstado;
+
+                var estadoSeleccionado = estadosPedidoCatalogo
+                    .FirstOrDefault(e => e.IdEstadoPedido == estadoCalculado.IdEstado.Value)
+                    ?? _unitOfWork.EstadosPedido?.GetById(estadoCalculado.IdEstado.Value);
+
+                if (estadoSeleccionado != null)
+                {
+                    pedido.EstadoPedido = estadoSeleccionado;
+                    if (!estadosPedidoCatalogo.Any(e => e.IdEstadoPedido == estadoSeleccionado.IdEstadoPedido))
+                    {
+                        estadosPedidoCatalogo.Add(estadoSeleccionado);
+                    }
+                }
             }
 
             if (pedido.HistorialEstados == null)

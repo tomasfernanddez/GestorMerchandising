@@ -54,8 +54,12 @@ namespace BLL.Services
 
             if (!string.IsNullOrWhiteSpace(filtro.NumeroPedido))
             {
-                var numero = filtro.NumeroPedido.Trim();
-                pedidos = pedidos.Where(p => string.Equals(p.NumeroPedidoMuestra, numero, StringComparison.OrdinalIgnoreCase));
+                var numero = NormalizarNumeroPedidoMuestra(filtro.NumeroPedido);
+                if (!string.IsNullOrEmpty(numero))
+                {
+                    pedidos = pedidos.Where(p =>
+                        string.Equals(NormalizarNumeroPedidoMuestra(p.NumeroPedidoMuestra), numero, StringComparison.OrdinalIgnoreCase));
+                }
             }
 
             if (filtro.Facturado.HasValue)
@@ -248,7 +252,11 @@ namespace BLL.Services
             }
             else
             {
-                pedido.NumeroPedidoMuestra = pedido.NumeroPedidoMuestra.Trim();
+                pedido.NumeroPedidoMuestra = NormalizarNumeroPedidoMuestra(pedido.NumeroPedidoMuestra);
+                if (string.IsNullOrWhiteSpace(pedido.NumeroPedidoMuestra))
+                {
+                    pedido.NumeroPedidoMuestra = GenerarProximoNumeroPedidoMuestra();
+                }
             }
 
             if (pedido.Detalles == null)
@@ -282,6 +290,28 @@ namespace BLL.Services
 
             pedido.Detalles = detallesValidos;
 
+            var estadosPedidoCatalogo = _unitOfWork.EstadosPedidoMuestra?.GetEstadosOrdenados()?.ToList()
+                ?? new List<EstadoPedidoMuestra>();
+
+            var estadosDetalle = pedido.Detalles
+                .Select(d => d.EstadoMuestra?.NombreEstadoMuestra ?? ObtenerNombreEstado(d.IdEstadoMuestra))
+                .ToList();
+
+            var estadoCalculado = PedidoMuestraEstadoResolver.CalcularEstado(estadosDetalle, estadosPedidoCatalogo);
+            if (estadoCalculado != null && estadoCalculado.IdEstado.HasValue && estadoCalculado.IdEstado.Value != Guid.Empty)
+            {
+                pedido.IdEstadoPedidoMuestra = estadoCalculado.IdEstado;
+
+                var estadoSeleccionado = estadosPedidoCatalogo
+                    .FirstOrDefault(e => e.IdEstadoPedidoMuestra == estadoCalculado.IdEstado.Value)
+                    ?? _unitOfWork.EstadosPedidoMuestra?.GetById(estadoCalculado.IdEstado.Value);
+
+                if (estadoSeleccionado != null)
+                {
+                    pedido.EstadoPedidoMuestra = estadoSeleccionado;
+                }
+            }
+
             if (!pedido.FechaDevolucionEsperada.HasValue)
             {
                 var baseDate = pedido.FechaCreacion == default ? DateTime.UtcNow : pedido.FechaCreacion;
@@ -306,7 +336,7 @@ namespace BLL.Services
                 .DefaultIfEmpty(0)
                 .Max();
 
-            return $"SM-{(max + 1):D4}";
+            return $"{(max + 1):D6}";
         }
 
         private static int ParseNumeroPedidoMuestra(string numero)
@@ -316,6 +346,18 @@ namespace BLL.Services
 
             var digits = new string(numero.Where(char.IsDigit).ToArray());
             return int.TryParse(digits, out var value) ? value : 0;
+        }
+
+        private static string NormalizarNumeroPedidoMuestra(string numero)
+        {
+            if (string.IsNullOrWhiteSpace(numero))
+                return null;
+
+            var digits = new string(numero.Where(char.IsDigit).ToArray());
+            if (string.IsNullOrWhiteSpace(digits))
+                return null;
+
+            return digits.Length <= 6 ? digits.PadLeft(6, '0') : digits;
         }
 
         private void SincronizarDetalles(PedidoMuestra existente, PedidoMuestra pedido)

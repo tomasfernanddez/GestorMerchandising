@@ -57,6 +57,12 @@
     <Compile Include="Formularios\ABMClientesForm.Designer.cs">
       <DependentUpon>ABMClientesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Formularios\ABMPerfilesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\ABMPerfilesForm.Designer.cs">
+      <DependentUpon>ABMPerfilesForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\ABMProductosForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -128,6 +134,12 @@
     </Compile>
     <Compile Include="Formularios\PedidosMuestraForm.Designer.cs">
       <DependentUpon>PedidosMuestraForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\PerfilForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\PerfilForm.Designer.cs">
+      <DependentUpon>PerfilForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Formularios\ProductoForm.cs">
       <SubType>Form</SubType>

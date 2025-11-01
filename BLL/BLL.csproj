@@ -53,6 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factories\ServiceFactory.cs" />
+    <Compile Include="Helpers\EstadoCalculado.cs" />
+    <Compile Include="Helpers\PedidoEstadoResolver.cs" />
+    <Compile Include="Helpers\PedidoMuestraEstadoResolver.cs" />
     <Compile Include="Helpers\ProveedorCatalogoHelper.cs" />
     <Compile Include="Helpers\ResultadoOperacion.cs" />
     <Compile Include="Helpers\ValidationHelper.cs" />

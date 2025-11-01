@@ -41,6 +41,7 @@ namespace UI
         private DateTime _fechaPedido;
         private string _numeroPedido;
         private Guid? _estadoPedidoActual;
+        private string _estadoPedidoNombre;
 
         private const string ESTADO_DEVUELTO = "Devuelto";
         private const string ESTADO_A_FACTURAR = "Facturar";
@@ -298,8 +299,10 @@ namespace UI
             var fechaLocal = ArgentinaDateTimeHelper.ToArgentina(_fechaPedido);
             lblFechaPedidoValor.Text = fechaLocal.ToString("g");
 
-            var nombreEstado = _estadosPedido?
-                .FirstOrDefault(e => e.IdEstadoPedidoMuestra == _estadoPedidoActual)?.NombreEstadoPedidoMuestra;
+            var nombreEstado = !string.IsNullOrWhiteSpace(_estadoPedidoNombre)
+                ? _estadoPedidoNombre
+                : _estadosPedido?
+                    .FirstOrDefault(e => e.IdEstadoPedidoMuestra == _estadoPedidoActual)?.NombreEstadoPedidoMuestra;
 
             lblEstadoPedidoValor.Text = string.IsNullOrWhiteSpace(nombreEstado)
                 ? "sampleOrder.state.auto".Traducir()
@@ -312,7 +315,17 @@ namespace UI
                 .Select(d => d.EstadoMuestra ?? ObtenerNombreEstado(d.IdEstadoMuestra))
                 .ToList();
 
-            _estadoPedidoActual = PedidoMuestraEstadoHelper.CalcularEstadoPedido(estadosDetalle, _estadosPedido);
+            var calculado = PedidoMuestraEstadoResolver.CalcularEstado(estadosDetalle, _estadosPedido);
+            if (calculado != null)
+            {
+                _estadoPedidoActual = calculado.IdEstado;
+                _estadoPedidoNombre = calculado.NombreEstado;
+            }
+            else
+            {
+                _estadoPedidoActual = null;
+                _estadoPedidoNombre = null;
+            }
             ActualizarCabeceraPedido();
         }
 
@@ -326,6 +339,7 @@ namespace UI
             _fechaPedido = ArgentinaDateTimeHelper.Now();
             _numeroPedido = null;
             _estadoPedidoActual = null;
+            _estadoPedidoNombre = null;
 
             txtContacto.Text = string.Empty;
             txtEmail.Text = string.Empty;
@@ -361,6 +375,7 @@ namespace UI
                 _numeroPedido = _pedidoOriginal.NumeroPedidoMuestra;
                 _fechaPedido = ArgentinaDateTimeHelper.ToArgentina(_pedidoOriginal.FechaCreacion);
                 _estadoPedidoActual = _pedidoOriginal.IdEstadoPedidoMuestra;
+                _estadoPedidoNombre = _pedidoOriginal.EstadoPedidoMuestra?.NombreEstadoPedidoMuestra;
 
                 cmbCliente.SelectedValue = _pedidoOriginal.IdCliente;
 

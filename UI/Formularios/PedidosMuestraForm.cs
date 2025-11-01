@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
+using BLL.Helpers;
 using BLL.Interfaces;
 using DomainModel;
 using DomainModel.Entidades;
@@ -22,11 +24,10 @@ namespace UI
         private readonly ILogService _logService;
 
         private BindingList<PedidoMuestraRow> _rows;
-        private List<Cliente> _clientes;
         private List<EstadoPedidoMuestra> _estadosPedido;
         private List<EstadoMuestra> _estadosMuestra;
-        private bool _mostroAlertaVencidos;
         private bool _suspendFilters;
+        private bool _alertaInicialMostrada;
 
         private const string ESTADO_A_FACTURAR = "Facturar";
 
@@ -50,6 +51,7 @@ namespace UI
             public string Numero { get; set; }
             public string Cliente { get; set; }
             public string Estado { get; set; }
+            public Guid? IdEstado { get; set; }
             public DateTime FechaPedido { get; set; }
             public DateTime? FechaDevolucionEsperada { get; set; }
             public bool Facturado { get; set; }
@@ -79,7 +81,7 @@ namespace UI
             ApplyTexts();
             CargarDatosReferencia();
             ConfigurarGrid();
-            CargarPedidos();
+            CargarPedidos(true);
             ConfigurarFiltros();
             WireEvents();
         }
@@ -95,7 +97,6 @@ namespace UI
             tsbExtenderDias.Text = "sampleOrder.extend.due".Traducir();
             tslBuscar.Text = "form.search".Traducir();
             btnBuscar.Text = "form.filter".Traducir();
-            tslCliente.Text = "sampleOrder.client".Traducir();
             tslEstado.Text = "sampleOrder.state".Traducir();
             tslFacturado.Text = "sampleOrder.invoiced.filter".Traducir();
             tslSaldo.Text = "sampleOrder.balance.filter".Traducir();
@@ -117,7 +118,6 @@ namespace UI
         {
             try
             {
-                _clientes = _clienteService.ObtenerClientesActivos().OrderBy(c => c.RazonSocial).ToList();
                 _estadosPedido = _pedidoMuestraService.ObtenerEstadosPedido().OrderBy(e => e.NombreEstadoPedidoMuestra).ToList();
                 _estadosMuestra = _pedidoMuestraService.ObtenerEstadosMuestra().ToList();
             }
@@ -212,19 +212,6 @@ namespace UI
             {
                 var placeholder = "form.select.optional".Traducir();
 
-                var clientes = new List<Cliente>();
-                clientes.Add(new Cliente { IdCliente = Guid.Empty, RazonSocial = placeholder });
-                if (_clientes != null)
-                {
-                    clientes.AddRange(_clientes);
-                }
-
-                var comboClientes = cmbCliente.ComboBox;
-                comboClientes.DisplayMember = nameof(Cliente.RazonSocial);
-                comboClientes.ValueMember = nameof(Cliente.IdCliente);
-                comboClientes.DataSource = clientes;
-                comboClientes.SelectedValue = Guid.Empty;
-
                 var estados = new List<EstadoPedidoMuestra>();
                 estados.Add(new EstadoPedidoMuestra
                 {
@@ -271,8 +258,6 @@ namespace UI
                 {
                     comboSaldo.SelectedIndex = 0;
                 }
-
-                txtNumero.Text = string.Empty;
             }
             finally
             {
@@ -286,9 +271,6 @@ namespace UI
         {
             txtBuscar.TextChanged += (s, e) => { if (!_suspendFilters) AplicarFiltros(); };
             txtBuscar.KeyDown += TxtBuscar_KeyDown;
-            txtNumero.TextChanged += (s, e) => { if (!_suspendFilters) AplicarFiltros(); };
-            txtNumero.KeyDown += TxtBuscar_KeyDown;
-            cmbCliente.SelectedIndexChanged += Filtros_SelectedIndexChanged;
             cmbEstado.SelectedIndexChanged += Filtros_SelectedIndexChanged;
             cmbFacturado.SelectedIndexChanged += Filtros_SelectedIndexChanged;
             cmbSaldo.SelectedIndexChanged += Filtros_SelectedIndexChanged;
@@ -315,22 +297,19 @@ namespace UI
 
         private void AplicarFiltros()
         {
-            _mostroAlertaVencidos = false;
             CargarPedidos();
         }
 
-        private void CargarPedidos()
+        private void CargarPedidos(bool mostrarAlEntrar = false)
         {
             try
             {
                 var filtro = new PedidoMuestraFiltro
                 {
-                    IdCliente = ObtenerGuidSeleccionado(cmbCliente),
                     IdEstadoPedido = ObtenerGuidSeleccionado(cmbEstado),
                     Facturado = ObtenerValorSeleccionado(cmbFacturado),
                     ConSaldoPendiente = ObtenerValorSeleccionado(cmbSaldo),
                     TextoBusqueda = ObtenerTextoBusqueda(),
-                    NumeroPedido = ObtenerNumeroPedidoFiltro(),
                     IncluirDetalles = true
                 };
 
@@ -347,12 +326,31 @@ namespace UI
                     var vencido = !fechaDevolucionCompleta.HasValue
                         && fechaEsperada.HasValue
                         && fechaEsperada.Value.Date < DateTime.Today;
+
+                    var estadosDetalle = pedido.Detalles?
+                        .Select(d => d.EstadoMuestra?.NombreEstadoMuestra
+                                     ?? _estadosMuestra?.FirstOrDefault(em => em.IdEstadoMuestra == d.IdEstadoMuestra)?.NombreEstadoMuestra
+                                     ?? string.Empty)
+                        .ToList() ?? new List<string>();
+
+                    var calculado = PedidoMuestraEstadoResolver.CalcularEstado(estadosDetalle, _estadosPedido);
+                    var estadoId = calculado?.IdEstado ?? pedido.IdEstadoPedidoMuestra;
+                    var estadoNombre = calculado?.NombreEstado
+                        ?? pedido.EstadoPedidoMuestra?.NombreEstadoPedidoMuestra
+                        ?? _estadosPedido?.FirstOrDefault(e => e.IdEstadoPedidoMuestra == estadoId)?.NombreEstadoPedidoMuestra;
+
+                    if (!filtro.IdEstadoPedido.HasValue && EsEstadoFinalizado(estadoNombre))
+                    {
+                        continue;
+                    }
+
                     _rows.Add(new PedidoMuestraRow
                     {
                         IdPedidoMuestra = pedido.IdPedidoMuestra,
-                        Numero = pedido.NumeroPedidoMuestra,
+                        Numero = FormatearNumeroPedido(pedido.NumeroPedidoMuestra),
                         Cliente = pedido.Cliente?.RazonSocial ?? string.Empty,
-                        Estado = pedido.EstadoPedidoMuestra?.NombreEstadoPedidoMuestra,
+                        Estado = estadoNombre,
+                        IdEstado = estadoId,
                         FechaPedido = fechaPedido,
                         FechaDevolucionEsperada = fechaEsperada,
                         Facturado = pedido.Facturado,
@@ -363,7 +361,7 @@ namespace UI
                 }
 
                 ResaltarVencidos();
-                MostrarAlertaVencidos();
+                MostrarAlertaVencidos(mostrarAlEntrar);
                 ActualizarAcciones();
             }
             catch (Exception ex)
@@ -379,29 +377,29 @@ namespace UI
             {
                 if (row.DataBoundItem is PedidoMuestraRow pedido)
                 {
-                    if (pedido.Vencido && !pedido.Facturado)
+                    if (pedido.Vencido)
                     {
-                        row.DefaultCellStyle.BackColor = Color.MistyRose;
-                        row.DefaultCellStyle.ForeColor = Color.DarkRed;
+                        row.DefaultCellStyle.BackColor = Color.LightCoral;
+                        row.DefaultCellStyle.ForeColor = Color.White;
                     }
                     else
                     {
-                        row.DefaultCellStyle.BackColor = Color.White;
+                        row.DefaultCellStyle.BackColor = SystemColors.Window;
                         row.DefaultCellStyle.ForeColor = SystemColors.ControlText;
                     }
                 }
             }
         }
 
-        private void MostrarAlertaVencidos()
+        private void MostrarAlertaVencidos(bool mostrarAlEntrar)
         {
-            if (_mostroAlertaVencidos)
+            if (!mostrarAlEntrar || _alertaInicialMostrada)
                 return;
 
             var hayVencidos = _rows.Any(r => r.Vencido && !r.Facturado);
             if (hayVencidos)
             {
-                _mostroAlertaVencidos = true;
+                _alertaInicialMostrada = true;
                 MessageBox.Show("sampleOrder.return.overdue".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -423,10 +421,25 @@ namespace UI
             return string.IsNullOrWhiteSpace(texto) ? null : texto;
         }
 
-        private string ObtenerNumeroPedidoFiltro()
+        private string FormatearNumeroPedido(string numero)
         {
-            var numero = txtNumero.Text?.Trim();
-            return string.IsNullOrWhiteSpace(numero) ? null : numero;
+            if (string.IsNullOrWhiteSpace(numero))
+                return string.Empty;
+
+            var digits = new string(numero.Where(char.IsDigit).ToArray());
+            if (string.IsNullOrWhiteSpace(digits))
+                return numero.Trim();
+
+            return digits.Length <= 6 ? digits.PadLeft(6, '0') : digits;
+        }
+
+        private bool EsEstadoFinalizado(string nombreEstado)
+        {
+            if (string.IsNullOrWhiteSpace(nombreEstado))
+                return false;
+
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            return compare.IndexOf(nombreEstado, "final", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
         private DateTime? CalcularFechaDevolucionEsperada(PedidoMuestra pedido)
@@ -592,7 +605,6 @@ namespace UI
                 {
                     if (form.ShowDialog(this) == DialogResult.OK)
                     {
-                        _mostroAlertaVencidos = false;
                         CargarPedidos();
                     }
                 }
@@ -656,7 +668,6 @@ namespace UI
                 if (resultado.EsValido)
                 {
                     RegistrarAccion("PedidoMuestra.PedirFacturacion", "sampleOrder.log.requestBilling".Traducir());
-                    _mostroAlertaVencidos = false;
                     CargarPedidos();
                 }
                 else
@@ -708,7 +719,6 @@ namespace UI
                 if (resultado.EsValido)
                 {
                     RegistrarAccion("PedidoMuestra.ExtenderVencimiento", string.Format("sampleOrder.log.extend".Traducir(), dias.Value));
-                    _mostroAlertaVencidos = false;
                     CargarPedidos();
                 }
                 else

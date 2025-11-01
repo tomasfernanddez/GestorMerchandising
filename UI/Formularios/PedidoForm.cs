@@ -735,21 +735,21 @@ namespace UI
                               ?? string.Empty)
                 .ToList() ?? new List<string>();
 
-            var nuevoEstado = PedidoEstadoHelper.CalcularEstadoPedido(estadosDetalle, _estadosPedido);
-            if (!nuevoEstado.HasValue || nuevoEstado.Value == Guid.Empty)
+            var calculado = PedidoEstadoResolver.CalcularEstado(estadosDetalle, _estadosPedido);
+            if (calculado == null || !calculado.IdEstado.HasValue || calculado.IdEstado.Value == Guid.Empty)
                 return;
 
-            _estadoPedidoActual = nuevoEstado;
+            _estadoPedidoActual = calculado.IdEstado;
 
             if (cmbEstadoPedido.DataSource != null)
             {
                 var estadoActual = cmbEstadoPedido.SelectedValue is Guid actual ? actual : Guid.Empty;
-                if (estadoActual != nuevoEstado.Value)
+                if (estadoActual != calculado.IdEstado.Value)
                 {
                     if (cmbEstadoPedido.Items.OfType<object>().Any(item =>
-                        item is EstadoPedido estado && estado.IdEstadoPedido == nuevoEstado.Value))
+                        item is EstadoPedido estado && estado.IdEstadoPedido == calculado.IdEstado.Value))
                     {
-                        cmbEstadoPedido.SelectedValue = nuevoEstado.Value;
+                        cmbEstadoPedido.SelectedValue = calculado.IdEstado.Value;
                     }
                 }
             }

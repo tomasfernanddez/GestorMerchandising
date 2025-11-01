@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Globalization;
 using System.Windows.Forms;
+using BLL.Helpers;
 using BLL.Interfaces;
 using Services.BLL.Interfaces;
 using UI.Localization;
@@ -250,7 +251,7 @@ namespace UI
             if (_estados == null)
                 return;
 
-            var estadoIndice = mantenerSeleccion ? cmbEstado.SelectedIndex : 1;
+            var estadoIndice = mantenerSeleccion ? cmbEstado.SelectedIndex : -1;
             var facturadoIndice = mantenerSeleccion ? cmbFacturado.SelectedIndex : 1;
             var saldoIndice = mantenerSeleccion ? cmbSaldo.SelectedIndex : 1;
 
@@ -265,10 +266,26 @@ namespace UI
                 cmbEstado.Items.Add(new ComboItem(estado.IdEstadoPedido, estado.NombreEstadoPedido));
             }
 
-           if (estadoIndice >= 0 && estadoIndice < cmbEstado.Items.Count)
+            if (mantenerSeleccion && estadoIndice >= 0 && estadoIndice < cmbEstado.Items.Count)
+            {
                 cmbEstado.SelectedIndex = estadoIndice;
+            }
             else
-                cmbEstado.SelectedIndex = Math.Min(1, cmbEstado.Items.Count - 1);
+            {
+                var indiceProduccion = BuscarIndiceEstadoProduccion();
+                if (indiceProduccion >= 0)
+                {
+                    cmbEstado.SelectedIndex = indiceProduccion;
+                }
+                else if (cmbEstado.Items.Count > 1)
+                {
+                    cmbEstado.SelectedIndex = 1;
+                }
+                else if (cmbEstado.Items.Count > 0)
+                {
+                    cmbEstado.SelectedIndex = 0;
+                }
+            }
 
             cmbFacturado.Items.Clear();
             cmbFacturado.Items.Add("form.select.optional".Traducir());
@@ -323,13 +340,23 @@ namespace UI
                 foreach (var pedido in pedidos)
                 {
                     var cantidadProductos = pedido.Detalles?.Count ?? 0;
+                    var estadosDetalle = pedido.Detalles?
+                        .Select(d => d.EstadoProducto?.NombreEstadoProducto ?? string.Empty)
+                        .ToList() ?? new List<string>();
+
+                    var calculado = PedidoEstadoResolver.CalcularEstado(estadosDetalle, _estados);
+                    var estadoId = calculado?.IdEstado ?? pedido.IdEstadoPedido;
+                    var estadoNombre = calculado?.NombreEstado
+                        ?? pedido.EstadoPedido?.NombreEstadoPedido
+                        ?? _estados.FirstOrDefault(e => e.IdEstadoPedido == estadoId)?.NombreEstadoPedido;
+
                     _rows.Add(new PedidoRow
                     {
                         IdPedido = pedido.IdPedido,
                         NumeroPedido = pedido.NumeroPedido,
                         Cliente = FormatearNombreCliente(pedido.Cliente),
-                        Estado = pedido.EstadoPedido?.NombreEstadoPedido ?? _estados.FirstOrDefault(e => e.IdEstadoPedido == pedido.IdEstadoPedido)?.NombreEstadoPedido,
-                        IdEstado = pedido.IdEstadoPedido,
+                        Estado = estadoNombre,
+                        IdEstado = estadoId,
                         FechaCreacion = ArgentinaDateTimeHelper.ToArgentina(pedido.FechaCreacion),
                         FechaEntrega = ArgentinaDateTimeHelper.ToArgentina(pedido.FechaLimiteEntrega),
                         CantidadProductos = cantidadProductos,
@@ -357,6 +384,24 @@ namespace UI
             }
 
             return null;
+        }
+
+        private int BuscarIndiceEstadoProduccion()
+        {
+            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            for (int i = 0; i < cmbEstado.Items.Count; i++)
+            {
+                if (cmbEstado.Items[i] is ComboItem item)
+                {
+                    var texto = item.Texto ?? string.Empty;
+                    if (compare.IndexOf(texto, "produ", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0)
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
         }
 
         private bool? ObtenerFacturadoFiltro()

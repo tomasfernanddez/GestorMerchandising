@@ -64,7 +64,7 @@ namespace UI
             mnuPedidosMuestra.Click += (s, e) => AbrirPedidosMuestra();
 
             mnuUsuarios.Click += (s, e) => AbrirGestionUsuarios();
-            mnuPerfiles.Click += (s, e) => MessageBox.Show("Pendiente: ABM Perfiles.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            mnuPerfiles.Click += (s, e) => AbrirGestionPerfiles();
             mnuLogsBitacora.Click += (s, e) => AbrirLogsBitacora();
 
             // Idioma
@@ -493,6 +493,39 @@ namespace UI
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Text = "SIGPM";
         }
+
+        private void AbrirGestionPerfiles()
+        {
+            var esAdmin = string.Equals(SessionContext.NombrePerfil, "Administrador", StringComparison.OrdinalIgnoreCase);
+
+            if (!esAdmin)
+            {
+                MessageBox.Show("profile.permission.denied".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                var perfilSvc = ServicesFactory.CrearPerfilService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var logSvc = ServicesFactory.CrearLogService();
+
+                var formulario = new ABMPerfilesForm(perfilSvc, bitacoraSvc, logSvc);
+                formulario.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado formulario ABM Perfiles", "Seguridad", SessionContext.NombreUsuario);
+                };
+
+                MostrarFormulario(formulario);
+            }
+            catch (Exception ex)
+            {
+                var logSvc = ServicesFactory.CrearLogService();
+                logSvc.LogError("Error abriendo gestión de perfiles", ex, "Seguridad", SessionContext.NombreUsuario);
+                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void AbrirGestionUsuarios()
         {
             // Solo administradores pueden acceder
