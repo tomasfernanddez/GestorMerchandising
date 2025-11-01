@@ -24,6 +24,7 @@ namespace DAL.Implementations.Base
         private IPedidoRepository _pedidos;
         private IPedidoDetalleRepository _pedidoDetalles;
         private IPedidoMuestraRepository _pedidosMuestra;
+        private IFacturaCabeceraRepository _facturasCabecera;
 
         // Repositorios de referencia
         private ITipoProveedorRepository _tiposProveedor;
@@ -74,11 +75,16 @@ namespace DAL.Implementations.Base
         {
             get { return _pedidoDetalles ?? (_pedidoDetalles = new EfPedidoDetalleRepository(_context)); }
         }
+
         public IPedidoMuestraRepository PedidosMuestra
         {
             get { return _pedidosMuestra ?? (_pedidosMuestra = new EfPedidoMuestraRepository(_context)); }
         }
-        public IFacturaCabeceraRepository FacturasCabecera => throw new NotImplementedException();
+
+        public IFacturaCabeceraRepository FacturasCabecera
+        {
+            get { return _facturasCabecera ?? (_facturasCabecera = new EfFacturaCabeceraRepository(_context)); }
+        }
 
         private ITipoEmpresaRepository _tiposEmpresa;
         public ITipoEmpresaRepository TiposEmpresa

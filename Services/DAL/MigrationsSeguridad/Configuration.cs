@@ -6,7 +6,7 @@ using System.Linq;
 using Services.DAL.Ef.Base;
 using Services.DomainModel.Entities;
 
-namespace Services.Migrations
+namespace Services.DAL.MigrationsSeguridad
 {
     internal sealed class Configuration : DbMigrationsConfiguration<ServicesContext>
     {

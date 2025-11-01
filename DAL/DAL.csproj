@@ -59,6 +59,7 @@
     <Compile Include="Implementations\Principales\EfClienteRepository.cs" />
     <Compile Include="Implementations\Principales\EfEstadoMuestraRepository.cs" />
     <Compile Include="Implementations\Principales\EfEstadoPedidoMuestraRepository.cs" />
+    <Compile Include="Implementations\Principales\EfFacturaCabeceraRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoDetalleRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoMuestraRepository.cs" />
     <Compile Include="Implementations\Principales\EfPedidoRepository.cs" />
