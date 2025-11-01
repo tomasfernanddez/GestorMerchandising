@@ -8,6 +8,7 @@ using BLL.Interfaces;
 using DomainModel;
 using DomainModel.Entidades;
 using Services.BLL.Interfaces;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI
@@ -46,13 +47,15 @@ namespace UI
         private sealed class PedidoMuestraRow
         {
             public Guid IdPedidoMuestra { get; set; }
+            public string Numero { get; set; }
             public string Cliente { get; set; }
             public string Estado { get; set; }
-            public DateTime? FechaEntrega { get; set; }
+            public DateTime FechaPedido { get; set; }
             public DateTime? FechaDevolucionEsperada { get; set; }
             public bool Facturado { get; set; }
             public decimal SaldoPendiente { get; set; }
             public string Contacto { get; set; }
+            public bool Vencido { get; set; }
         }
 
         public PedidosMuestraForm(
@@ -99,9 +102,10 @@ namespace UI
 
             if (dgvPedidos.Columns.Count > 0)
             {
+                dgvPedidos.Columns[nameof(PedidoMuestraRow.Numero)].HeaderText = "sampleOrder.number".Traducir();
+                dgvPedidos.Columns[nameof(PedidoMuestraRow.FechaPedido)].HeaderText = "sampleOrder.created.date".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Cliente)].HeaderText = "sampleOrder.client".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Estado)].HeaderText = "sampleOrder.state".Traducir();
-                dgvPedidos.Columns[nameof(PedidoMuestraRow.FechaEntrega)].HeaderText = "sampleOrder.delivery.date".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.FechaDevolucionEsperada)].HeaderText = "sampleOrder.return.expected".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Facturado)].HeaderText = "sampleOrder.invoiced".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.SaldoPendiente)].HeaderText = "sampleOrder.summary.balance".Traducir();
@@ -131,6 +135,23 @@ namespace UI
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
+                DataPropertyName = nameof(PedidoMuestraRow.Numero),
+                Name = nameof(PedidoMuestraRow.Numero),
+                HeaderText = "sampleOrder.number".Traducir(),
+                Width = 110
+            });
+
+            dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(PedidoMuestraRow.FechaPedido),
+                Name = nameof(PedidoMuestraRow.FechaPedido),
+                HeaderText = "sampleOrder.created.date".Traducir(),
+                DefaultCellStyle = { Format = "d" },
+                Width = 110
+            });
+
+            dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
+            {
                 DataPropertyName = nameof(PedidoMuestraRow.Cliente),
                 Name = nameof(PedidoMuestraRow.Cliente),
                 HeaderText = "sampleOrder.client".Traducir(),
@@ -143,15 +164,6 @@ namespace UI
                 Name = nameof(PedidoMuestraRow.Estado),
                 HeaderText = "sampleOrder.state".Traducir(),
                 Width = 120
-            });
-
-            dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(PedidoMuestraRow.FechaEntrega),
-                Name = nameof(PedidoMuestraRow.FechaEntrega),
-                HeaderText = "sampleOrder.delivery.date".Traducir(),
-                DefaultCellStyle = { Format = "d" },
-                Width = 110
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -259,6 +271,8 @@ namespace UI
                 {
                     comboSaldo.SelectedIndex = 0;
                 }
+
+                txtNumero.Text = string.Empty;
             }
             finally
             {
@@ -272,6 +286,8 @@ namespace UI
         {
             txtBuscar.TextChanged += (s, e) => { if (!_suspendFilters) AplicarFiltros(); };
             txtBuscar.KeyDown += TxtBuscar_KeyDown;
+            txtNumero.TextChanged += (s, e) => { if (!_suspendFilters) AplicarFiltros(); };
+            txtNumero.KeyDown += TxtBuscar_KeyDown;
             cmbCliente.SelectedIndexChanged += Filtros_SelectedIndexChanged;
             cmbEstado.SelectedIndexChanged += Filtros_SelectedIndexChanged;
             cmbFacturado.SelectedIndexChanged += Filtros_SelectedIndexChanged;
@@ -314,6 +330,7 @@ namespace UI
                     Facturado = ObtenerValorSeleccionado(cmbFacturado),
                     ConSaldoPendiente = ObtenerValorSeleccionado(cmbSaldo),
                     TextoBusqueda = ObtenerTextoBusqueda(),
+                    NumeroPedido = ObtenerNumeroPedidoFiltro(),
                     IncluirDetalles = true
                 };
 
@@ -323,16 +340,25 @@ namespace UI
                 foreach (var pedido in pedidos)
                 {
                     var fechaEsperada = CalcularFechaDevolucionEsperada(pedido);
+                    var fechaPedido = ArgentinaDateTimeHelper.ToArgentina(pedido.FechaCreacion);
+                    var fechaDevolucionCompleta = pedido.FechaDevolucion.HasValue
+                        ? ArgentinaDateTimeHelper.ToArgentina(pedido.FechaDevolucion.Value).Date
+                        : (DateTime?)null;
+                    var vencido = !fechaDevolucionCompleta.HasValue
+                        && fechaEsperada.HasValue
+                        && fechaEsperada.Value.Date < DateTime.Today;
                     _rows.Add(new PedidoMuestraRow
                     {
                         IdPedidoMuestra = pedido.IdPedidoMuestra,
+                        Numero = pedido.NumeroPedidoMuestra,
                         Cliente = pedido.Cliente?.RazonSocial ?? string.Empty,
                         Estado = pedido.EstadoPedidoMuestra?.NombreEstadoPedidoMuestra,
-                        FechaEntrega = pedido.FechaEntrega,
+                        FechaPedido = fechaPedido,
                         FechaDevolucionEsperada = fechaEsperada,
                         Facturado = pedido.Facturado,
                         SaldoPendiente = pedido.SaldoPendiente,
-                        Contacto = pedido.PersonaContacto
+                        Contacto = pedido.PersonaContacto,
+                        Vencido = vencido
                     });
                 }
 
@@ -353,8 +379,16 @@ namespace UI
             {
                 if (row.DataBoundItem is PedidoMuestraRow pedido)
                 {
-                    var vencido = pedido.FechaDevolucionEsperada.HasValue && pedido.FechaDevolucionEsperada.Value.Date < DateTime.Today && !pedido.Facturado;
-                    row.DefaultCellStyle.BackColor = vencido ? System.Drawing.Color.MistyRose : System.Drawing.Color.White;
+                    if (pedido.Vencido && !pedido.Facturado)
+                    {
+                        row.DefaultCellStyle.BackColor = Color.MistyRose;
+                        row.DefaultCellStyle.ForeColor = Color.DarkRed;
+                    }
+                    else
+                    {
+                        row.DefaultCellStyle.BackColor = Color.White;
+                        row.DefaultCellStyle.ForeColor = SystemColors.ControlText;
+                    }
                 }
             }
         }
@@ -364,7 +398,7 @@ namespace UI
             if (_mostroAlertaVencidos)
                 return;
 
-            var hayVencidos = _rows.Any(r => r.FechaDevolucionEsperada.HasValue && r.FechaDevolucionEsperada.Value.Date < DateTime.Today && !r.Facturado);
+            var hayVencidos = _rows.Any(r => r.Vencido && !r.Facturado);
             if (hayVencidos)
             {
                 _mostroAlertaVencidos = true;
@@ -387,6 +421,12 @@ namespace UI
         {
             var texto = txtBuscar.Text?.Trim();
             return string.IsNullOrWhiteSpace(texto) ? null : texto;
+        }
+
+        private string ObtenerNumeroPedidoFiltro()
+        {
+            var numero = txtNumero.Text?.Trim();
+            return string.IsNullOrWhiteSpace(numero) ? null : numero;
         }
 
         private DateTime? CalcularFechaDevolucionEsperada(PedidoMuestra pedido)

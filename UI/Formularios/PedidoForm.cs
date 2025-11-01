@@ -49,6 +49,7 @@ namespace UI
         private ContextMenuStrip _contextMenuEstados;
         private Guid? _estadoCanceladoId;
         private bool _pedidoCancelado;
+        private Guid? _estadoPedidoActual;
 
         private sealed class PagoRegistrado
         {
@@ -249,10 +250,6 @@ namespace UI
             var tipoPagoSeleccionado = mantenerSeleccion && cmbTipoPago.SelectedValue is Guid pagoId && pagoId != Guid.Empty
                 ? (Guid?)pagoId
                 : null;
-            var estadoSeleccionado = mantenerSeleccion && cmbEstadoPedido.SelectedValue is Guid estadoId && estadoId != Guid.Empty
-                ? (Guid?)estadoId
-                : null;
-
             cmbCliente.DataSource = null;
             var clientes = new List<Cliente>
             {
@@ -282,10 +279,7 @@ namespace UI
                 cmbTipoPago.SelectedIndex = 0;
 
             cmbEstadoPedido.DataSource = null;
-            var estados = new List<EstadoPedido>
-            {
-                new EstadoPedido { IdEstadoPedido = Guid.Empty, NombreEstadoPedido = "form.select.optional".Traducir() }
-            };
+            var estados = new List<EstadoPedido>();
 
             var estadosDisponibles = _estadosPedido?
                 .Where(e => !_estadoCanceladoId.HasValue
@@ -298,17 +292,9 @@ namespace UI
             cmbEstadoPedido.ValueMember = nameof(EstadoPedido.IdEstadoPedido);
             cmbEstadoPedido.DataSource = estados;
 
-            if (mantenerSeleccion && estadoSeleccionado.HasValue && estados.Any(e => e.IdEstadoPedido == estadoSeleccionado.Value))
-            {
-                cmbEstadoPedido.SelectedValue = estadoSeleccionado.Value;
-            }
-            else
-            {
-                SeleccionarEstadoProduccion();
-            }
-
-            cmbEstadoPedido.Enabled = !_pedidoCancelado;
+            cmbEstadoPedido.Enabled = false;
             ActualizarAccionesCancelacion();
+            ActualizarEstadoPedidoAutomatico();
         }
 
         private bool EsProveedorProducto(Proveedor proveedor)
@@ -321,19 +307,6 @@ namespace UI
             return proveedor?.TiposProveedor != null && proveedor.TiposProveedor.Any(ProveedorCatalogoHelper.EsTipoPersonalizador);
         }
 
-        private void SeleccionarEstadoProduccion()
-        {
-            var estadoProduccion = _estadosPedido?.FirstOrDefault(e => EsEstadoProduccion(e.NombreEstadoPedido));
-            if (estadoProduccion != null)
-            {
-                cmbEstadoPedido.SelectedValue = estadoProduccion.IdEstadoPedido;
-            }
-            else if (cmbEstadoPedido.Items.Count > 0)
-            {
-                cmbEstadoPedido.SelectedIndex = 0;
-            }
-        }
-
         private void ActualizarAccionesCancelacion()
         {
             if (btnCancelarPedido == null)
@@ -344,16 +317,6 @@ namespace UI
 
             btnCancelarPedido.Visible = visible;
             btnCancelarPedido.Enabled = habilitado;
-        }
-
-        private static bool EsEstadoProduccion(string nombre)
-        {
-            if (string.IsNullOrWhiteSpace(nombre))
-                return false;
-
-            var compare = CultureInfo.InvariantCulture.CompareInfo;
-            return compare.IndexOf(nombre, "producción", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
-                || compare.IndexOf(nombre, "produccion", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
         private static bool EsEstadoCancelado(string nombre)
@@ -564,6 +527,7 @@ namespace UI
                     return;
                 }
 
+                _estadoPedidoActual = _pedidoOriginal.IdEstadoPedido;
                 _pedidoCancelado = _estadoCanceladoId.HasValue
                     && _pedidoOriginal.IdEstadoPedido.HasValue
                     && _pedidoOriginal.IdEstadoPedido.Value == _estadoCanceladoId.Value;
@@ -605,6 +569,7 @@ namespace UI
                 _historial = _pedidoOriginal.HistorialEstados?.OrderBy(h => h.FechaCambio).Select(CloneHistorial).ToList() ?? new List<PedidoEstadoHistorial>();
                 
                 ActualizarAccionesCancelacion();
+                ActualizarEstadoPedidoAutomatico();
             }
             catch (Exception ex)
             {
@@ -621,13 +586,13 @@ namespace UI
             dgvDetalles.DataSource = _detalles;
             _notas = new List<PedidoNota>();
             _historial = new List<PedidoEstadoHistorial>();
-            SeleccionarEstadoProduccion();
             _montoPagadoBase = 0m;
             _montoPagadoActual = 0m;
             _pagosRegistrados.Clear();
             ActualizarMontoPagadoUI();
             _pedidoCancelado = false;
             ActualizarAccionesCancelacion();
+            ActualizarEstadoPedidoAutomatico();
         }
 
         private PedidoDetalleViewModel MapearDetalle(PedidoDetalle detalle)
@@ -755,6 +720,39 @@ namespace UI
             lblMontoPagadoValor.Text = _montoPagadoActual.ToString("N2");
             lblMontoPagadoValor.Visible = true;
             btnDeshacerPago.Enabled = _pagosRegistrados.Count > 0;
+
+            ActualizarEstadoPedidoAutomatico();
+        }
+
+        private void ActualizarEstadoPedidoAutomatico()
+        {
+            if (_estadosPedido == null || _estadosPedido.Count == 0)
+                return;
+
+            var estadosDetalle = _detalles?
+                .Select(d => d.EstadoProducto
+                              ?? ObtenerEstadoProducto(d.IdEstadoProducto)?.NombreEstadoProducto
+                              ?? string.Empty)
+                .ToList() ?? new List<string>();
+
+            var nuevoEstado = PedidoEstadoHelper.CalcularEstadoPedido(estadosDetalle, _estadosPedido);
+            if (!nuevoEstado.HasValue || nuevoEstado.Value == Guid.Empty)
+                return;
+
+            _estadoPedidoActual = nuevoEstado;
+
+            if (cmbEstadoPedido.DataSource != null)
+            {
+                var estadoActual = cmbEstadoPedido.SelectedValue is Guid actual ? actual : Guid.Empty;
+                if (estadoActual != nuevoEstado.Value)
+                {
+                    if (cmbEstadoPedido.Items.OfType<object>().Any(item =>
+                        item is EstadoPedido estado && estado.IdEstadoPedido == nuevoEstado.Value))
+                    {
+                        cmbEstadoPedido.SelectedValue = nuevoEstado.Value;
+                    }
+                }
+            }
         }
 
         private void ActualizarMontoPagadoUI()
@@ -1252,6 +1250,7 @@ namespace UI
             else
                 dgvDetalles.Refresh();
 
+            ActualizarResumen();
             RegistrarHistorialProducto(detalle, nuevoEstado);
         }
 
@@ -1433,11 +1432,10 @@ namespace UI
                 return false;
             }
 
-            if (!(cmbEstadoPedido.SelectedValue is Guid idEstado) || idEstado == Guid.Empty)
+            if (!_estadoPedidoActual.HasValue || _estadoPedidoActual.Value == Guid.Empty)
             {
                 MessageBox.Show("order.validation.state".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 tabControl.SelectedTab = tabGeneral;
-                cmbEstadoPedido.Focus();
                 return false;
             }
 
@@ -1474,7 +1472,7 @@ namespace UI
             pedido.NumeroPedido = txtNumeroPedido.Text?.Trim();
             pedido.IdCliente = (Guid)cmbCliente.SelectedValue;
             pedido.IdTipoPago = (Guid?)cmbTipoPago.SelectedValue;
-            pedido.IdEstadoPedido = (Guid?)cmbEstadoPedido.SelectedValue;
+            pedido.IdEstadoPedido = _estadoPedidoActual;
             pedido.FechaLimiteEntrega = chkFechaEntrega.Checked ? dtpFechaEntrega.Value.Date : (DateTime?)null;
             pedido.MontoPagado = _montoPagadoActual;
             pedido.Facturado = chkFacturado.Checked;
@@ -1504,7 +1502,7 @@ namespace UI
                     IdHistorial = Guid.NewGuid(),
                     IdPedido = pedidoId ?? pedido.IdPedido,
                     IdEstadoPedido = pedido.IdEstadoPedido ?? Guid.Empty,
-                    Comentario = string.Format("order.timeline.manualChange".Traducir(), estado, SessionContext.NombreUsuario),
+                    Comentario = string.Format("order.timeline.autoChange".Traducir(), estado, SessionContext.NombreUsuario),
                     FechaCambio = ArgentinaDateTimeHelper.Now(),
                     Usuario = SessionContext.NombreUsuario ?? "Sistema"
                 });
@@ -1570,6 +1568,8 @@ namespace UI
             if (_historial == null)
                 _historial = new List<PedidoEstadoHistorial>();
 
+            ActualizarEstadoPedidoAutomatico();
+
             var usuario = SessionContext.NombreUsuario ?? "Sistema";
             var comentario = string.Format("order.timeline.productChange".Traducir(),
                 detalle.NombreProducto ?? string.Empty,
@@ -1592,11 +1592,14 @@ namespace UI
 
         private Guid ObtenerEstadoPedidoActual()
         {
-            if (cmbEstadoPedido.SelectedValue is Guid estadoId && estadoId != Guid.Empty)
-                return estadoId;
+            if (_estadoPedidoActual.HasValue && _estadoPedidoActual.Value != Guid.Empty)
+                return _estadoPedidoActual.Value;
 
             if (_pedidoOriginal?.IdEstadoPedido.HasValue == true)
                 return _pedidoOriginal.IdEstadoPedido.Value;
+
+            if (cmbEstadoPedido.SelectedValue is Guid estadoId && estadoId != Guid.Empty)
+                return estadoId;
 
             return Guid.Empty;
         }

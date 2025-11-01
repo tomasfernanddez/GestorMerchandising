@@ -10,6 +10,7 @@ using BLL.Helpers;
 using DomainModel;
 using DomainModel.Entidades;
 using Services.BLL.Interfaces;
+using UI.Helpers;
 using UI.Localization;
 using UI.ViewModels;
 
@@ -36,8 +37,10 @@ namespace UI
         private ContextMenuStrip _menuDetalles;
         private ToolStripMenuItem _menuExtenderDetalle;
         private ToolStripMenuItem _menuCambiarEstadoDetalle;
-        private Guid? _estadoPendientePedidoId;
         private Guid? _estadoPendienteMuestraId;
+        private DateTime _fechaPedido;
+        private string _numeroPedido;
+        private Guid? _estadoPedidoActual;
 
         private const string ESTADO_DEVUELTO = "Devuelto";
         private const string ESTADO_A_FACTURAR = "Facturar";
@@ -116,7 +119,8 @@ namespace UI
             lblEmail.Text = "sampleOrder.contact.email".Traducir();
             lblTelefono.Text = "sampleOrder.contact.phone".Traducir();
             lblDireccion.Text = "sampleOrder.contact.address".Traducir();
-            lblFechaEntrega.Text = "sampleOrder.delivery.date".Traducir();
+            lblNumeroPedido.Text = "sampleOrder.number".Traducir();
+            lblFechaPedido.Text = "sampleOrder.created.date".Traducir();
             lblEstadoPedido.Text = "sampleOrder.state".Traducir();
             lblObservaciones.Text = "sampleOrder.notes".Traducir();
             chkFacturado.Text = "sampleOrder.invoiced".Traducir();
@@ -154,6 +158,8 @@ namespace UI
                 _menuCambiarEstadoDetalle.Text = "sampleOrder.detail.changeState".Traducir();
                 ActualizarMenuEstados();
             }
+
+            ActualizarCabeceraPedido();
         }
 
         private void CargarDatosReferencia()
@@ -173,32 +179,6 @@ namespace UI
                 cmbCliente.ValueMember = nameof(Cliente.IdCliente);
                 cmbCliente.DataSource = clientes;
                 cmbCliente.SelectedValue = Guid.Empty;
-
-                _estadoPendientePedidoId = _estadosPedido
-                    .FirstOrDefault(e => string.Equals(e.NombreEstadoPedidoMuestra, ESTADO_PENDIENTE_ENVIO, StringComparison.OrdinalIgnoreCase))?
-                    .IdEstadoPedidoMuestra;
-
-                var estadosPedido = new List<EstadoPedidoMuestra>
-                {
-                    new EstadoPedidoMuestra
-                    {
-                        IdEstadoPedidoMuestra = Guid.Empty,
-                        NombreEstadoPedidoMuestra = placeholder
-                    }
-                };
-                estadosPedido.AddRange(_estadosPedido);
-
-                cmbEstadoPedido.DisplayMember = nameof(EstadoPedidoMuestra.NombreEstadoPedidoMuestra);
-                cmbEstadoPedido.ValueMember = nameof(EstadoPedidoMuestra.IdEstadoPedidoMuestra);
-                cmbEstadoPedido.DataSource = estadosPedido;
-                if (_estadoPendientePedidoId.HasValue)
-                {
-                    cmbEstadoPedido.SelectedValue = _estadoPendientePedidoId.Value;
-                }
-                else
-                {
-                    cmbEstadoPedido.SelectedIndex = 0;
-                }
 
                 _estadoPendienteMuestraId = _estadosMuestra
                     .FirstOrDefault(e => string.Equals(e.NombreEstadoMuestra, ESTADO_PENDIENTE_ENVIO, StringComparison.OrdinalIgnoreCase))?
@@ -309,6 +289,33 @@ namespace UI
             dgvDetalles.Columns[nameof(PedidoMuestraDetalleViewModel.FechaDevolucion)].HeaderText = "sampleOrder.detail.returnDate".Traducir();
         }
 
+        private void ActualizarCabeceraPedido()
+        {
+            lblNumeroPedidoValor.Text = string.IsNullOrWhiteSpace(_numeroPedido)
+                ? "sampleOrder.number.pending".Traducir()
+                : _numeroPedido;
+
+            var fechaLocal = ArgentinaDateTimeHelper.ToArgentina(_fechaPedido);
+            lblFechaPedidoValor.Text = fechaLocal.ToString("g");
+
+            var nombreEstado = _estadosPedido?
+                .FirstOrDefault(e => e.IdEstadoPedidoMuestra == _estadoPedidoActual)?.NombreEstadoPedidoMuestra;
+
+            lblEstadoPedidoValor.Text = string.IsNullOrWhiteSpace(nombreEstado)
+                ? "sampleOrder.state.auto".Traducir()
+                : nombreEstado;
+        }
+
+        private void ActualizarEstadoPedidoDesdeDetalles()
+        {
+            var estadosDetalle = _detalles
+                .Select(d => d.EstadoMuestra ?? ObtenerNombreEstado(d.IdEstadoMuestra))
+                .ToList();
+
+            _estadoPedidoActual = PedidoMuestraEstadoHelper.CalcularEstadoPedido(estadosDetalle, _estadosPedido);
+            ActualizarCabeceraPedido();
+        }
+
         private void InicializarNuevoPedido()
         {
             _detalles.Clear();
@@ -316,7 +323,10 @@ namespace UI
             _montoPagadoBase = 0;
             _montoPagadoActual = 0;
 
-            dtpFechaEntrega.Checked = false;
+            _fechaPedido = ArgentinaDateTimeHelper.Now();
+            _numeroPedido = null;
+            _estadoPedidoActual = null;
+
             txtContacto.Text = string.Empty;
             txtEmail.Text = string.Empty;
             txtTelefono.Text = string.Empty;
@@ -326,21 +336,13 @@ namespace UI
             chkFacturado.Checked = false;
             nudDiasExtension.Value = 1;
 
-            if (_estadoPendientePedidoId.HasValue)
-            {
-                cmbEstadoPedido.SelectedValue = _estadoPendientePedidoId.Value;
-            }
-            else if (cmbEstadoPedido.Items.Count > 0)
-            {
-                cmbEstadoPedido.SelectedIndex = 0;
-            }
-
             if (cmbCliente.Items.Count > 0)
             {
                 cmbCliente.SelectedIndex = 0;
             }
 
             ActualizarFacturacionDisponible();
+            ActualizarEstadoPedidoDesdeDetalles();
         }
 
         private void CargarPedidoExistente(Guid idPedido)
@@ -356,21 +358,11 @@ namespace UI
                     return;
                 }
 
-                cmbCliente.SelectedValue = _pedidoOriginal.IdCliente;
-                if (_pedidoOriginal.FechaEntrega.HasValue)
-                {
-                    dtpFechaEntrega.Checked = true;
-                    dtpFechaEntrega.Value = _pedidoOriginal.FechaEntrega.Value;
-                }
-                else
-                {
-                    dtpFechaEntrega.Checked = false;
-                }
+                _numeroPedido = _pedidoOriginal.NumeroPedidoMuestra;
+                _fechaPedido = ArgentinaDateTimeHelper.ToArgentina(_pedidoOriginal.FechaCreacion);
+                _estadoPedidoActual = _pedidoOriginal.IdEstadoPedidoMuestra;
 
-                if (_pedidoOriginal.IdEstadoPedidoMuestra.HasValue)
-                {
-                    cmbEstadoPedido.SelectedValue = _pedidoOriginal.IdEstadoPedidoMuestra.Value;
-                }
+                cmbCliente.SelectedValue = _pedidoOriginal.IdCliente;
 
                 txtContacto.Text = _pedidoOriginal.PersonaContacto;
                 txtEmail.Text = _pedidoOriginal.EmailContacto;
@@ -410,6 +402,7 @@ namespace UI
 
                 ActualizarResumen();
                 ActualizarFacturacionDisponible();
+                ActualizarEstadoPedidoDesdeDetalles();
             }
             catch (Exception ex)
             {
@@ -434,7 +427,7 @@ namespace UI
 
         private void btnAgregarDetalle_Click(object sender, EventArgs e)
         {
-            var form = new PedidoMuestraDetalleForm(_productos, _estadosMuestra);
+            var form = new PedidoMuestraDetalleForm(_productos, _estadosMuestra, null, _fechaPedido);
             if (form.ShowDialog(this) == DialogResult.OK)
             {
                 var nuevo = form.DetalleResult;
@@ -459,6 +452,7 @@ namespace UI
                 _detalles.Add(nuevo);
                 ActualizarResumen();
                 ActualizarFacturacionDisponible();
+                ActualizarEstadoPedidoDesdeDetalles();
 
                 if (!string.IsNullOrWhiteSpace(nuevo.NombreProducto))
                 {
@@ -477,7 +471,7 @@ namespace UI
                 return;
             }
 
-            var form = new PedidoMuestraDetalleForm(_productos, _estadosMuestra, detalle);
+            var form = new PedidoMuestraDetalleForm(_productos, _estadosMuestra, detalle, _fechaPedido);
             if (form.ShowDialog(this) == DialogResult.OK)
             {
                 var actualizado = form.DetalleResult;
@@ -502,6 +496,7 @@ namespace UI
                 dgvDetalles.Refresh();
                 ActualizarResumen();
                 ActualizarFacturacionDisponible();
+                ActualizarEstadoPedidoDesdeDetalles();
 
                 if (!string.IsNullOrWhiteSpace(actualizado.NombreProducto))
                 {
@@ -526,6 +521,7 @@ namespace UI
             _detalles.Remove(detalle);
             ActualizarResumen();
             ActualizarFacturacionDisponible();
+            ActualizarEstadoPedidoDesdeDetalles();
 
             if (!string.IsNullOrWhiteSpace(nombreProducto))
             {
@@ -572,6 +568,7 @@ namespace UI
             ActualizarResumen();
             RegistrarAccion("PedidoMuestra.PedirFacturacion", "sampleOrder.log.requestBilling".Traducir());
             ActualizarFacturacionDisponible();
+            ActualizarEstadoPedidoDesdeDetalles();
         }
 
         private void btnExtenderDias_Click(object sender, EventArgs e)
@@ -587,6 +584,14 @@ namespace UI
             if (nudPago.Value <= 0)
                 return;
 
+            var confirmar = MessageBox.Show(
+                "sampleOrder.payment.confirmAdd".Traducir(nudPago.Value.ToString("C2")),
+                Text,
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (confirmar != DialogResult.Yes)
+                return;
+
             var pago = new PagoRegistrado(nudPago.Value);
             _pagosRegistrados.Add(pago);
             _montoPagadoActual = Math.Round(_montoPagadoBase + _pagosRegistrados.Sum(p => p.Monto), 2);
@@ -598,6 +603,14 @@ namespace UI
         {
             if (lstPagos.SelectedItem is PagoRegistrado pago)
             {
+                var confirmacion = MessageBox.Show(
+                    "sampleOrder.payment.confirmRemove".Traducir(pago.Monto.ToString("C2")),
+                    Text,
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+                if (confirmacion != DialogResult.Yes)
+                    return;
+
                 _pagosRegistrados.Remove(pago);
                 _montoPagadoActual = Math.Round(_montoPagadoBase + _pagosRegistrados.Sum(p => p.Monto), 2);
                 ActualizarResumen();
@@ -643,11 +656,16 @@ namespace UI
                     return;
                 }
 
+                var fechaCreacionUtc = _fechaPedido.Kind == DateTimeKind.Local
+                    ? _fechaPedido.ToUniversalTime()
+                    : _fechaPedido;
+
                 var pedido = new PedidoMuestra
                 {
                     IdPedidoMuestra = _pedidoOriginal?.IdPedidoMuestra ?? Guid.Empty,
                     IdCliente = idCliente,
-                    FechaEntrega = dtpFechaEntrega.Checked ? dtpFechaEntrega.Value : (DateTime?)null,
+                    NumeroPedidoMuestra = _numeroPedido,
+                    FechaCreacion = fechaCreacionUtc,
                     FechaDevolucionEsperada = ObtenerFechaDevolucionEsperadaGeneral(),
                     DireccionEntrega = txtDireccion.Text?.Trim(),
                     PersonaContacto = txtContacto.Text?.Trim(),
@@ -656,9 +674,7 @@ namespace UI
                     Observaciones = txtObservaciones.Text?.Trim(),
                     Facturado = chkFacturado.Checked,
                     RutaFacturaPdf = txtFactura.Text,
-                    IdEstadoPedidoMuestra = cmbEstadoPedido.SelectedItem is EstadoPedidoMuestra estado && estado.IdEstadoPedidoMuestra != Guid.Empty
-                        ? estado.IdEstadoPedidoMuestra
-                        : (Guid?)null,
+                    IdEstadoPedidoMuestra = _estadoPedidoActual,
                     MontoPagado = _montoPagadoActual
                 };
 

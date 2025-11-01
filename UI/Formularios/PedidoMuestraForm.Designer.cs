@@ -41,10 +41,12 @@
             this.txtTelefono = new System.Windows.Forms.TextBox();
             this.lblDireccion = new System.Windows.Forms.Label();
             this.txtDireccion = new System.Windows.Forms.TextBox();
-            this.lblFechaEntrega = new System.Windows.Forms.Label();
-            this.dtpFechaEntrega = new System.Windows.Forms.DateTimePicker();
+            this.lblNumeroPedido = new System.Windows.Forms.Label();
+            this.lblNumeroPedidoValor = new System.Windows.Forms.Label();
+            this.lblFechaPedido = new System.Windows.Forms.Label();
+            this.lblFechaPedidoValor = new System.Windows.Forms.Label();
             this.lblEstadoPedido = new System.Windows.Forms.Label();
-            this.cmbEstadoPedido = new System.Windows.Forms.ComboBox();
+            this.lblEstadoPedidoValor = new System.Windows.Forms.Label();
             this.lblObservaciones = new System.Windows.Forms.Label();
             this.txtObservaciones = new System.Windows.Forms.TextBox();
             this.chkFacturado = new System.Windows.Forms.CheckBox();
@@ -136,10 +138,12 @@
             this.layoutGeneral.Controls.Add(this.txtTelefono, 1, 3);
             this.layoutGeneral.Controls.Add(this.lblDireccion, 0, 4);
             this.layoutGeneral.Controls.Add(this.txtDireccion, 1, 4);
-            this.layoutGeneral.Controls.Add(this.lblFechaEntrega, 2, 0);
-            this.layoutGeneral.Controls.Add(this.dtpFechaEntrega, 3, 0);
+            this.layoutGeneral.Controls.Add(this.lblNumeroPedido, 2, 0);
+            this.layoutGeneral.Controls.Add(this.lblNumeroPedidoValor, 3, 0);
+            this.layoutGeneral.Controls.Add(this.lblFechaPedido, 2, 1);
+            this.layoutGeneral.Controls.Add(this.lblFechaPedidoValor, 3, 1);
             this.layoutGeneral.Controls.Add(this.lblEstadoPedido, 2, 2);
-            this.layoutGeneral.Controls.Add(this.cmbEstadoPedido, 3, 2);
+            this.layoutGeneral.Controls.Add(this.lblEstadoPedidoValor, 3, 2);
             this.layoutGeneral.Controls.Add(this.lblObservaciones, 0, 5);
             this.layoutGeneral.Controls.Add(this.txtObservaciones, 1, 5);
             this.layoutGeneral.Controls.Add(this.chkFacturado, 2, 3);
@@ -250,26 +254,45 @@
             this.txtDireccion.Size = new System.Drawing.Size(281, 20);
             this.txtDireccion.TabIndex = 9;
             // 
-            // lblFechaEntrega
-            // 
-            this.lblFechaEntrega.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblFechaEntrega.AutoSize = true;
-            this.lblFechaEntrega.Location = new System.Drawing.Point(430, 8);
-            this.lblFechaEntrega.Name = "lblFechaEntrega";
-            this.lblFechaEntrega.Size = new System.Drawing.Size(141, 13);
-            this.lblFechaEntrega.TabIndex = 10;
-            this.lblFechaEntrega.Text = "sampleOrder.delivery.date";
-            // 
-            // dtpFechaEntrega
-            // 
-            this.dtpFechaEntrega.Checked = false;
-            this.dtpFechaEntrega.CustomFormat = "dd/MM/yyyy";
-            this.dtpFechaEntrega.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpFechaEntrega.Location = new System.Drawing.Point(570, 3);
-            this.dtpFechaEntrega.Name = "dtpFechaEntrega";
-            this.dtpFechaEntrega.ShowCheckBox = true;
-            this.dtpFechaEntrega.Size = new System.Drawing.Size(200, 20);
-            this.dtpFechaEntrega.TabIndex = 11;
+            // lblNumeroPedido
+            //
+            this.lblNumeroPedido.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblNumeroPedido.AutoSize = true;
+            this.lblNumeroPedido.Location = new System.Drawing.Point(430, 8);
+            this.lblNumeroPedido.Name = "lblNumeroPedido";
+            this.lblNumeroPedido.Size = new System.Drawing.Size(112, 13);
+            this.lblNumeroPedido.TabIndex = 10;
+            this.lblNumeroPedido.Text = "sampleOrder.number";
+            //
+            // lblNumeroPedidoValor
+            //
+            this.lblNumeroPedidoValor.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblNumeroPedidoValor.AutoSize = true;
+            this.lblNumeroPedidoValor.Location = new System.Drawing.Point(570, 8);
+            this.lblNumeroPedidoValor.Name = "lblNumeroPedidoValor";
+            this.lblNumeroPedidoValor.Size = new System.Drawing.Size(10, 13);
+            this.lblNumeroPedidoValor.TabIndex = 11;
+            this.lblNumeroPedidoValor.Text = "-";
+            //
+            // lblFechaPedido
+            //
+            this.lblFechaPedido.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblFechaPedido.AutoSize = true;
+            this.lblFechaPedido.Location = new System.Drawing.Point(430, 38);
+            this.lblFechaPedido.Name = "lblFechaPedido";
+            this.lblFechaPedido.Size = new System.Drawing.Size(128, 13);
+            this.lblFechaPedido.TabIndex = 12;
+            this.lblFechaPedido.Text = "sampleOrder.created.date";
+            //
+            // lblFechaPedidoValor
+            //
+            this.lblFechaPedidoValor.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblFechaPedidoValor.AutoSize = true;
+            this.lblFechaPedidoValor.Location = new System.Drawing.Point(570, 38);
+            this.lblFechaPedidoValor.Name = "lblFechaPedidoValor";
+            this.lblFechaPedidoValor.Size = new System.Drawing.Size(10, 13);
+            this.lblFechaPedidoValor.TabIndex = 13;
+            this.lblFechaPedidoValor.Text = "-";
             // 
             // lblEstadoPedido
             // 
@@ -280,16 +303,16 @@
             this.lblEstadoPedido.Size = new System.Drawing.Size(97, 13);
             this.lblEstadoPedido.TabIndex = 14;
             this.lblEstadoPedido.Text = "sampleOrder.state";
-            // 
-            // cmbEstadoPedido
-            // 
-            this.cmbEstadoPedido.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cmbEstadoPedido.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbEstadoPedido.FormattingEnabled = true;
-            this.cmbEstadoPedido.Location = new System.Drawing.Point(570, 63);
-            this.cmbEstadoPedido.Name = "cmbEstadoPedido";
-            this.cmbEstadoPedido.Size = new System.Drawing.Size(279, 21);
-            this.cmbEstadoPedido.TabIndex = 15;
+            //
+            // lblEstadoPedidoValor
+            //
+            this.lblEstadoPedidoValor.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblEstadoPedidoValor.AutoSize = true;
+            this.lblEstadoPedidoValor.Location = new System.Drawing.Point(570, 68);
+            this.lblEstadoPedidoValor.Name = "lblEstadoPedidoValor";
+            this.lblEstadoPedidoValor.Size = new System.Drawing.Size(10, 13);
+            this.lblEstadoPedidoValor.TabIndex = 15;
+            this.lblEstadoPedidoValor.Text = "-";
             // 
             // lblObservaciones
             // 
@@ -303,7 +326,7 @@
             // 
             // txtObservaciones
             // 
-            this.layoutGeneral.SetColumnSpan(this.txtObservaciones, 2);
+            this.layoutGeneral.SetColumnSpan(this.txtObservaciones, 3);
             this.txtObservaciones.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtObservaciones.Location = new System.Drawing.Point(143, 153);
             this.txtObservaciones.Multiline = true;
@@ -714,10 +737,12 @@
         private System.Windows.Forms.TextBox txtTelefono;
         private System.Windows.Forms.Label lblDireccion;
         private System.Windows.Forms.TextBox txtDireccion;
-        private System.Windows.Forms.Label lblFechaEntrega;
-        private System.Windows.Forms.DateTimePicker dtpFechaEntrega;
+        private System.Windows.Forms.Label lblNumeroPedido;
+        private System.Windows.Forms.Label lblNumeroPedidoValor;
+        private System.Windows.Forms.Label lblFechaPedido;
+        private System.Windows.Forms.Label lblFechaPedidoValor;
         private System.Windows.Forms.Label lblEstadoPedido;
-        private System.Windows.Forms.ComboBox cmbEstadoPedido;
+        private System.Windows.Forms.Label lblEstadoPedidoValor;
         private System.Windows.Forms.Label lblObservaciones;
         private System.Windows.Forms.TextBox txtObservaciones;
         private System.Windows.Forms.CheckBox chkFacturado;

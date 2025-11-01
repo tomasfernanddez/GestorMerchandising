@@ -38,6 +38,7 @@ namespace BLL.Services
                     (!string.IsNullOrEmpty(p.PersonaContacto) && p.PersonaContacto.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
                     (!string.IsNullOrEmpty(p.EmailContacto) && p.EmailContacto.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
                     (!string.IsNullOrEmpty(p.Observaciones) && p.Observaciones.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(p.NumeroPedidoMuestra) && p.NumeroPedidoMuestra.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
                     p.Detalles.Any(d => !string.IsNullOrEmpty(d.Producto?.NombreProducto) && d.Producto.NombreProducto.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0));
             }
 
@@ -49,6 +50,12 @@ namespace BLL.Services
             if (filtro.IdEstadoPedido.HasValue)
             {
                 pedidos = pedidos.Where(p => p.IdEstadoPedidoMuestra == filtro.IdEstadoPedido.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtro.NumeroPedido))
+            {
+                var numero = filtro.NumeroPedido.Trim();
+                pedidos = pedidos.Where(p => string.Equals(p.NumeroPedidoMuestra, numero, StringComparison.OrdinalIgnoreCase));
             }
 
             if (filtro.Facturado.HasValue)
@@ -230,6 +237,20 @@ namespace BLL.Services
                 pedido.IdPedidoMuestra = Guid.NewGuid();
             }
 
+            if (pedido.FechaCreacion == default)
+            {
+                pedido.FechaCreacion = DateTime.UtcNow;
+            }
+
+            if (string.IsNullOrWhiteSpace(pedido.NumeroPedidoMuestra))
+            {
+                pedido.NumeroPedidoMuestra = GenerarProximoNumeroPedidoMuestra();
+            }
+            else
+            {
+                pedido.NumeroPedidoMuestra = pedido.NumeroPedidoMuestra.Trim();
+            }
+
             if (pedido.Detalles == null)
             {
                 pedido.Detalles = new List<DetalleMuestra>();
@@ -263,11 +284,7 @@ namespace BLL.Services
 
             if (!pedido.FechaDevolucionEsperada.HasValue)
             {
-                var baseDate = pedido.FechaEntrega ?? pedido.FechaCreacion;
-                if (baseDate == default)
-                {
-                    baseDate = DateTime.UtcNow;
-                }
+                var baseDate = pedido.FechaCreacion == default ? DateTime.UtcNow : pedido.FechaCreacion;
                 pedido.FechaDevolucionEsperada = baseDate.AddDays(7);
             }
 
@@ -279,6 +296,26 @@ namespace BLL.Services
             }
 
             pedido.SaldoPendiente = Math.Max(0, Math.Round(pedido.MontoTotal - pedido.MontoPagado, 2));
+        }
+
+        private string GenerarProximoNumeroPedidoMuestra()
+        {
+            var pedidos = _unitOfWork.PedidosMuestra.GetAll();
+            var max = pedidos
+                .Select(p => ParseNumeroPedidoMuestra(p.NumeroPedidoMuestra))
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return $"SM-{(max + 1):D4}";
+        }
+
+        private static int ParseNumeroPedidoMuestra(string numero)
+        {
+            if (string.IsNullOrWhiteSpace(numero))
+                return 0;
+
+            var digits = new string(numero.Where(char.IsDigit).ToArray());
+            return int.TryParse(digits, out var value) ? value : 0;
         }
 
         private void SincronizarDetalles(PedidoMuestra existente, PedidoMuestra pedido)

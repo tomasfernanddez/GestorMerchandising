@@ -82,7 +82,7 @@
             this.lblProducto.AutoSize = true;
             this.lblProducto.Location = new System.Drawing.Point(3, 8);
             this.lblProducto.Name = "lblProducto";
-            this.lblProducto.Size = new System.Drawing.Size(94, 13);
+            this.lblProducto.Size = new System.Drawing.Size(133, 13);
             this.lblProducto.TabIndex = 0;
             this.lblProducto.Text = "sampleOrder.detail.product";
             // 
@@ -91,9 +91,9 @@
             this.cmbProducto.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cmbProducto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbProducto.FormattingEnabled = true;
-            this.cmbProducto.Location = new System.Drawing.Point(169, 3);
+            this.cmbProducto.Location = new System.Drawing.Point(168, 3);
             this.cmbProducto.Name = "cmbProducto";
-            this.cmbProducto.Size = new System.Drawing.Size(242, 21);
+            this.cmbProducto.Size = new System.Drawing.Size(243, 21);
             this.cmbProducto.TabIndex = 1;
             // 
             // lblEstado
@@ -102,7 +102,7 @@
             this.lblEstado.AutoSize = true;
             this.lblEstado.Location = new System.Drawing.Point(3, 38);
             this.lblEstado.Name = "lblEstado";
-            this.lblEstado.Size = new System.Drawing.Size(93, 13);
+            this.lblEstado.Size = new System.Drawing.Size(120, 13);
             this.lblEstado.TabIndex = 2;
             this.lblEstado.Text = "sampleOrder.detail.state";
             // 
@@ -111,9 +111,9 @@
             this.cmbEstado.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cmbEstado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbEstado.FormattingEnabled = true;
-            this.cmbEstado.Location = new System.Drawing.Point(169, 33);
+            this.cmbEstado.Location = new System.Drawing.Point(168, 33);
             this.cmbEstado.Name = "cmbEstado";
-            this.cmbEstado.Size = new System.Drawing.Size(242, 21);
+            this.cmbEstado.Size = new System.Drawing.Size(243, 21);
             this.cmbEstado.TabIndex = 3;
             // 
             // lblPrecio
@@ -122,7 +122,7 @@
             this.lblPrecio.AutoSize = true;
             this.lblPrecio.Location = new System.Drawing.Point(3, 68);
             this.lblPrecio.Name = "lblPrecio";
-            this.lblPrecio.Size = new System.Drawing.Size(93, 13);
+            this.lblPrecio.Size = new System.Drawing.Size(120, 13);
             this.lblPrecio.TabIndex = 4;
             this.lblPrecio.Text = "sampleOrder.detail.price";
             // 
@@ -130,6 +130,7 @@
             // 
             this.nudPrecio.DecimalPlaces = 2;
             this.nudPrecio.Dock = System.Windows.Forms.DockStyle.Left;
+            this.nudPrecio.Location = new System.Drawing.Point(168, 63);
             this.nudPrecio.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -146,14 +147,14 @@
             this.lblCantidad.AutoSize = true;
             this.lblCantidad.Location = new System.Drawing.Point(3, 98);
             this.lblCantidad.Name = "lblCantidad";
-            this.lblCantidad.Size = new System.Drawing.Size(104, 13);
+            this.lblCantidad.Size = new System.Drawing.Size(134, 13);
             this.lblCantidad.TabIndex = 6;
             this.lblCantidad.Text = "sampleOrder.detail.quantity";
             // 
             // nudCantidad
             // 
             this.nudCantidad.Dock = System.Windows.Forms.DockStyle.Left;
-            this.nudCantidad.Location = new System.Drawing.Point(169, 93);
+            this.nudCantidad.Location = new System.Drawing.Point(168, 93);
             this.nudCantidad.Maximum = new decimal(new int[] {
             1,
             0,
@@ -179,7 +180,7 @@
             this.lblDevolucion.AutoSize = true;
             this.lblDevolucion.Location = new System.Drawing.Point(3, 128);
             this.lblDevolucion.Name = "lblDevolucion";
-            this.lblDevolucion.Size = new System.Drawing.Size(124, 13);
+            this.lblDevolucion.Size = new System.Drawing.Size(147, 13);
             this.lblDevolucion.TabIndex = 8;
             this.lblDevolucion.Text = "sampleOrder.detail.returnDate";
             // 
@@ -188,7 +189,7 @@
             this.dtpDevolucion.Checked = false;
             this.dtpDevolucion.CustomFormat = "dd/MM/yyyy";
             this.dtpDevolucion.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpDevolucion.Location = new System.Drawing.Point(169, 123);
+            this.dtpDevolucion.Location = new System.Drawing.Point(168, 123);
             this.dtpDevolucion.Name = "dtpDevolucion";
             this.dtpDevolucion.ShowCheckBox = true;
             this.dtpDevolucion.Size = new System.Drawing.Size(200, 20);

@@ -148,6 +148,8 @@
       <DependentUpon>UsuarioForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ArgentinaDateTimeHelper.cs" />
+    <Compile Include="Helpers\PedidoEstadoHelper.cs" />
+    <Compile Include="Helpers\PedidoMuestraEstadoHelper.cs" />
     <Compile Include="Localization\Localization.cs" />
     <Compile Include="Localization\LocalizationExtensions.cs" />
     <Compile Include="Formularios\LoginForm.cs">
@@ -175,6 +177,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Formularios\PedidoLogoForm.resx">
       <DependentUpon>PedidoLogoForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\PedidoMuestraDetalleForm.resx">
+      <DependentUpon>PedidoMuestraDetalleForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\PedidosMuestraForm.resx">
+      <DependentUpon>PedidosMuestraForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

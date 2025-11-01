@@ -17,6 +17,10 @@ namespace DomainModel
 
         public Guid IdCliente { get; set; }
 
+        [Required]
+        [StringLength(20)]
+        public string NumeroPedidoMuestra { get; set; }
+
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
         public DateTime? FechaEntrega { get; set; }

@@ -13,6 +13,7 @@ namespace BLL.Interfaces
         public bool? Facturado { get; set; }
         public bool? ConSaldoPendiente { get; set; }
         public string TextoBusqueda { get; set; }
+        public string NumeroPedido { get; set; }
         public DateTime? FechaDesde { get; set; }
         public DateTime? FechaHasta { get; set; }
         public bool IncluirDetalles { get; set; }

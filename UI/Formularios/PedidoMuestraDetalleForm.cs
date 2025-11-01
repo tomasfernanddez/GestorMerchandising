@@ -14,17 +14,20 @@ namespace UI
         private readonly List<Producto> _productos;
         private readonly List<EstadoMuestra> _estados;
         private readonly PedidoMuestraDetalleViewModel _detalleOriginal;
+        private readonly DateTime _fechaBase;
 
         public PedidoMuestraDetalleViewModel DetalleResult { get; private set; }
 
         public PedidoMuestraDetalleForm(
             IEnumerable<Producto> productos,
             IEnumerable<EstadoMuestra> estados,
-            PedidoMuestraDetalleViewModel detalle = null)
+            PedidoMuestraDetalleViewModel detalle = null,
+            DateTime? fechaBase = null)
         {
             _productos = productos?.OrderBy(p => p.NombreProducto).ToList() ?? new List<Producto>();
             _estados = estados?.OrderBy(e => e.NombreEstadoMuestra).ToList() ?? new List<EstadoMuestra>();
             _detalleOriginal = detalle;
+            _fechaBase = (fechaBase ?? DateTime.UtcNow).Date;
 
             InitializeComponent();
         }
@@ -85,6 +88,8 @@ namespace UI
 
             if (_detalleOriginal == null)
             {
+                dtpDevolucion.Checked = true;
+                dtpDevolucion.Value = _fechaBase.AddDays(7);
                 return;
             }
 
