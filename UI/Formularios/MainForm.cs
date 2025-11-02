@@ -387,7 +387,11 @@ namespace UI
             var menu = new ContextMenuStrip();
             menu.Items.Add(new ToolStripMenuItem("menu.lang.es".Traducir(), null, (s, _) => CambiarIdioma("es-AR")));
             menu.Items.Add(new ToolStripMenuItem("menu.lang.en".Traducir(), null, (s, _) => CambiarIdioma("en-US")));
-            menu.Closed += (s, _) => menu.Dispose();
+            menu.Closed += (s, _) =>
+            {
+                // Posponer el dispose para evitar ObjectDisposedException durante el cierre del menú contextual
+                menu.BeginInvoke(new Action(menu.Dispose));
+            };
 
             if (sender is ToolStripMenuItem item && item.Owner != null)
             {
