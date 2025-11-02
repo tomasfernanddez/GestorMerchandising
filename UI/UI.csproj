@@ -180,7 +180,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SessionContext.cs" />
     <Compile Include="ViewModels\PedidoMuestraViewModels.cs" />
     <Compile Include="ViewModels\PedidoViewModels.cs" />
     <EmbeddedResource Include="Formularios\ABMUsuariosForm.resx">

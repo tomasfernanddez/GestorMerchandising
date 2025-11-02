@@ -9,20 +9,32 @@ login.user=Usuario:
 # MENÚ PRINCIPAL
 main.title=SIGPM
 menu.catalogs=Catálogos
+menu.catalogs.clients=Clientes
+menu.catalogs.providers=Proveedores
+menu.catalogs.products=Productos
 menu.clients=Clientes
 menu.exit=Salir
 menu.file=Archivo
+menu.file.logout=Cerrar Sesión
+menu.file.exit=Salir
 menu.lang.en=Inglés (Estados Unidos)
 menu.lang.es=Español (Argentina)
 menu.language=Idioma
+menu.language.change=Cambiar Idioma
 menu.logsbitacora=Logs y Bitácora
 menu.logout=Cerrar sesión
 menu.products=Productos
 menu.roles=Perfiles
 menu.security=Seguridad
+menu.security.profiles=Gestión de Perfiles
+menu.security.users=Gestión de Usuarios
+menu.security.bitacora=Logs y Bitácora
 menu.suppliers=Proveedores
 menu.users=Usuarios
 menu.orders=Pedidos
+menu.orders.new=Nuevo Pedido
+menu.orders.list=Listado de Pedidos
+menu.orders.samples=Pedidos de Muestra
 menu.reports=Reportes
 
 # BARRA DE ESTADO

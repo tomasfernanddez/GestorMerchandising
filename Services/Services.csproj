@@ -65,6 +65,7 @@
     <Compile Include="BLL\Services\BitacoraService.cs" />
     <Compile Include="BLL\Services\EncriptacionService.cs" />
     <Compile Include="BLL\Services\LogService.cs" />
+    <Compile Include="BLL\Services\MenuService.cs" />
     <Compile Include="BLL\Services\PerfilService.cs" />
     <Compile Include="BLL\Services\UsuarioService.cs" />
     <Compile Include="DAL\Ef\Base\EfBitacoraRepository.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="DomainModel\Entities\Usuario.cs" />
     <Compile Include="DAL\MigrationsSeguridad\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SessionContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Services;
+using Services.BLL.Factories;
 using Services.BLL.Interfaces;
 using UI.Localization; // para "clave".Traducir()
 
@@ -81,17 +83,29 @@ namespace UI
             {
                 btnIniciar.Enabled = false;
 
-                var r = _auth.Login(user, pass);         // tu servicio existente
-                if (r == null || !r.EsValido || r.Usuario == null)
+                var resultado = _auth.Login(user, pass);
+                if (resultado == null || !resultado.EsValido || resultado.Usuario == null)
                 {
-                    MessageBox.Show(r?.Mensaje ?? "msg.login_failed".Traducir(),
+                    MessageBox.Show(resultado?.Mensaje ?? "msg.login_failed".Traducir(),
                                     "login.title".Traducir(), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     txtContraseña.Clear();
                     txtContraseña.Focus();
                     return;
                 }
 
-                SessionContext.Set(r.Usuario);           // tu helper de sesión
+                var usuarioSvc = ServicesFactory.CrearUsuarioService();
+                var usuarioCompleto = usuarioSvc.ObtenerPorIdConPerfil(resultado.Usuario.IdUsuario);
+
+                if (usuarioCompleto == null)
+                {
+                    MessageBox.Show("msg.login_error".Traducir(),
+                                    "login.title".Traducir(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtContraseña.Clear();
+                    txtContraseña.Focus();
+                    return;
+                }
+
+                SessionContext.InicializarSesion(usuarioCompleto);
                 DialogResult = DialogResult.OK;
                 Close();
             }

@@ -156,6 +156,14 @@ namespace Services.BLL.Services
             return _unitOfWork.Usuarios.GetById(idUsuario);
         }
 
+        public Usuario ObtenerPorIdConPerfil(Guid idUsuario)
+        {
+            if (idUsuario == Guid.Empty)
+                throw new ArgumentException("El ID del usuario no puede estar vacío", nameof(idUsuario));
+
+            return _unitOfWork.Usuarios.ObtenerPorIdConPerfil(idUsuario);
+        }
+
         public Usuario ObtenerPorNombre(string nombreUsuario)
         {
             if (string.IsNullOrWhiteSpace(nombreUsuario))

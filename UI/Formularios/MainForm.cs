@@ -1,5 +1,7 @@
 ﻿using BLL.Factories;
+using Services;
 using Services.BLL.Factories;
+using Services.BLL.Services;
 using System;
 using System.Drawing;
 using System.Globalization;
@@ -12,66 +14,124 @@ namespace UI
 {
     public partial class MainForm : Form
     {
-        // Menú
         private MenuStrip menuStrip1;
-        private ToolStripMenuItem mnuArchivo;
-        private ToolStripMenuItem mnuCerrarSesion;
-        private ToolStripMenuItem mnuSalir;
-
-        private ToolStripMenuItem mnuCatalogos;
-        private ToolStripMenuItem mnuClientes;
-        private ToolStripMenuItem mnuProveedores;
-        private ToolStripMenuItem mnuProductos;
-        private ToolStripMenuItem mnuPedidos;
-        private ToolStripMenuItem mnuPedidosMuestra;
-        private ToolStripMenuItem mnuReportes;
-
-        private ToolStripMenuItem mnuSeguridad;
-        private ToolStripMenuItem mnuUsuarios;
-        private ToolStripMenuItem mnuPerfiles;
-        private ToolStripMenuItem mnuLogsBitacora;
-
-        private ToolStripMenuItem mnuIdioma;
-        private ToolStripMenuItem mnuEspanol;
-        private ToolStripMenuItem mnuIngles;
-
-        // Status bar
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel stsUsuario;
         private ToolStripStatusLabel stsPerfil;
-
         private Panel pnlContent;
         private Form _formularioActual;
+        private readonly MenuService _menuService;
 
         public MainForm()
         {
             InitializeComponent();
-            WireUp();
-            ApplyTexts();
-            ApplyPermissions();
+            _menuService = new MenuService();
+            RefrescarInterfaz();
+        }
+
+        private void RefrescarInterfaz()
+        {
+            Text = "main.title".Traducir();
+            ConstruirMenuDinamico();
             UpdateStatus();
         }
 
-        private void WireUp()
+        private void ConstruirMenuDinamico()
         {
-            // Eventos de Menú
-            mnuSalir.Click += (s, e) => Close();
-            mnuCerrarSesion.Click += (s, e) => CerrarSesion();
+            if (menuStrip1 == null)
+            {
+                return;
+            }
 
-            mnuClientes.Click += (s, e) => AbrirClientes();
-            mnuProveedores.Click += (s, e) => AbrirProveedores();
-            mnuProductos.Click += (s, e) => AbrirProductos();
-            mnuPedidos.Click += (s, e) => AbrirPedidos();
-            mnuPedidosMuestra.Click += (s, e) => AbrirPedidosMuestra();
-            mnuReportes.Click += (s, e) => AbrirReportes();
+            menuStrip1.Items.Clear();
 
-            mnuUsuarios.Click += (s, e) => AbrirGestionUsuarios();
-            mnuPerfiles.Click += (s, e) => AbrirGestionPerfiles();
-            mnuLogsBitacora.Click += (s, e) => AbrirLogsBitacora();
+            var menuCompleto = _menuService.ObtenerEstructuraMenu();
+            var menuFiltrado = _menuService.FiltrarMenuPorPermisos(menuCompleto);
 
-            // Idioma
-            mnuEspanol.Click += (s, e) => CambiarIdioma("es-AR");
-            mnuIngles.Click += (s, e) => CambiarIdioma("en-US");
+            foreach (var itemConfig in menuFiltrado)
+            {
+                var menuItem = CrearMenuItem(itemConfig);
+                if (menuItem != null)
+                {
+                    menuStrip1.Items.Add(menuItem);
+                }
+            }
+        }
+
+        private ToolStripMenuItem CrearMenuItem(MenuItemConfig config)
+        {
+            if (config == null)
+            {
+                return null;
+            }
+
+            var textoTraducido = (config.Texto ?? string.Empty).Traducir();
+            var menuItem = new ToolStripMenuItem(textoTraducido)
+            {
+                Tag = config
+            };
+
+            if (config.SubItems != null && config.SubItems.Count > 0)
+            {
+                foreach (var subItemConfig in config.SubItems)
+                {
+                    var subItem = CrearMenuItem(subItemConfig);
+                    if (subItem != null)
+                    {
+                        menuItem.DropDownItems.Add(subItem);
+                    }
+                }
+            }
+            else
+            {
+                var handler = ObtenerManejadorEvento(config.Id);
+                if (handler != null)
+                {
+                    menuItem.Click += handler;
+                }
+            }
+
+            return menuItem;
+        }
+
+        private EventHandler ObtenerManejadorEvento(string identificador)
+        {
+            switch (identificador)
+            {
+                case "menu.file.logout":
+                    return (s, e) => CerrarSesion();
+                case "menu.file.exit":
+                    return (s, e) => SalirAplicacion();
+                case "menu.catalogs.clients":
+                    return (s, e) => AbrirClientes();
+                case "menu.catalogs.providers":
+                    return (s, e) => AbrirProveedores();
+                case "menu.catalogs.products":
+                    return (s, e) => AbrirProductos();
+                case "menu.orders.new":
+                    return (s, e) => AbrirNuevoPedido();
+                case "menu.orders.list":
+                    return (s, e) => AbrirPedidos();
+                case "menu.orders.samples":
+                    return (s, e) => AbrirPedidosMuestra();
+                case "menu.security.users":
+                    return (s, e) => AbrirGestionUsuarios();
+                case "menu.security.profiles":
+                    return (s, e) => AbrirGestionPerfiles();
+                case "menu.security.bitacora":
+                    return (s, e) => AbrirLogsBitacora();
+                case "menu.reports":
+                    return (s, e) => AbrirReportes();
+                case "menu.language.change":
+                    return CambiarIdioma_Click;
+                default:
+                    return null;
+            }
+        }
+
+        private void SalirAplicacion()
+        {
+            Close();
         }
 
         private void CerrarSesion()
@@ -96,7 +156,7 @@ namespace UI
                 );
 
                 // Limpiar sesión
-                SessionContext.Clear();
+                SessionContext.CerrarSesion();
 
                 // Cerrar este formulario
                 this.DialogResult = DialogResult.OK;
@@ -225,6 +285,43 @@ namespace UI
             }
         }
 
+        private void AbrirNuevoPedido()
+        {
+            var esAdmin = SessionContext.EsAdministrador;
+            if (!esAdmin && !SessionContext.TieneFuncion("PEDIDOS_VENTAS"))
+            {
+                MessageBox.Show("No tiene permisos para crear pedidos.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                var pedidoSvc = ServiceFactory.CrearPedidoService();
+                var clienteSvc = ServiceFactory.CrearClienteService();
+                var productoSvc = ServiceFactory.CrearProductoService();
+                var categoriaSvc = ServiceFactory.CrearCategoriaProductoService();
+                var proveedorSvc = ServiceFactory.CrearProveedorService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var logSvc = ServicesFactory.CrearLogService();
+
+                logSvc.LogInfo("Iniciando creación de nuevo pedido", "Pedidos", SessionContext.NombreUsuario);
+
+                var formulario = new PedidoForm(pedidoSvc, clienteSvc, productoSvc, categoriaSvc, proveedorSvc, bitacoraSvc, logSvc);
+                formulario.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Formulario de nuevo pedido cerrado", "Pedidos", SessionContext.NombreUsuario);
+                };
+
+                MostrarFormulario(formulario);
+            }
+            catch (Exception ex)
+            {
+                var logSvc = ServicesFactory.CrearLogService();
+                logSvc.LogError("Error creando un nuevo pedido", ex, "Pedidos", SessionContext.NombreUsuario);
+                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void AbrirPedidosMuestra()
         {
             try
@@ -285,72 +382,22 @@ namespace UI
             }
         }
 
-        private void ApplyTexts()
+        private void CambiarIdioma_Click(object sender, EventArgs e)
         {
-            Text = "main.title".Traducir();
+            var menu = new ContextMenuStrip();
+            menu.Items.Add(new ToolStripMenuItem("menu.lang.es".Traducir(), null, (s, _) => CambiarIdioma("es-AR")));
+            menu.Items.Add(new ToolStripMenuItem("menu.lang.en".Traducir(), null, (s, _) => CambiarIdioma("en-US")));
+            menu.Closed += (s, _) => menu.Dispose();
 
-            // Menú
-            mnuArchivo.Text = "menu.file".Traducir();
-            mnuCerrarSesion.Text = "menu.logout".Traducir();
-            mnuSalir.Text = "menu.exit".Traducir();
-
-            mnuCatalogos.Text = "menu.catalogs".Traducir();
-            mnuClientes.Text = "menu.clients".Traducir();
-            mnuProveedores.Text = "menu.suppliers".Traducir();
-            mnuProductos.Text = "menu.products".Traducir();
-            mnuPedidos.Text = "menu.orders".Traducir();
-            mnuPedidosMuestra.Text = "menu.sampleOrders".Traducir();
-            mnuReportes.Text = "menu.reports".Traducir();
-
-            mnuSeguridad.Text = "menu.security".Traducir();
-            mnuUsuarios.Text = "menu.users".Traducir();
-            mnuPerfiles.Text = "menu.roles".Traducir();
-
-            mnuIdioma.Text = "menu.language".Traducir();
-            mnuEspanol.Text = "menu.lang.es".Traducir();
-            mnuIngles.Text = "menu.lang.en".Traducir();
-            mnuLogsBitacora.Text = "menu.logsbitacora".Traducir();
-
-            // Status
-            stsUsuario.Text = "status.user".Traducir(SessionContext.NombreUsuario ?? "-");
-            stsPerfil.Text = "status.role".Traducir(SessionContext.NombrePerfil ?? "-");
-        }
-
-        private void ApplyPermissions()
-        {
-            var esAdmin = SessionContext.EsAdministrador;
-
-            var puedeClientes = esAdmin || SessionContext.TieneFuncion("CAT_CLIENTES");
-            var puedeProveedores = esAdmin || SessionContext.TieneFuncion("CAT_PROVEEDORES");
-            var puedeProductos = esAdmin || SessionContext.TieneFuncion("CAT_PRODUCTOS");
-
-            mnuClientes.Visible = puedeClientes;
-            mnuProveedores.Visible = puedeProveedores;
-            mnuProductos.Visible = puedeProductos;
-
-            var puedePedidos = esAdmin || SessionContext.TieneFuncion("PEDIDOS_VENTAS");
-            var puedePedidosMuestra = esAdmin || SessionContext.TieneFuncion("PEDIDOS_MUESTRAS");
-
-            mnuPedidos.Visible = puedePedidos;
-            mnuPedidosMuestra.Visible = puedePedidosMuestra;
-
-            mnuCatalogos.Visible = mnuClientes.Visible || mnuProveedores.Visible || mnuProductos.Visible ||
-                                   mnuPedidos.Visible || mnuPedidosMuestra.Visible;
-
-            var puedeReportesOperativos = esAdmin || SessionContext.TieneFuncion("REPORTES_OPERATIVOS");
-            var puedeReportesVentas = esAdmin || SessionContext.TieneFuncion("REPORTES_VENTAS");
-            var puedeReportesFinancieros = esAdmin || SessionContext.TieneFuncion("REPORTES_FINANCIEROS");
-
-            mnuReportes.Visible = puedeReportesOperativos || puedeReportesVentas || puedeReportesFinancieros;
-
-            var puedePerfiles = esAdmin || SessionContext.TieneFuncion("SEG_PERFILES");
-            var puedeUsuarios = esAdmin || SessionContext.TieneFuncion("SEG_USUARIOS");
-
-            mnuPerfiles.Visible = puedePerfiles;
-            mnuUsuarios.Visible = puedeUsuarios;
-
-            mnuLogsBitacora.Visible = esAdmin;
-            mnuSeguridad.Visible = mnuPerfiles.Visible || mnuUsuarios.Visible || mnuLogsBitacora.Visible;
+            if (sender is ToolStripMenuItem item && item.Owner != null)
+            {
+                var location = item.Owner.PointToScreen(new Point(item.Bounds.Left, item.Bounds.Bottom));
+                menu.Show(location);
+            }
+            else
+            {
+                menu.Show(Cursor.Position);
+            }
         }
 
         private void UpdateStatus()
@@ -391,7 +438,7 @@ namespace UI
                     }
                 }
 
-                ApplyTexts(); // Refrescar textos del formulario actual
+                RefrescarInterfaz();
             }
             catch (Exception ex)
             {
@@ -444,121 +491,42 @@ namespace UI
         // ============================================================
         private void InitializeComponent()
         {
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.mnuArchivo = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuCerrarSesion = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuSalir = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1 = new MenuStrip();
+            this.statusStrip1 = new StatusStrip();
+            this.stsUsuario = new ToolStripStatusLabel();
+            this.stsPerfil = new ToolStripStatusLabel();
+            this.pnlContent = new Panel();
 
-            this.mnuCatalogos = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuClientes = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuProveedores = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuProductos = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuPedidos = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuPedidosMuestra = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuReportes = new System.Windows.Forms.ToolStripMenuItem();
-
-            this.mnuSeguridad = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuLogsBitacora = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuUsuarios = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuPerfiles = new System.Windows.Forms.ToolStripMenuItem();
-
-            this.mnuIdioma = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuEspanol = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuIngles = new System.Windows.Forms.ToolStripMenuItem();
-
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.stsUsuario = new System.Windows.Forms.ToolStripStatusLabel();
-            this.stsPerfil = new System.Windows.Forms.ToolStripStatusLabel();
-            this.pnlContent = new System.Windows.Forms.Panel();
-
-            // MenuStrip
-            this.menuStrip1.Items.AddRange(new ToolStripItem[] {
-                this.mnuArchivo,
-                this.mnuCatalogos,
-                this.mnuReportes,
-                this.mnuSeguridad,
-                this.mnuIdioma
-            });
+            // menuStrip1
             this.menuStrip1.Dock = DockStyle.Top;
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Location = new Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new Size(900, 24);
 
-            // Archivo
-            this.mnuArchivo.DropDownItems.AddRange(new ToolStripItem[] {
-                this.mnuCerrarSesion,
-                new ToolStripSeparator(),
-                this.mnuSalir
-            });
-            this.mnuArchivo.Name = "mnuArchivo";
-
-            this.mnuCerrarSesion.Name = "mnuCerrarSesion";
-            this.mnuSalir.Name = "mnuSalir";
-
-            // Catálogos
-            this.mnuCatalogos.DropDownItems.AddRange(new ToolStripItem[] {
-                this.mnuClientes,
-                this.mnuProveedores,
-                this.mnuProductos,
-                this.mnuPedidos,
-                this.mnuPedidosMuestra
-            });
-            this.mnuCatalogos.Name = "mnuCatalogos";
-
-            this.mnuClientes.Name = "mnuClientes";
-            this.mnuProveedores.Name = "mnuProveedores";
-            this.mnuProductos.Name = "mnuProductos";
-            this.mnuPedidos.Name = "mnuPedidos";
-            this.mnuPedidosMuestra.Name = "mnuPedidosMuestra";
-
-            this.mnuReportes.Name = "mnuReportes";
-
-            // Seguridad
-            this.mnuSeguridad.DropDownItems.AddRange(new ToolStripItem[] {
-                this.mnuUsuarios,
-                this.mnuPerfiles,
-                new ToolStripSeparator(),  // NUEVO separador
-                this.mnuLogsBitacora       // NUEVO menú
-            });
-            this.mnuSeguridad.Name = "mnuSeguridad";
-
-            this.mnuLogsBitacora.Name = "mnuLogsBitacora";
-            this.mnuLogsBitacora.Text = "Logs y Bitácora";
-            this.mnuUsuarios.Name = "mnuUsuarios";
-            this.mnuPerfiles.Name = "mnuPerfiles";
-
-            // Idioma
-            this.mnuIdioma.DropDownItems.AddRange(new ToolStripItem[] {
-                this.mnuEspanol,
-                this.mnuIngles
-            });
-            this.mnuIdioma.Name = "mnuIdioma";
-
-            this.mnuEspanol.Name = "mnuEspanol";
-            this.mnuIngles.Name = "mnuIngles";
-
-            // StatusStrip
-            this.statusStrip1.Items.AddRange(new ToolStripItem[] {
-                this.stsUsuario,
-                this.stsPerfil
-            });
+            // statusStrip1
             this.statusStrip1.Dock = DockStyle.Bottom;
+            this.statusStrip1.Items.AddRange(new ToolStripItem[] { this.stsUsuario, this.stsPerfil });
+            this.statusStrip1.Location = new Point(0, 428);
             this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new Size(900, 22);
 
+            // stsUsuario
             this.stsUsuario.Name = "stsUsuario";
             this.stsUsuario.Text = "Usuario: -";
+
+            // stsPerfil
             this.stsPerfil.Name = "stsPerfil";
             this.stsPerfil.Text = "Perfil: -";
 
             // pnlContent
             this.pnlContent.Dock = DockStyle.Fill;
-            this.pnlContent.Location = new System.Drawing.Point(0, 24);
+            this.pnlContent.Location = new Point(0, 24);
             this.pnlContent.Name = "pnlContent";
-            this.pnlContent.Size = new System.Drawing.Size(900, 404);
-            this.pnlContent.BackColor = System.Drawing.SystemColors.Window;
-            this.pnlContent.TabIndex = 2;
+            this.pnlContent.Size = new Size(900, 404);
+            this.pnlContent.BackColor = SystemColors.Window;
 
             // MainForm
-            this.ClientSize = new System.Drawing.Size(900, 450);
+            this.ClientSize = new Size(900, 450);
             this.Controls.Add(this.pnlContent);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);

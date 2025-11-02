@@ -5,6 +5,7 @@ using Services.BLL.Services;
 using Services.BLL.Interfaces;
 using DomainModel;
 using DomainModel.Entidades;
+using Services;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;

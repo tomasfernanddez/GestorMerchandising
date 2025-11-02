@@ -89,6 +89,18 @@ namespace Services.DAL.Ef.Base
                               .ToListAsync();
         }
 
+        public Usuario ObtenerPorIdConPerfil(Guid idUsuario)
+        {
+            if (idUsuario == Guid.Empty)
+            {
+                return null;
+            }
+
+            return _dbSet.Include(u => u.Perfil)
+                          .Include(u => u.Perfil.Funciones)
+                          .FirstOrDefault(u => u.IdUsuario == idUsuario);
+        }
+
         /// <summary>
         /// Verifica si existe un nombre de usuario
         /// </summary>
