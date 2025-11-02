@@ -250,7 +250,7 @@ namespace UI
 
         private void AbrirReportes()
         {
-            var esAdmin = EsAdministrador();
+            var esAdmin = SessionContext.EsAdministrador;
             var tienePermiso = esAdmin
                 || SessionContext.TieneFuncion("REPORTES_OPERATIVOS")
                 || SessionContext.TieneFuncion("REPORTES_VENTAS")
@@ -318,7 +318,7 @@ namespace UI
 
         private void ApplyPermissions()
         {
-            var esAdmin = EsAdministrador();
+            var esAdmin = SessionContext.EsAdministrador;
 
             var puedeClientes = esAdmin || SessionContext.TieneFuncion("CAT_CLIENTES");
             var puedeProveedores = esAdmin || SessionContext.TieneFuncion("CAT_PROVEEDORES");
@@ -357,12 +357,6 @@ namespace UI
         {
             stsUsuario.Text = "status.user".Traducir(SessionContext.NombreUsuario ?? "-");
             stsPerfil.Text = "status.role".Traducir(SessionContext.NombrePerfil ?? "-");
-        }
-
-        private static bool EsAdministrador()
-        {
-            var nombrePerfil = SessionContext.NombrePerfil?.Trim();
-            return string.Equals(nombrePerfil, "Administrador", StringComparison.OrdinalIgnoreCase);
         }
 
         private void CambiarIdioma(string cultureName)
@@ -576,7 +570,7 @@ namespace UI
 
         private void AbrirGestionPerfiles()
         {
-            var esAdmin = EsAdministrador();
+            var esAdmin = SessionContext.EsAdministrador;
             var puedePerfiles = esAdmin || SessionContext.TieneFuncion("SEG_PERFILES");
 
             if (!puedePerfiles)
@@ -610,7 +604,7 @@ namespace UI
         private void AbrirGestionUsuarios()
         {
             // Solo administradores pueden acceder
-            var esAdmin = EsAdministrador();
+            var esAdmin = SessionContext.EsAdministrador;
             var puedeUsuarios = esAdmin || SessionContext.TieneFuncion("SEG_USUARIOS");
 
             if (!puedeUsuarios)
@@ -645,7 +639,7 @@ namespace UI
         private void AbrirLogsBitacora()
         {
             // Solo administradores pueden ver logs completos
-            var esAdmin = EsAdministrador();
+            var esAdmin = SessionContext.EsAdministrador;
 
             if (!esAdmin)
             {

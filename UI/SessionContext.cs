@@ -8,6 +8,8 @@ namespace UI
 {
     public static class SessionContext
     {
+        private static readonly Guid PerfilAdministradorId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
         public static Guid IdUsuario { get; private set; }
         public static string NombreUsuario { get; private set; }
         public static string NombreCompleto { get; private set; }
@@ -17,6 +19,21 @@ namespace UI
         public static IReadOnlyCollection<string> Funciones => _funciones;
 
         private static readonly HashSet<string> _funciones = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        public static bool EsAdministrador
+        {
+            get
+            {
+                if (IdPerfil == PerfilAdministradorId)
+                {
+                    return true;
+                }
+
+                var nombrePerfil = NombrePerfil?.Trim();
+                return !string.IsNullOrWhiteSpace(nombrePerfil) &&
+                       string.Equals(nombrePerfil, "Administrador", StringComparison.OrdinalIgnoreCase);
+            }
+        }
 
         public static void Set(Usuario u)
         {
@@ -37,7 +54,31 @@ namespace UI
                 try
                 {
                     var usuarioSvc = ServicesFactory.CrearUsuarioService();
-                    var usuarioCompleto = usuarioSvc.ObtenerPorId(u.IdUsuario);
+                    Usuario usuarioCompleto = null;
+
+                    // Intentar obtener el usuario con su perfil y funciones utilizando el nombre de usuario,
+                    // ya que esta consulta incluye los datos de navegación necesarios.
+                    try
+                    {
+                        usuarioCompleto = usuarioSvc.ObtenerPorNombre(u.NombreUsuario);
+                    }
+                    catch
+                    {
+                        usuarioCompleto = null;
+                    }
+
+                    // Como último recurso, recurrimos al identificador (puede no incluir las relaciones cargadas).
+                    if (usuarioCompleto == null)
+                    {
+                        try
+                        {
+                            usuarioCompleto = usuarioSvc.ObtenerPorId(u.IdUsuario);
+                        }
+                        catch
+                        {
+                            usuarioCompleto = null;
+                        }
+                    }
 
                     if (usuarioCompleto?.Perfil != null)
                     {
