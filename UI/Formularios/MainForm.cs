@@ -287,7 +287,7 @@ namespace UI
 
         private void ApplyTexts()
         {
-            Text = "main.title".Traducir(); // SIGPM o lo que prefieras
+            Text = "main.title".Traducir();
 
             // Menú
             mnuArchivo.Text = "menu.file".Traducir();

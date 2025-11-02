@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Services.BLL.Factories;
 using Services.DomainModel.Entities;
 
 namespace UI
@@ -28,7 +29,32 @@ namespace UI
             IdiomaPreferido = string.IsNullOrWhiteSpace(u.IdiomaPreferido) ? null : u.IdiomaPreferido;
 
             _funciones.Clear();
-            var funcionesPerfil = u.Perfil?.Funciones;
+
+            IEnumerable<Funcion> funcionesPerfil = u.Perfil?.Funciones;
+
+            if ((funcionesPerfil == null || !funcionesPerfil.Any()) || string.IsNullOrWhiteSpace(NombrePerfil))
+            {
+                try
+                {
+                    var usuarioSvc = ServicesFactory.CrearUsuarioService();
+                    var usuarioCompleto = usuarioSvc.ObtenerPorId(u.IdUsuario);
+
+                    if (usuarioCompleto?.Perfil != null)
+                    {
+                        funcionesPerfil = usuarioCompleto.Perfil.Funciones;
+
+                        if (string.IsNullOrWhiteSpace(NombrePerfil))
+                        {
+                            NombrePerfil = usuarioCompleto.Perfil.NombrePerfil;
+                        }
+                    }
+                }
+                catch
+                {
+                    funcionesPerfil = funcionesPerfil ?? Enumerable.Empty<Funcion>();
+                }
+            }
+
             if (funcionesPerfil != null)
             {
                 foreach (var funcion in funcionesPerfil.Where(f => f != null && f.Activo && !string.IsNullOrWhiteSpace(f.Codigo)))
