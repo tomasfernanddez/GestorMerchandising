@@ -25,5 +25,7 @@ namespace Services.DomainModel.Entities
 
         // Navegación
         public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+
+        public virtual ICollection<Funcion> Funciones { get; set; } = new List<Funcion>();
     }
 }

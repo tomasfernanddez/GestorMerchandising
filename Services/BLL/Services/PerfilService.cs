@@ -22,7 +22,7 @@ namespace Services.BLL.Services
         {
             try
             {
-                return _unitOfWork.Perfiles.GetAll().OrderBy(p => p.NombrePerfil).ToList();
+                return _unitOfWork.Perfiles.GetAllWithFunciones().OrderBy(p => p.NombrePerfil).ToList();
             }
             catch (Exception ex)
             {
@@ -61,7 +61,7 @@ namespace Services.BLL.Services
 
             try
             {
-                return _unitOfWork.Perfiles.GetById(idPerfil);
+                return _unitOfWork.Perfiles.GetByIdWithFunciones(idPerfil);
             }
             catch (Exception ex)
             {
@@ -84,6 +84,22 @@ namespace Services.BLL.Services
             }
         }
 
+        public IEnumerable<Funcion> ObtenerFuncionesDisponibles()
+        {
+            try
+            {
+                return _unitOfWork.Funciones
+                    .GetAll()
+                    .Where(f => f.Activo)
+                    .OrderBy(f => f.Nombre)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener las funciones disponibles: {ex.Message}", ex);
+            }
+        }
+
         public ResultadoOperacion CrearPerfil(Perfil perfil)
         {
             try
@@ -98,6 +114,8 @@ namespace Services.BLL.Services
                     ? null
                     : perfil.Descripcion.Trim();
                 perfil.Activo = true;
+
+                SincronizarFunciones(perfil, perfil.Funciones?.Select(f => f.IdFuncion));
 
                 _unitOfWork.Perfiles.Add(perfil);
                 _unitOfWork.SaveChanges();
@@ -118,7 +136,7 @@ namespace Services.BLL.Services
                 if (!validacion.EsValido)
                     return validacion;
 
-                var existente = _unitOfWork.Perfiles.GetById(perfil.IdPerfil);
+                var existente = _unitOfWork.Perfiles.GetByIdWithFunciones(perfil.IdPerfil);
                 if (existente == null)
                     return ResultadoOperacion.Error("El perfil no existe");
 
@@ -130,6 +148,8 @@ namespace Services.BLL.Services
                     ? null
                     : perfil.Descripcion.Trim();
                 existente.Activo = perfil.Activo;
+
+                SincronizarFunciones(existente, perfil.Funciones?.Select(f => f.IdFuncion));
 
                 _unitOfWork.Perfiles.Update(existente);
                 _unitOfWork.SaveChanges();
@@ -234,6 +254,44 @@ namespace Services.BLL.Services
         {
             var usuarios = _unitOfWork.Usuarios.GetUsuariosPorPerfil(idPerfil);
             return usuarios?.Any() ?? false;
+        }
+
+        private void SincronizarFunciones(Perfil perfilDestino, IEnumerable<Guid> funcionesSeleccionadas)
+        {
+            if (perfilDestino == null)
+            {
+                return;
+            }
+
+            if (perfilDestino.Funciones == null)
+            {
+                perfilDestino.Funciones = new List<Funcion>();
+            }
+            else
+            {
+                perfilDestino.Funciones.Clear();
+            }
+
+            if (funcionesSeleccionadas == null)
+            {
+                return;
+            }
+
+            var ids = funcionesSeleccionadas
+                .Where(id => id != Guid.Empty)
+                .Distinct()
+                .ToList();
+
+            if (!ids.Any())
+            {
+                return;
+            }
+
+            var funciones = _unitOfWork.Funciones.Find(f => ids.Contains(f.IdFuncion) && f.Activo);
+            foreach (var funcion in funciones)
+            {
+                perfilDestino.Funciones.Add(funcion);
+            }
         }
 
         private static string ObtenerMensajeProfundo(Exception ex)

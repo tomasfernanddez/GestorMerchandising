@@ -37,6 +37,8 @@
             this.btnGuardar = new System.Windows.Forms.Button();
             this.btnCancelar = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.lblFunciones = new System.Windows.Forms.Label();
+            this.clbFunciones = new System.Windows.Forms.CheckedListBox();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -79,19 +81,19 @@
             // chkActivo
             // 
             this.chkActivo.AutoSize = true;
-            this.chkActivo.Location = new System.Drawing.Point(27, 208);
+            this.chkActivo.Location = new System.Drawing.Point(27, 404);
             this.chkActivo.Name = "chkActivo";
             this.chkActivo.Size = new System.Drawing.Size(56, 17);
-            this.chkActivo.TabIndex = 4;
+            this.chkActivo.TabIndex = 6;
             this.chkActivo.Text = "Activo";
             this.chkActivo.UseVisualStyleBackColor = true;
             // 
             // btnGuardar
             // 
-            this.btnGuardar.Location = new System.Drawing.Point(191, 244);
+            this.btnGuardar.Location = new System.Drawing.Point(191, 440);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(75, 27);
-            this.btnGuardar.TabIndex = 5;
+            this.btnGuardar.TabIndex = 7;
             this.btnGuardar.Text = "Guardar";
             this.btnGuardar.UseVisualStyleBackColor = true;
             this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
@@ -99,16 +101,34 @@
             // btnCancelar
             // 
             this.btnCancelar.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancelar.Location = new System.Drawing.Point(272, 244);
+            this.btnCancelar.Location = new System.Drawing.Point(272, 440);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(75, 27);
-            this.btnCancelar.TabIndex = 6;
+            this.btnCancelar.TabIndex = 8;
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.UseVisualStyleBackColor = true;
             // 
             // errorProvider1
             // 
             this.errorProvider1.ContainerControl = this;
+            //
+            // lblFunciones
+            //
+            this.lblFunciones.AutoSize = true;
+            this.lblFunciones.Location = new System.Drawing.Point(24, 208);
+            this.lblFunciones.Name = "lblFunciones";
+            this.lblFunciones.Size = new System.Drawing.Size(58, 13);
+            this.lblFunciones.TabIndex = 4;
+            this.lblFunciones.Text = "Funciones";
+            //
+            // clbFunciones
+            //
+            this.clbFunciones.CheckOnClick = true;
+            this.clbFunciones.FormattingEnabled = true;
+            this.clbFunciones.Location = new System.Drawing.Point(27, 224);
+            this.clbFunciones.Name = "clbFunciones";
+            this.clbFunciones.Size = new System.Drawing.Size(320, 169);
+            this.clbFunciones.TabIndex = 5;
             // 
             // PerfilForm
             // 
@@ -116,7 +136,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancelar;
-            this.ClientSize = new System.Drawing.Size(374, 291);
+            this.ClientSize = new System.Drawing.Size(374, 485);
+            this.Controls.Add(this.clbFunciones);
+            this.Controls.Add(this.lblFunciones);
             this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.btnGuardar);
             this.Controls.Add(this.chkActivo);
@@ -147,5 +169,7 @@
         private System.Windows.Forms.Button btnGuardar;
         private System.Windows.Forms.Button btnCancelar;
         private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.Label lblFunciones;
+        private System.Windows.Forms.CheckedListBox clbFunciones;
     }
 }

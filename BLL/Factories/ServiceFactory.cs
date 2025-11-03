@@ -102,6 +102,12 @@ namespace BLL.Factories
             return new PedidoMuestraService(uow);
         }
 
+        public static IReporteService CrearReporteService()
+        {
+            var uow = CrearUnitOfWorkNegocio();
+            return new ReporteService(uow);
+        }
+
         public static ICondicionIvaService CrearCondicionIvaService()
         {
             var uow = CrearUnitOfWorkNegocio();

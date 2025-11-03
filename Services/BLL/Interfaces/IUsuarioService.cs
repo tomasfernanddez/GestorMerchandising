@@ -16,6 +16,7 @@ namespace Services.BLL.Interfaces
 
         /* Consultas */
         Usuario ObtenerPorId(Guid idUsuario);
+        Usuario ObtenerPorIdConPerfil(Guid idUsuario);
         Usuario ObtenerPorNombre(string nombreUsuario);
         IEnumerable<Usuario> ObtenerUsuariosActivos();
         IEnumerable<Usuario> ObtenerPorPerfil(Guid idPerfil);

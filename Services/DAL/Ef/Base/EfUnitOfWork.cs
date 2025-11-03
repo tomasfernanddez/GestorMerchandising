@@ -20,6 +20,7 @@ namespace Services.DAL.Ef.Base
         private IUsuarioRepository _usuarios;
         private IBitacoraRepository _bitacoras;
         private IPerfilRepository _perfiles;
+        private IFuncionRepository _funciones;
 
         // Repositorios principales
 
@@ -52,6 +53,11 @@ namespace Services.DAL.Ef.Base
         public IPerfilRepository Perfiles
         {
             get { return _perfiles ?? (_perfiles = new EfPerfilRepository(_context)); }
+        }
+
+        public IFuncionRepository Funciones
+        {
+            get { return _funciones ?? (_funciones = new EfFuncionRepository(_context)); }
         }
 
         // Operaciones de guardado

@@ -22,6 +22,8 @@ namespace Services.BLL.Factories
         // CONFIGURACIÓN CENTRALIZADA
         // =====================================================================
         private static string _connectionString;
+        private static bool _datosBaseInicializados;
+        private static readonly object _initLock = new object();
 
         /// <summary>
         /// Configura el connection string a usar en toda la aplicación.
@@ -63,7 +65,24 @@ namespace Services.BLL.Factories
         private static SecIUnitOfWork CrearUnitOfWorkSeguridad()
         {
             var ctx = CrearContextoSeguridad();
-            return new SecEfUnitOfWork(ctx);
+            var uow = new SecEfUnitOfWork(ctx);
+            EnsureDatosBase(uow);
+            return uow;
+        }
+
+        private static void EnsureDatosBase(SecIUnitOfWork uow)
+        {
+            if (_datosBaseInicializados)
+                return;
+
+            lock (_initLock)
+            {
+                if (_datosBaseInicializados)
+                    return;
+
+                uow.InicializarSistema();
+                _datosBaseInicializados = true;
+            }
         }
 
         // =====================================================================

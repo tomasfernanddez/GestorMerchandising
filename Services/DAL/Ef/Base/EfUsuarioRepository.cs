@@ -24,6 +24,7 @@ namespace Services.DAL.Ef.Base
                 return null;
 
             return _dbSet.Include(u => u.Perfil)
+                        .Include(u => u.Perfil.Funciones)
                         .FirstOrDefault(u => u.NombreUsuario == nombreUsuario.Trim());
         }
 
@@ -36,7 +37,8 @@ namespace Services.DAL.Ef.Base
                 return null;
 
             return await _dbSet.Include(u => u.Perfil)
-                              .FirstOrDefaultAsync(u => u.NombreUsuario == nombreUsuario.Trim());
+                            .Include(u => u.Perfil.Funciones)
+                            .FirstOrDefaultAsync(u => u.NombreUsuario == nombreUsuario.Trim());
         }
 
         /// <summary>
@@ -46,6 +48,7 @@ namespace Services.DAL.Ef.Base
         {
             return _dbSet.Where(u => u.Activo == true && u.Bloqueado == false)
                         .Include(u => u.Perfil)
+                        .Include(u => u.Perfil.Funciones)
                         .OrderBy(u => u.NombreUsuario)
                         .ToList();
         }
@@ -57,6 +60,7 @@ namespace Services.DAL.Ef.Base
         {
             return await _dbSet.Where(u => u.Activo == true && u.Bloqueado == false)
                               .Include(u => u.Perfil)
+                              .Include(u => u.Perfil.Funciones)
                               .OrderBy(u => u.NombreUsuario)
                               .ToListAsync();
         }
@@ -68,6 +72,7 @@ namespace Services.DAL.Ef.Base
         {
             return _dbSet.Where(u => u.IdPerfil == idPerfil && u.Activo == true)
                         .Include(u => u.Perfil)
+                        .Include(u => u.Perfil.Funciones)
                         .OrderBy(u => u.NombreUsuario)
                         .ToList();
         }
@@ -79,8 +84,21 @@ namespace Services.DAL.Ef.Base
         {
             return await _dbSet.Where(u => u.IdPerfil == idPerfil && u.Activo == true)
                               .Include(u => u.Perfil)
+                              .Include(u => u.Perfil.Funciones)
                               .OrderBy(u => u.NombreUsuario)
                               .ToListAsync();
+        }
+
+        public Usuario ObtenerPorIdConPerfil(Guid idUsuario)
+        {
+            if (idUsuario == Guid.Empty)
+            {
+                return null;
+            }
+
+            return _dbSet.Include(u => u.Perfil)
+                          .Include(u => u.Perfil.Funciones)
+                          .FirstOrDefault(u => u.IdUsuario == idUsuario);
         }
 
         /// <summary>

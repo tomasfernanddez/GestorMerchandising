@@ -19,6 +19,8 @@ namespace Services.DAL.Interfaces.Base
         IEnumerable<Usuario> GetUsuariosPorPerfil(Guid idPerfil);
         Task<IEnumerable<Usuario>> GetUsuariosPorPerfilAsync(Guid idPerfil);
 
+        Usuario ObtenerPorIdConPerfil(Guid idUsuario);
+
         bool ExisteNombreUsuario(string nombreUsuario);
         Task<bool> ExisteNombreUsuarioAsync(string nombreUsuario);
 

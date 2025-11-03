@@ -14,6 +14,7 @@ namespace Services.BLL.Interfaces
         Task<IEnumerable<Perfil>> ObtenerPerfilesActivosAsync();
         Perfil ObtenerPorId(Guid idPerfil);
         Perfil ObtenerPorNombre(string nombrePerfil);
+        IEnumerable<Funcion> ObtenerFuncionesDisponibles();
         ResultadoOperacion CrearPerfil(Perfil perfil);
         ResultadoOperacion ActualizarPerfil(Perfil perfil);
         ResultadoOperacion ActivarPerfil(Guid idPerfil);

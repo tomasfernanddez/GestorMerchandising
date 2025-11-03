@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using Services.BLL.Helpers;
 using Services.BLL.Interfaces;
@@ -12,6 +14,7 @@ namespace UI.Formularios
         private readonly IPerfilService _perfilService;
         private readonly Perfil _perfilOriginal;
         private readonly bool _esEdicion;
+        private List<Funcion> _funcionesDisponibles = new List<Funcion>();
 
         public Perfil PerfilGuardado { get; private set; }
 
@@ -27,6 +30,7 @@ namespace UI.Formularios
         private void PerfilForm_Load(object sender, EventArgs e)
         {
             ApplyTexts();
+            CargarFunciones();
             CargarDatos();
         }
 
@@ -36,8 +40,36 @@ namespace UI.Formularios
             lblNombre.Text = "profile.form.name".Traducir();
             lblDescripcion.Text = "profile.form.description".Traducir();
             chkActivo.Text = "profile.form.active".Traducir();
+            lblFunciones.Text = "profile.form.functions".Traducir();
             btnGuardar.Text = "form.save".Traducir();
             btnCancelar.Text = "form.cancel".Traducir();
+        }
+
+        private void CargarFunciones()
+        {
+            clbFunciones.BeginUpdate();
+            try
+            {
+                _funcionesDisponibles = _perfilService.ObtenerFuncionesDisponibles()?.ToList()
+                    ?? new List<Funcion>();
+
+                clbFunciones.Items.Clear();
+                clbFunciones.DisplayMember = nameof(Funcion.Nombre);
+                clbFunciones.ValueMember = nameof(Funcion.IdFuncion);
+
+                foreach (var funcion in _funcionesDisponibles)
+                {
+                    clbFunciones.Items.Add(funcion, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"profile.error.loadFunctions".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                clbFunciones.EndUpdate();
+            }
         }
 
         private void CargarDatos()
@@ -47,6 +79,18 @@ namespace UI.Formularios
                 txtNombre.Text = _perfilOriginal.NombrePerfil;
                 txtDescripcion.Text = _perfilOriginal.Descripcion;
                 chkActivo.Checked = _perfilOriginal.Activo;
+
+                if (_perfilOriginal.Funciones != null)
+                {
+                    var idsSeleccionados = new HashSet<Guid>(_perfilOriginal.Funciones.Select(f => f.IdFuncion));
+                    for (var i = 0; i < clbFunciones.Items.Count; i++)
+                    {
+                        if (clbFunciones.Items[i] is Funcion funcion && idsSeleccionados.Contains(funcion.IdFuncion))
+                        {
+                            clbFunciones.SetItemChecked(i, true);
+                        }
+                    }
+                }
             }
             else
             {
@@ -95,6 +139,13 @@ namespace UI.Formularios
                     Descripcion = descripcion,
                     Activo = chkActivo.Checked
                 };
+
+                var funcionesSeleccionadas = clbFunciones.CheckedItems
+                    .Cast<Funcion>()
+                    .Select(f => new Funcion { IdFuncion = f.IdFuncion })
+                    .ToList();
+
+                perfil.Funciones = funcionesSeleccionadas;
 
                 ResultadoOperacion resultado = _esEdicion
                     ? _perfilService.ActualizarPerfil(perfil)
