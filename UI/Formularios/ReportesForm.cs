@@ -112,9 +112,9 @@ namespace UI.Formularios
             nudPedidosClienteAnio.Maximum = 2100;
             nudPedidosClienteAnio.Value = DateTime.Today.Year;
 
-            dtpMejoresClientesMes.Format = DateTimePickerFormat.Custom;
-            dtpMejoresClientesMes.CustomFormat = "MM-yyyy";
-            dtpMejoresClientesMes.ShowUpDown = true;
+            nudMejoresClientesMes.Minimum = 1;
+            nudMejoresClientesMes.Maximum = 12;
+            nudMejoresClientesMes.Value = DateTime.Today.Month;
             nudMejoresClientesAnio.Minimum = 2000;
             nudMejoresClientesAnio.Maximum = 2100;
             nudMejoresClientesAnio.Value = DateTime.Today.Year;
@@ -361,7 +361,7 @@ namespace UI.Formularios
         {
             try
             {
-                var filtro = CrearFiltroPeriodo(cmbMejoresClientesPeriodo, dtpMejoresClientesMes, nudMejoresClientesAnio);
+                var filtro = CrearFiltroPeriodo(cmbMejoresClientesPeriodo, nudMejoresClientesMes, nudMejoresClientesAnio);
                 var datos = _reporteService.ObtenerMejoresClientes(filtro) ?? new List<ClienteRankingResumen>();
                 dgvMejoresClientes.DataSource = datos;
             }
@@ -443,7 +443,7 @@ namespace UI.Formularios
 
         private void ActualizarVisibilidadMejoresClientes()
         {
-            ActualizarVisibilidadPeriodo(cmbMejoresClientesPeriodo, lblMejoresClientesMes, dtpMejoresClientesMes, lblMejoresClientesAnio, nudMejoresClientesAnio);
+            ActualizarVisibilidadPeriodo(cmbMejoresClientesPeriodo, lblMejoresClientesMes, nudMejoresClientesMes, lblMejoresClientesAnio, nudMejoresClientesAnio);
         }
 
         private void ActualizarVisibilidadPeriodo(ComboBox combo, Control lblMes, Control inputMes, Control lblAnio, Control inputAnio)

@@ -75,7 +75,7 @@
         private System.Windows.Forms.Label lblMejoresClientesPeriodo;
         private System.Windows.Forms.ComboBox cmbMejoresClientesPeriodo;
         private System.Windows.Forms.Label lblMejoresClientesMes;
-        private System.Windows.Forms.DateTimePicker dtpMejoresClientesMes;
+        private System.Windows.Forms.NumericUpDown nudMejoresClientesMes;
         private System.Windows.Forms.Label lblMejoresClientesAnio;
         private System.Windows.Forms.NumericUpDown nudMejoresClientesAnio;
         private System.Windows.Forms.Button btnMejoresClientesAplicar;
@@ -166,7 +166,7 @@
             this.lblMejoresClientesPeriodo = new System.Windows.Forms.Label();
             this.cmbMejoresClientesPeriodo = new System.Windows.Forms.ComboBox();
             this.lblMejoresClientesMes = new System.Windows.Forms.Label();
-            this.dtpMejoresClientesMes = new System.Windows.Forms.DateTimePicker();
+            this.nudMejoresClientesMes = new System.Windows.Forms.NumericUpDown();
             this.lblMejoresClientesAnio = new System.Windows.Forms.Label();
             this.nudMejoresClientesAnio = new System.Windows.Forms.NumericUpDown();
             this.btnMejoresClientesAplicar = new System.Windows.Forms.Button();
@@ -207,6 +207,7 @@
             this.tabMejoresClientes.SuspendLayout();
             this.layoutMejoresClientes.SuspendLayout();
             this.flowMejoresClientes.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMejoresClientesMes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMejoresClientesAnio)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMejoresClientes)).BeginInit();
             this.tabClientesSaldo.SuspendLayout();
@@ -922,7 +923,7 @@
             this.flowMejoresClientes.Controls.Add(this.lblMejoresClientesPeriodo);
             this.flowMejoresClientes.Controls.Add(this.cmbMejoresClientesPeriodo);
             this.flowMejoresClientes.Controls.Add(this.lblMejoresClientesMes);
-            this.flowMejoresClientes.Controls.Add(this.dtpMejoresClientesMes);
+            this.flowMejoresClientes.Controls.Add(this.nudMejoresClientesMes);
             this.flowMejoresClientes.Controls.Add(this.lblMejoresClientesAnio);
             this.flowMejoresClientes.Controls.Add(this.nudMejoresClientesAnio);
             this.flowMejoresClientes.Controls.Add(this.btnMejoresClientesAplicar);
@@ -955,14 +956,26 @@
             this.lblMejoresClientesMes.Size = new System.Drawing.Size(37, 20);
             this.lblMejoresClientesMes.TabIndex = 2;
             this.lblMejoresClientesMes.Text = "Mes";
-            // dtpMejoresClientesMes
-            this.dtpMejoresClientesMes.CustomFormat = "yyyy-MM";
-            this.dtpMejoresClientesMes.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpMejoresClientesMes.Location = new System.Drawing.Point(290, 3);
-            this.dtpMejoresClientesMes.Name = "dtpMejoresClientesMes";
-            this.dtpMejoresClientesMes.ShowUpDown = true;
-            this.dtpMejoresClientesMes.Size = new System.Drawing.Size(110, 26);
-            this.dtpMejoresClientesMes.TabIndex = 3;
+            // nudMejoresClientesMes
+            this.nudMejoresClientesMes.Location = new System.Drawing.Point(290, 3);
+            this.nudMejoresClientesMes.Maximum = new decimal(new int[] {
+            12,
+            0,
+            0,
+            0});
+            this.nudMejoresClientesMes.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nudMejoresClientesMes.Name = "nudMejoresClientesMes";
+            this.nudMejoresClientesMes.Size = new System.Drawing.Size(90, 26);
+            this.nudMejoresClientesMes.TabIndex = 3;
+            this.nudMejoresClientesMes.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // lblMejoresClientesAnio
             this.lblMejoresClientesAnio.AutoSize = true;
             this.lblMejoresClientesAnio.Location = new System.Drawing.Point(406, 0);
@@ -1109,6 +1122,7 @@
             this.layoutMejoresClientes.PerformLayout();
             this.flowMejoresClientes.ResumeLayout(false);
             this.flowMejoresClientes.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMejoresClientesMes)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMejoresClientesAnio)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMejoresClientes)).EndInit();
             this.tabClientesSaldo.ResumeLayout(false);
