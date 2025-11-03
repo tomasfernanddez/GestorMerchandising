@@ -74,6 +74,14 @@
             this.lblMontoPagadoValor = new System.Windows.Forms.Label();
             this.btnAgregarPago = new System.Windows.Forms.Button();
             this.btnDeshacerPago = new System.Windows.Forms.Button();
+            this.tabAdjuntos = new System.Windows.Forms.TabPage();
+            this.tableAdjuntos = new System.Windows.Forms.TableLayoutPanel();
+            this.lblAdjuntosInstrucciones = new System.Windows.Forms.Label();
+            this.dgvAdjuntos = new System.Windows.Forms.DataGridView();
+            this.panelAdjuntosAcciones = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnAgregarAdjunto = new System.Windows.Forms.Button();
+            this.btnDescargarAdjunto = new System.Windows.Forms.Button();
+            this.btnEliminarAdjunto = new System.Windows.Forms.Button();
             this.tabNotas = new System.Windows.Forms.TabPage();
             this.tableNotas = new System.Windows.Forms.TableLayoutPanel();
             this.gbHistorialEstados = new System.Windows.Forms.GroupBox();
@@ -99,6 +107,10 @@
             this.tabDetalles.SuspendLayout();
             this.tableDetalles.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalles)).BeginInit();
+            this.tabAdjuntos.SuspendLayout();
+            this.tableAdjuntos.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAdjuntos)).BeginInit();
+            this.panelAdjuntosAcciones.SuspendLayout();
             this.panelDetallesBotones.SuspendLayout();
             this.panelResumen.SuspendLayout();
             this.tablePagos.SuspendLayout();
@@ -117,6 +129,7 @@
             // 
             this.tabControl.Controls.Add(this.tabGeneral);
             this.tabControl.Controls.Add(this.tabDetalles);
+            this.tabControl.Controls.Add(this.tabAdjuntos);
             this.tabControl.Controls.Add(this.tabNotas);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
@@ -790,6 +803,106 @@
             this.btnDeshacerPago.TabIndex = 3;
             this.btnDeshacerPago.Text = "order.payment.cancel";
             this.btnDeshacerPago.UseVisualStyleBackColor = true;
+            //
+            // tabAdjuntos
+            //
+            this.tabAdjuntos.Controls.Add(this.tableAdjuntos);
+            this.tabAdjuntos.Location = new System.Drawing.Point(4, 22);
+            this.tabAdjuntos.Name = "tabAdjuntos";
+            this.tabAdjuntos.Padding = new System.Windows.Forms.Padding(8);
+            this.tabAdjuntos.Size = new System.Drawing.Size(976, 598);
+            this.tabAdjuntos.TabIndex = 2;
+            this.tabAdjuntos.Text = "Adjuntos";
+            this.tabAdjuntos.UseVisualStyleBackColor = true;
+            //
+            // tableAdjuntos
+            //
+            this.tableAdjuntos.ColumnCount = 1;
+            this.tableAdjuntos.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableAdjuntos.Controls.Add(this.lblAdjuntosInstrucciones, 0, 0);
+            this.tableAdjuntos.Controls.Add(this.dgvAdjuntos, 0, 1);
+            this.tableAdjuntos.Controls.Add(this.panelAdjuntosAcciones, 0, 2);
+            this.tableAdjuntos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableAdjuntos.Location = new System.Drawing.Point(8, 8);
+            this.tableAdjuntos.Name = "tableAdjuntos";
+            this.tableAdjuntos.RowCount = 3;
+            this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableAdjuntos.Size = new System.Drawing.Size(960, 582);
+            this.tableAdjuntos.TabIndex = 0;
+            //
+            // lblAdjuntosInstrucciones
+            //
+            this.lblAdjuntosInstrucciones.AutoSize = true;
+            this.lblAdjuntosInstrucciones.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblAdjuntosInstrucciones.Location = new System.Drawing.Point(3, 0);
+            this.lblAdjuntosInstrucciones.Margin = new System.Windows.Forms.Padding(3, 0, 3, 6);
+            this.lblAdjuntosInstrucciones.Name = "lblAdjuntosInstrucciones";
+            this.lblAdjuntosInstrucciones.Size = new System.Drawing.Size(954, 13);
+            this.lblAdjuntosInstrucciones.TabIndex = 0;
+            this.lblAdjuntosInstrucciones.Text = "Arrastre archivos o utilice los botones para adjuntar.";
+            //
+            // dgvAdjuntos
+            //
+            this.dgvAdjuntos.AllowUserToAddRows = false;
+            this.dgvAdjuntos.AllowUserToDeleteRows = false;
+            this.dgvAdjuntos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvAdjuntos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvAdjuntos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvAdjuntos.Location = new System.Drawing.Point(3, 19);
+            this.dgvAdjuntos.MultiSelect = false;
+            this.dgvAdjuntos.Name = "dgvAdjuntos";
+            this.dgvAdjuntos.RowHeadersVisible = false;
+            this.dgvAdjuntos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvAdjuntos.Size = new System.Drawing.Size(954, 528);
+            this.dgvAdjuntos.TabIndex = 1;
+            //
+            // panelAdjuntosAcciones
+            //
+            this.panelAdjuntosAcciones.AutoSize = true;
+            this.panelAdjuntosAcciones.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panelAdjuntosAcciones.Controls.Add(this.btnAgregarAdjunto);
+            this.panelAdjuntosAcciones.Controls.Add(this.btnDescargarAdjunto);
+            this.panelAdjuntosAcciones.Controls.Add(this.btnEliminarAdjunto);
+            this.panelAdjuntosAcciones.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelAdjuntosAcciones.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.panelAdjuntosAcciones.Location = new System.Drawing.Point(3, 553);
+            this.panelAdjuntosAcciones.Name = "panelAdjuntosAcciones";
+            this.panelAdjuntosAcciones.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.panelAdjuntosAcciones.Size = new System.Drawing.Size(954, 26);
+            this.panelAdjuntosAcciones.TabIndex = 2;
+            this.panelAdjuntosAcciones.WrapContents = false;
+            //
+            // btnAgregarAdjunto
+            //
+            this.btnAgregarAdjunto.AutoSize = true;
+            this.btnAgregarAdjunto.Location = new System.Drawing.Point(3, 9);
+            this.btnAgregarAdjunto.Name = "btnAgregarAdjunto";
+            this.btnAgregarAdjunto.Size = new System.Drawing.Size(107, 23);
+            this.btnAgregarAdjunto.TabIndex = 0;
+            this.btnAgregarAdjunto.Text = "Agregar adjunto";
+            this.btnAgregarAdjunto.UseVisualStyleBackColor = true;
+            //
+            // btnDescargarAdjunto
+            //
+            this.btnDescargarAdjunto.AutoSize = true;
+            this.btnDescargarAdjunto.Location = new System.Drawing.Point(116, 9);
+            this.btnDescargarAdjunto.Name = "btnDescargarAdjunto";
+            this.btnDescargarAdjunto.Size = new System.Drawing.Size(117, 23);
+            this.btnDescargarAdjunto.TabIndex = 1;
+            this.btnDescargarAdjunto.Text = "Descargar adjunto";
+            this.btnDescargarAdjunto.UseVisualStyleBackColor = true;
+            //
+            // btnEliminarAdjunto
+            //
+            this.btnEliminarAdjunto.AutoSize = true;
+            this.btnEliminarAdjunto.Location = new System.Drawing.Point(239, 9);
+            this.btnEliminarAdjunto.Name = "btnEliminarAdjunto";
+            this.btnEliminarAdjunto.Size = new System.Drawing.Size(104, 23);
+            this.btnEliminarAdjunto.TabIndex = 2;
+            this.btnEliminarAdjunto.Text = "Eliminar adjunto";
+            this.btnEliminarAdjunto.UseVisualStyleBackColor = true;
             // 
             // tabNotas
             // 
@@ -797,8 +910,8 @@
             this.tabNotas.Location = new System.Drawing.Point(4, 22);
             this.tabNotas.Name = "tabNotas";
             this.tabNotas.Padding = new System.Windows.Forms.Padding(8);
-            this.tabNotas.Size = new System.Drawing.Size(952, 574);
-            this.tabNotas.TabIndex = 2;
+            this.tabNotas.Size = new System.Drawing.Size(976, 598);
+            this.tabNotas.TabIndex = 3;
             this.tabNotas.Text = "Seguimiento";
             this.tabNotas.UseVisualStyleBackColor = true;
             // 
@@ -814,7 +927,7 @@
             this.tableNotas.RowCount = 2;
             this.tableNotas.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableNotas.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableNotas.Size = new System.Drawing.Size(936, 558);
+            this.tableNotas.Size = new System.Drawing.Size(960, 582);
             this.tableNotas.TabIndex = 0;
             // 
             // gbHistorialEstados
@@ -1012,6 +1125,12 @@
             this.flowPagoResumen.PerformLayout();
             this.flowPagoAcciones.ResumeLayout(false);
             this.flowPagoAcciones.PerformLayout();
+            this.tabAdjuntos.ResumeLayout(false);
+            this.tableAdjuntos.ResumeLayout(false);
+            this.tableAdjuntos.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAdjuntos)).EndInit();
+            this.panelAdjuntosAcciones.ResumeLayout(false);
+            this.panelAdjuntosAcciones.PerformLayout();
             this.tabNotas.ResumeLayout(false);
             this.tableNotas.ResumeLayout(false);
             this.gbHistorialEstados.ResumeLayout(false);
@@ -1086,6 +1205,14 @@
         private System.Windows.Forms.Label lblMontoPagadoValor;
         private System.Windows.Forms.Button btnAgregarPago;
         private System.Windows.Forms.Button btnDeshacerPago;
+        private System.Windows.Forms.TabPage tabAdjuntos;
+        private System.Windows.Forms.TableLayoutPanel tableAdjuntos;
+        private System.Windows.Forms.Label lblAdjuntosInstrucciones;
+        private System.Windows.Forms.DataGridView dgvAdjuntos;
+        private System.Windows.Forms.FlowLayoutPanel panelAdjuntosAcciones;
+        private System.Windows.Forms.Button btnAgregarAdjunto;
+        private System.Windows.Forms.Button btnDescargarAdjunto;
+        private System.Windows.Forms.Button btnEliminarAdjunto;
         private System.Windows.Forms.TabPage tabNotas;
         private System.Windows.Forms.TableLayoutPanel tableNotas;
         private System.Windows.Forms.GroupBox gbHistorialEstados;

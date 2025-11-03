@@ -152,6 +152,9 @@ namespace BLL.Services
                 existente.RutaFacturaPdf = pedido.RutaFacturaPdf;
                 existente.IdEstadoPedidoMuestra = pedido.IdEstadoPedidoMuestra;
 
+                var ctx = ObtenerContexto();
+                SincronizarAdjuntos(existente, pedido, ctx);
+
                 SincronizarDetalles(existente, pedido);
 
                 existente.MontoPagado = pedido.MontoPagado;
@@ -295,6 +298,13 @@ namespace BLL.Services
             var estadosPedidoCatalogo = _unitOfWork.EstadosPedidoMuestra?.GetEstadosOrdenados()?.ToList()
                 ?? new List<EstadoPedidoMuestra>();
 
+            if (pedido.Adjuntos == null)
+            {
+                pedido.Adjuntos = new List<ArchivoAdjunto>();
+            }
+
+            ArchivoAdjuntoHelper.PrepararAdjuntosParaPedidoMuestra(pedido.Adjuntos, pedido.IdPedidoMuestra);
+
             var estadosDetalle = pedido.Detalles
                 .Select(d => d.EstadoMuestra?.NombreEstadoMuestra ?? ObtenerNombreEstado(d.IdEstadoMuestra))
                 .ToList();
@@ -362,6 +372,41 @@ namespace BLL.Services
                 return null;
 
             return digits.Length <= 6 ? digits.PadLeft(6, '0') : digits;
+        }
+
+        private void SincronizarAdjuntos(PedidoMuestra existente, PedidoMuestra pedido, DbContext ctx)
+        {
+            var adjuntosNuevos = pedido.Adjuntos?.ToList() ?? new List<ArchivoAdjunto>();
+            var adjuntosActuales = existente.Adjuntos?.ToList() ?? new List<ArchivoAdjunto>();
+            var procesados = new HashSet<Guid>();
+
+            foreach (var actual in adjuntosActuales)
+            {
+                var entrante = adjuntosNuevos.FirstOrDefault(a => a.IdArchivoAdjunto != Guid.Empty && a.IdArchivoAdjunto == actual.IdArchivoAdjunto);
+                if (entrante == null)
+                {
+                    if (ctx != null)
+                    {
+                        ctx.Set<ArchivoAdjunto>().Remove(actual);
+                    }
+
+                    existente.Adjuntos.Remove(actual);
+                    continue;
+                }
+
+                ArchivoAdjuntoHelper.ActualizarAdjuntoExistente(actual, entrante);
+                procesados.Add(actual.IdArchivoAdjunto);
+            }
+
+            foreach (var entrante in adjuntosNuevos)
+            {
+                if (entrante.IdArchivoAdjunto != Guid.Empty && procesados.Contains(entrante.IdArchivoAdjunto))
+                    continue;
+
+                var lista = new List<ArchivoAdjunto> { entrante };
+                ArchivoAdjuntoHelper.PrepararAdjuntosParaPedidoMuestra(lista, existente.IdPedidoMuestra);
+                existente.Adjuntos.Add(lista[0]);
+            }
         }
 
         private void SincronizarDetalles(PedidoMuestra existente, PedidoMuestra pedido)

@@ -226,27 +226,29 @@ namespace BLL.Services
                         historialProcesados.Add(historialActual.IdHistorial);
                     }
 
-                    foreach (var historialEntrante in historialNuevos)
-                    {
-                        if (historialEntrante.IdHistorial != Guid.Empty && historialProcesados.Contains(historialEntrante.IdHistorial))
-                            continue;
+                foreach (var historialEntrante in historialNuevos)
+                {
+                    if (historialEntrante.IdHistorial != Guid.Empty && historialProcesados.Contains(historialEntrante.IdHistorial))
+                        continue;
 
-                        historialEntrante.IdHistorial = historialEntrante.IdHistorial == Guid.Empty
-                            ? Guid.NewGuid()
-                            : historialEntrante.IdHistorial;
-                        historialEntrante.IdPedido = existente.IdPedido;
-                        if (historialEntrante.FechaCambio == default)
-                            historialEntrante.FechaCambio = DateTime.UtcNow;
+                    historialEntrante.IdHistorial = historialEntrante.IdHistorial == Guid.Empty
+                    ? Guid.NewGuid()
+                    : historialEntrante.IdHistorial;
+                    historialEntrante.IdPedido = existente.IdPedido;
+                    if (historialEntrante.FechaCambio == default)
+                        historialEntrante.FechaCambio = DateTime.UtcNow;
 
-                        existente.HistorialEstados.Add(historialEntrante);
-                    }
+                    existente.HistorialEstados.Add(historialEntrante);
                 }
+            }
 
-                // Sincronizar detalles: eliminar los faltantes y actualizar/crear
-                SincronizarDetalles(existente, pedido.Detalles ?? new List<PedidoDetalle>());
+            SincronizarAdjuntos(existente, pedido, ctx);
 
-                RecalcularTotales(existente);
-                _unitOfWork.SaveChanges();
+            // Sincronizar detalles: eliminar los faltantes y actualizar/crear
+            SincronizarDetalles(existente, pedido.Detalles ?? new List<PedidoDetalle>());
+
+            RecalcularTotales(existente);
+            _unitOfWork.SaveChanges();
 
                 return ResultadoOperacion.Exitoso("Pedido actualizado correctamente", existente.IdPedido);
             }
@@ -536,6 +538,13 @@ namespace BLL.Services
                 });
             }
 
+            if (pedido.Adjuntos == null)
+            {
+                pedido.Adjuntos = new List<ArchivoAdjunto>();
+            }
+
+            ArchivoAdjuntoHelper.PrepararAdjuntosParaPedido(pedido.Adjuntos, pedido.IdPedido);
+
             RecalcularTotales(pedido);
         }
 
@@ -791,6 +800,41 @@ namespace BLL.Services
                 return 0;
 
             return int.TryParse(normalizado, out var valor) ? valor : 0;
+        }
+
+        private void SincronizarAdjuntos(Pedido existente, Pedido pedido, GestorMerchandisingContext ctx)
+        {
+            var adjuntosNuevos = pedido.Adjuntos?.ToList() ?? new List<ArchivoAdjunto>();
+            var adjuntosActuales = existente.Adjuntos?.ToList() ?? new List<ArchivoAdjunto>();
+            var procesados = new HashSet<Guid>();
+
+            foreach (var actual in adjuntosActuales)
+            {
+                var entrante = adjuntosNuevos.FirstOrDefault(a => a.IdArchivoAdjunto != Guid.Empty && a.IdArchivoAdjunto == actual.IdArchivoAdjunto);
+                if (entrante == null)
+                {
+                    if (ctx != null)
+                    {
+                        ctx.ArchivosAdjuntos.Remove(actual);
+                    }
+
+                    existente.Adjuntos.Remove(actual);
+                    continue;
+                }
+
+                ArchivoAdjuntoHelper.ActualizarAdjuntoExistente(actual, entrante);
+                procesados.Add(actual.IdArchivoAdjunto);
+            }
+
+            foreach (var entrante in adjuntosNuevos)
+            {
+                if (entrante.IdArchivoAdjunto != Guid.Empty && procesados.Contains(entrante.IdArchivoAdjunto))
+                    continue;
+
+                var lista = new List<ArchivoAdjunto> { entrante };
+                ArchivoAdjuntoHelper.PrepararAdjuntosParaPedido(lista, existente.IdPedido);
+                existente.Adjuntos.Add(lista[0]);
+            }
         }
 
         private GestorMerchandisingContext ObtenerContexto()
