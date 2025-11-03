@@ -146,8 +146,13 @@ namespace Services.BLL.Services
                     {
                         new MenuItemConfig
                         {
-                            Id = "menu.language.change",
-                            Texto = "menu.language.change"
+                            Id = "menu.language.es",
+                            Texto = "menu.lang.es"
+                        },
+                        new MenuItemConfig
+                        {
+                            Id = "menu.language.en",
+                            Texto = "menu.lang.en"
                         }
                     }
                 }

@@ -122,8 +122,10 @@ namespace UI
                     return (s, e) => AbrirLogsBitacora();
                 case "menu.reports":
                     return (s, e) => AbrirReportes();
-                case "menu.language.change":
-                    return CambiarIdioma_Click;
+                case "menu.language.es":
+                    return (s, e) => CambiarIdioma("es-AR");
+                case "menu.language.en":
+                    return (s, e) => CambiarIdioma("en-US");
                 default:
                     return null;
             }
@@ -379,28 +381,6 @@ namespace UI
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo módulo de reportes", ex, "Reportes", SessionContext.NombreUsuario);
                 MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void CambiarIdioma_Click(object sender, EventArgs e)
-        {
-            var menu = new ContextMenuStrip();
-            menu.Items.Add(new ToolStripMenuItem("menu.lang.es".Traducir(), null, (s, _) => CambiarIdioma("es-AR")));
-            menu.Items.Add(new ToolStripMenuItem("menu.lang.en".Traducir(), null, (s, _) => CambiarIdioma("en-US")));
-            menu.Closed += (s, _) =>
-            {
-                // Posponer el dispose para evitar ObjectDisposedException durante el cierre del menú contextual
-                menu.BeginInvoke(new Action(menu.Dispose));
-            };
-
-            if (sender is ToolStripMenuItem item && item.Owner != null)
-            {
-                var location = item.Owner.PointToScreen(new Point(item.Bounds.Left, item.Bounds.Bottom));
-                menu.Show(location);
-            }
-            else
-            {
-                menu.Show(Cursor.Position);
             }
         }
 
