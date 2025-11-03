@@ -25,6 +25,7 @@ namespace UI.Formularios
             _esEdicion = perfil != null;
 
             InitializeComponent();
+            Localization.LanguageChanged += OnLanguageChanged;
         }
 
         private void PerfilForm_Load(object sender, EventArgs e)
@@ -32,6 +33,21 @@ namespace UI.Formularios
             ApplyTexts();
             CargarFunciones();
             CargarDatos();
+        }
+
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            ApplyTexts();
+            ActualizarFunciones();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Localization.LanguageChanged -= OnLanguageChanged;
+            }
+            base.Dispose(disposing);
         }
 
         private void ApplyTexts()
@@ -54,8 +70,16 @@ namespace UI.Formularios
                     ?? new List<Funcion>();
 
                 clbFunciones.Items.Clear();
-                clbFunciones.DisplayMember = nameof(Funcion.Nombre);
-                clbFunciones.ValueMember = nameof(Funcion.IdFuncion);
+                clbFunciones.DisplayMember = null; // Usaremos Format en lugar de DisplayMember
+
+                // Agregar handler para traducir los nombres
+                clbFunciones.Format += (s, e) =>
+                {
+                    if (e.ListItem is Funcion f)
+                    {
+                        e.Value = TraducirFuncion(f);
+                    }
+                };
 
                 foreach (var funcion in _funcionesDisponibles)
                 {
@@ -64,12 +88,30 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"profile.error.loadFunctions".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("profile.error.loadFunctions".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
                 clbFunciones.EndUpdate();
             }
+        }
+
+        private string TraducirFuncion(Funcion funcion)
+        {
+            if (funcion == null || string.IsNullOrEmpty(funcion.Codigo))
+                return funcion?.Nombre ?? "";
+
+            var key = $"function.{funcion.Codigo}";
+            var traduccion = Localization.T(key);
+            return traduccion == key ? funcion.Nombre : traduccion;
+        }
+
+        private void ActualizarFunciones()
+        {
+            if (clbFunciones.Items.Count == 0) return;
+
+            // Refrescar los items para que se retraduzan
+            clbFunciones.RefreshItems();
         }
 
         private void CargarDatos()

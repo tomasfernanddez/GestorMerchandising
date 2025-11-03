@@ -39,6 +39,22 @@ namespace UI.Formularios
 
             InitializeComponent();
             this.Load += ABMUsuariosForm_Load;
+            Localization.LanguageChanged += OnLanguageChanged;
+        }
+
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            ApplyTexts();
+            ActualizarColumnas();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Localization.LanguageChanged -= OnLanguageChanged;
+            }
+            base.Dispose(disposing);
         }
 
         private sealed class UsuarioGridRow
@@ -63,7 +79,7 @@ namespace UI.Formularios
 
             if (!_puedeGestionar)
             {
-                MessageBox.Show("No tiene permisos para gestionar usuarios.", Text,
+                MessageBox.Show("abm.usuarios.error.load".Traducir(), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 Close();
                 return;
@@ -94,7 +110,7 @@ namespace UI.Formularios
             {
                 DataPropertyName = nameof(UsuarioGridRow.NombreUsuario),
                 Name = "NombreUsuario",
-                HeaderText = "Usuario",
+                HeaderText = "abm.usuarios.column.username".Traducir(),
                 FillWeight = 120,
                 MinimumWidth = 100
             });
@@ -103,7 +119,7 @@ namespace UI.Formularios
             {
                 DataPropertyName = nameof(UsuarioGridRow.NombreCompleto),
                 Name = "NombreCompleto",
-                HeaderText = "Nombre Completo",
+                HeaderText = "abm.usuarios.column.fullname".Traducir(),
                 FillWeight = 180,
                 MinimumWidth = 150
             });
@@ -112,7 +128,7 @@ namespace UI.Formularios
             {
                 DataPropertyName = nameof(UsuarioGridRow.Email),
                 Name = "Email",
-                HeaderText = "Email",
+                HeaderText = "abm.usuarios.column.email".Traducir(),
                 FillWeight = 180,
                 MinimumWidth = 150
             });
@@ -121,7 +137,7 @@ namespace UI.Formularios
             {
                 DataPropertyName = nameof(UsuarioGridRow.Perfil),
                 Name = "Perfil",
-                HeaderText = "Perfil",
+                HeaderText = "abm.usuarios.column.profile".Traducir(),
                 FillWeight = 140,
                 MinimumWidth = 120
             });
@@ -130,7 +146,7 @@ namespace UI.Formularios
             {
                 DataPropertyName = nameof(UsuarioGridRow.Activo),
                 Name = "Activo",
-                HeaderText = "Activo",
+                HeaderText = "abm.usuarios.column.active".Traducir(),
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells,
                 MinimumWidth = 60
             });
@@ -139,7 +155,7 @@ namespace UI.Formularios
             {
                 DataPropertyName = nameof(UsuarioGridRow.Bloqueado),
                 Name = "Bloqueado",
-                HeaderText = "Bloqueado",
+                HeaderText = "abm.usuarios.column.blocked".Traducir(),
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells,
                 MinimumWidth = 80
             });
@@ -148,7 +164,7 @@ namespace UI.Formularios
             {
                 DataPropertyName = nameof(UsuarioGridRow.FechaCreacion),
                 Name = "FechaCreacion",
-                HeaderText = "Fecha Creación",
+                HeaderText = "abm.usuarios.column.created".Traducir(),
                 FillWeight = 110,
                 MinimumWidth = 100,
                 DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" }
@@ -158,11 +174,25 @@ namespace UI.Formularios
             {
                 DataPropertyName = nameof(UsuarioGridRow.FechaUltimoAcceso),
                 Name = "FechaUltimoAcceso",
-                HeaderText = "Último Acceso",
+                HeaderText = "abm.usuarios.column.lastAccess".Traducir(),
                 FillWeight = 110,
                 MinimumWidth = 100,
                 DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" }
             });
+        }
+
+        private void ActualizarColumnas()
+        {
+            if (dgvUsuarios.Columns.Count == 0) return;
+
+            dgvUsuarios.Columns["NombreUsuario"].HeaderText = "abm.usuarios.column.username".Traducir();
+            dgvUsuarios.Columns["NombreCompleto"].HeaderText = "abm.usuarios.column.fullname".Traducir();
+            dgvUsuarios.Columns["Email"].HeaderText = "abm.usuarios.column.email".Traducir();
+            dgvUsuarios.Columns["Perfil"].HeaderText = "abm.usuarios.column.profile".Traducir();
+            dgvUsuarios.Columns["Activo"].HeaderText = "abm.usuarios.column.active".Traducir();
+            dgvUsuarios.Columns["Bloqueado"].HeaderText = "abm.usuarios.column.blocked".Traducir();
+            dgvUsuarios.Columns["FechaCreacion"].HeaderText = "abm.usuarios.column.created".Traducir();
+            dgvUsuarios.Columns["FechaUltimoAcceso"].HeaderText = "abm.usuarios.column.lastAccess".Traducir();
         }
 
         private void ApplyTexts()
@@ -293,7 +323,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error cargando usuarios", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error cargando usuarios: {ex.Message}", Text,
+                MessageBox.Show("abm.usuarios.error.load".Traducir(), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -334,8 +364,8 @@ namespace UI.Formularios
                 {
                     if (f.ShowDialog(this) == DialogResult.OK)
                     {
-                        _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Usuario.Alta",
-                            "Nuevo usuario creado", "Usuarios", true);
+                        _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Crear",
+                            "action.crear".Traducir(), "Usuarios", true);
                         CargarUsuarios();
                     }
                 }
@@ -343,7 +373,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error abriendo formulario de nuevo usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("abm.usuarios.error.save".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -361,8 +391,8 @@ namespace UI.Formularios
                 {
                     if (f.ShowDialog(this) == DialogResult.OK)
                     {
-                        _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Usuario.Editar",
-                            $"Usuario editado: {usuario.NombreUsuario}", "Usuarios", true);
+                        _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Editar",
+                            $"{"action.editar".Traducir()}: {usuario.NombreUsuario}", "Usuarios", true);
                         CargarUsuarios();
                     }
                 }
@@ -370,7 +400,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error editando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("abm.usuarios.error.save".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -382,7 +412,7 @@ namespace UI.Formularios
                 if (row == null) return;
 
                 var resultado = Microsoft.VisualBasic.Interaction.InputBox(
-                    "Ingrese la nueva contraseña:", "Cambiar Contraseña", "");
+                    "usuario.password_new".Traducir(), "abm.usuarios.cambiar_pass".Traducir(), "");
 
                 if (string.IsNullOrEmpty(resultado)) return;
 
@@ -390,14 +420,14 @@ namespace UI.Formularios
 
                 if (res.EsValido)
                 {
-                    _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Usuario.CambiarPassword",
-                        $"Contraseña cambiada para: {row.NombreUsuario}", "Usuarios", true);
-                    MessageBox.Show("Contraseña cambiada exitosamente.", Text,
+                    _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Cambiar Contraseña",
+                        $"{"abm.usuarios.log.passwordChanged".Traducir(row.NombreUsuario)}", "Usuarios", true);
+                    MessageBox.Show("abm.usuarios.log.passwordChanged".Traducir(row.NombreUsuario), Text,
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Usuario.CambiarPassword",
+                    _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Cambiar Contraseña",
                         res.Mensaje, "Usuarios", false);
                     MessageBox.Show(res.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
@@ -405,7 +435,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error cambiando contraseña", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("abm.usuarios.error.save".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -430,9 +460,11 @@ namespace UI.Formularios
 
                 if (res.EsValido)
                 {
+                    var logKey = row.Bloqueado ? "abm.usuarios.log.unblocked" : "abm.usuarios.log.blocked";
+                    var accionKey = row.Bloqueado ? "Desbloquear" : "Bloquear";
                     _bitacora.RegistrarAccion(SessionContext.IdUsuario,
-                        row.Bloqueado ? "Usuario.Desbloquear" : "Usuario.Bloquear",
-                        $"Usuario {accionPasado}: {row.NombreUsuario}", "Usuarios", true);
+                        accionKey,
+                        logKey.Traducir(row.NombreUsuario), "Usuarios", true);
                     CargarUsuarios();
                 }
                 else
@@ -443,7 +475,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error bloqueando/desbloqueando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("abm.usuarios.error.save".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -456,17 +488,15 @@ namespace UI.Formularios
 
                 if (row.IdUsuario == SessionContext.IdUsuario && row.Activo)
                 {
-                    MessageBox.Show("No puede desactivar su propio usuario.", Text,
+                    MessageBox.Show("abm.usuarios.error.save".Traducir(), Text,
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                var accion = row.Activo ? "desactivar" : "activar";
-                var accionPasado = row.Activo ? "desactivado" : "activado";
                 var msgKey = row.Activo ? "msg.confirm.desactivar" : "msg.confirm.activar";
 
                 if (MessageBox.Show(msgKey.Traducir(row.NombreUsuario),
-                    "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                    Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                     return;
 
                 var res = row.Activo ?
@@ -475,9 +505,11 @@ namespace UI.Formularios
 
                 if (res.EsValido)
                 {
+                    var logKey = row.Activo ? "abm.usuarios.log.deactivated" : "abm.usuarios.log.activated";
+                    var accionKey = row.Activo ? "Desactivar" : "Activar";
                     _bitacora.RegistrarAccion(SessionContext.IdUsuario,
-                        row.Activo ? "Usuario.Desactivar" : "Usuario.Activar",
-                        $"Usuario {accionPasado}: {row.NombreUsuario}", "Usuarios", true);
+                        accionKey,
+                        logKey.Traducir(row.NombreUsuario), "Usuarios", true);
                     CargarUsuarios();
                 }
                 else
@@ -488,7 +520,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error activando/desactivando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("abm.usuarios.error.save".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

@@ -24,6 +24,7 @@ namespace UI.Formularios
 
             InitializeComponent();
             this.Load += LogsBitacoraForm_Load;
+            Localization.LanguageChanged += OnLanguageChanged;
         }
 
         private void LogsBitacoraForm_Load(object sender, EventArgs e)
@@ -33,21 +34,36 @@ namespace UI.Formularios
             CargarDatos();
         }
 
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            ApplyTexts();
+            FormatearGridBitacora();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Localization.LanguageChanged -= OnLanguageChanged;
+            }
+            base.Dispose(disposing);
+        }
+
         private void ApplyTexts()
         {
-            Text = "Logs del Sistema y Bitácora";
-            tabLogs.Text = "Logs de Sistema";
-            tabBitacora.Text = "Bitácora de Usuarios";
-            btnActualizar.Text = "Actualizar";
-            btnLimpiarLogs.Text = "Limpiar Logs Antiguos";
-            btnExportar.Text = "Exportar";
-            btnCerrar.Text = "Cerrar";
+            Text = "bitacora.title".Traducir();
+            tabLogs.Text = "bitacora.tab.logs".Traducir();
+            tabBitacora.Text = "bitacora.tab.audit".Traducir();
+            btnActualizar.Text = "bitacora.button.refresh".Traducir();
+            btnLimpiarLogs.Text = "bitacora.button.clean".Traducir();
+            btnExportar.Text = "bitacora.button.export".Traducir();
+            btnCerrar.Text = "form.cerrar".Traducir();
 
             // Filtros
-            lblFiltroFecha.Text = "Desde:";
-            lblFiltroUsuario.Text = "Usuario:";
-            lblFiltroModulo.Text = "Módulo:";
-            chkSoloErrores.Text = "Solo errores";
+            lblFiltroFecha.Text = "bitacora.filter.dateFrom".Traducir();
+            lblFiltroUsuario.Text = "bitacora.filter.user".Traducir();
+            lblFiltroModulo.Text = "bitacora.filter.module".Traducir();
+            chkSoloErrores.Text = "bitacora.filter.onlyErrors".Traducir();
         }
 
         private void WireUp()
@@ -85,9 +101,25 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error cargando datos: {ex.Message}", Text,
+                MessageBox.Show("bitacora.error.load".Traducir(ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private string TraducirModulo(string modulo)
+        {
+            if (string.IsNullOrEmpty(modulo)) return "";
+            var key = $"module.{modulo.ToLower().Replace(" ", "_")}";
+            var traduccion = Localization.T(key);
+            return traduccion == key ? modulo : traduccion;
+        }
+
+        private string TraducirAccion(string accion)
+        {
+            if (string.IsNullOrEmpty(accion)) return "";
+            var key = $"action.{accion.ToLower().Replace(" ", "_")}";
+            var traduccion = Localization.T(key);
+            return traduccion == key ? accion : traduccion;
         }
 
         private void CargarBitacora()
@@ -102,10 +134,10 @@ namespace UI.Formularios
                     {
                         Fecha = b.Fecha,
                         Usuario = b.Usuario?.NombreUsuario ?? "Sistema",
-                        Accion = b.Accion,
-                        Modulo = b.Modulo ?? "",
+                        Accion = TraducirAccion(b.Accion),
+                        Modulo = TraducirModulo(b.Modulo ?? ""),
                         Descripcion = b.Descripcion ?? "",
-                        Exitoso = b.Exitoso ? "Sí" : "No",
+                        Exitoso = b.Exitoso ? "form.filter.yes".Traducir() : "form.filter.no".Traducir(),
                         DireccionIP = b.DireccionIP ?? "",
                         MensajeError = b.MensajeError ?? ""
                     }).ToList();
@@ -115,7 +147,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error cargando bitácora: {ex.Message}", Text,
+                MessageBox.Show("bitacora.error.load".Traducir(ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -124,21 +156,21 @@ namespace UI.Formularios
         {
             if (dgvBitacora.Columns.Count == 0) return;
 
-            dgvBitacora.Columns["Fecha"].HeaderText = "Fecha";
+            dgvBitacora.Columns["Fecha"].HeaderText = "bitacora.column.date".Traducir();
             dgvBitacora.Columns["Fecha"].Width = 130;
-            dgvBitacora.Columns["Usuario"].HeaderText = "Usuario";
+            dgvBitacora.Columns["Usuario"].HeaderText = "bitacora.column.user".Traducir();
             dgvBitacora.Columns["Usuario"].Width = 100;
-            dgvBitacora.Columns["Accion"].HeaderText = "Acción";
+            dgvBitacora.Columns["Accion"].HeaderText = "bitacora.column.action".Traducir();
             dgvBitacora.Columns["Accion"].Width = 120;
-            dgvBitacora.Columns["Modulo"].HeaderText = "Módulo";
+            dgvBitacora.Columns["Modulo"].HeaderText = "bitacora.column.module".Traducir();
             dgvBitacora.Columns["Modulo"].Width = 80;
-            dgvBitacora.Columns["Descripcion"].HeaderText = "Descripción";
+            dgvBitacora.Columns["Descripcion"].HeaderText = "bitacora.column.description".Traducir();
             dgvBitacora.Columns["Descripcion"].Width = 200;
-            dgvBitacora.Columns["Exitoso"].HeaderText = "Exitoso";
+            dgvBitacora.Columns["Exitoso"].HeaderText = "bitacora.column.success".Traducir();
             dgvBitacora.Columns["Exitoso"].Width = 60;
-            dgvBitacora.Columns["DireccionIP"].HeaderText = "IP";
+            dgvBitacora.Columns["DireccionIP"].HeaderText = "bitacora.column.ip".Traducir();
             dgvBitacora.Columns["DireccionIP"].Width = 100;
-            dgvBitacora.Columns["MensajeError"].HeaderText = "Error";
+            dgvBitacora.Columns["MensajeError"].HeaderText = "bitacora.column.error".Traducir();
             dgvBitacora.Columns["MensajeError"].Width = 200;
 
             // Colorear filas con errores
@@ -167,10 +199,10 @@ namespace UI.Formularios
                     .ToList();
 
                 cboFiltroModulo.Items.Clear();
-                cboFiltroModulo.Items.Add("Todos");
+                cboFiltroModulo.Items.Add("bitacora.filter.all".Traducir());
                 foreach (var modulo in modulos)
                 {
-                    cboFiltroModulo.Items.Add(modulo);
+                    cboFiltroModulo.Items.Add(TraducirModulo(modulo));
                 }
                 cboFiltroModulo.SelectedIndex = 0;
 
@@ -179,7 +211,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error cargando filtros: {ex.Message}", Text,
+                MessageBox.Show("bitacora.error.load".Traducir(ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -204,9 +236,10 @@ namespace UI.Formularios
                 }
 
                 // Filtro por módulo
-                if (!string.IsNullOrEmpty(modulo) && modulo != "Todos")
+                var moduloAll = "bitacora.filter.all".Traducir();
+                if (!string.IsNullOrEmpty(modulo) && modulo != moduloAll)
                 {
-                    bitacoras = bitacoras.Where(b => b.Modulo == modulo);
+                    bitacoras = bitacoras.Where(b => TraducirModulo(b.Modulo) == modulo);
                 }
 
                 // Filtro solo errores
@@ -222,10 +255,10 @@ namespace UI.Formularios
                     {
                         Fecha = b.Fecha,
                         Usuario = b.Usuario?.NombreUsuario ?? "Sistema",
-                        Accion = b.Accion,
-                        Modulo = b.Modulo ?? "",
+                        Accion = TraducirAccion(b.Accion),
+                        Modulo = TraducirModulo(b.Modulo ?? ""),
                         Descripcion = b.Descripcion ?? "",
-                        Exitoso = b.Exitoso ? "Sí" : "No",
+                        Exitoso = b.Exitoso ? "form.filter.yes".Traducir() : "form.filter.no".Traducir(),
                         DireccionIP = b.DireccionIP ?? "",
                         MensajeError = b.MensajeError ?? ""
                     }).ToList();
@@ -234,7 +267,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error filtrando bitácora: {ex.Message}", Text,
+                MessageBox.Show("bitacora.error.load".Traducir(ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -244,22 +277,22 @@ namespace UI.Formularios
             try
             {
                 var result = MessageBox.Show(
-                    "¿Desea eliminar los logs de más de 30 días?\n\nEsta acción no se puede deshacer.",
-                    "Confirmar limpieza",
+                    "bitacora.clean.confirm".Traducir(),
+                    Text,
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes)
                 {
                     _logService.LimpiarLogsAntiguos(30);
-                    MessageBox.Show("Logs antiguos eliminados correctamente.", Text,
+                    MessageBox.Show("bitacora.clean.success".Traducir(), Text,
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     CargarDatos();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error limpiando logs: {ex.Message}", Text,
+                MessageBox.Show("bitacora.clean.error".Traducir(ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -294,14 +327,14 @@ namespace UI.Formularios
                         }
 
                         System.IO.File.WriteAllText(sfd.FileName, contenido);
-                        MessageBox.Show($"Datos exportados correctamente a:\n{sfd.FileName}", Text,
+                        MessageBox.Show("bitacora.export.success".Traducir(), Text,
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error exportando datos: {ex.Message}", Text,
+                MessageBox.Show("bitacora.export.error".Traducir(ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
