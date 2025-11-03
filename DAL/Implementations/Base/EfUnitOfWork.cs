@@ -25,6 +25,7 @@ namespace DAL.Implementations.Base
         private IPedidoDetalleRepository _pedidoDetalles;
         private IPedidoMuestraRepository _pedidosMuestra;
         private IFacturaCabeceraRepository _facturasCabecera;
+        private IArchivoAdjuntoRepository _archivosAdjuntos;
 
         // Repositorios de referencia
         private ITipoProveedorRepository _tiposProveedor;
@@ -84,6 +85,11 @@ namespace DAL.Implementations.Base
         public IFacturaCabeceraRepository FacturasCabecera
         {
             get { return _facturasCabecera ?? (_facturasCabecera = new EfFacturaCabeceraRepository(_context)); }
+        }
+
+        public IArchivoAdjuntoRepository ArchivosAdjuntos
+        {
+            get { return _archivosAdjuntos ?? (_archivosAdjuntos = new EfArchivoAdjuntoRepository(_context)); }
         }
 
         private ITipoEmpresaRepository _tiposEmpresa;

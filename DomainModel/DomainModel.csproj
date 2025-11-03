@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArchivoAdjunto.cs" />
     <Compile Include="Cliente.cs" />
     <Compile Include="DetalleMuestra.cs" />
     <Compile Include="EmisorFactura.cs" />
