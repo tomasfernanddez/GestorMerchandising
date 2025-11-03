@@ -1,4 +1,5 @@
-﻿using DAL.Implementations.Referencia;
+﻿using DAL.Implementations.Principales;
+using DAL.Implementations.Referencia;
 using DAL.Interfaces.Principales;
 using DAL.Interfaces.Referencia;
 using System;
@@ -22,10 +23,11 @@ namespace DAL.Interfaces.Base
         IPedidoDetalleRepository PedidoDetalles { get; }
         IPedidoMuestraRepository PedidosMuestra { get; }
         IFacturaCabeceraRepository FacturasCabecera { get; }
+        IArchivoAdjuntoRepository ArchivosAdjuntos { get; }
 
-    //    ============================================================================
-    // REPOSITORIOS DE REFERENCIA
-    //    ============================================================================
+        //    ============================================================================
+        // REPOSITORIOS DE REFERENCIA
+        //    ============================================================================
         ITipoEmpresaRepository TiposEmpresa { get; }
         ITipoProveedorRepository TiposProveedor { get; }
         ICondicionIvaRepository CondicionesIva { get; }

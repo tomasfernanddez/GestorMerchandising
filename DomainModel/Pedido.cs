@@ -81,5 +81,6 @@ namespace DomainModel
         public virtual ICollection<PedidoDetalle> Detalles { get; set; } = new List<PedidoDetalle>();
         public virtual ICollection<PedidoEstadoHistorial> HistorialEstados { get; set; } = new List<PedidoEstadoHistorial>();
         public virtual ICollection<PedidoNota> Notas { get; set; } = new List<PedidoNota>();
+        public virtual ICollection<ArchivoAdjunto> Adjuntos { get; set; } = new List<ArchivoAdjunto>();
     }
 }

@@ -34,6 +34,7 @@ namespace UI
         private BindingList<PedidoDetalleViewModel> _detalles;
         private List<PedidoNota> _notas;
         private List<PedidoEstadoHistorial> _historial;
+        private BindingList<ArchivoAdjuntoViewModel> _adjuntos;
 
         private List<Cliente> _clientes;
         private List<CategoriaProducto> _categorias;
@@ -51,6 +52,33 @@ namespace UI
         private Guid? _estadoCanceladoId;
         private bool _pedidoCancelado;
         private Guid? _estadoPedidoActual;
+
+        private static readonly HashSet<string> ExtensionesAdjuntosPermitidas = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".pdf",
+            ".doc",
+            ".docx",
+            ".jpg",
+            ".jpeg",
+            ".png"
+        };
+
+        private static readonly Dictionary<string, string> TiposContenidoAdjuntos = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            [".pdf"] = "application/pdf",
+            [".doc"] = "application/msword",
+            [".docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            [".jpg"] = "image/jpeg",
+            [".jpeg"] = "image/jpeg",
+            [".png"] = "image/png"
+        };
+
+        private const string ColAdjuntoNombre = "colAdjuntoNombre";
+        private const string ColAdjuntoExtension = "colAdjuntoExtension";
+        private const string ColAdjuntoTamano = "colAdjuntoTamano";
+        private const string ColAdjuntoFecha = "colAdjuntoFecha";
+        private const string ColAdjuntoUsuario = "colAdjuntoUsuario";
+        private const string ColAdjuntoDescripcion = "colAdjuntoDescripcion";
 
         private sealed class PagoRegistrado
         {
@@ -123,6 +151,30 @@ namespace UI
             btnAgregarPago.Click += btnAgregarPago_Click;
             btnDeshacerPago.Click += btnCancelarPago_Click;
             btnCancelarPedido.Click += btnCancelarPedido_Click;
+
+            btnAgregarAdjunto.Click += BtnAgregarAdjunto_Click;
+            btnDescargarAdjunto.Click += BtnDescargarAdjunto_Click;
+            btnEliminarAdjunto.Click += BtnEliminarAdjunto_Click;
+
+            dgvAdjuntos.SelectionChanged += (s, e) => ActualizarEstadoAdjuntos();
+            dgvAdjuntos.CellValidating += dgvAdjuntos_CellValidating;
+            dgvAdjuntos.DataError += dgvAdjuntos_DataError;
+            dgvAdjuntos.CellDoubleClick += DgvAdjuntos_CellDoubleClick;
+
+            dgvAdjuntos.AllowDrop = true;
+            dgvAdjuntos.DragEnter += Adjuntos_DragEnter;
+            dgvAdjuntos.DragDrop += Adjuntos_DragDrop;
+
+            tableAdjuntos.AllowDrop = true;
+            tableAdjuntos.DragEnter += Adjuntos_DragEnter;
+            tableAdjuntos.DragDrop += Adjuntos_DragDrop;
+
+            tabAdjuntos.AllowDrop = true;
+            tabAdjuntos.DragEnter += Adjuntos_DragEnter;
+            tabAdjuntos.DragDrop += Adjuntos_DragDrop;
+
+            ConfigurarGrillaAdjuntos();
+            ActualizarEstadoAdjuntos();
         }
 
         private void PedidoForm_Load(object sender, EventArgs e)
@@ -130,6 +182,7 @@ namespace UI
             ApplyTexts();
             CargarDatosReferencia();
             ConfigurarGrillaDetalles();
+            ActualizarTextoColumnasAdjuntos();
 
             if (_pedidoId.HasValue)
             {
@@ -150,11 +203,83 @@ namespace UI
             }
         }
 
+        private void ConfigurarGrillaAdjuntos()
+        {
+            dgvAdjuntos.AutoGenerateColumns = false;
+            dgvAdjuntos.Columns.Clear();
+
+            var colNombre = new DataGridViewTextBoxColumn
+            {
+                Name = ColAdjuntoNombre,
+                DataPropertyName = nameof(ArchivoAdjuntoViewModel.NombreArchivo),
+                ReadOnly = true,
+                Width = 200
+            };
+
+            var colExtension = new DataGridViewTextBoxColumn
+            {
+                Name = ColAdjuntoExtension,
+                DataPropertyName = nameof(ArchivoAdjuntoViewModel.Extension),
+                ReadOnly = true,
+                Width = 80
+            };
+
+            var colTamano = new DataGridViewTextBoxColumn
+            {
+                Name = ColAdjuntoTamano,
+                DataPropertyName = nameof(ArchivoAdjuntoViewModel.TamanoLegible),
+                ReadOnly = true,
+                Width = 110
+            };
+
+            var colFecha = new DataGridViewTextBoxColumn
+            {
+                Name = ColAdjuntoFecha,
+                DataPropertyName = nameof(ArchivoAdjuntoViewModel.FechaSubidaTexto),
+                ReadOnly = true,
+                Width = 140
+            };
+
+            var colUsuario = new DataGridViewTextBoxColumn
+            {
+                Name = ColAdjuntoUsuario,
+                DataPropertyName = nameof(ArchivoAdjuntoViewModel.NombreUsuario),
+                ReadOnly = true,
+                Width = 120
+            };
+
+            var colDescripcion = new DataGridViewTextBoxColumn
+            {
+                Name = ColAdjuntoDescripcion,
+                DataPropertyName = nameof(ArchivoAdjuntoViewModel.Descripcion),
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                ReadOnly = false
+            };
+
+            dgvAdjuntos.Columns.AddRange(colNombre, colExtension, colTamano, colFecha, colUsuario, colDescripcion);
+            dgvAdjuntos.MultiSelect = false;
+            dgvAdjuntos.EditMode = DataGridViewEditMode.EditOnEnter;
+        }
+
+        private void ActualizarTextoColumnasAdjuntos()
+        {
+            if (dgvAdjuntos.Columns.Count == 0)
+                return;
+
+            dgvAdjuntos.Columns[ColAdjuntoNombre].HeaderText = "order.attachments.column.name".Traducir();
+            dgvAdjuntos.Columns[ColAdjuntoExtension].HeaderText = "order.attachments.column.extension".Traducir();
+            dgvAdjuntos.Columns[ColAdjuntoTamano].HeaderText = "order.attachments.column.size".Traducir();
+            dgvAdjuntos.Columns[ColAdjuntoFecha].HeaderText = "order.attachments.column.date".Traducir();
+            dgvAdjuntos.Columns[ColAdjuntoUsuario].HeaderText = "order.attachments.column.user".Traducir();
+            dgvAdjuntos.Columns[ColAdjuntoDescripcion].HeaderText = "order.attachments.column.description".Traducir();
+        }
+
         private void ApplyTexts()
         {
             Text = _pedidoId.HasValue ? "order.edit.title".Traducir() : "order.new.title".Traducir();
             tabGeneral.Text = "order.tab.general".Traducir();
             tabDetalles.Text = "order.tab.details".Traducir();
+            tabAdjuntos.Text = "order.tab.attachments".Traducir();
             tabNotas.Text = "order.tab.tracking".Traducir();
 
             lblNumeroPedido.Text = "order.number".Traducir();
@@ -191,6 +316,13 @@ namespace UI
             gbNotas.Text = "order.internalNotes".Traducir();
             btnAgregarNota.Text = "order.note.add".Traducir();
 
+            lblAdjuntosInstrucciones.Text = "order.attachments.instructions".Traducir();
+            btnAgregarAdjunto.Text = "order.attachments.add".Traducir();
+            btnDescargarAdjunto.Text = "order.attachments.download".Traducir();
+            btnEliminarAdjunto.Text = "order.attachments.remove".Traducir();
+
+            ActualizarTextoColumnasAdjuntos();
+
             btnGuardar.Text = "form.save".Traducir();
             btnCancelar.Text = "form.cancel".Traducir();
             btnCancelarPedido.Text = "order.cancel.button".Traducir();
@@ -204,6 +336,237 @@ namespace UI
             {
                 ActualizarEncabezadosDetalles();
             }
+        }
+
+        private void ActualizarEstadoAdjuntos()
+        {
+            var adjunto = ObtenerAdjuntoSeleccionado();
+            var habilitado = adjunto != null;
+            btnDescargarAdjunto.Enabled = habilitado;
+            btnEliminarAdjunto.Enabled = habilitado;
+        }
+
+        private void BtnAgregarAdjunto_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Title = "order.attachments.openTitle".Traducir();
+                var filterPermitidos = "order.attachments.filter.allowed".Traducir();
+                var filterTodos = "order.attachments.filter.all".Traducir();
+                dialog.Filter = $"{filterPermitidos}|*.pdf;*.doc;*.docx;*.jpg;*.jpeg;*.png|{filterTodos}|*.*";
+                dialog.Multiselect = true;
+
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    AgregarArchivos(dialog.FileNames);
+                }
+            }
+        }
+
+        private void BtnDescargarAdjunto_Click(object sender, EventArgs e)
+        {
+            var adjunto = ObtenerAdjuntoSeleccionado();
+            if (adjunto == null)
+            {
+                MessageBox.Show("order.attachments.select".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.FileName = adjunto.NombreArchivo;
+                var extension = NormalizarExtensionAdjunto(adjunto.Extension) ?? NormalizarExtensionAdjunto(Path.GetExtension(adjunto.NombreArchivo));
+                var filtroPrincipal = extension == null
+                    ? string.Empty
+                    : string.Format("order.attachments.filter.single".Traducir(), extension.TrimStart('.'));
+                var filterTodos = "order.attachments.filter.all".Traducir();
+                if (string.IsNullOrEmpty(filtroPrincipal))
+                {
+                    dialog.Filter = $"{filterTodos}|*.*";
+                }
+                else
+                {
+                    var patron = "*" + extension.ToLowerInvariant();
+                    dialog.Filter = $"{filtroPrincipal}|{patron}|{filterTodos}|*.*";
+                }
+
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                    return;
+
+                try
+                {
+                    File.WriteAllBytes(dialog.FileName, adjunto.Contenido ?? Array.Empty<byte>());
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("order.attachments.save.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void BtnEliminarAdjunto_Click(object sender, EventArgs e)
+        {
+            var adjunto = ObtenerAdjuntoSeleccionado();
+            if (adjunto == null)
+            {
+                MessageBox.Show("order.attachments.select".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var mensaje = string.Format("order.attachments.delete.confirm".Traducir(), adjunto.NombreArchivo);
+            if (MessageBox.Show(mensaje, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            _adjuntos?.Remove(adjunto);
+            ActualizarEstadoAdjuntos();
+        }
+
+        private void Adjuntos_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void Adjuntos_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data == null || !e.Data.GetDataPresent(DataFormats.FileDrop))
+                return;
+
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] rutas)
+            {
+                AgregarArchivos(rutas);
+            }
+        }
+
+        private void dgvAdjuntos_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            if (dgvAdjuntos.Columns[e.ColumnIndex].Name != ColAdjuntoDescripcion)
+                return;
+
+            var texto = e.FormattedValue?.ToString();
+            if (!string.IsNullOrEmpty(texto) && texto.Length > 500)
+            {
+                e.Cancel = true;
+                MessageBox.Show("order.attachments.description.max".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (e.RowIndex >= 0 && e.RowIndex < dgvAdjuntos.Rows.Count)
+            {
+                dgvAdjuntos.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = texto?.Trim();
+            }
+        }
+
+        private void dgvAdjuntos_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            e.ThrowException = false;
+        }
+
+        private void DgvAdjuntos_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                BtnDescargarAdjunto_Click(sender, EventArgs.Empty);
+            }
+        }
+
+        private void AgregarArchivos(IEnumerable<string> rutas)
+        {
+            if (rutas == null)
+                return;
+
+            if (_adjuntos == null)
+            {
+                _adjuntos = new BindingList<ArchivoAdjuntoViewModel>();
+                dgvAdjuntos.DataSource = _adjuntos;
+            }
+
+            var agregado = false;
+
+            foreach (var ruta in rutas)
+            {
+                if (string.IsNullOrWhiteSpace(ruta) || !File.Exists(ruta))
+                    continue;
+
+                var extension = NormalizarExtensionAdjunto(Path.GetExtension(ruta));
+                if (string.IsNullOrEmpty(extension) || !ExtensionesAdjuntosPermitidas.Contains(extension))
+                {
+                    MessageBox.Show("order.attachments.invalidType".Traducir(Path.GetFileName(ruta)), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    continue;
+                }
+
+                var info = new FileInfo(ruta);
+                if (info.Length > ArchivoAdjuntoHelper.MaxFileSizeBytes)
+                {
+                    MessageBox.Show("order.attachments.invalidSize".Traducir(Path.GetFileName(ruta)), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    continue;
+                }
+
+                byte[] contenido;
+                try
+                {
+                    contenido = File.ReadAllBytes(ruta);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("order.attachments.read.error".Traducir(Path.GetFileName(ruta), ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    continue;
+                }
+
+                var adjunto = new ArchivoAdjuntoViewModel
+                {
+                    IdArchivoAdjunto = Guid.Empty,
+                    NombreArchivo = Path.GetFileName(ruta),
+                    Extension = extension,
+                    TipoContenido = ObtenerTipoContenido(extension),
+                    TamanoBytes = contenido.LongLength,
+                    FechaSubida = DateTime.UtcNow,
+                    IdUsuario = SessionContext.IdUsuario,
+                    NombreUsuario = SessionContext.NombreUsuario ?? "Sistema",
+                    Descripcion = string.Empty,
+                    Contenido = contenido
+                };
+
+                _adjuntos.Add(adjunto);
+                agregado = true;
+            }
+
+            if (agregado)
+            {
+                dgvAdjuntos.Refresh();
+                ActualizarEstadoAdjuntos();
+            }
+        }
+
+        private ArchivoAdjuntoViewModel ObtenerAdjuntoSeleccionado()
+        {
+            return dgvAdjuntos.CurrentRow?.DataBoundItem as ArchivoAdjuntoViewModel;
+        }
+
+        private static string NormalizarExtensionAdjunto(string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension))
+                return null;
+
+            var valor = extension.StartsWith(".") ? extension : "." + extension;
+            if (valor.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
+                valor = ".jpg";
+
+            return valor.ToUpperInvariant();
+        }
+
+        private string ObtenerTipoContenido(string extension)
+        {
+            if (!string.IsNullOrEmpty(extension) && TiposContenidoAdjuntos.TryGetValue(extension, out var tipo))
+                return tipo;
+
+            return "application/octet-stream";
         }
 
         private void CargarDatosReferencia()
@@ -568,7 +931,12 @@ namespace UI
 
                 _notas = _pedidoOriginal.Notas?.OrderBy(n => n.Fecha).Select(CloneNota).ToList() ?? new List<PedidoNota>();
                 _historial = _pedidoOriginal.HistorialEstados?.OrderBy(h => h.FechaCambio).Select(CloneHistorial).ToList() ?? new List<PedidoEstadoHistorial>();
-                
+
+                var adjuntos = _pedidoOriginal.Adjuntos?.Select(MapearAdjunto).Where(a => a != null).ToList() ?? new List<ArchivoAdjuntoViewModel>();
+                _adjuntos = new BindingList<ArchivoAdjuntoViewModel>(adjuntos);
+                dgvAdjuntos.DataSource = _adjuntos;
+                ActualizarEstadoAdjuntos();
+
                 ActualizarAccionesCancelacion();
                 ActualizarEstadoPedidoAutomatico();
             }
@@ -587,6 +955,8 @@ namespace UI
             dgvDetalles.DataSource = _detalles;
             _notas = new List<PedidoNota>();
             _historial = new List<PedidoEstadoHistorial>();
+            _adjuntos = new BindingList<ArchivoAdjuntoViewModel>();
+            dgvAdjuntos.DataSource = _adjuntos;
             _montoPagadoBase = 0m;
             _montoPagadoActual = 0m;
             _pagosRegistrados.Clear();
@@ -594,6 +964,7 @@ namespace UI
             _pedidoCancelado = false;
             ActualizarAccionesCancelacion();
             ActualizarEstadoPedidoAutomatico();
+            ActualizarEstadoAdjuntos();
         }
 
         private PedidoDetalleViewModel MapearDetalle(PedidoDetalle detalle)
@@ -634,6 +1005,70 @@ namespace UI
                 Cantidad = logo.Cantidad,
                 Costo = logo.CostoPersonalizacion,
                 Descripcion = logo.Descripcion
+            };
+        }
+
+        private ArchivoAdjuntoViewModel MapearAdjunto(ArchivoAdjunto adjunto)
+        {
+            if (adjunto == null)
+                return null;
+
+            var extension = NormalizarExtensionAdjunto(adjunto.Extension ?? Path.GetExtension(adjunto.NombreArchivo));
+            var fecha = adjunto.FechaSubida;
+            if (fecha != default)
+            {
+                if (fecha.Kind == DateTimeKind.Local)
+                    fecha = fecha.ToUniversalTime();
+                else if (fecha.Kind == DateTimeKind.Unspecified)
+                    fecha = DateTime.SpecifyKind(fecha, DateTimeKind.Utc);
+            }
+
+            return new ArchivoAdjuntoViewModel
+            {
+                IdArchivoAdjunto = adjunto.IdArchivoAdjunto,
+                IdPedido = adjunto.IdPedido,
+                NombreArchivo = adjunto.NombreArchivo,
+                Extension = extension,
+                TipoContenido = adjunto.TipoContenido,
+                TamanoBytes = adjunto.TamanoBytes,
+                FechaSubida = fecha == default ? DateTime.UtcNow : fecha,
+                IdUsuario = adjunto.IdUsuario,
+                NombreUsuario = adjunto.NombreUsuario,
+                Descripcion = adjunto.Descripcion,
+                Contenido = adjunto.Contenido
+            };
+        }
+
+        private ArchivoAdjunto MapearAdjuntoDominio(ArchivoAdjuntoViewModel vm, Guid pedidoId)
+        {
+            if (vm == null)
+                return null;
+
+            var extension = NormalizarExtensionAdjunto(vm.Extension ?? Path.GetExtension(vm.NombreArchivo));
+            var fecha = vm.FechaSubida;
+            if (fecha.Kind == DateTimeKind.Local)
+            {
+                fecha = fecha.ToUniversalTime();
+            }
+            else if (fecha.Kind == DateTimeKind.Unspecified)
+            {
+                fecha = DateTime.SpecifyKind(fecha, DateTimeKind.Utc);
+            }
+
+            return new ArchivoAdjunto
+            {
+                IdArchivoAdjunto = vm.IdArchivoAdjunto,
+                IdPedido = pedidoId == Guid.Empty ? (Guid?)null : pedidoId,
+                IdPedidoMuestra = null,
+                NombreArchivo = vm.NombreArchivo,
+                Extension = extension,
+                TipoContenido = vm.TipoContenido ?? ObtenerTipoContenido(extension),
+                TamanoBytes = vm.TamanoBytes,
+                FechaSubida = fecha == default ? DateTime.UtcNow : fecha,
+                IdUsuario = vm.IdUsuario,
+                NombreUsuario = vm.NombreUsuario,
+                Descripcion = string.IsNullOrWhiteSpace(vm.Descripcion) ? null : vm.Descripcion.Trim(),
+                Contenido = vm.Contenido ?? Array.Empty<byte>()
             };
         }
 
@@ -1518,6 +1953,18 @@ namespace UI
             }
 
             pedido.HistorialEstados = _historial.Select(CloneHistorial).ToList();
+
+            if (_adjuntos != null)
+            {
+                pedido.Adjuntos = _adjuntos
+                    .Select(vm => MapearAdjuntoDominio(vm, pedido.IdPedido))
+                    .Where(a => a != null)
+                    .ToList();
+            }
+            else
+            {
+                pedido.Adjuntos = new List<ArchivoAdjunto>();
+            }
 
             return pedido;
         }

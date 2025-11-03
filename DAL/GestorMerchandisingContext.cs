@@ -41,6 +41,7 @@ namespace DAL
         public virtual DbSet<PedidoNota> PedidoNotas { get; set; }
         public virtual DbSet<PedidoMuestra> PedidosMuestra { get; set; }
         public virtual DbSet<DetalleMuestra> DetalleMuestras { get; set; }
+        public virtual DbSet<ArchivoAdjunto> ArchivosAdjuntos { get; set; }
         public virtual DbSet<FacturaCabecera> FacturasCabecera { get; set; }
         public virtual DbSet<FacturaDetalle> FacturasDetalle { get; set; }
         public virtual DbSet<LogosPedido> LogosPedidos { get; set; }
@@ -191,6 +192,19 @@ namespace DAL
                 .HasRequired(lp => lp.DetallePedido)
                 .WithMany(pd => pd.LogosPedido)
                 .HasForeignKey(lp => lp.IdDetallePedido)
+                .WillCascadeOnDelete(false);
+
+            // Archivos adjuntos -> Pedido / PedidoMuestra
+            modelBuilder.Entity<ArchivoAdjunto>()
+                .HasOptional(a => a.Pedido)
+                .WithMany(p => p.Adjuntos)
+                .HasForeignKey(a => a.IdPedido)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<ArchivoAdjunto>()
+                .HasOptional(a => a.PedidoMuestra)
+                .WithMany(pm => pm.Adjuntos)
+                .HasForeignKey(a => a.IdPedidoMuestra)
                 .WillCascadeOnDelete(false);
 
             // EmisorFactura -> FacturasCabecera

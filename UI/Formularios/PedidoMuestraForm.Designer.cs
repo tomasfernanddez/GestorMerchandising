@@ -62,6 +62,14 @@
             this.lblExtenderDias = new System.Windows.Forms.Label();
             this.nudDiasExtension = new System.Windows.Forms.NumericUpDown();
             this.btnExtenderDias = new System.Windows.Forms.Button();
+            this.grpAdjuntos = new System.Windows.Forms.GroupBox();
+            this.tableAdjuntos = new System.Windows.Forms.TableLayoutPanel();
+            this.lblAdjuntosInstrucciones = new System.Windows.Forms.Label();
+            this.dgvAdjuntos = new System.Windows.Forms.DataGridView();
+            this.panelAdjuntosAcciones = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnAgregarAdjunto = new System.Windows.Forms.Button();
+            this.btnDescargarAdjunto = new System.Windows.Forms.Button();
+            this.btnEliminarAdjunto = new System.Windows.Forms.Button();
             this.grpPagos = new System.Windows.Forms.GroupBox();
             this.layoutPagos = new System.Windows.Forms.TableLayoutPanel();
             this.lblTotal = new System.Windows.Forms.Label();
@@ -85,6 +93,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalles)).BeginInit();
             this.flowDetalles.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudDiasExtension)).BeginInit();
+            this.grpAdjuntos.SuspendLayout();
+            this.tableAdjuntos.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAdjuntos)).BeginInit();
+            this.panelAdjuntosAcciones.SuspendLayout();
             this.grpPagos.SuspendLayout();
             this.layoutPagos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPago)).BeginInit();
@@ -97,14 +109,16 @@
             this.layoutMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.layoutMain.Controls.Add(this.grpGeneral, 0, 0);
             this.layoutMain.Controls.Add(this.grpDetalles, 0, 1);
-            this.layoutMain.Controls.Add(this.grpPagos, 0, 2);
-            this.layoutMain.Controls.Add(this.flowButtons, 0, 3);
+            this.layoutMain.Controls.Add(this.grpAdjuntos, 0, 2);
+            this.layoutMain.Controls.Add(this.grpPagos, 0, 3);
+            this.layoutMain.Controls.Add(this.flowButtons, 0, 4);
             this.layoutMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutMain.Location = new System.Drawing.Point(10, 10);
             this.layoutMain.Name = "layoutMain";
-            this.layoutMain.RowCount = 4;
+            this.layoutMain.RowCount = 5;
             this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.layoutMain.Size = new System.Drawing.Size(864, 641);
@@ -496,15 +510,115 @@
             this.btnExtenderDias.Text = "sampleOrder.extend.due";
             this.btnExtenderDias.UseVisualStyleBackColor = true;
             this.btnExtenderDias.Click += new System.EventHandler(this.btnExtenderDias_Click);
+            //
+            // grpAdjuntos
+            //
+            this.grpAdjuntos.Controls.Add(this.tableAdjuntos);
+            this.grpAdjuntos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpAdjuntos.Location = new System.Drawing.Point(3, 523);
+            this.grpAdjuntos.Name = "grpAdjuntos";
+            this.grpAdjuntos.Size = new System.Drawing.Size(858, 199);
+            this.grpAdjuntos.TabIndex = 2;
+            this.grpAdjuntos.TabStop = false;
+            this.grpAdjuntos.Text = "order.tab.attachments";
+            //
+            // tableAdjuntos
+            //
+            this.tableAdjuntos.ColumnCount = 1;
+            this.tableAdjuntos.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableAdjuntos.Controls.Add(this.lblAdjuntosInstrucciones, 0, 0);
+            this.tableAdjuntos.Controls.Add(this.dgvAdjuntos, 0, 1);
+            this.tableAdjuntos.Controls.Add(this.panelAdjuntosAcciones, 0, 2);
+            this.tableAdjuntos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableAdjuntos.Location = new System.Drawing.Point(3, 16);
+            this.tableAdjuntos.Name = "tableAdjuntos";
+            this.tableAdjuntos.RowCount = 3;
+            this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableAdjuntos.Size = new System.Drawing.Size(852, 180);
+            this.tableAdjuntos.TabIndex = 0;
+            //
+            // lblAdjuntosInstrucciones
+            //
+            this.lblAdjuntosInstrucciones.AutoSize = true;
+            this.lblAdjuntosInstrucciones.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblAdjuntosInstrucciones.Location = new System.Drawing.Point(3, 0);
+            this.lblAdjuntosInstrucciones.Margin = new System.Windows.Forms.Padding(3, 0, 3, 6);
+            this.lblAdjuntosInstrucciones.Name = "lblAdjuntosInstrucciones";
+            this.lblAdjuntosInstrucciones.Size = new System.Drawing.Size(846, 13);
+            this.lblAdjuntosInstrucciones.TabIndex = 0;
+            this.lblAdjuntosInstrucciones.Text = "order.attachments.instructions";
+            //
+            // dgvAdjuntos
+            //
+            this.dgvAdjuntos.AllowUserToAddRows = false;
+            this.dgvAdjuntos.AllowUserToDeleteRows = false;
+            this.dgvAdjuntos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvAdjuntos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvAdjuntos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvAdjuntos.Location = new System.Drawing.Point(3, 19);
+            this.dgvAdjuntos.MultiSelect = false;
+            this.dgvAdjuntos.Name = "dgvAdjuntos";
+            this.dgvAdjuntos.RowHeadersVisible = false;
+            this.dgvAdjuntos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvAdjuntos.Size = new System.Drawing.Size(846, 126);
+            this.dgvAdjuntos.TabIndex = 1;
+            //
+            // panelAdjuntosAcciones
+            //
+            this.panelAdjuntosAcciones.AutoSize = true;
+            this.panelAdjuntosAcciones.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panelAdjuntosAcciones.Controls.Add(this.btnAgregarAdjunto);
+            this.panelAdjuntosAcciones.Controls.Add(this.btnDescargarAdjunto);
+            this.panelAdjuntosAcciones.Controls.Add(this.btnEliminarAdjunto);
+            this.panelAdjuntosAcciones.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelAdjuntosAcciones.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.panelAdjuntosAcciones.Location = new System.Drawing.Point(3, 154);
+            this.panelAdjuntosAcciones.Name = "panelAdjuntosAcciones";
+            this.panelAdjuntosAcciones.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.panelAdjuntosAcciones.Size = new System.Drawing.Size(846, 23);
+            this.panelAdjuntosAcciones.TabIndex = 2;
+            this.panelAdjuntosAcciones.WrapContents = false;
+            //
+            // btnAgregarAdjunto
+            //
+            this.btnAgregarAdjunto.AutoSize = true;
+            this.btnAgregarAdjunto.Location = new System.Drawing.Point(3, 9);
+            this.btnAgregarAdjunto.Name = "btnAgregarAdjunto";
+            this.btnAgregarAdjunto.Size = new System.Drawing.Size(107, 23);
+            this.btnAgregarAdjunto.TabIndex = 0;
+            this.btnAgregarAdjunto.Text = "order.attachments.add";
+            this.btnAgregarAdjunto.UseVisualStyleBackColor = true;
+            //
+            // btnDescargarAdjunto
+            //
+            this.btnDescargarAdjunto.AutoSize = true;
+            this.btnDescargarAdjunto.Location = new System.Drawing.Point(116, 9);
+            this.btnDescargarAdjunto.Name = "btnDescargarAdjunto";
+            this.btnDescargarAdjunto.Size = new System.Drawing.Size(117, 23);
+            this.btnDescargarAdjunto.TabIndex = 1;
+            this.btnDescargarAdjunto.Text = "order.attachments.download";
+            this.btnDescargarAdjunto.UseVisualStyleBackColor = true;
+            //
+            // btnEliminarAdjunto
+            //
+            this.btnEliminarAdjunto.AutoSize = true;
+            this.btnEliminarAdjunto.Location = new System.Drawing.Point(239, 9);
+            this.btnEliminarAdjunto.Name = "btnEliminarAdjunto";
+            this.btnEliminarAdjunto.Size = new System.Drawing.Size(104, 23);
+            this.btnEliminarAdjunto.TabIndex = 2;
+            this.btnEliminarAdjunto.Text = "order.attachments.remove";
+            this.btnEliminarAdjunto.UseVisualStyleBackColor = true;
             // 
             // grpPagos
             // 
             this.grpPagos.Controls.Add(this.layoutPagos);
             this.grpPagos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpPagos.Location = new System.Drawing.Point(3, 523);
+            this.grpPagos.Location = new System.Drawing.Point(3, 728);
             this.grpPagos.Name = "grpPagos";
             this.grpPagos.Size = new System.Drawing.Size(858, 80);
-            this.grpPagos.TabIndex = 2;
+            this.grpPagos.TabIndex = 3;
             this.grpPagos.TabStop = false;
             this.grpPagos.Text = "sampleOrder.group.payments";
             // 
@@ -662,7 +776,7 @@
             this.flowButtons.Controls.Add(this.btnCancelar);
             this.flowButtons.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowButtons.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowButtons.Location = new System.Drawing.Point(3, 609);
+            this.flowButtons.Location = new System.Drawing.Point(3, 814);
             this.flowButtons.Name = "flowButtons";
             this.flowButtons.Size = new System.Drawing.Size(858, 29);
             this.flowButtons.TabIndex = 3;
@@ -712,6 +826,12 @@
             this.flowDetalles.ResumeLayout(false);
             this.flowDetalles.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudDiasExtension)).EndInit();
+            this.grpAdjuntos.ResumeLayout(false);
+            this.tableAdjuntos.ResumeLayout(false);
+            this.tableAdjuntos.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAdjuntos)).EndInit();
+            this.panelAdjuntosAcciones.ResumeLayout(false);
+            this.panelAdjuntosAcciones.PerformLayout();
             this.grpPagos.ResumeLayout(false);
             this.layoutPagos.ResumeLayout(false);
             this.layoutPagos.PerformLayout();
@@ -758,6 +878,14 @@
         private System.Windows.Forms.Label lblExtenderDias;
         private System.Windows.Forms.NumericUpDown nudDiasExtension;
         private System.Windows.Forms.Button btnExtenderDias;
+        private System.Windows.Forms.GroupBox grpAdjuntos;
+        private System.Windows.Forms.TableLayoutPanel tableAdjuntos;
+        private System.Windows.Forms.Label lblAdjuntosInstrucciones;
+        private System.Windows.Forms.DataGridView dgvAdjuntos;
+        private System.Windows.Forms.FlowLayoutPanel panelAdjuntosAcciones;
+        private System.Windows.Forms.Button btnAgregarAdjunto;
+        private System.Windows.Forms.Button btnDescargarAdjunto;
+        private System.Windows.Forms.Button btnEliminarAdjunto;
         private System.Windows.Forms.GroupBox grpPagos;
         private System.Windows.Forms.TableLayoutPanel layoutPagos;
         private System.Windows.Forms.Label lblTotal;
