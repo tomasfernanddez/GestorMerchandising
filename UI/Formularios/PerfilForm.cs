@@ -80,15 +80,12 @@ namespace UI.Formularios
                 txtDescripcion.Text = _perfilOriginal.Descripcion;
                 chkActivo.Checked = _perfilOriginal.Activo;
 
-                if (_perfilOriginal.Funciones != null)
+                var idsSeleccionados = new HashSet<Guid>(_perfilOriginal.ObtenerFunciones(false).Select(f => f.IdFuncion));
+                for (var i = 0; i < clbFunciones.Items.Count; i++)
                 {
-                    var idsSeleccionados = new HashSet<Guid>(_perfilOriginal.Funciones.Select(f => f.IdFuncion));
-                    for (var i = 0; i < clbFunciones.Items.Count; i++)
+                    if (clbFunciones.Items[i] is Funcion funcion && idsSeleccionados.Contains(funcion.IdFuncion))
                     {
-                        if (clbFunciones.Items[i] is Funcion funcion && idsSeleccionados.Contains(funcion.IdFuncion))
-                        {
-                            clbFunciones.SetItemChecked(i, true);
-                        }
+                        clbFunciones.SetItemChecked(i, true);
                     }
                 }
             }

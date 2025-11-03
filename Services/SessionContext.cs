@@ -42,20 +42,17 @@ namespace Services
 
             _funciones.Clear();
 
-            if (usuario.Perfil?.Funciones != null)
+            foreach (var funcion in usuario.ObtenerFunciones())
             {
-                foreach (var funcion in usuario.Perfil.Funciones)
+                if (funcion?.Activo != true)
                 {
-                    if (funcion?.Activo != true)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    var codigoNormalizado = funcion.Codigo?.Trim();
-                    if (!string.IsNullOrWhiteSpace(codigoNormalizado))
-                    {
-                        _funciones.Add(codigoNormalizado);
-                    }
+                var codigoNormalizado = funcion.Codigo?.Trim();
+                if (!string.IsNullOrWhiteSpace(codigoNormalizado))
+                {
+                    _funciones.Add(codigoNormalizado);
                 }
             }
         }

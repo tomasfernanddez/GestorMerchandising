@@ -264,7 +264,6 @@
             this.tabReportes.Controls.Add(this.tabCategorias);
             this.tabReportes.Controls.Add(this.tabFacturacion);
             this.tabReportes.Controls.Add(this.tabPedidosCliente);
-            this.tabReportes.Controls.Add(this.tabPedidosProveedor);
             this.tabReportes.Controls.Add(this.tabMejoresClientes);
             this.tabReportes.Controls.Add(this.tabClientesSaldo);
             this.tabReportes.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -824,14 +823,6 @@
             this.lblPedidosProveedorPeriodo.Size = new System.Drawing.Size(92, 20);
             this.lblPedidosProveedorPeriodo.TabIndex = 0;
             this.lblPedidosProveedorPeriodo.Text = "Tipo período";
-            // cmbPedidosProveedorPeriodo
-            this.cmbPedidosProveedorPeriodo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbPedidosProveedorPeriodo.FormattingEnabled = true;
-            this.cmbPedidosProveedorPeriodo.Location = new System.Drawing.Point(101, 3);
-            this.cmbPedidosProveedorPeriodo.Name = "cmbPedidosProveedorPeriodo";
-            this.cmbPedidosProveedorPeriodo.Size = new System.Drawing.Size(140, 28);
-            this.cmbPedidosProveedorPeriodo.TabIndex = 1;
-            this.cmbPedidosProveedorPeriodo.SelectedIndexChanged += new System.EventHandler(this.cmbPedidosProveedorPeriodo_SelectedIndexChanged);
             // lblPedidosProveedorMes
             this.lblPedidosProveedorMes.AutoSize = true;
             this.lblPedidosProveedorMes.Location = new System.Drawing.Point(247, 0);
@@ -876,17 +867,6 @@
             0,
             0,
             0});
-            // btnPedidosProveedorAplicar
-            this.btnPedidosProveedorAplicar.AutoSize = true;
-            this.btnPedidosProveedorAplicar.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnPedidosProveedorAplicar.Location = new System.Drawing.Point(545, 3);
-            this.btnPedidosProveedorAplicar.Name = "btnPedidosProveedorAplicar";
-            this.btnPedidosProveedorAplicar.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
-            this.btnPedidosProveedorAplicar.Size = new System.Drawing.Size(87, 33);
-            this.btnPedidosProveedorAplicar.TabIndex = 6;
-            this.btnPedidosProveedorAplicar.Text = "Actualizar";
-            this.btnPedidosProveedorAplicar.UseVisualStyleBackColor = true;
-            this.btnPedidosProveedorAplicar.Click += new System.EventHandler(this.btnPedidosProveedorAplicar_Click);
             // dgvPedidosProveedor
             this.dgvPedidosProveedor.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvPedidosProveedor.Dock = System.Windows.Forms.DockStyle.Fill;

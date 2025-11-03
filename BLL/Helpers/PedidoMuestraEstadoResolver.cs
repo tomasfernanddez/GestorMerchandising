@@ -45,9 +45,9 @@ namespace BLL.Helpers
                     return CrearResultado(finalizado);
             }
 
-            if (lista.Any(s => Contiene(s, "factur")))
+            if (lista.Any(s => Contiene(s, "pago")))
             {
-                var facturar = BuscarEstado(catalogo, "factur");
+                var facturar = BuscarEstado(catalogo, "pago");
                 if (facturar != null)
                     return CrearResultado(facturar);
             }
@@ -59,7 +59,7 @@ namespace BLL.Helpers
                     return CrearResultado(enCliente);
             }
 
-            if (lista.Any(s => Contiene(s, "pend")))
+            if (lista.Any(s => Contiene(s, "env")))
             {
                 var pendiente = BuscarEstadoPendiente(catalogo);
                 if (pendiente != null)
@@ -115,7 +115,7 @@ namespace BLL.Helpers
 
         private static EstadoPedidoMuestra BuscarEstadoPendiente(IEnumerable<EstadoPedidoMuestra> estados)
         {
-            var pendiente = BuscarEstado(estados, "pend");
+            var pendiente = BuscarEstado(estados, "env");
             if (pendiente != null)
                 return pendiente;
 

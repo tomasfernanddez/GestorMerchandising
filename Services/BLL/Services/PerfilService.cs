@@ -263,35 +263,22 @@ namespace Services.BLL.Services
                 return;
             }
 
-            if (perfilDestino.Funciones == null)
-            {
-                perfilDestino.Funciones = new List<Funcion>();
-            }
-            else
-            {
-                perfilDestino.Funciones.Clear();
-            }
-
-            if (funcionesSeleccionadas == null)
-            {
-                return;
-            }
-
-            var ids = funcionesSeleccionadas
+            var ids = funcionesSeleccionadas?
                 .Where(id => id != Guid.Empty)
                 .Distinct()
-                .ToList();
+                .ToList() ?? new List<Guid>();
 
             if (!ids.Any())
             {
+                perfilDestino.ReemplazarFunciones(Enumerable.Empty<Funcion>());
                 return;
             }
 
-            var funciones = _unitOfWork.Funciones.Find(f => ids.Contains(f.IdFuncion) && f.Activo);
-            foreach (var funcion in funciones)
-            {
-                perfilDestino.Funciones.Add(funcion);
-            }
+            var funciones = _unitOfWork.Funciones
+                .Find(f => ids.Contains(f.IdFuncion) && f.Activo)
+                .ToList();
+
+            perfilDestino.ReemplazarFunciones(funciones);
         }
 
         private static string ObtenerMensajeProfundo(Exception ex)

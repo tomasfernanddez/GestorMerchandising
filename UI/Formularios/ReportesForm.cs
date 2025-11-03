@@ -28,7 +28,6 @@ namespace UI.Formularios
             CargarCategorias();
             CargarFacturacion();
             CargarPedidosCliente();
-            CargarPedidosProveedor();
             CargarMejoresClientes();
             CargarClientesSaldo();
             ActualizarBotonesExport();
@@ -43,7 +42,6 @@ namespace UI.Formularios
             tabCategorias.Text = "report.tab.sales.categories".Traducir();
             tabFacturacion.Text = "report.tab.billing".Traducir();
             tabPedidosCliente.Text = "report.tab.orders.client".Traducir();
-            tabPedidosProveedor.Text = "report.tab.orders.provider".Traducir();
             tabMejoresClientes.Text = "report.tab.sales.bestClients".Traducir();
             tabClientesSaldo.Text = "report.tab.clients.balance".Traducir();
 
@@ -66,10 +64,6 @@ namespace UI.Formularios
             lblPedidosClienteAnio.Text = "report.filters.anio".Traducir();
             chkPedidosClienteSaldo.Text = "report.filters.onlyBalance".Traducir();
 
-            lblPedidosProveedorPeriodo.Text = "report.filters.periodType".Traducir();
-            lblPedidosProveedorMes.Text = "report.filters.mes".Traducir();
-            lblPedidosProveedorAnio.Text = "report.filters.anio".Traducir();
-
             lblMejoresClientesPeriodo.Text = "report.filters.periodType".Traducir();
             lblMejoresClientesMes.Text = "report.filters.mes".Traducir();
             lblMejoresClientesAnio.Text = "report.filters.anio".Traducir();
@@ -81,52 +75,45 @@ namespace UI.Formularios
             btnCategoriasAplicar.Text = refreshText;
             btnFacturacionAplicar.Text = refreshText;
             btnPedidosClienteAplicar.Text = refreshText;
-            btnPedidosProveedorAplicar.Text = refreshText;
             btnMejoresClientesAplicar.Text = refreshText;
 
             ActualizarOpcionesCombos();
         }
         private void InicializarControles()
         {
-            dtpVentasDesde.Value = new DateTime(DateTime.Today.Year, 1, 1);
+            // Filtro "desde" debe tomar desde un mes atrás por defecto
+            dtpVentasDesde.Value = DateTime.Today.AddMonths(-1);
             dtpVentasHasta.Value = DateTime.Today;
             dtpVentasMes.Format = DateTimePickerFormat.Custom;
-            dtpVentasMes.CustomFormat = "yyyy-MM";
+            dtpVentasMes.CustomFormat = "MM-yyyy";
             dtpVentasMes.ShowUpDown = true;
             nudVentasAnio.Minimum = 2000;
             nudVentasAnio.Maximum = 2100;
             nudVentasAnio.Value = DateTime.Today.Year;
 
             dtpCategoriasMes.Format = DateTimePickerFormat.Custom;
-            dtpCategoriasMes.CustomFormat = "yyyy-MM";
+            dtpCategoriasMes.CustomFormat = "MM-yyyy";
             dtpCategoriasMes.ShowUpDown = true;
             nudCategoriasAnio.Minimum = 2000;
             nudCategoriasAnio.Maximum = 2100;
             nudCategoriasAnio.Value = DateTime.Today.Year;
 
             dtpFacturacionMes.Format = DateTimePickerFormat.Custom;
-            dtpFacturacionMes.CustomFormat = "yyyy-MM";
+            dtpFacturacionMes.CustomFormat = "MM-yyyy";
             dtpFacturacionMes.ShowUpDown = true;
             nudFacturacionAnio.Minimum = 2000;
             nudFacturacionAnio.Maximum = 2100;
             nudFacturacionAnio.Value = DateTime.Today.Year;
 
             dtpPedidosClienteMes.Format = DateTimePickerFormat.Custom;
-            dtpPedidosClienteMes.CustomFormat = "yyyy-MM";
+            dtpPedidosClienteMes.CustomFormat = "MM-yyyy";
             dtpPedidosClienteMes.ShowUpDown = true;
             nudPedidosClienteAnio.Minimum = 2000;
             nudPedidosClienteAnio.Maximum = 2100;
             nudPedidosClienteAnio.Value = DateTime.Today.Year;
 
-            dtpPedidosProveedorMes.Format = DateTimePickerFormat.Custom;
-            dtpPedidosProveedorMes.CustomFormat = "yyyy-MM";
-            dtpPedidosProveedorMes.ShowUpDown = true;
-            nudPedidosProveedorAnio.Minimum = 2000;
-            nudPedidosProveedorAnio.Maximum = 2100;
-            nudPedidosProveedorAnio.Value = DateTime.Today.Year;
-
             dtpMejoresClientesMes.Format = DateTimePickerFormat.Custom;
-            dtpMejoresClientesMes.CustomFormat = "yyyy-MM";
+            dtpMejoresClientesMes.CustomFormat = "MM-yyyy";
             dtpMejoresClientesMes.ShowUpDown = true;
             nudMejoresClientesAnio.Minimum = 2000;
             nudMejoresClientesAnio.Maximum = 2100;
@@ -136,7 +123,6 @@ namespace UI.Formularios
             ActualizarVisibilidadCategorias();
             ActualizarVisibilidadFacturacion();
             ActualizarVisibilidadPedidosCliente();
-            ActualizarVisibilidadPedidosProveedor();
             ActualizarVisibilidadMejoresClientes();
         }
         private void InicializarGrillas()
@@ -160,12 +146,6 @@ namespace UI.Formularios
                 CrearColumnaNumerica("Total", "TotalFacturado"),
                 CrearColumnaNumerica("Saldo", "SaldoPendiente"));
 
-            ConfigurarGrilla(dgvPedidosProveedor,
-                CrearColumna("Proveedor", "Proveedor"),
-                CrearColumnaNumerica("Pedidos", "CantidadPedidos", "N0"),
-                CrearColumnaNumerica("Productos", "CantidadProductos", "N0"),
-                CrearColumnaNumerica("Total", "Total"));
-
             ConfigurarGrilla(dgvMejoresClientes,
                 CrearColumna("Cliente", "Cliente"),
                 CrearColumnaNumerica("Pedidos", "CantidadPedidos", "N0"),
@@ -181,7 +161,6 @@ namespace UI.Formularios
             ActualizarCombo(cmbCategoriasPeriodo, new[] { ReportePeriodoTipo.Todos, ReportePeriodoTipo.Mensual, ReportePeriodoTipo.Anual });
             ActualizarCombo(cmbFacturacionPeriodo, new[] { ReportePeriodoTipo.Mensual, ReportePeriodoTipo.Anual, ReportePeriodoTipo.Todos });
             ActualizarCombo(cmbPedidosClientePeriodo, new[] { ReportePeriodoTipo.Todos, ReportePeriodoTipo.Mensual, ReportePeriodoTipo.Anual });
-            ActualizarCombo(cmbPedidosProveedorPeriodo, new[] { ReportePeriodoTipo.Todos, ReportePeriodoTipo.Mensual, ReportePeriodoTipo.Anual });
             ActualizarCombo(cmbMejoresClientesPeriodo, new[] { ReportePeriodoTipo.Todos, ReportePeriodoTipo.Mensual, ReportePeriodoTipo.Anual });
         }
 
@@ -259,8 +238,6 @@ namespace UI.Formularios
 
         private void btnPedidosClienteAplicar_Click(object sender, EventArgs e) => CargarPedidosCliente();
 
-        private void btnPedidosProveedorAplicar_Click(object sender, EventArgs e) => CargarPedidosProveedor();
-
         private void btnMejoresClientesAplicar_Click(object sender, EventArgs e) => CargarMejoresClientes();
 
         private void tabReportes_SelectedIndexChanged(object sender, EventArgs e) => ActualizarBotonesExport();
@@ -272,8 +249,6 @@ namespace UI.Formularios
         private void cmbFacturacionPeriodo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadFacturacion();
 
         private void cmbPedidosClientePeriodo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadPedidosCliente();
-
-        private void cmbPedidosProveedorPeriodo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadPedidosProveedor();
 
         private void cmbMejoresClientesPeriodo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadMejoresClientes();
         private void CargarVentasPeriodo()
@@ -382,24 +357,6 @@ namespace UI.Formularios
             }
         }
 
-        private void CargarPedidosProveedor()
-        {
-            try
-            {
-                var filtro = CrearFiltroPeriodo(cmbPedidosProveedorPeriodo, dtpPedidosProveedorMes, nudPedidosProveedorAnio);
-                var datos = _reporteService.ObtenerPedidosPorProveedor(filtro) ?? new List<PedidoProveedorResumen>();
-                dgvPedidosProveedor.DataSource = datos;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("report.error.load".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                ActualizarBotonesExport();
-            }
-        }
-
         private void CargarMejoresClientes()
         {
             try
@@ -484,11 +441,6 @@ namespace UI.Formularios
             ActualizarVisibilidadPeriodo(cmbPedidosClientePeriodo, lblPedidosClienteMes, dtpPedidosClienteMes, lblPedidosClienteAnio, nudPedidosClienteAnio);
         }
 
-        private void ActualizarVisibilidadPedidosProveedor()
-        {
-            ActualizarVisibilidadPeriodo(cmbPedidosProveedorPeriodo, lblPedidosProveedorMes, dtpPedidosProveedorMes, lblPedidosProveedorAnio, nudPedidosProveedorAnio);
-        }
-
         private void ActualizarVisibilidadMejoresClientes()
         {
             ActualizarVisibilidadPeriodo(cmbMejoresClientesPeriodo, lblMejoresClientesMes, dtpMejoresClientesMes, lblMejoresClientesAnio, nudMejoresClientesAnio);
@@ -515,7 +467,6 @@ namespace UI.Formularios
             if (tabReportes.SelectedTab == tabCategorias) return dgvCategorias;
             if (tabReportes.SelectedTab == tabFacturacion) return dgvFacturacion;
             if (tabReportes.SelectedTab == tabPedidosCliente) return dgvPedidosCliente;
-            if (tabReportes.SelectedTab == tabPedidosProveedor) return dgvPedidosProveedor;
             if (tabReportes.SelectedTab == tabMejoresClientes) return dgvMejoresClientes;
             if (tabReportes.SelectedTab == tabClientesSaldo) return dgvClientesSaldo;
             return null;
@@ -527,7 +478,6 @@ namespace UI.Formularios
             if (tabReportes.SelectedTab == tabCategorias) return tabCategorias.Text;
             if (tabReportes.SelectedTab == tabFacturacion) return tabFacturacion.Text;
             if (tabReportes.SelectedTab == tabPedidosCliente) return tabPedidosCliente.Text;
-            if (tabReportes.SelectedTab == tabPedidosProveedor) return tabPedidosProveedor.Text;
             if (tabReportes.SelectedTab == tabMejoresClientes) return tabMejoresClientes.Text;
             if (tabReportes.SelectedTab == tabClientesSaldo) return tabClientesSaldo.Text;
             return Text;

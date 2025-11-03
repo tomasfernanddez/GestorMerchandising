@@ -50,10 +50,7 @@ namespace Services.DAL.MigrationsSeguridad
                         continue;
                     }
 
-                    if (perfil.Funciones.All(f => f.IdFuncion != funcion.IdFuncion))
-                    {
-                        perfil.Funciones.Add(funcion);
-                    }
+                    perfil.AgregarFuncion(funcion);
                 }
             }
 
