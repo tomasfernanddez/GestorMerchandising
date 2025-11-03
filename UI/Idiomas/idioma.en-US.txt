@@ -26,6 +26,7 @@ menu.products=Products
 menu.orders=Orders
 menu.orders.new=New Order
 menu.orders.list=Order List
+menu.orders.samples.new=New Sample Order
 menu.orders.samples=Sample Orders
 menu.reports=Reports
 menu.roles=Roles

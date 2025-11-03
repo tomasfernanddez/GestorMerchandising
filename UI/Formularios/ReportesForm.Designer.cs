@@ -264,7 +264,6 @@
             this.tabReportes.Controls.Add(this.tabCategorias);
             this.tabReportes.Controls.Add(this.tabFacturacion);
             this.tabReportes.Controls.Add(this.tabPedidosCliente);
-            this.tabReportes.Controls.Add(this.tabPedidosProveedor);
             this.tabReportes.Controls.Add(this.tabMejoresClientes);
             this.tabReportes.Controls.Add(this.tabClientesSaldo);
             this.tabReportes.Dock = System.Windows.Forms.DockStyle.Fill;

@@ -33,6 +33,7 @@ menu.users=Usuarios
 menu.orders=Pedidos
 menu.orders.new=Nuevo Pedido
 menu.orders.list=Listado de Pedidos
+menu.orders.samples.new=Nuevo Pedido de Muestra
 menu.orders.samples=Pedidos de Muestra
 menu.reports=Reportes
 
