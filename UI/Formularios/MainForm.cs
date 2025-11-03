@@ -112,6 +112,8 @@ namespace UI
                     return (s, e) => AbrirNuevoPedido();
                 case "menu.orders.list":
                     return (s, e) => AbrirPedidos();
+                case "menu.orders.samples.new":
+                    return (s, e) => AbrirNuevoPedidoMuestra();
                 case "menu.orders.samples":
                     return (s, e) => AbrirPedidosMuestra();
                 case "menu.security.users":
@@ -320,6 +322,41 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error creando un nuevo pedido", ex, "Pedidos", SessionContext.NombreUsuario);
+                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirNuevoPedidoMuestra()
+        {
+            var esAdmin = SessionContext.EsAdministrador;
+            if (!esAdmin && !SessionContext.TieneFuncion("PEDIDOS_MUESTRAS"))
+            {
+                MessageBox.Show("No tiene permisos para crear pedidos de muestra.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                var pedidoMuestraSvc = ServiceFactory.CrearPedidoMuestraService();
+                var clienteSvc = ServiceFactory.CrearClienteService();
+                var productoSvc = ServiceFactory.CrearProductoService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var logSvc = ServicesFactory.CrearLogService();
+
+                logSvc.LogInfo("Iniciando creación de nuevo pedido de muestra / Starting new sample order creation", "PedidosMuestra", SessionContext.NombreUsuario);
+
+                var formulario = new PedidoMuestraForm(pedidoMuestraSvc, clienteSvc, productoSvc, bitacoraSvc, logSvc);
+                formulario.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Formulario de nuevo pedido de muestra cerrado / New sample order form closed", "PedidosMuestra", SessionContext.NombreUsuario);
+                };
+
+                MostrarFormulario(formulario);
+            }
+            catch (Exception ex)
+            {
+                var logSvc = ServicesFactory.CrearLogService();
+                logSvc.LogError("Error creando un nuevo pedido de muestra / Error creating new sample order", ex, "PedidosMuestra", SessionContext.NombreUsuario);
                 MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

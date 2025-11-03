@@ -87,8 +87,15 @@ namespace BLL.Services
 
         public IList<FacturacionPeriodoResumen> ObtenerFacturacionPorPeriodo(ReportePeriodoFiltro filtro)
         {
-            var facturas = ObtenerFacturas();
             var tipo = filtro?.Tipo ?? ReportePeriodoTipo.Mensual;
+
+            // Obtener pedidos facturados
+            var pedidos = ObtenerPedidos().Where(p => p.Facturado).ToList();
+
+            // Obtener pedidos de muestra facturados
+            var pedidosMuestra = _unitOfWork.PedidosMuestra.GetAll()?
+                .Where(pm => pm.Facturado)
+                .ToList() ?? new List<PedidoMuestra>();
 
             if (tipo == ReportePeriodoTipo.Mensual)
             {
@@ -97,14 +104,25 @@ namespace BLL.Services
                 var desde = new DateTime(anio, mes, 1);
                 var hasta = desde.AddMonths(1);
 
-                return facturas
-                    .Where(f => f.FacturaFechaEmision >= desde && f.FacturaFechaEmision < hasta)
-                    .GroupBy(f => f.FacturaFechaEmision.Date)
+                var datosPedidos = pedidos
+                    .Where(p => p.FechaCreacion >= desde && p.FechaCreacion < hasta)
+                    .Select(p => new { Fecha = p.FechaCreacion.Date, Total = p.TotalConIva })
+                    .ToList();
+
+                var datosMuestras = pedidosMuestra
+                    .Where(pm => pm.FechaCreacion >= desde && pm.FechaCreacion < hasta)
+                    .SelectMany(pm => pm.Detalles ?? Enumerable.Empty<DetalleMuestra>())
+                    .Where(d => EsDetalleFacturable(d))
+                    .Select(d => new { Fecha = d.PedidoMuestra?.FechaCreacion.Date ?? DateTime.Today, Total = d.Subtotal })
+                    .ToList();
+
+                return datosPedidos.Concat(datosMuestras)
+                    .GroupBy(x => x.Fecha)
                     .OrderBy(g => g.Key)
                     .Select(g => new FacturacionPeriodoResumen
                     {
                         Periodo = g.Key.ToString("yyyy-MM-dd", CultureInfo.CurrentCulture),
-                        TotalFacturado = g.Sum(f => f.MontoTotal)
+                        TotalFacturado = g.Sum(x => x.Total)
                     })
                     .ToList();
             }
@@ -112,27 +130,67 @@ namespace BLL.Services
             if (tipo == ReportePeriodoTipo.Anual)
             {
                 var anio = filtro?.Anio ?? DateTime.Today.Year;
-                return facturas
-                    .Where(f => f.FacturaFechaEmision.Year == anio)
-                    .GroupBy(f => new { f.FacturaFechaEmision.Year, f.FacturaFechaEmision.Month })
+
+                var datosPedidos = pedidos
+                    .Where(p => p.FechaCreacion.Year == anio)
+                    .Select(p => new { p.FechaCreacion.Year, p.FechaCreacion.Month, Total = p.TotalConIva })
+                    .ToList();
+
+                var datosMuestras = pedidosMuestra
+                    .Where(pm => pm.FechaCreacion.Year == anio)
+                    .SelectMany(pm => pm.Detalles ?? Enumerable.Empty<DetalleMuestra>())
+                    .Where(d => EsDetalleFacturable(d))
+                    .Select(d => new {
+                        Year = d.PedidoMuestra?.FechaCreacion.Year ?? DateTime.Today.Year,
+                        Month = d.PedidoMuestra?.FechaCreacion.Month ?? DateTime.Today.Month,
+                        Total = d.Subtotal
+                    })
+                    .ToList();
+
+                return datosPedidos.Concat(datosMuestras)
+                    .GroupBy(x => new { x.Year, x.Month })
                     .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
                     .Select(g => new FacturacionPeriodoResumen
                     {
                         Periodo = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("yyyy MMM", CultureInfo.CurrentCulture),
-                        TotalFacturado = g.Sum(f => f.MontoTotal)
+                        TotalFacturado = g.Sum(x => x.Total)
                     })
                     .ToList();
             }
 
-            return facturas
-                .GroupBy(f => f.FacturaFechaEmision.Year)
+            // Todos los periodos
+            var todosPedidos = pedidos
+                .Select(p => new { p.FechaCreacion.Year, Total = p.TotalConIva })
+                .ToList();
+
+            var todasMuestras = pedidosMuestra
+                .SelectMany(pm => pm.Detalles ?? Enumerable.Empty<DetalleMuestra>())
+                .Where(d => EsDetalleFacturable(d))
+                .Select(d => new {
+                    Year = d.PedidoMuestra?.FechaCreacion.Year ?? DateTime.Today.Year,
+                    Total = d.Subtotal
+                })
+                .ToList();
+
+            return todosPedidos.Concat(todasMuestras)
+                .GroupBy(x => x.Year)
                 .OrderBy(g => g.Key)
                 .Select(g => new FacturacionPeriodoResumen
                 {
                     Periodo = g.Key.ToString(CultureInfo.CurrentCulture),
-                    TotalFacturado = g.Sum(f => f.MontoTotal)
+                    TotalFacturado = g.Sum(x => x.Total)
                 })
                 .ToList();
+        }
+
+        private static bool EsDetalleFacturable(DetalleMuestra detalle)
+        {
+            if (detalle?.EstadoMuestra == null)
+                return false;
+
+            var nombreEstado = detalle.EstadoMuestra.NombreEstadoMuestra ?? string.Empty;
+            return string.Equals(nombreEstado, "Facturar", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(nombreEstado, "Facturado", StringComparison.OrdinalIgnoreCase);
         }
 
         public IList<PedidoClienteResumen> ObtenerPedidosPorCliente(PedidosClienteFiltro filtro)
