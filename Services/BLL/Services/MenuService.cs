@@ -121,6 +121,12 @@ namespace Services.BLL.Services
                         },
                         new MenuItemConfig
                         {
+                            Id = "menu.orders.samples.new",
+                            Texto = "menu.orders.samples.new",
+                            FuncionesRequeridas = new List<string> { "PEDIDOS_MUESTRAS" }
+                        },
+                        new MenuItemConfig
+                        {
                             Id = "menu.orders.samples",
                             Texto = "menu.orders.samples",
                             FuncionesRequeridas = new List<string> { "PEDIDOS_MUESTRAS" }

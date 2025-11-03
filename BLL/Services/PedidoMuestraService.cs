@@ -195,19 +195,14 @@ namespace BLL.Services
                 pedido.EstadoPedidoMuestra = estadoCancelado;
                 pedido.Facturado = false;
 
-                if (pedido.Detalles != null)
+                // Cancelar todas las muestras del pedido
+                var estadoMuestraCancelado = ObtenerEstadoMuestraPorNombre("Cancelado");
+                if (pedido.Detalles != null && estadoMuestraCancelado.HasValue)
                 {
                     foreach (var detalle in pedido.Detalles)
                     {
                         detalle.Subtotal = 0m;
-                        if (detalle.IdEstadoMuestra.HasValue)
-                            continue;
-
-                        var estadoPendiente = ObtenerEstadoMuestraPorNombre("Pendiente de Envío");
-                        if (estadoPendiente.HasValue)
-                        {
-                            detalle.IdEstadoMuestra = estadoPendiente.Value;
-                        }
+                        detalle.IdEstadoMuestra = estadoMuestraCancelado.Value;
                     }
                 }
 

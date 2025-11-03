@@ -314,6 +314,19 @@ namespace BLL.Services
 
                 pedido.IdEstadoPedido = estadoCancelado.IdEstadoPedido;
 
+                // Cancelar todos los productos del pedido
+                var estadosProducto = _unitOfWork.EstadosProducto?.GetAll();
+                var estadoProductoCancelado = estadosProducto?.FirstOrDefault(e =>
+                    string.Equals(e.NombreEstadoProducto, "Cancelado", StringComparison.OrdinalIgnoreCase));
+
+                if (estadoProductoCancelado != null && pedido.Detalles != null)
+                {
+                    foreach (var detalle in pedido.Detalles)
+                    {
+                        detalle.IdEstadoProducto = estadoProductoCancelado.IdEstadoProducto;
+                    }
+                }
+
                 if (pedido.HistorialEstados == null)
                     pedido.HistorialEstados = new List<PedidoEstadoHistorial>();
 
