@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services.DomainModel.Entities
 {
@@ -49,5 +47,24 @@ namespace Services.DomainModel.Entities
         // Navegación
         public virtual Perfil Perfil { get; set; }
         public virtual ICollection<Bitacora> BitacoraRegistros { get; set; } = new List<Bitacora>();
+
+        #region Extensiones del Patrón Composite
+
+        public IEnumerable<Funcion> ObtenerFunciones(bool soloActivas = true)
+        {
+            return Perfil?.ObtenerFunciones(soloActivas) ?? Enumerable.Empty<Funcion>();
+        }
+
+        public bool TieneFuncion(string codigoFuncion)
+        {
+            if (Perfil == null)
+            {
+                return false;
+            }
+
+            return Perfil.ContieneFuncion(codigoFuncion);
+        }
+
+        #endregion
     }
 }

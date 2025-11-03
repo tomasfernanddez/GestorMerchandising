@@ -459,7 +459,7 @@ namespace BLL.Services
             var monto = Math.Round(Math.Max(1, detalle.Cantidad) * detalle.PrecioUnitario, 2);
             var estado = detalle.EstadoMuestra?.NombreEstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
 
-            if (string.Equals(estado, "Facturar", StringComparison.OrdinalIgnoreCase) ||
+            if (string.Equals(estado, "Pendiente de Pago", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(estado, "Facturado", StringComparison.OrdinalIgnoreCase))
             {
                 return monto;

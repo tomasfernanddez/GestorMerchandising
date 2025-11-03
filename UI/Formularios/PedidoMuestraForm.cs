@@ -74,7 +74,7 @@ namespace UI
         private const string ColAdjuntoDescripcion = "colAdjuntoDescripcion";
 
         private const string ESTADO_DEVUELTO = "Devuelto";
-        private const string ESTADO_A_FACTURAR = "Facturar";
+        private const string ESTADO_A_FACTURAR = "Pendiente de Pago";
         private const string ESTADO_PENDIENTE_ENVIO = "Pendiente de Envío";
         private const string ESTADO_FACTURADO = "Facturado";
 

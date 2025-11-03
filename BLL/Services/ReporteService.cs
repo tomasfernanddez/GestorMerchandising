@@ -189,7 +189,7 @@ namespace BLL.Services
                 return false;
 
             var nombreEstado = detalle.EstadoMuestra.NombreEstadoMuestra ?? string.Empty;
-            return string.Equals(nombreEstado, "Facturar", StringComparison.OrdinalIgnoreCase)
+            return string.Equals(nombreEstado, "Pendiente de Pago", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(nombreEstado, "Facturado", StringComparison.OrdinalIgnoreCase);
         }
 

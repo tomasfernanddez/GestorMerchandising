@@ -30,7 +30,7 @@ namespace UI
         private bool _suspendFilters;
         private bool _alertaInicialMostrada;
 
-        private const string ESTADO_A_FACTURAR = "Facturar";
+        private const string ESTADO_A_FACTURAR = "Pendiente de Pago";
 
         private sealed class FiltroOpcion<T>
         {

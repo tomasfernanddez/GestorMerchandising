@@ -92,6 +92,7 @@
     <Compile Include="DomainModel\Entities\Sesion.cs" />
     <Compile Include="DomainModel\Entities\Usuario.cs" />
     <Compile Include="DAL\MigrationsSeguridad\Configuration.cs" />
+    <Compile Include="DomainModel\Interfaces\IPermisoComponent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionContext.cs" />
   </ItemGroup>
