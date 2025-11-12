@@ -201,5 +201,14 @@ namespace Services.BLL.Factories
             var uow = CrearUnitOfWorkSeguridad();
             return new PerfilService(uow);
         }
+
+        /// <summary>
+        /// Crea el servicio de backup y restore de base de datos.
+        /// </summary>
+        public static IBackupService CrearBackupService()
+        {
+            var connectionString = GetConnectionStringInterno();
+            return new BackupService(connectionString);
+        }
     }
 }

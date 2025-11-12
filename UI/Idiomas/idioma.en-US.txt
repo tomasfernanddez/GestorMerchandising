@@ -34,6 +34,7 @@ menu.security=Security
 menu.security.profiles=Manage Roles
 menu.security.users=Manage Users
 menu.security.bitacora=Logs & Audit
+menu.security.backup=Backups & Restore
 menu.suppliers=Suppliers
 menu.users=Users
 
@@ -198,6 +199,33 @@ abm.common.deactivate=Deactivate
 form.refresh=Refresh
 form.search=Search
 form.filter.all=All
+form.close=Close
+
+# BACKUP
+backup.title=Database Backups
+backup.description=Create and restore database backup files.
+backup.directory=Backup folder: {0}
+backup.openFolder=Open folder...
+backup.restore.hint=Select a backup and click Restore to recover the database.
+backup.button.create=Create backup
+backup.button.restore=Restore backup
+backup.grid.name=File
+backup.grid.date=Date
+backup.grid.size=Size
+backup.select.filter=Backup files (*.bak)|*.bak|All files (*.*)|*.*
+backup.success=Backup {0} was created successfully.
+backup.error=An error occurred while creating the backup: {0}
+backup.restore.success=The database was restored successfully.
+backup.restore.error=An error occurred while restoring the database: {0}
+backup.confirm.restore=Are you sure you want to restore the backup "{0}"?
+backup.lastRun=Last backup registered: {0}
+backup.noFiles=No backups available.
+backup.permission.denied=Only administrators can access the backup module.
+backup.open.error=The backup module could not be opened: {0}
+backup.folder.notFound=The backup folder does not exist.
+backup.folder.error=The backup folder could not be opened: {0}
+backup.list.error=Backups could not be listed: {0}
+
 # ============================================
 # PRODUCT
 # ============================================

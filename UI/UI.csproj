@@ -82,6 +82,12 @@
     <Compile Include="Formularios\ABMUsuariosForm.Designer.cs">
       <DependentUpon>ABMUsuariosForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Formularios\BackupRestoreForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\BackupRestoreForm.Designer.cs">
+      <DependentUpon>BackupRestoreForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\ClienteForm.cs">
       <SubType>Form</SubType>
     </Compile>

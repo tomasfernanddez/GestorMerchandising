@@ -28,6 +28,7 @@ menu.security=Seguridad
 menu.security.profiles=Gestión de Perfiles
 menu.security.users=Gestión de Usuarios
 menu.security.bitacora=Logs y Bitácora
+menu.security.backup=Backups y Restore
 menu.suppliers=Proveedores
 menu.users=Usuarios
 menu.orders=Pedidos
@@ -202,6 +203,32 @@ abm.common.deactivate=Desactivar
 form.refresh=Actualizar
 form.search=Buscar
 form.filter.all=Todos
+form.close=Cerrar
+
+# BACKUP
+backup.title=Backups y Restore
+backup.description=Genere y restaure copias de seguridad de la base de datos.
+backup.directory=Carpeta de backups: {0}
+backup.openFolder=Abrir carpeta...
+backup.restore.hint=Seleccione un backup y presione Restaurar para recuperar la base de datos.
+backup.button.create=Generar backup
+backup.button.restore=Restaurar backup
+backup.grid.name=Archivo
+backup.grid.date=Fecha
+backup.grid.size=Tamaño
+backup.select.filter=Archivos de backup (*.bak)|*.bak|Todos los archivos (*.*)|*.*
+backup.success=Backup {0} generado correctamente.
+backup.error=Ocurrió un error generando el backup: {0}
+backup.restore.success=La base de datos se restauró correctamente.
+backup.restore.error=Ocurrió un error restaurando la base de datos: {0}
+backup.confirm.restore=¿Está seguro de restaurar el backup "{0}"?
+backup.lastRun=Último backup registrado: {0}
+backup.noFiles=No hay backups disponibles.
+backup.permission.denied=Solo los administradores pueden acceder al módulo de backups.
+backup.open.error=No se pudo abrir el módulo de backups: {0}
+backup.folder.notFound=La carpeta de backups no existe.
+backup.folder.error=No se pudo abrir la carpeta de backups: {0}
+backup.list.error=No se pudieron listar los backups: {0}
 # ============================================
 # PRODUCTO
 # ============================================
