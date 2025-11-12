@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI.Formularios
@@ -19,6 +20,8 @@ namespace UI.Formularios
         private readonly IPerfilService _perfilService;
         private readonly Usuario _usuario;
         private readonly bool _esEdicion;
+
+        public string UltimoNombreUsuario { get; private set; }
 
         public UsuarioForm(IUsuarioService usuarioService, IPerfilService perfilService, Usuario usuario)
         {
@@ -68,10 +71,12 @@ namespace UI.Formularios
                 cboPerfil.DataSource = perfiles;
                 cboPerfil.DisplayMember = "NombrePerfil";
                 cboPerfil.ValueMember = "IdPerfil";
+                cboPerfil.Format -= CboPerfil_Format;
+                cboPerfil.Format += CboPerfil_Format;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error cargando perfiles: {ex.Message}", Text,
+                MessageBox.Show("user.error.profiles".Traducir(ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -128,8 +133,8 @@ namespace UI.Formularios
 
             // Tooltips
             var tooltip = new ToolTip();
-            tooltip.SetToolTip(chkMostrarPassword, "Mostrar contraseña");
-            tooltip.SetToolTip(chkMostrarPasswordConfirm, "Mostrar contraseña");
+            tooltip.SetToolTip(chkMostrarPassword, "login.show_password".Traducir());
+            tooltip.SetToolTip(chkMostrarPasswordConfirm, "login.show_password".Traducir());
         }
 
         private void Guardar()
@@ -169,7 +174,7 @@ namespace UI.Formularios
 
                 if (txtPassword.Text.Length < 4)
                 {
-                    errorProvider1.SetError(txtPassword, "La contraseña debe tener al menos 4 caracteres");
+                    errorProvider1.SetError(txtPassword, "user.password.minLength".Traducir(4));
                     return;
                 }
             }
@@ -188,7 +193,7 @@ namespace UI.Formularios
 
                     if (!resultado.EsValido)
                     {
-                        MessageBox.Show(resultado.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(LocalizationHelper.TranslateDescription(resultado.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
 
@@ -198,10 +203,12 @@ namespace UI.Formularios
                         var resultadoPass = _usuarioService.CambiarPassword(_usuario.IdUsuario, txtPassword.Text);
                         if (!resultadoPass.EsValido)
                         {
-                            MessageBox.Show(resultadoPass.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show(LocalizationHelper.TranslateDescription(resultadoPass.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
                     }
+
+                    UltimoNombreUsuario = _usuario.NombreUsuario;
                 }
                 else
                 {
@@ -218,17 +225,28 @@ namespace UI.Formularios
 
                     if (!resultado.EsValido)
                     {
-                        MessageBox.Show(resultado.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(LocalizationHelper.TranslateDescription(resultado.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
+
+                    UltimoNombreUsuario = nuevoUsuario.NombreUsuario;
                 }
 
+                UltimoNombreUsuario = UltimoNombreUsuario ?? txtNombreUsuario.Text.Trim();
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void CboPerfil_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is Perfil perfil)
+            {
+                e.Value = LocalizationHelper.TranslateProfileName(perfil.NombrePerfil);
             }
         }
     }

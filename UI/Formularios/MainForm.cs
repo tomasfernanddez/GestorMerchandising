@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
 using UI.Formularios;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI
@@ -426,7 +427,8 @@ namespace UI
         private void UpdateStatus()
         {
             stsUsuario.Text = "status.user".Traducir(SessionContext.NombreUsuario ?? "-");
-            stsPerfil.Text = "status.role".Traducir(SessionContext.NombrePerfil ?? "-");
+            var perfil = LocalizationHelper.TranslateProfileName(SessionContext.NombrePerfil);
+            stsPerfil.Text = "status.role".Traducir(string.IsNullOrWhiteSpace(perfil) ? "-" : perfil);
         }
 
         private void CambiarIdioma(string cultureName)

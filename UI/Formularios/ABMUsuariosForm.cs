@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using UI.Helpers;
 using UI.Localization;
 
 
@@ -63,7 +64,7 @@ namespace UI.Formularios
 
             if (!_puedeGestionar)
             {
-                MessageBox.Show("No tiene permisos para gestionar usuarios.", Text,
+                MessageBox.Show("user.permission.manage.denied".Traducir(), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 Close();
                 return;
@@ -177,6 +178,15 @@ namespace UI.Formularios
             tsbMostrarBloqueados.Text = "abm.usuarios.mostrar_bloqueados".Traducir();
             tsbMostrarInactivos.Text = "abm.usuarios.mostrar_inactivos".Traducir();
             btnCerrar.Text = "form.cerrar".Traducir();
+
+            SetGridHeader("NombreUsuario", "user.grid.username");
+            SetGridHeader("NombreCompleto", "user.grid.fullName");
+            SetGridHeader("Email", "user.grid.email");
+            SetGridHeader("Perfil", "user.grid.profile");
+            SetGridHeader("Activo", "user.grid.active");
+            SetGridHeader("Bloqueado", "user.grid.locked");
+            SetGridHeader("FechaCreacion", "user.grid.created");
+            SetGridHeader("FechaUltimoAcceso", "user.grid.lastLogin");
         }
 
         private void WireUp()
@@ -270,7 +280,7 @@ namespace UI.Formularios
                     NombreUsuario = u.NombreUsuario,
                     NombreCompleto = u.NombreCompleto ?? "",
                     Email = u.Email ?? "",
-                    Perfil = u.Perfil?.NombrePerfil ?? "",
+                    Perfil = LocalizationHelper.TranslateProfileName(u.Perfil?.NombrePerfil) ?? string.Empty,
                     Activo = u.Activo,
                     Bloqueado = u.Bloqueado,
                     FechaCreacion = u.FechaCreacion,
@@ -284,8 +294,11 @@ namespace UI.Formularios
                 dgvUsuarios.CellFormatting -= DgvUsuarios_CellFormatting; // Remover handler previo
                 dgvUsuarios.CellFormatting += DgvUsuarios_CellFormatting; // Agregar handler
 
-                var filtroTexto = _filtroActual == FiltroUsuarios.Activos ? "activos" :
-                                  _filtroActual == FiltroUsuarios.Bloqueados ? "bloqueados" : "inactivos";
+                var filtroTexto = _filtroActual == FiltroUsuarios.Activos
+                    ? "user.log.filter.active".Traducir()
+                    : _filtroActual == FiltroUsuarios.Bloqueados
+                        ? "user.log.filter.locked".Traducir()
+                        : "user.log.filter.inactive".Traducir();
 
                 _logService.LogInfo($"Cargados {lista.Count} usuarios {filtroTexto} (total en DB: {todosUsuarios.Count})",
                     "Usuarios", SessionContext.NombreUsuario);
@@ -293,7 +306,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error cargando usuarios", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error cargando usuarios: {ex.Message}", Text,
+                MessageBox.Show("user.error.load".Traducir(ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -334,8 +347,11 @@ namespace UI.Formularios
                 {
                     if (f.ShowDialog(this) == DialogResult.OK)
                     {
+                        var descripcion = "user.bitacora.created".Traducir(f.UltimoNombreUsuario ?? string.Empty);
                         _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Usuario.Alta",
-                            "Nuevo usuario creado", "Usuarios", true);
+                            descripcion, "Usuarios", true);
+                        _logService.LogInfo("user.log.created".Traducir(f.UltimoNombreUsuario ?? string.Empty),
+                            "Usuarios", SessionContext.NombreUsuario);
                         CargarUsuarios();
                     }
                 }
@@ -343,7 +359,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error abriendo formulario de nuevo usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -361,8 +377,11 @@ namespace UI.Formularios
                 {
                     if (f.ShowDialog(this) == DialogResult.OK)
                     {
+                        var descripcion = "user.bitacora.updated".Traducir(usuario.NombreUsuario);
                         _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Usuario.Editar",
-                            $"Usuario editado: {usuario.NombreUsuario}", "Usuarios", true);
+                            descripcion, "Usuarios", true);
+                        _logService.LogInfo("user.log.updated".Traducir(usuario.NombreUsuario),
+                            "Usuarios", SessionContext.NombreUsuario);
                         CargarUsuarios();
                     }
                 }
@@ -370,7 +389,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error editando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -382,7 +401,8 @@ namespace UI.Formularios
                 if (row == null) return;
 
                 var resultado = Microsoft.VisualBasic.Interaction.InputBox(
-                    "Ingrese la nueva contraseña:", "Cambiar Contraseña", "");
+                    "user.password.prompt".Traducir(row.NombreUsuario),
+                    "user.password.title".Traducir(), "");
 
                 if (string.IsNullOrEmpty(resultado)) return;
 
@@ -390,22 +410,26 @@ namespace UI.Formularios
 
                 if (res.EsValido)
                 {
+                    var descripcion = "user.bitacora.password.changed".Traducir(row.NombreUsuario);
                     _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Usuario.CambiarPassword",
-                        $"Contraseña cambiada para: {row.NombreUsuario}", "Usuarios", true);
-                    MessageBox.Show("Contraseña cambiada exitosamente.", Text,
+                        descripcion, "Usuarios", true);
+                    _logService.LogInfo("user.log.password.changed".Traducir(row.NombreUsuario),
+                        "Usuarios", SessionContext.NombreUsuario);
+                    MessageBox.Show("user.password.changed".Traducir(), Text,
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
+                    var error = LocalizationHelper.TranslateDescription(res.Mensaje);
                     _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Usuario.CambiarPassword",
-                        res.Mensaje, "Usuarios", false);
-                    MessageBox.Show(res.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        error, "Usuarios", false);
+                    MessageBox.Show(error, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
                 _logService.LogError("Error cambiando contraseña", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -416,8 +440,6 @@ namespace UI.Formularios
                 var row = GetSeleccionado();
                 if (row == null) return;
 
-                var accion = row.Bloqueado ? "desbloquear" : "bloquear";
-                var accionPasado = row.Bloqueado ? "desbloqueado" : "bloqueado";
                 var msgKey = row.Bloqueado ? "msg.confirm.desbloquear" : "msg.confirm.bloquear";
 
                 if (MessageBox.Show(msgKey.Traducir(row.NombreUsuario),
@@ -430,20 +452,28 @@ namespace UI.Formularios
 
                 if (res.EsValido)
                 {
+                    var accionKey = row.Bloqueado ? "Usuario.Desbloquear" : "Usuario.Bloquear";
+                    var descripcion = row.Bloqueado
+                        ? "user.bitacora.unlocked".Traducir(row.NombreUsuario)
+                        : "user.bitacora.locked".Traducir(row.NombreUsuario);
                     _bitacora.RegistrarAccion(SessionContext.IdUsuario,
-                        row.Bloqueado ? "Usuario.Desbloquear" : "Usuario.Bloquear",
-                        $"Usuario {accionPasado}: {row.NombreUsuario}", "Usuarios", true);
+                        accionKey,
+                        descripcion, "Usuarios", true);
+                    _logService.LogInfo((row.Bloqueado
+                            ? "user.log.unlocked"
+                            : "user.log.locked").Traducir(row.NombreUsuario),
+                        "Usuarios", SessionContext.NombreUsuario);
                     CargarUsuarios();
                 }
                 else
                 {
-                    MessageBox.Show(res.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(LocalizationHelper.TranslateDescription(res.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
                 _logService.LogError("Error bloqueando/desbloqueando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -456,13 +486,11 @@ namespace UI.Formularios
 
                 if (row.IdUsuario == SessionContext.IdUsuario && row.Activo)
                 {
-                    MessageBox.Show("No puede desactivar su propio usuario.", Text,
+                    MessageBox.Show("user.error.selfDeactivate".Traducir(), Text,
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                var accion = row.Activo ? "desactivar" : "activar";
-                var accionPasado = row.Activo ? "desactivado" : "activado";
                 var msgKey = row.Activo ? "msg.confirm.desactivar" : "msg.confirm.activar";
 
                 if (MessageBox.Show(msgKey.Traducir(row.NombreUsuario),
@@ -475,20 +503,36 @@ namespace UI.Formularios
 
                 if (res.EsValido)
                 {
+                    var accionKey = row.Activo ? "Usuario.Desactivar" : "Usuario.Activar";
+                    var descripcion = row.Activo
+                        ? "user.bitacora.deactivated".Traducir(row.NombreUsuario)
+                        : "user.bitacora.activated".Traducir(row.NombreUsuario);
                     _bitacora.RegistrarAccion(SessionContext.IdUsuario,
-                        row.Activo ? "Usuario.Desactivar" : "Usuario.Activar",
-                        $"Usuario {accionPasado}: {row.NombreUsuario}", "Usuarios", true);
+                        accionKey,
+                        descripcion, "Usuarios", true);
+                    _logService.LogInfo((row.Activo
+                            ? "user.log.deactivated"
+                            : "user.log.activated").Traducir(row.NombreUsuario),
+                        "Usuarios", SessionContext.NombreUsuario);
                     CargarUsuarios();
                 }
                 else
                 {
-                    MessageBox.Show(res.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(LocalizationHelper.TranslateDescription(res.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
                 _logService.LogError("Error activando/desactivando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SetGridHeader(string columnName, string translationKey)
+        {
+            if (dgvUsuarios.Columns.Contains(columnName))
+            {
+                dgvUsuarios.Columns[columnName].HeaderText = translationKey.Traducir();
             }
         }
     }

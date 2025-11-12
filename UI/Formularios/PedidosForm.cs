@@ -264,7 +264,8 @@ namespace UI
             cmbEstado.Items.Add("order.filter.all".Traducir());
             foreach (var estado in _estados)
             {
-                cmbEstado.Items.Add(new ComboItem(estado.IdEstadoPedido, estado.NombreEstadoPedido));
+                var display = LocalizationHelper.TranslateOrderState(estado.NombreEstadoPedido);
+                cmbEstado.Items.Add(new ComboItem(estado.IdEstadoPedido, display, estado.NombreEstadoPedido));
             }
 
             if (mantenerSeleccion && estadoIndice >= 0 && estadoIndice < cmbEstado.Items.Count)
@@ -356,7 +357,7 @@ namespace UI
                         IdPedido = pedido.IdPedido,
                         NumeroPedido = pedido.NumeroPedido,
                         Cliente = FormatearNombreCliente(pedido.Cliente),
-                        Estado = estadoNombre,
+                        Estado = LocalizationHelper.TranslateOrderState(estadoNombre),
                         IdEstado = estadoId,
                         FechaCreacion = ArgentinaDateTimeHelper.ToArgentina(pedido.FechaCreacion),
                         FechaEntrega = ArgentinaDateTimeHelper.ToArgentina(pedido.FechaLimiteEntrega),
@@ -395,7 +396,9 @@ namespace UI
                 if (cmbEstado.Items[i] is ComboItem item)
                 {
                     var texto = item.Texto ?? string.Empty;
-                    if (compare.IndexOf(texto, "produ", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0)
+                    var original = item.Original ?? string.Empty;
+                    if (compare.IndexOf(texto, "produ", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
+                        || compare.IndexOf(original, "produ", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0)
                     {
                         return i;
                     }
@@ -563,14 +566,16 @@ namespace UI
 
         private sealed class ComboItem
         {
-            public ComboItem(Guid id, string texto)
+            public ComboItem(Guid id, string texto, string original = null)
             {
                 Id = id;
                 Texto = texto;
+                Original = original ?? texto;
             }
 
             public Guid Id { get; }
             public string Texto { get; }
+            public string Original { get; }
             public override string ToString() => Texto;
         }
 

@@ -38,6 +38,45 @@ menu.security.backup=Backups & Restore
 menu.suppliers=Suppliers
 menu.users=Users
 
+# COMMON
+common.yes=Yes
+common.no=No
+
+# LOGS & AUDIT
+logsBitacora.title=System Logs and Audit Trail
+logsBitacora.tab.logs=System Logs
+logsBitacora.tab.audit=User Audit Trail
+logsBitacora.clean=Clean Old Logs
+logsBitacora.export=Export
+logsBitacora.filter.date=From:
+logsBitacora.filter.user=User:
+logsBitacora.filter.module=Module:
+logsBitacora.filter.errors=Errors only
+logsBitacora.filter.module.all=All
+logsBitacora.system=System
+logsBitacora.column.date=Date
+logsBitacora.column.user=User
+logsBitacora.column.action=Action
+logsBitacora.column.module=Module
+logsBitacora.column.description=Description
+logsBitacora.column.success=Success
+logsBitacora.column.ip=IP
+logsBitacora.column.error=Error
+logsBitacora.error.load=Error loading data: {0}
+logsBitacora.error.audit=Error loading audit trail: {0}
+logsBitacora.error.filters=Error loading filters: {0}
+logsBitacora.error.filter=Error filtering audit trail: {0}
+logsBitacora.clean.confirm=Do you want to remove logs older than 30 days?
+logsBitacora.clean.title=Confirm cleanup
+logsBitacora.clean.success=Old logs deleted successfully.
+logsBitacora.error.clean=Error cleaning logs: {0}
+logsBitacora.export.filter=Text files (*.txt)|*.txt
+logsBitacora.export.header.logs=SYSTEM LOGS
+logsBitacora.export.header.audit=USER AUDIT TRAIL
+logsBitacora.export.error=ERROR: {0}
+logsBitacora.export.success=Data exported successfully to: {0}
+logsBitacora.error.export=Error exporting data: {0}
+
 # STATUS BAR
 status.role=Role: {0}
 status.user=User: {0}
@@ -63,6 +102,41 @@ abm.usuarios.mostrar_bloqueados=Show Blocked
 abm.usuarios.mostrar_inactivos=Show Inactive
 abm.usuarios.nuevo=New User
 abm.usuarios.title=User Management
+user.permission.manage.denied=You do not have permission to manage users.
+user.grid.username=Username
+user.grid.fullName=Full Name
+user.grid.email=Email
+user.grid.profile=Role
+user.grid.active=Active
+user.grid.locked=Locked
+user.grid.created=Created
+user.grid.lastLogin=Last login
+user.log.filter.active=active users
+user.log.filter.locked=locked users
+user.log.filter.inactive=inactive users
+user.log.loaded=Loaded {0} users ({2}) out of {1} in the database.
+user.error.load=Error loading users: {0}
+user.error.generic=Error: {0}
+user.error.selfDeactivate=You cannot deactivate your own account.
+user.error.profiles=Error loading profiles: {0}
+user.bitacora.created=User created: {0}
+user.bitacora.updated=User updated: {0}
+user.bitacora.password.changed=Password changed for: {0}
+user.bitacora.locked=User locked: {0}
+user.bitacora.unlocked=User unlocked: {0}
+user.bitacora.activated=User activated: {0}
+user.bitacora.deactivated=User deactivated: {0}
+user.log.created=User {0} was created
+user.log.updated=User {0} was updated
+user.log.password.changed=Password changed for user {0}
+user.log.locked=User {0} was locked
+user.log.unlocked=User {0} was unlocked
+user.log.activated=User {0} was activated
+user.log.deactivated=User {0} was deactivated
+user.password.prompt=Enter a new password for {0}:
+user.password.title=Change password
+user.password.changed=Password updated successfully.
+user.password.minLength=The password must be at least {0} characters long.
 
 # CLIENT
 cliente.activo=Active
@@ -517,3 +591,51 @@ report.export.success=Report exported successfully.
 report.export.error=The report could not be exported: {0}
 report.export.noData=No data
 report.permission.denied=You do not have permissions to access the reports.
+# LOG MODULES & ACTIONS
+log.module.usuarios=Users
+log.module.perfiles=Roles
+log.module.clientes=Clients
+log.module.proveedores=Suppliers
+log.module.productos=Products
+log.module.pedidos=Orders
+log.module.pedidosmuestra=Sample Orders
+log.module.seguridad=Security
+log.module.backup=Backups & Restore
+log.action.usuario.alta=User - Create
+log.action.usuario.editar=User - Update
+log.action.usuario.cambiarpassword=User - Password change
+log.action.usuario.bloquear=User - Lock
+log.action.usuario.desbloquear=User - Unlock
+log.action.usuario.activar=User - Activate
+log.action.usuario.desactivar=User - Deactivate
+log.action.perfil.crear=Role - Create
+log.action.perfil.actualizar=Role - Update
+log.action.perfil.activar=Role - Activate
+log.action.perfil.desactivar=Role - Deactivate
+
+# PROFILE NAMES
+profile.name.administrador=Administrator
+profile.name.gerente_de_ventas=Sales Manager
+profile.name.vendedor=Salesperson
+profile.description.administrador=Role with full system access.
+profile.description.gerente_de_ventas=Role focused on commercial management.
+profile.description.vendedor=Role with access to sales operations.
+
+# ORDER STATES
+order.state.pendiente=Pending
+order.state.nuevo=New
+order.state.en_produccion=In production
+order.state.produccion=Production
+order.state.cancelado=Cancelled
+order.state.finalizado=Completed
+order.state.entregado=Delivered
+order.state.facturado=Invoiced
+order.state.despachado=Dispatched
+order.state.enviado=Shipped
+
+# SAMPLE ORDER STATES
+sampleOrder.state.pendiente=Pending
+sampleOrder.state.enviado=Shipped
+sampleOrder.state.devuelto=Returned
+sampleOrder.state.facturado=Invoiced
+sampleOrder.state.a_facturar=Pending invoicing

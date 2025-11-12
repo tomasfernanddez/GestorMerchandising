@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Services.BLL.Helpers;
 using Services.BLL.Interfaces;
 using Services.DomainModel.Entities;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI.Formularios
@@ -55,6 +56,8 @@ namespace UI.Formularios
 
                 clbFunciones.Items.Clear();
                 clbFunciones.DisplayMember = nameof(Funcion.Nombre);
+                clbFunciones.Format -= ClbFunciones_Format;
+                clbFunciones.Format += ClbFunciones_Format;
                 clbFunciones.ValueMember = nameof(Funcion.IdFuncion);
 
                 foreach (var funcion in _funcionesDisponibles)
@@ -69,6 +72,14 @@ namespace UI.Formularios
             finally
             {
                 clbFunciones.EndUpdate();
+            }
+        }
+
+        private void ClbFunciones_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is Funcion funcion)
+            {
+                e.Value = LocalizationHelper.TranslateFunctionName(funcion);
             }
         }
 
