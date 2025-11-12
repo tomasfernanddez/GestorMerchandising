@@ -10,8 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using UI.Helpers;
 using UI.Localization;
-using System.Linq;          // <- necesario para .Select(...)
+using System.Linq;
 
 namespace UI
 {
@@ -220,9 +221,10 @@ namespace UI
             }
             catch (Exception ex)
             {
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
                 _bitacora.RegistrarAccion(SessionContext.IdUsuario, _esEdicion ? "Cliente.Editar" : "Cliente.Alta",
-                    ex.Message, "Clientes", false);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    friendly, "Clientes", false);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private void CargarCombosGeo()

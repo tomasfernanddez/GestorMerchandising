@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI.Formularios
@@ -150,7 +151,7 @@ namespace UI.Formularios
                     CargarBackups();
                 },
                 ex => RegistrarError("Backup.Crear", "backup.log.create.error", ex, nombreDestino ?? dialogo.FileName),
-                ex => MessageBox.Show(string.Format("backup.error".Traducir(), ex.Message), Text,
+                ex => MessageBox.Show(string.Format("backup.error".Traducir(), ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                         MessageBoxButtons.OK, MessageBoxIcon.Error));
             }
         }
@@ -201,7 +202,7 @@ namespace UI.Formularios
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             },
             ex => RegistrarError("Backup.Restaurar", "backup.log.restore.error", ex, nombreFinal ?? ruta),
-            ex => MessageBox.Show(string.Format("backup.restore.error".Traducir(), ex.Message), Text,
+            ex => MessageBox.Show(string.Format("backup.restore.error".Traducir(), ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error));
         }
 
@@ -222,7 +223,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("backup.folder.error".Traducir(), ex.Message), Text,
+                MessageBox.Show(string.Format("backup.folder.error".Traducir(), ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -251,8 +252,9 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                RegistrarError("Backup.Listar", "backup.log.list.error", ex, ex.Message);
-                MessageBox.Show(string.Format("backup.list.error".Traducir(), ex.Message), Text,
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarError("Backup.Listar", "backup.log.list.error", ex, friendly);
+                MessageBox.Show(string.Format("backup.list.error".Traducir(), friendly), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally

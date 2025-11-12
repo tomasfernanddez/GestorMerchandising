@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI
@@ -231,7 +232,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cargando clientes", ex, "Clientes", SessionContext.NombreUsuario);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -253,7 +255,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ErrorMessageHelper.GetFriendlyMessage(ex), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -391,8 +393,9 @@ namespace UI
             }
             catch (Exception ex)
             {
-                _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Cliente.Baja", ex.Message, "Clientes", false);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Cliente.Baja", friendly, "Clientes", false);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

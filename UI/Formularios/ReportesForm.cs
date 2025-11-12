@@ -280,7 +280,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -298,7 +298,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -316,7 +316,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -349,7 +349,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -367,7 +367,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -384,7 +384,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {

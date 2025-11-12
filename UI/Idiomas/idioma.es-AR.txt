@@ -38,6 +38,135 @@ menu.orders.samples.new=Nuevo Pedido de Muestra
 menu.orders.samples=Pedidos de Muestra
 menu.reports=Reportes
 
+# COMÚN
+common.yes=Sí
+common.no=No
+
+# ERRORES GENERALES
+errors.timeout=La operación demoró demasiado y se canceló. Intente nuevamente.
+errors.databaseUnavailable=No es posible conectarse a la base de datos. Verifique la conexión e intente más tarde.
+errors.external=Se produjo un error con un recurso externo (archivo, red o servicio). Revise la configuración y vuelva a intentarlo.
+errors.unexpected=Ocurrió un error inesperado. Detalle: {0}
+errors.noDetail=No hay información adicional disponible.
+
+# LOGS Y BITÁCORA
+logsBitacora.title=Logs del Sistema y Bitácora
+logsBitacora.tab.logs=Logs del Sistema
+logsBitacora.tab.audit=Bitácora de Usuarios
+logsBitacora.clean=Limpiar Logs Antiguos
+logsBitacora.export=Exportar
+logsBitacora.filter.date=Desde:
+logsBitacora.filter.user=Usuario:
+logsBitacora.filter.module=Módulo:
+logsBitacora.filter.errors=Solo errores
+logsBitacora.filter.module.all=Todos
+logsBitacora.system=Sistema
+logsBitacora.column.date=Fecha
+logsBitacora.column.user=Usuario
+logsBitacora.column.action=Acción
+logsBitacora.column.module=Módulo
+logsBitacora.column.description=Descripción
+logsBitacora.column.success=Éxito
+logsBitacora.column.ip=IP
+logsBitacora.column.error=Error
+logsBitacora.error.load=Error cargando datos: {0}
+logsBitacora.error.audit=Error cargando bitácora: {0}
+logsBitacora.error.filters=Error cargando filtros: {0}
+logsBitacora.error.filter=Error filtrando bitácora: {0}
+logsBitacora.clean.confirm=¿Desea eliminar los logs de más de 30 días?
+logsBitacora.clean.title=Confirmar limpieza
+logsBitacora.clean.success=Logs antiguos eliminados correctamente.
+logsBitacora.error.clean=Error limpiando logs: {0}
+logsBitacora.export.filter=Archivos de texto (*.txt)|*.txt
+logsBitacora.export.header.logs=LOGS DEL SISTEMA
+logsBitacora.export.header.audit=BITÁCORA DE USUARIOS
+logsBitacora.export.error=ERROR: {0}
+logsBitacora.export.success=Datos exportados correctamente a: {0}
+logsBitacora.error.export=Error exportando datos: {0}
+
+# MÓDULOS Y ACCIONES DE LOGS
+log.module.usuarios=Usuarios
+log.module.perfiles=Perfiles
+log.module.clientes=Clientes
+log.module.proveedores=Proveedores
+log.module.productos=Productos
+log.module.pedidos=Pedidos
+log.module.pedidosmuestra=Pedidos de Muestra
+log.module.seguridad=Seguridad
+log.module.backup=Backups y Restore
+log.action.usuario.alta=Usuario - Alta
+log.action.usuario.editar=Usuario - Edición
+log.action.usuario.cambiarpassword=Usuario - Cambio de contraseña
+log.action.usuario.bloquear=Usuario - Bloqueo
+log.action.usuario.desbloquear=Usuario - Desbloqueo
+log.action.usuario.activar=Usuario - Activación
+log.action.usuario.desactivar=Usuario - Desactivación
+log.action.perfil.crear=Perfil - Creación
+log.action.perfil.actualizar=Perfil - Actualización
+log.action.perfil.activar=Perfil - Activación
+log.action.perfil.desactivar=Perfil - Desactivación
+log.action.logout=Sesión - Cerrar sesión
+log.action.backup.abrir=Backups - Abrir
+log.action.backup.cerrar=Backups - Cerrar
+log.action.backup.crear=Backups - Generar
+log.action.backup.listar=Backups - Listar
+log.action.backup.restaurar=Backups - Restaurar
+log.action.cliente.alta=Cliente - Alta
+log.action.cliente.baja=Cliente - Baja
+log.action.cliente.editar=Cliente - Edición
+log.action.pedido.alta=Pedido - Alta
+log.action.pedido.editar=Pedido - Edición
+log.action.pedido.cancelar=Pedido - Cancelación
+log.action.pedido.pago.agregar=Pedido - Pago agregado
+log.action.pedido.pago.cancelar=Pedido - Pago cancelado
+log.action.pedidomuestra.alta=Pedido de muestra - Alta
+log.action.pedidomuestra.edicion=Pedido de muestra - Edición
+log.action.pedidomuestra.cancelar=Pedido de muestra - Cancelación
+log.action.pedidomuestra.extendervencimiento=Pedido de muestra - Extensión de vencimiento
+log.action.pedidomuestra.pedirfacturacion=Pedido de muestra - Solicitud de facturación
+log.action.pedidomuestra.pago.agregar=Pedido de muestra - Pago agregado
+log.action.pedidomuestra.pago.eliminar=Pedido de muestra - Pago eliminado
+log.action.pedidomuestra.detalle.agregar=Pedido de muestra - Detalle agregado
+log.action.pedidomuestra.detalle.editar=Pedido de muestra - Detalle editado
+log.action.pedidomuestra.detalle.eliminar=Pedido de muestra - Detalle eliminado
+log.action.pedidomuestra.detalle.extender=Pedido de muestra - Detalle extendido
+log.action.pedidomuestra.detalle.cambiarestado=Pedido de muestra - Cambio de estado de detalle
+log.action.producto.alta=Producto - Alta
+log.action.producto.editar=Producto - Edición
+log.action.producto.activar=Producto - Activación
+log.action.producto.desactivar=Producto - Desactivación
+log.action.proveedor.alta=Proveedor - Alta
+log.action.proveedor.editar=Proveedor - Edición
+log.action.proveedor.activar=Proveedor - Activación
+log.action.proveedor.baja=Proveedor - Baja
+
+# PERFILES
+profile.name.administrador=Administrador
+profile.name.gerente_de_ventas=Gerente de Ventas
+profile.name.vendedor=Vendedor
+profile.description.administrador=Perfil con acceso completo al sistema.
+profile.description.gerente_de_ventas=Perfil orientado a la gestión comercial.
+profile.description.vendedor=Perfil con acceso a operaciones de ventas.
+
+# ESTADOS DE PEDIDO
+order.state.pendiente=Pendiente
+order.state.nuevo=Nuevo
+order.state.en_produccion=En producción
+order.state.produccion=Producción
+order.state.cancelado=Cancelado
+order.state.finalizado=Finalizado
+order.state.entregado=Entregado
+order.state.facturado=Facturado
+order.state.despachado=Despachado
+order.state.enviado=Enviado
+
+# ESTADOS DE PEDIDO DE MUESTRA
+sampleOrder.state.pendiente=Pendiente
+sampleOrder.state.enviado=Enviado
+sampleOrder.state.devuelto=Devuelto
+sampleOrder.state.facturado=Facturado
+sampleOrder.state.a_facturar=A facturar
+
 # BARRA DE ESTADO
 status.role=Perfil: {0}
 status.user=Usuario: {0}
@@ -63,6 +192,42 @@ abm.usuarios.mostrar_bloqueados=Mostrar Bloqueados
 abm.usuarios.mostrar_inactivos=Mostrar Inactivos
 abm.usuarios.nuevo=Nuevo Usuario
 abm.usuarios.title=Gestión de Usuarios
+
+user.permission.manage.denied=No tiene permisos para gestionar usuarios.
+user.grid.username=Usuario
+user.grid.fullName=Nombre Completo
+user.grid.email=Email
+user.grid.profile=Perfil
+user.grid.active=Activo
+user.grid.locked=Bloqueado
+user.grid.created=Fecha Creación
+user.grid.lastLogin=Último Acceso
+user.log.filter.active=activos
+user.log.filter.locked=bloqueados
+user.log.filter.inactive=inactivos
+user.log.loaded=Se cargaron {0} usuarios ({2}) de un total de {1}.
+user.error.load=Error cargando usuarios: {0}
+user.error.generic=Error: {0}
+user.error.selfDeactivate=No puede desactivar su propio usuario.
+user.error.profiles=Error cargando perfiles: {0}
+user.bitacora.created=Usuario creado: {0}
+user.bitacora.updated=Usuario editado: {0}
+user.bitacora.password.changed=Contraseña cambiada para: {0}
+user.bitacora.locked=Usuario bloqueado: {0}
+user.bitacora.unlocked=Usuario desbloqueado: {0}
+user.bitacora.activated=Usuario activado: {0}
+user.bitacora.deactivated=Usuario desactivado: {0}
+user.log.created=Se creó el usuario {0}
+user.log.updated=Se actualizó el usuario {0}
+user.log.password.changed=Se cambió la contraseña del usuario {0}
+user.log.locked=Se bloqueó el usuario {0}
+user.log.unlocked=Se desbloqueó el usuario {0}
+user.log.activated=Se activó el usuario {0}
+user.log.deactivated=Se desactivó el usuario {0}
+user.password.prompt=Ingrese la nueva contraseña para {0}:
+user.password.title=Cambiar contraseña
+user.password.changed=Contraseña cambiada correctamente.
+user.password.minLength=La contraseña debe tener al menos {0} caracteres.
 
 # ============================================
 # CLIENTE

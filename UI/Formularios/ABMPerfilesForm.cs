@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Services.BLL.Interfaces;
 using Services;
 using Services.DomainModel.Entities;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI.Formularios
@@ -144,8 +145,8 @@ namespace UI.Formularios
                     _rows.Add(new PerfilRow
                     {
                         IdPerfil = perfil.IdPerfil,
-                        Nombre = perfil.NombrePerfil,
-                        Descripcion = perfil.Descripcion,
+                        Nombre = LocalizationHelper.TranslateProfileName(perfil.NombrePerfil),
+                        Descripcion = LocalizationHelper.TranslateProfileDescription(perfil.Descripcion),
                         Activo = perfil.Activo
                     });
                 }

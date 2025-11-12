@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI
@@ -17,6 +18,7 @@ namespace UI
     internal static class Program
     {
         private static string _culturaPorDefecto;
+        private static ILogService _globalLogService;
 
         /// <summary>
         /// Punto de entrada principal para la aplicación.
@@ -37,6 +39,7 @@ namespace UI
             ServiceFactory.ConfigurarConnectionString(cs);
 
             var logSvc = ServicesFactory.CrearLogService();
+            ConfigurarManejadoresGlobales(logSvc);
             logSvc.LogInfo("=== Aplicación iniciada ===", "Sistema", null);
 
             // Loop de autenticación
@@ -194,6 +197,76 @@ namespace UI
             {
                 logSvc.LogWarning($"No se pudo aplicar la cultura '{culturaObjetivo}': {ex.Message}", "Sistema", SessionContext.NombreUsuario);
                 return false;
+            }
+        }
+
+        private static void ConfigurarManejadoresGlobales(ILogService logSvc)
+        {
+            _globalLogService = logSvc;
+
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+
+            Application.ThreadException -= Application_ThreadException;
+            Application.ThreadException += Application_ThreadException;
+
+            AppDomain.CurrentDomain.UnhandledException -= CurrentDomain_UnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+            TaskScheduler.UnobservedTaskException -= TaskScheduler_UnobservedTaskException;
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+        }
+
+        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            ManejarExcepcionGlobal(e?.Exception, "ThreadException", false);
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var exception = e?.ExceptionObject as Exception ?? new Exception(e?.ExceptionObject?.ToString() ?? "Unhandled exception");
+            ManejarExcepcionGlobal(exception, "UnhandledException", e?.IsTerminating ?? false);
+        }
+
+        private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            ManejarExcepcionGlobal(e?.Exception, "UnobservedTaskException", false);
+            e?.SetObserved();
+        }
+
+        private static void ManejarExcepcionGlobal(Exception ex, string origen, bool esTerminante)
+        {
+            if (ex == null)
+                return;
+
+            try
+            {
+                _globalLogService?.LogError($"Excepción no controlada ({origen}): {ex.Message}", ex, "Sistema", SessionContext.NombreUsuario);
+            }
+            catch
+            {
+                // Ignorar errores de logging para no interferir con el manejo global
+            }
+
+            try
+            {
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show(friendly, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch
+            {
+                // No interrumpir si no se puede mostrar el mensaje
+            }
+
+            if (esTerminante)
+            {
+                try
+                {
+                    _globalLogService?.LogError("La aplicación finalizará debido a un error no controlado.", null, "Sistema", SessionContext.NombreUsuario);
+                }
+                catch
+                {
+                    // Ignorar
+                }
             }
         }
     }

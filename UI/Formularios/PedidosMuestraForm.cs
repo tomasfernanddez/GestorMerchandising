@@ -228,6 +228,8 @@ namespace UI
                 comboEstados.DisplayMember = nameof(EstadoPedidoMuestra.NombreEstadoPedidoMuestra);
                 comboEstados.ValueMember = nameof(EstadoPedidoMuestra.IdEstadoPedidoMuestra);
                 comboEstados.DataSource = estados;
+                comboEstados.Format -= ComboEstados_Format;
+                comboEstados.Format += ComboEstados_Format;
                 comboEstados.SelectedValue = Guid.Empty;
 
                 var opcionesFacturado = new List<FiltroOpcion<bool?>>
@@ -266,6 +268,14 @@ namespace UI
             }
 
             ActualizarAcciones();
+        }
+
+        private void ComboEstados_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is EstadoPedidoMuestra estado)
+            {
+                e.Value = LocalizationHelper.TranslateSampleOrderState(estado.NombreEstadoPedidoMuestra);
+            }
         }
 
         private void WireEvents()
@@ -350,7 +360,7 @@ namespace UI
                         IdPedidoMuestra = pedido.IdPedidoMuestra,
                         Numero = FormatearNumeroPedido(pedido.NumeroPedidoMuestra),
                         Cliente = pedido.Cliente?.RazonSocial ?? string.Empty,
-                        Estado = estadoNombre,
+                        Estado = LocalizationHelper.TranslateSampleOrderState(estadoNombre),
                         IdEstado = estadoId,
                         FechaPedido = fechaPedido,
                         FechaDevolucionEsperada = fechaEsperada,

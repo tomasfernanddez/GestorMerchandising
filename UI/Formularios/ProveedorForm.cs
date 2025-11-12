@@ -11,6 +11,7 @@ using Services;
 using Services.BLL.Factories;
 using Services.BLL.Interfaces;
 using Services.DomainModel.Entities;
+using UI.Helpers;
 using UI.Localization;
 
 namespace UI
@@ -397,10 +398,11 @@ namespace UI
             }
             catch (Exception ex)
             {
-                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, _esEdicion ? "Proveedor.Editar" : "Proveedor.Alta", ex.Message, "Proveedores", false);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, _esEdicion ? "Proveedor.Editar" : "Proveedor.Alta", friendly, "Proveedores", false);
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error guardando proveedor / Error saving supplier", ex, "Proveedores", SessionContext.NombreUsuario);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

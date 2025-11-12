@@ -443,7 +443,7 @@ namespace UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("order.attachments.save.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("order.attachments.save.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -559,7 +559,7 @@ namespace UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("order.attachments.read.error".Traducir(Path.GetFileName(ruta), ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("order.attachments.read.error".Traducir(Path.GetFileName(ruta), ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
