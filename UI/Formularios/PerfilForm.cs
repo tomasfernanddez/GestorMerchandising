@@ -67,7 +67,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"profile.error.loadFunctions".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"profile.error.loadFunctions".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -192,7 +192,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"profile.error.saveWithDetail".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"profile.error.saveWithDetail".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

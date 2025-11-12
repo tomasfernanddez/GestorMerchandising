@@ -76,7 +76,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("user.error.profiles".Traducir(ex.Message), Text,
+                MessageBox.Show("user.error.profiles".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -238,7 +238,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

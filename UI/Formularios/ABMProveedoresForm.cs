@@ -7,6 +7,7 @@ using Services;
 using Services.BLL.Factories;
 using Services.BLL.Interfaces;
 using UI.Localization;
+using UI.Helpers;
 
 namespace UI
 {
@@ -200,7 +201,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cargando filtros de proveedores / Error loading supplier filters", ex, "Proveedores", SessionContext.NombreUsuario);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -250,7 +252,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cargando proveedores / Error loading suppliers", ex, "Proveedores", SessionContext.NombreUsuario);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -279,7 +282,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error al crear proveedor / Error creating supplier", ex, "Proveedores", SessionContext.NombreUsuario);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -309,7 +313,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error editando proveedor / Error editing supplier", ex, "Proveedores", SessionContext.NombreUsuario);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -347,10 +352,11 @@ namespace UI
             }
             catch (Exception ex)
             {
-                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Proveedor.Baja", ex.Message, "Proveedores", false);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Proveedor.Baja", friendly, "Proveedores", false);
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error desactivando proveedor / Error deactivating supplier", ex, "Proveedores", SessionContext.NombreUsuario);
-                MessageBox.Show(ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -388,10 +394,11 @@ namespace UI
             }
             catch (Exception ex)
             {
-                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Proveedor.Activar", ex.Message, "Proveedores", false);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Proveedor.Activar", friendly, "Proveedores", false);
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error activando proveedor / Error activating supplier", ex, "Proveedores", SessionContext.NombreUsuario);
-                MessageBox.Show(ex.Message, Text, (MessageBoxButtons)MessageBoxIcon.Error);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

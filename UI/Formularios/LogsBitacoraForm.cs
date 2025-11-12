@@ -85,7 +85,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("logsBitacora.error.load".Traducir(ex.Message), Text,
+                MessageBox.Show("logsBitacora.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -115,7 +115,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("logsBitacora.error.audit".Traducir(ex.Message), Text,
+                MessageBox.Show("logsBitacora.error.audit".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -178,7 +178,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("logsBitacora.error.filters".Traducir(ex.Message), Text,
+                MessageBox.Show("logsBitacora.error.filters".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -234,7 +234,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("logsBitacora.error.filter".Traducir(ex.Message), Text,
+                MessageBox.Show("logsBitacora.error.filter".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -259,7 +259,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("logsBitacora.error.clean".Traducir(ex.Message), Text,
+                MessageBox.Show("logsBitacora.error.clean".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -301,7 +301,7 @@ namespace UI.Formularios
             }
             catch (Exception ex)
             {
-                MessageBox.Show("logsBitacora.error.export".Traducir(ex.Message), Text,
+                MessageBox.Show("logsBitacora.error.export".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

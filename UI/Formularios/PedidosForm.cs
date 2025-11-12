@@ -374,7 +374,7 @@ namespace UI
             catch (Exception ex)
             {
                 _logService.LogError("Error buscando pedidos / Error listing orders", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show("order.list.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("order.list.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -483,7 +483,7 @@ namespace UI
             catch (Exception ex)
             {
                 _logService.LogError("Error cancelando pedido / Error cancelling order", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show("order.cancel.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("order.cancel.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -560,7 +560,7 @@ namespace UI
             catch (Exception ex)
             {
                 _logService.LogError("Error abriendo formulario de pedidos / Error opening order form", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show("order.form.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("order.form.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

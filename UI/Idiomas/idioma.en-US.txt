@@ -42,6 +42,13 @@ menu.users=Users
 common.yes=Yes
 common.no=No
 
+# GENERIC ERRORS
+errors.timeout=The operation took too long and was cancelled. Please try again.
+errors.databaseUnavailable=The application could not connect to the database. Check your connection and try again.
+errors.external=An external resource (file, network or service) caused a failure. Verify the configuration and try again.
+errors.unexpected=An unexpected error occurred. Details: {0}
+errors.noDetail=No additional information is available.
+
 # LOGS & AUDIT
 logsBitacora.title=System Logs and Audit Trail
 logsBitacora.tab.logs=System Logs

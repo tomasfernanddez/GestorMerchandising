@@ -306,7 +306,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error cargando usuarios", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show("user.error.load".Traducir(ex.Message), Text,
+                MessageBox.Show("user.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -359,7 +359,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error abriendo formulario de nuevo usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -389,7 +389,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error editando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -429,7 +429,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error cambiando contraseña", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -473,7 +473,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error bloqueando/desbloqueando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -524,7 +524,7 @@ namespace UI.Formularios
             catch (Exception ex)
             {
                 _logService.LogError("Error activando/desactivando usuario", ex, "Usuarios", SessionContext.NombreUsuario);
-                MessageBox.Show("user.error.generic".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("user.error.generic".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

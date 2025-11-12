@@ -399,7 +399,7 @@ namespace UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("order.attachments.save.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("order.attachments.save.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -515,7 +515,7 @@ namespace UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("order.attachments.read.error".Traducir(Path.GetFileName(ruta), ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("order.attachments.read.error".Traducir(Path.GetFileName(ruta), ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
@@ -601,7 +601,7 @@ namespace UI
             catch (Exception ex)
             {
                 _logService.LogError("Error cargando datos de referencia para pedidos / Error loading order reference data", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show("order.loadReferences.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("order.loadReferences.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
             }
         }
@@ -943,7 +943,7 @@ namespace UI
             catch (Exception ex)
             {
                 _logService.LogError("Error cargando pedido existente / Error loading order", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show("order.load.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("order.load.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
             }
         }
@@ -1797,7 +1797,7 @@ namespace UI
             catch (Exception ex)
             {
                 _logService.LogError("Error guardando pedido / Error saving order", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show("order.save.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("order.save.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1846,7 +1846,7 @@ namespace UI
             catch (Exception ex)
             {
                 _logService.LogError("Error cancelando pedido / Error cancelling order", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show("order.cancel.error".Traducir(ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("order.cancel.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

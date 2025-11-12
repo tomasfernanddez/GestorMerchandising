@@ -175,7 +175,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cerrando sesión", ex, "Seguridad", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error cerrando sesión: {ex.Message}", "Error",
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error cerrando sesión: {friendly}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -204,7 +205,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo ABM Clientes", ex, "Clientes", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -232,7 +234,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo ABM Proveedores / Error opening suppliers form", ex, "Proveedores", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -258,7 +261,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo ABM Productos / Error opening products form", ex, "Productos", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -288,7 +292,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo gestor de pedidos / Error opening orders module", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -325,7 +330,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error creando un nuevo pedido", ex, "Pedidos", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -360,7 +366,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error creando un nuevo pedido de muestra / Error creating new sample order", ex, "PedidosMuestra", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -383,7 +390,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo pedidos de muestra / Error opening sample orders", ex, "PedidosMuestra", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -420,7 +428,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo módulo de reportes", ex, "Reportes", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -469,7 +478,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error cambiando idioma", ex, "Sistema", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -590,7 +600,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error abriendo gestión de perfiles", ex, "Seguridad", SessionContext.NombreUsuario);
-                MessageBox.Show($"Error: {ex.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error: {friendly}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -623,7 +634,8 @@ namespace UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error abriendo gestión de usuarios: {ex.Message}", Text,
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error abriendo gestión de usuarios: {friendly}", Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -674,7 +686,8 @@ namespace UI
             {
                 var logSvc = ServicesFactory.CrearLogService();
                 logSvc.LogError("Error al abrir módulo de backups / Error opening backup module", ex, "Seguridad", SessionContext.NombreUsuario);
-                MessageBox.Show(string.Format("backup.open.error".Traducir(), ex.Message), Text,
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show(string.Format("backup.open.error".Traducir(), friendly), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -706,7 +719,8 @@ namespace UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error abriendo logs: {ex.Message}", Text,
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                MessageBox.Show($"Error abriendo logs: {friendly}", Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

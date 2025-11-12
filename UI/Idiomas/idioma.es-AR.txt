@@ -42,6 +42,13 @@ menu.reports=Reportes
 common.yes=Sí
 common.no=No
 
+# ERRORES GENERALES
+errors.timeout=La operación demoró demasiado y se canceló. Intente nuevamente.
+errors.databaseUnavailable=No es posible conectarse a la base de datos. Verifique la conexión e intente más tarde.
+errors.external=Se produjo un error con un recurso externo (archivo, red o servicio). Revise la configuración y vuelva a intentarlo.
+errors.unexpected=Ocurrió un error inesperado. Detalle: {0}
+errors.noDetail=No hay información adicional disponible.
+
 # LOGS Y BITÁCORA
 logsBitacora.title=Logs del Sistema y Bitácora
 logsBitacora.tab.logs=Logs del Sistema
