@@ -56,12 +56,15 @@
     <Compile Include="BLL\Helpers\ResultadoAutenticacion.cs" />
     <Compile Include="BLL\Helpers\ResultadoOperacion.cs" />
     <Compile Include="BLL\Interfaces\IAutenticacionService.cs" />
+    <Compile Include="BLL\Interfaces\IBackupService.cs" />
     <Compile Include="BLL\Interfaces\IBitacoraService.cs" />
     <Compile Include="BLL\Interfaces\IEncriptacionService.cs" />
     <Compile Include="BLL\Interfaces\ILogService.cs" />
     <Compile Include="BLL\Interfaces\IPerfilService.cs" />
     <Compile Include="BLL\Interfaces\IUsuarioService.cs" />
+    <Compile Include="BLL\Models\BackupFileInfo.cs" />
     <Compile Include="BLL\Services\AutenticacionService.cs" />
+    <Compile Include="BLL\Services\BackupService.cs" />
     <Compile Include="BLL\Services\BitacoraService.cs" />
     <Compile Include="BLL\Services\EncriptacionService.cs" />
     <Compile Include="BLL\Services\LogService.cs" />

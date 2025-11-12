@@ -122,6 +122,8 @@ namespace UI
                     return (s, e) => AbrirGestionPerfiles();
                 case "menu.security.bitacora":
                     return (s, e) => AbrirLogsBitacora();
+                case "menu.security.backup":
+                    return (s, e) => AbrirBackupRestore();
                 case "menu.reports":
                     return (s, e) => AbrirReportes();
                 case "menu.language.es":
@@ -620,6 +622,57 @@ namespace UI
             catch (Exception ex)
             {
                 MessageBox.Show($"Error abriendo gestión de usuarios: {ex.Message}", Text,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirBackupRestore()
+        {
+            if (!SessionContext.EsAdministrador)
+            {
+                MessageBox.Show("backup.permission.denied".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                var backupSvc = ServicesFactory.CrearBackupService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
+                var logSvc = ServicesFactory.CrearLogService();
+
+                logSvc.LogInfo("Abriendo módulo de backups / Opening backup module", "Seguridad", SessionContext.NombreUsuario);
+                try
+                {
+                    bitacoraSvc.RegistrarAccion(SessionContext.IdUsuario, "Backup.Abrir",
+                        "Ingreso al módulo de backups / Entering backup module", "Seguridad");
+                }
+                catch
+                {
+                    // Ignorar errores de bitácora para no interrumpir la apertura del formulario
+                }
+
+                var f = new BackupRestoreForm(backupSvc, bitacoraSvc, logSvc);
+                f.FormClosed += (s, e) =>
+                {
+                    logSvc.LogInfo("Cerrado módulo de backups / Backup module closed", "Seguridad", SessionContext.NombreUsuario);
+                    try
+                    {
+                        bitacoraSvc.RegistrarAccion(SessionContext.IdUsuario, "Backup.Cerrar",
+                            "Cierre del módulo de backups / Leaving backup module", "Seguridad");
+                    }
+                    catch
+                    {
+                        // Ignorar errores de bitácora al cerrar
+                    }
+                };
+
+                MostrarFormulario(f);
+            }
+            catch (Exception ex)
+            {
+                var logSvc = ServicesFactory.CrearLogService();
+                logSvc.LogError("Error al abrir módulo de backups / Error opening backup module", ex, "Seguridad", SessionContext.NombreUsuario);
+                MessageBox.Show(string.Format("backup.open.error".Traducir(), ex.Message), Text,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

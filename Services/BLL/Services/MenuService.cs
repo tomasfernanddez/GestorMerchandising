@@ -72,6 +72,12 @@ namespace Services.BLL.Services
                             Id = "menu.security.bitacora",
                             Texto = "menu.security.bitacora",
                             SoloAdmin = true
+                            },
+                        new MenuItemConfig
+                        {
+                            Id = "menu.security.backup",
+                            Texto = "menu.security.backup",
+                            SoloAdmin = true
                         }
                     }
                 },
