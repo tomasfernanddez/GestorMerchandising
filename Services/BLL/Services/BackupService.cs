@@ -15,6 +15,7 @@ namespace Services.BLL.Services
         private readonly string _connectionString;
         private readonly string _adminConnectionString;
         private readonly string _databaseName;
+        private readonly string _serverBackupDirectory;
 
         public BackupService(string connectionString = null, string backupDirectory = null)
         {
@@ -38,6 +39,7 @@ namespace Services.BLL.Services
             };
             _adminConnectionString = adminBuilder.ConnectionString;
 
+            _serverBackupDirectory = ObtenerDirectorioBackupServidor();
             _backupDirectory = PrepararDirectorioBackups(backupDirectory);
         }
 
@@ -135,23 +137,8 @@ namespace Services.BLL.Services
         private string PrepararDirectorioBackups(string backupDirectory)
         {
             var rutaConfigurada = backupDirectory ?? ConfigurationManager.AppSettings["BackupPath"] ?? "backups\\";
-            string rutaFinal;
-
-            if (Path.IsPathRooted(rutaConfigurada))
-            {
-                rutaFinal = rutaConfigurada;
-            }
-            else
-            {
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                rutaFinal = Path.GetFullPath(Path.Combine(baseDir, rutaConfigurada));
-            }
-
-            if (!Directory.Exists(rutaFinal))
-            {
-                Directory.CreateDirectory(rutaFinal);
-            }
-
+            var rutaFinal = NormalizarRutaDirectorio(rutaConfigurada);
+            AsegurarDirectorio(rutaFinal);
             return rutaFinal;
         }
 
@@ -173,6 +160,46 @@ namespace Services.BLL.Services
             }
 
             return rutaDestino;
+        }
+
+        private string NormalizarRutaDirectorio(string rutaConfigurada)
+        {
+            if (Path.IsPathRooted(rutaConfigurada))
+            {
+                return rutaConfigurada;
+            }
+
+            var baseDir = !string.IsNullOrWhiteSpace(_serverBackupDirectory)
+                ? _serverBackupDirectory
+                : AppDomain.CurrentDomain.BaseDirectory;
+
+            return Path.GetFullPath(Path.Combine(baseDir, rutaConfigurada));
+        }
+
+        private static void AsegurarDirectorio(string rutaFinal)
+        {
+            if (string.IsNullOrWhiteSpace(rutaFinal))
+            {
+                throw new InvalidOperationException("No se pudo determinar un directorio válido para almacenar los backups.");
+            }
+
+            if (Directory.Exists(rutaFinal))
+            {
+                return;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(rutaFinal);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                throw new InvalidOperationException("La aplicación no tiene permisos para crear la carpeta de backups especificada. Configure un directorio accesible para el servicio de SQL Server.", ex);
+            }
+            catch (IOException ex)
+            {
+                throw new InvalidOperationException("No se pudo preparar la carpeta de backups especificada. Verifique la configuración del directorio de backups.", ex);
+            }
         }
 
         private string ResolverConnectionString(string connectionStringOrName)
@@ -198,6 +225,42 @@ namespace Services.BLL.Services
         private static string EscaparRuta(string ruta)
         {
             return ruta.Replace("'", "''");
+        }
+
+        private string ObtenerDirectorioBackupServidor()
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_adminConnectionString))
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
+
+                    command.CommandText = "SELECT CAST(ISNULL(SERVERPROPERTY('InstanceDefaultBackupPath'), '') AS NVARCHAR(4000))";
+                    var resultado = command.ExecuteScalar() as string;
+                    if (!string.IsNullOrWhiteSpace(resultado))
+                    {
+                        return resultado;
+                    }
+
+                    command.CommandText = "DECLARE @ruta NVARCHAR(4000); EXEC master.dbo.xp_instance_regread N'HKEY_LOCAL_MACHINE', N'Software\\Microsoft\\MSSQLServer\\MSSQLServer', N'BackupDirectory', @ruta OUTPUT; SELECT ISNULL(@ruta, '')";
+                    resultado = command.ExecuteScalar() as string;
+                    if (!string.IsNullOrWhiteSpace(resultado))
+                    {
+                        return resultado;
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                // Ignorar y usar las rutas configuradas.
+            }
+            catch (InvalidOperationException)
+            {
+                // Ignorar y usar las rutas configuradas.
+            }
+
+            return null;
         }
     }
 }
