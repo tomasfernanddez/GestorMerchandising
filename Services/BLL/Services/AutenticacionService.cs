@@ -78,13 +78,8 @@ namespace Services.BLL.Services
                     return ResultadoAutenticacion.Error("Usuario inactivo. Contacte al administrador.");
                 }
 
-                // --- Verificación de contraseña ---
-                // 1) Intento "oficial" con el servicio actual
                 bool ok = _encriptacionService.VerificarPassword(password, usuario.PasswordHash);
 
-                // 2) Fallback de compatibilidad (seed antiguo):
-                //    a) SHA-256 HEX (64 chars, ej.: 8c6976e5... para "admin")
-                //    b) (opcional) SHA-256 Base64 (44 chars)
                 if (!ok)
                 {
                     var shaHex = Sha256Hex(password);
