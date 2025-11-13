@@ -412,11 +412,12 @@ namespace UI
             try
             {
                 var reporteSvc = ServiceFactory.CrearReporteService();
+                var bitacoraSvc = ServicesFactory.CrearBitacoraService();
                 var logSvc = ServicesFactory.CrearLogService();
 
                 logSvc.LogInfo("Abriendo módulo de reportes", "Reportes", SessionContext.NombreUsuario);
 
-                var form = new ReportesForm(reporteSvc);
+                var form = new ReportesForm(reporteSvc, bitacoraSvc, logSvc);
                 form.FormClosed += (s, e) =>
                 {
                     logSvc.LogInfo("Cerrado módulo de reportes", "Reportes", SessionContext.NombreUsuario);

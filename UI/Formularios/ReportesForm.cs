@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Services;
+using Services.BLL.Interfaces;
 using UI.Helpers;
 using UI.Localization;
 
@@ -13,24 +15,40 @@ namespace UI.Formularios
     public partial class ReportesForm : Form
     {
         private readonly IReporteService _reporteService;
-        public ReportesForm(IReporteService reporteService)
+        private readonly IBitacoraService _bitacoraService;
+        private readonly ILogService _logService;
+        private readonly Dictionary<string, (string Es, string En)> _diccionarioMensajes;
+        private bool _suspendEvents;
+
+        public ReportesForm(IReporteService reporteService, IBitacoraService bitacoraService, ILogService logService)
         {
             _reporteService = reporteService ?? throw new ArgumentNullException(nameof(reporteService));
+            _bitacoraService = bitacoraService ?? throw new ArgumentNullException(nameof(bitacoraService));
+            _logService = logService ?? throw new ArgumentNullException(nameof(logService));
+            _diccionarioMensajes = CrearDiccionarioMensajes();
             InitializeComponent();
         }
 
         private void ReportesForm_Load(object sender, EventArgs e)
         {
-            ApplyTexts();
-            InicializarControles();
-            InicializarGrillas();
-            CargarVentasPeriodo();
-            CargarCategorias();
-            CargarFacturacion();
-            CargarPedidosCliente();
-            CargarMejoresClientes();
-            CargarClientesSaldo();
-            ActualizarBotonesExport();
+            _suspendEvents = true;
+            try
+            {
+                ApplyTexts();
+                InicializarControles();
+                InicializarGrillas();
+                CargarVentasPeriodo();
+                CargarCategorias();
+                CargarFacturacion();
+                CargarPedidosCliente();
+                CargarMejoresClientes();
+                CargarClientesSaldo();
+            }
+            finally
+            {
+                _suspendEvents = false;
+                ActualizarBotonesExport();
+            }
         }
 
         private void ApplyTexts()
@@ -69,13 +87,6 @@ namespace UI.Formularios
             lblMejoresClientesAnio.Text = "report.filters.anio".Traducir();
 
             lblClientesSaldoInfo.Text = "report.filters.noFilters".Traducir();
-
-            var refreshText = "report.actions.refresh".Traducir();
-            btnVentasAplicar.Text = refreshText;
-            btnCategoriasAplicar.Text = refreshText;
-            btnFacturacionAplicar.Text = refreshText;
-            btnPedidosClienteAplicar.Text = refreshText;
-            btnMejoresClientesAplicar.Text = refreshText;
 
             ActualizarOpcionesCombos();
         }
@@ -153,6 +164,7 @@ namespace UI.Formularios
 
             ConfigurarGrilla(dgvClientesSaldo,
                 CrearColumna("Cliente", "Cliente"),
+                CrearColumna("Pedidos con saldo", "PedidosConSaldo"),
                 CrearColumnaNumerica("Saldo", "SaldoPendiente"));
         }
         private void ActualizarOpcionesCombos()
@@ -207,7 +219,19 @@ namespace UI.Formularios
 
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    ReportExportHelper.ExportToExcel(dialog.FileName, ObtenerTituloActual(), grid);
+                    try
+                    {
+                        var titulo = ObtenerTituloActual();
+                        ReportExportHelper.ExportToExcel(dialog.FileName, titulo, grid);
+                        RegistrarAccion("Reportes.ExportExcel", "report.log.export.excel.success", titulo, dialog.FileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        var titulo = ObtenerTituloActual();
+                        var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                        RegistrarError("Reportes.ExportExcel", "report.log.export.excel.error", ex, titulo, friendly);
+                        MessageBox.Show("report.error.export".Traducir(friendly), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
@@ -225,32 +249,174 @@ namespace UI.Formularios
 
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    ReportExportHelper.ExportToPdf(dialog.FileName, ObtenerTituloActual(), grid);
+                    try
+                    {
+                        var titulo = ObtenerTituloActual();
+                        ReportExportHelper.ExportToPdf(dialog.FileName, titulo, grid);
+                        RegistrarAccion("Reportes.ExportPdf", "report.log.export.pdf.success", titulo, dialog.FileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        var titulo = ObtenerTituloActual();
+                        var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                        RegistrarError("Reportes.ExportPdf", "report.log.export.pdf.error", ex, titulo, friendly);
+                        MessageBox.Show("report.error.export".Traducir(friendly), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
 
-        private void btnVentasAplicar_Click(object sender, EventArgs e) => CargarVentasPeriodo();
-
-        private void btnCategoriasAplicar_Click(object sender, EventArgs e) => CargarCategorias();
-
-        private void btnFacturacionAplicar_Click(object sender, EventArgs e) => CargarFacturacion();
-
-        private void btnPedidosClienteAplicar_Click(object sender, EventArgs e) => CargarPedidosCliente();
-
-        private void btnMejoresClientesAplicar_Click(object sender, EventArgs e) => CargarMejoresClientes();
-
         private void tabReportes_SelectedIndexChanged(object sender, EventArgs e) => ActualizarBotonesExport();
 
-        private void cmbVentasTipo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadVentas();
+        private void cmbVentasTipo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ActualizarVisibilidadVentas();
+            if (_suspendEvents)
+                return;
 
-        private void cmbCategoriasPeriodo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadCategorias();
+            CargarVentasPeriodo();
+        }
 
-        private void cmbFacturacionPeriodo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadFacturacion();
+        private void cmbCategoriasPeriodo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ActualizarVisibilidadCategorias();
+            if (_suspendEvents)
+                return;
 
-        private void cmbPedidosClientePeriodo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadPedidosCliente();
+            CargarCategorias();
+        }
 
-        private void cmbMejoresClientesPeriodo_SelectedIndexChanged(object sender, EventArgs e) => ActualizarVisibilidadMejoresClientes();
+        private void cmbFacturacionPeriodo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ActualizarVisibilidadFacturacion();
+            if (_suspendEvents)
+                return;
+
+            CargarFacturacion();
+        }
+
+        private void cmbPedidosClientePeriodo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ActualizarVisibilidadPedidosCliente();
+            if (_suspendEvents)
+                return;
+
+            CargarPedidosCliente();
+        }
+
+        private void cmbMejoresClientesPeriodo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ActualizarVisibilidadMejoresClientes();
+            if (_suspendEvents)
+                return;
+
+            CargarMejoresClientes();
+        }
+
+        private void dtpVentasDesde_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarVentasPeriodo();
+        }
+
+        private void dtpVentasHasta_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarVentasPeriodo();
+        }
+
+        private void dtpVentasMes_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarVentasPeriodo();
+        }
+
+        private void nudVentasAnio_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarVentasPeriodo();
+        }
+
+        private void dtpCategoriasMes_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarCategorias();
+        }
+
+        private void nudCategoriasAnio_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarCategorias();
+        }
+
+        private void dtpFacturacionMes_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarFacturacion();
+        }
+
+        private void nudFacturacionAnio_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarFacturacion();
+        }
+
+        private void dtpPedidosClienteMes_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarPedidosCliente();
+        }
+
+        private void nudPedidosClienteAnio_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarPedidosCliente();
+        }
+
+        private void chkPedidosClienteSaldo_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarPedidosCliente();
+        }
+
+        private void dtpMejoresClientesMes_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarMejoresClientes();
+        }
+
+        private void nudMejoresClientesAnio_ValueChanged(object sender, EventArgs e)
+        {
+            if (_suspendEvents)
+                return;
+
+            CargarMejoresClientes();
+        }
+
         private void CargarVentasPeriodo()
         {
             try
@@ -277,10 +443,13 @@ namespace UI.Formularios
 
                 var datos = _reporteService.ObtenerVentasPorPeriodo(filtro) ?? new List<VentaPeriodoDetalle>();
                 dgvVentasPeriodo.DataSource = datos;
+                RegistrarAccion("Reportes.VentasPeriodo", "report.log.sales.success", datos.Count);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarError("Reportes.VentasPeriodo", "report.log.sales.error", ex, friendly);
+                MessageBox.Show("report.error.load".Traducir(friendly), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -295,10 +464,13 @@ namespace UI.Formularios
                 var filtro = CrearFiltroPeriodo(cmbCategoriasPeriodo, dtpCategoriasMes, nudCategoriasAnio);
                 var datos = _reporteService.ObtenerCategoriasMasVendidas(filtro) ?? new List<VentaCategoriaResumen>();
                 dgvCategorias.DataSource = datos;
+                RegistrarAccion("Reportes.Categorias", "report.log.categories.success", datos.Count);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarError("Reportes.Categorias", "report.log.categories.error", ex, friendly);
+                MessageBox.Show("report.error.load".Traducir(friendly), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -313,10 +485,13 @@ namespace UI.Formularios
                 var filtro = CrearFiltroPeriodo(cmbFacturacionPeriodo, dtpFacturacionMes, nudFacturacionAnio);
                 var datos = _reporteService.ObtenerFacturacionPorPeriodo(filtro) ?? new List<FacturacionPeriodoResumen>();
                 dgvFacturacion.DataSource = datos;
+                RegistrarAccion("Reportes.Facturacion", "report.log.billing.success", datos.Count);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarError("Reportes.Facturacion", "report.log.billing.error", ex, friendly);
+                MessageBox.Show("report.error.load".Traducir(friendly), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -346,10 +521,13 @@ namespace UI.Formularios
 
                 var datos = _reporteService.ObtenerPedidosPorCliente(filtro) ?? new List<PedidoClienteResumen>();
                 dgvPedidosCliente.DataSource = datos;
+                RegistrarAccion("Reportes.PedidosCliente", "report.log.orders.success", datos.Count);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarError("Reportes.PedidosCliente", "report.log.orders.error", ex, friendly);
+                MessageBox.Show("report.error.load".Traducir(friendly), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -364,10 +542,13 @@ namespace UI.Formularios
                 var filtro = CrearFiltroPeriodo(cmbMejoresClientesPeriodo, dtpMejoresClientesMes, nudMejoresClientesAnio);
                 var datos = _reporteService.ObtenerMejoresClientes(filtro) ?? new List<ClienteRankingResumen>();
                 dgvMejoresClientes.DataSource = datos;
+                RegistrarAccion("Reportes.MejoresClientes", "report.log.bestClients.success", datos.Count);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarError("Reportes.MejoresClientes", "report.log.bestClients.error", ex, friendly);
+                MessageBox.Show("report.error.load".Traducir(friendly), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -381,10 +562,13 @@ namespace UI.Formularios
             {
                 var datos = _reporteService.ObtenerClientesConSaldo() ?? new List<CuentaPorCobrarResumen>();
                 dgvClientesSaldo.DataSource = datos;
+                RegistrarAccion("Reportes.ClientesSaldo", "report.log.clientsBalance.success", datos.Count);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("report.error.load".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarError("Reportes.ClientesSaldo", "report.log.clientsBalance.error", ex, friendly);
+                MessageBox.Show("report.error.load".Traducir(friendly), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -420,10 +604,15 @@ namespace UI.Formularios
             var esRango = tipo == ReporteVentasPeriodoTipo.Rango;
             var esMensual = tipo == ReporteVentasPeriodoTipo.Mensual;
 
-            lblVentasDesde.Visible = dtpVentasDesde.Visible = esRango;
-            lblVentasHasta.Visible = dtpVentasHasta.Visible = esRango;
-            lblVentasMes.Visible = dtpVentasMes.Visible = esMensual;
-            lblVentasAnio.Visible = nudVentasAnio.Visible = esMensual || tipo == ReporteVentasPeriodoTipo.Anual;
+            lblVentasDesde.Visible = esRango;
+            dtpVentasDesde.Visible = esRango;
+            lblVentasHasta.Visible = esRango;
+            dtpVentasHasta.Visible = esRango;
+            lblVentasMes.Visible = esMensual;
+            dtpVentasMes.Visible = esMensual;
+            var mostrarAnio = esMensual || tipo == ReporteVentasPeriodoTipo.Anual;
+            lblVentasAnio.Visible = mostrarAnio;
+            nudVentasAnio.Visible = mostrarAnio;
         }
 
         private void ActualizarVisibilidadCategorias()
@@ -449,8 +638,12 @@ namespace UI.Formularios
         private void ActualizarVisibilidadPeriodo(ComboBox combo, Control lblMes, Control inputMes, Control lblAnio, Control inputAnio)
         {
             var tipo = combo.SelectedValue is ReportePeriodoTipo valor ? valor : ReportePeriodoTipo.Todos;
-            lblMes.Visible = inputMes.Visible = tipo == ReportePeriodoTipo.Mensual;
-            lblAnio.Visible = inputAnio.Visible = tipo == ReportePeriodoTipo.Mensual || tipo == ReportePeriodoTipo.Anual;
+            var mostrarMes = tipo == ReportePeriodoTipo.Mensual;
+            lblMes.Visible = mostrarMes;
+            inputMes.Visible = mostrarMes;
+            var mostrarAnio = tipo == ReportePeriodoTipo.Mensual || tipo == ReportePeriodoTipo.Anual;
+            lblAnio.Visible = mostrarAnio;
+            inputAnio.Visible = mostrarAnio;
         }
 
         private void ActualizarBotonesExport()
@@ -522,6 +715,73 @@ namespace UI.Formularios
             columna.DefaultCellStyle.Format = formato;
             columna.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
             return columna;
+        }
+
+        private void RegistrarAccion(string accion, string claveMensaje, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Reportes");
+            }
+            catch
+            {
+                // Evitar que un fallo en bitácora interrumpa la operación de reportes
+            }
+
+            _logService.LogInfo(mensaje, "Reportes", SessionContext.NombreUsuario);
+        }
+
+        private void RegistrarError(string accion, string claveMensaje, Exception ex, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Reportes", false, ex?.Message);
+            }
+            catch
+            {
+                // Ignorar errores de bitácora
+            }
+
+            _logService.LogError(mensaje, ex, "Reportes", SessionContext.NombreUsuario);
+        }
+
+        private string ObtenerMensaje(string clave, params object[] args)
+        {
+            if (_diccionarioMensajes.TryGetValue(clave, out var textos))
+            {
+                var mensajeEs = args != null && args.Length > 0 ? string.Format(textos.Es, args) : textos.Es;
+                var mensajeEn = args != null && args.Length > 0 ? string.Format(textos.En, args) : textos.En;
+                return string.Concat(mensajeEs, " / ", mensajeEn);
+            }
+
+            return args != null && args.Length > 0 ? string.Format(clave, args) : clave;
+        }
+
+        private Dictionary<string, (string Es, string En)> CrearDiccionarioMensajes()
+        {
+            return new Dictionary<string, (string Es, string En)>
+            {
+                ["report.log.sales.success"] = ("Se actualizaron las ventas por período ({0} filas).", "Sales by period refreshed ({0} rows)."),
+                ["report.log.sales.error"] = ("Error al actualizar las ventas por período: {0}.", "Error refreshing sales by period: {0}."),
+                ["report.log.categories.success"] = ("Se actualizaron las ventas por categoría ({0} filas).", "Category sales refreshed ({0} rows)."),
+                ["report.log.categories.error"] = ("Error al actualizar las ventas por categoría: {0}.", "Error refreshing category sales: {0}."),
+                ["report.log.billing.success"] = ("Se actualizó la facturación por período ({0} filas).", "Billing by period refreshed ({0} rows)."),
+                ["report.log.billing.error"] = ("Error al actualizar la facturación por período: {0}.", "Error refreshing billing by period: {0}."),
+                ["report.log.orders.success"] = ("Se actualizaron los pedidos por cliente ({0} filas).", "Customer orders refreshed ({0} rows)."),
+                ["report.log.orders.error"] = ("Error al actualizar los pedidos por cliente: {0}.", "Error refreshing customer orders: {0}."),
+                ["report.log.bestClients.success"] = ("Se actualizaron los mejores clientes ({0} filas).", "Top clients refreshed ({0} rows)."),
+                ["report.log.bestClients.error"] = ("Error al actualizar los mejores clientes: {0}.", "Error refreshing top clients: {0}."),
+                ["report.log.clientsBalance.success"] = ("Se actualizó el listado de clientes con saldo ({0} filas).", "Clients with outstanding balance refreshed ({0} rows)."),
+                ["report.log.clientsBalance.error"] = ("Error al actualizar los clientes con saldo: {0}.", "Error refreshing clients with balance: {0}."),
+                ["report.log.export.excel.success"] = ("Se exportó el reporte \"{0}\" a Excel en \"{1}\".", "Report \"{0}\" exported to Excel at \"{1}\"."),
+                ["report.log.export.excel.error"] = ("Error al exportar el reporte \"{0}\" a Excel: {1}.", "Error exporting report \"{0}\" to Excel: {1}."),
+                ["report.log.export.pdf.success"] = ("Se exportó el reporte \"{0}\" a PDF en \"{1}\".", "Report \"{0}\" exported to PDF at \"{1}\"."),
+                ["report.log.export.pdf.error"] = ("Error al exportar el reporte \"{0}\" a PDF: {1}.", "Error exporting report \"{0}\" to PDF: {1}."),
+            };
         }
 
         private string ObtenerClaveVentas(ReporteVentasPeriodoTipo tipo)

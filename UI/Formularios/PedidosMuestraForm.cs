@@ -52,6 +52,7 @@ namespace UI
             public string Cliente { get; set; }
             public string Estado { get; set; }
             public Guid? IdEstado { get; set; }
+            public int CantidadProductos { get; set; }
             public DateTime FechaPedido { get; set; }
             public DateTime? FechaDevolucionEsperada { get; set; }
             public decimal SaldoPendiente { get; set; }
@@ -106,6 +107,7 @@ namespace UI
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.FechaPedido)].HeaderText = "sampleOrder.created.date".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Cliente)].HeaderText = "sampleOrder.client".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Estado)].HeaderText = "sampleOrder.state".Traducir();
+                dgvPedidos.Columns[nameof(PedidoMuestraRow.CantidadProductos)].HeaderText = "sampleOrder.list.items".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.FechaDevolucionEsperada)].HeaderText = "sampleOrder.return.expected".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.SaldoPendiente)].HeaderText = "sampleOrder.summary.balance".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Contacto)].HeaderText = "sampleOrder.contact.name".Traducir();
@@ -130,6 +132,7 @@ namespace UI
         private void ConfigurarGrid()
         {
             dgvPedidos.AutoGenerateColumns = false;
+            dgvPedidos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvPedidos.Columns.Clear();
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -137,7 +140,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraRow.Numero),
                 Name = nameof(PedidoMuestraRow.Numero),
                 HeaderText = "sampleOrder.number".Traducir(),
-                Width = 110
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 110,
+                MinimumWidth = 90
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -146,7 +151,9 @@ namespace UI
                 Name = nameof(PedidoMuestraRow.FechaPedido),
                 HeaderText = "sampleOrder.created.date".Traducir(),
                 DefaultCellStyle = { Format = "d" },
-                Width = 110
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 110,
+                MinimumWidth = 90
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -154,7 +161,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraRow.Cliente),
                 Name = nameof(PedidoMuestraRow.Cliente),
                 HeaderText = "sampleOrder.client".Traducir(),
-                Width = 220
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 220,
+                MinimumWidth = 160
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -162,7 +171,19 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraRow.Estado),
                 Name = nameof(PedidoMuestraRow.Estado),
                 HeaderText = "sampleOrder.state".Traducir(),
-                Width = 120
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 120,
+                MinimumWidth = 110
+            });
+
+            dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(PedidoMuestraRow.CantidadProductos),
+                Name = nameof(PedidoMuestraRow.CantidadProductos),
+                HeaderText = "sampleOrder.list.items".Traducir(),
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 90,
+                MinimumWidth = 80
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -171,7 +192,9 @@ namespace UI
                 Name = nameof(PedidoMuestraRow.FechaDevolucionEsperada),
                 HeaderText = "sampleOrder.return.expected".Traducir(),
                 DefaultCellStyle = { Format = "d" },
-                Width = 130
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 130,
+                MinimumWidth = 120
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -180,7 +203,9 @@ namespace UI
                 Name = nameof(PedidoMuestraRow.SaldoPendiente),
                 HeaderText = "sampleOrder.summary.balance".Traducir(),
                 DefaultCellStyle = { Format = "C2" },
-                Width = 120
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 120,
+                MinimumWidth = 110
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -188,7 +213,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraRow.Contacto),
                 Name = nameof(PedidoMuestraRow.Contacto),
                 HeaderText = "sampleOrder.contact.name".Traducir(),
-                Width = 160
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 160,
+                MinimumWidth = 140
             });
 
             _rows = new BindingList<PedidoMuestraRow>();
@@ -341,9 +368,10 @@ namespace UI
                     {
                         IdPedidoMuestra = pedido.IdPedidoMuestra,
                         Numero = FormatearNumeroPedido(pedido.NumeroPedidoMuestra),
-                        Cliente = pedido.Cliente?.RazonSocial ?? string.Empty,
+                        Cliente = FormatearNombreCliente(pedido.Cliente),
                         Estado = LocalizationHelper.TranslateSampleOrderState(estadoNombre),
                         IdEstado = estadoId,
+                        CantidadProductos = pedido.Detalles?.Count ?? 0,
                         FechaPedido = fechaPedido,
                         FechaDevolucionEsperada = fechaEsperada,
                         SaldoPendiente = pedido.SaldoPendiente,
@@ -431,6 +459,26 @@ namespace UI
                 return numero.Trim();
 
             return digits.Length <= 6 ? digits.PadLeft(6, '0') : digits;
+        }
+
+        private static string FormatearNombreCliente(Cliente cliente)
+        {
+            if (cliente == null)
+                return string.Empty;
+
+            var razon = cliente.RazonSocial?.Trim();
+            var alias = cliente.Alias?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(razon) && !string.IsNullOrWhiteSpace(alias))
+                return $"{razon} ({alias})";
+
+            if (!string.IsNullOrWhiteSpace(razon))
+                return razon;
+
+            if (!string.IsNullOrWhiteSpace(alias))
+                return alias;
+
+            return string.Empty;
         }
 
         private bool EsEstadoFinalizado(string nombreEstado)
