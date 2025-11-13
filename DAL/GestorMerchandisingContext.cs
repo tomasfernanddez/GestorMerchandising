@@ -39,6 +39,7 @@ namespace DAL
         public virtual DbSet<PedidoDetalle> PedidoDetalles { get; set; }
         public virtual DbSet<PedidoEstadoHistorial> PedidosEstadoHistorial { get; set; }
         public virtual DbSet<PedidoNota> PedidoNotas { get; set; }
+        public virtual DbSet<PedidoPago> PedidoPagos { get; set; }
         public virtual DbSet<PedidoMuestra> PedidosMuestra { get; set; }
         public virtual DbSet<DetalleMuestra> DetalleMuestras { get; set; }
         public virtual DbSet<ArchivoAdjunto> ArchivosAdjuntos { get; set; }
@@ -158,6 +159,20 @@ namespace DAL
                 .WithMany(p => p.Notas)
                 .HasForeignKey(pn => pn.IdPedido)
                 .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<PedidoPago>()
+                .HasRequired(pp => pp.Pedido)
+                .WithMany(p => p.Pagos)
+                .HasForeignKey(pp => pp.IdPedido)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<PedidoPago>()
+                .Property(pp => pp.Monto)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<PedidoPago>()
+                .Property(pp => pp.Porcentaje)
+                .HasPrecision(18, 2);
 
             // PedidoMuestra -> DetalleMuestras
             modelBuilder.Entity<DetalleMuestra>()

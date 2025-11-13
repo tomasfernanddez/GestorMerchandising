@@ -195,6 +195,9 @@ namespace BLL.Services
                     existente.Notas.Add(notaEntrante);
                 }
 
+                SincronizarPagos(existente, pedido.Pagos);
+                existente.MontoPagado = Math.Round(existente.Pagos?.Select(p => p.Monto).DefaultIfEmpty(0m).Sum() ?? 0m, 2);
+
                 // Reemplazar historial de estados si llega información nueva
                 if (pedido.HistorialEstados != null && pedido.HistorialEstados.Any())
                 {
@@ -556,6 +559,22 @@ namespace BLL.Services
                 pedido.Adjuntos = new List<ArchivoAdjunto>();
             }
 
+            if (pedido.Pagos == null)
+            {
+                pedido.Pagos = new List<PedidoPago>();
+            }
+
+            foreach (var pago in pedido.Pagos)
+            {
+                pago.IdPedidoPago = pago.IdPedidoPago == Guid.Empty ? Guid.NewGuid() : pago.IdPedidoPago;
+                pago.IdPedido = pedido.IdPedido;
+                pago.Monto = Math.Round(pago.Monto, 2);
+                if (pago.FechaRegistro == default)
+                    pago.FechaRegistro = DateTime.UtcNow;
+            }
+
+            pedido.MontoPagado = Math.Round(pedido.Pagos.Select(p => p.Monto).DefaultIfEmpty(0m).Sum(), 2);
+
             ArchivoAdjuntoHelper.PrepararAdjuntosParaPedido(pedido.Adjuntos, pedido.IdPedido);
 
             RecalcularTotales(pedido);
@@ -721,6 +740,65 @@ namespace BLL.Services
                             logoExistente.Proveedor = logo.Proveedor;
                         }
                     }
+                }
+            }
+        }
+
+        private void SincronizarPagos(Pedido destino, IEnumerable<PedidoPago> nuevosPagos)
+        {
+            var ctx = ObtenerContexto();
+
+            destino.Pagos = destino.Pagos ?? new List<PedidoPago>();
+
+            var nuevos = (nuevosPagos ?? Enumerable.Empty<PedidoPago>())
+                .Select(p =>
+                {
+                    p.IdPedido = destino.IdPedido;
+                    p.Monto = Math.Round(p.Monto, 2);
+                    if (p.FechaRegistro == default)
+                        p.FechaRegistro = DateTime.UtcNow;
+                    return p;
+                })
+                .ToList();
+
+            var idsNuevos = new HashSet<Guid>(
+                nuevos.Where(p => p.IdPedidoPago != Guid.Empty).Select(p => p.IdPedidoPago));
+
+            var existentes = destino.Pagos.ToList();
+
+            foreach (var pagoExistente in existentes)
+            {
+                if (pagoExistente.IdPedidoPago != Guid.Empty && !idsNuevos.Contains(pagoExistente.IdPedidoPago))
+                {
+                    ctx?.PedidoPagos.Remove(pagoExistente);
+                    destino.Pagos.Remove(pagoExistente);
+                }
+            }
+
+            foreach (var pagoNuevo in nuevos)
+            {
+                if (pagoNuevo.IdPedidoPago == Guid.Empty)
+                {
+                    pagoNuevo.IdPedidoPago = Guid.NewGuid();
+                    pagoNuevo.IdPedido = destino.IdPedido;
+                    if (pagoNuevo.FechaRegistro == default)
+                        pagoNuevo.FechaRegistro = DateTime.UtcNow;
+                    destino.Pagos.Add(pagoNuevo);
+                    continue;
+                }
+
+                var existente = destino.Pagos.FirstOrDefault(p => p.IdPedidoPago == pagoNuevo.IdPedidoPago);
+                if (existente == null)
+                {
+                    destino.Pagos.Add(pagoNuevo);
+                }
+                else
+                {
+                    existente.Monto = pagoNuevo.Monto;
+                    existente.Porcentaje = pagoNuevo.Porcentaje;
+                    existente.FechaRegistro = pagoNuevo.FechaRegistro == default
+                        ? existente.FechaRegistro
+                        : pagoNuevo.FechaRegistro;
                 }
             }
         }

@@ -54,5 +54,19 @@ namespace UI.Helpers
         {
             return value.HasValue ? ToArgentina(value.Value) : (DateTime?)null;
         }
+
+        public static DateTime ToUtc(DateTime value)
+        {
+            if (value.Kind == DateTimeKind.Utc)
+                return value;
+
+            var baseValue = DateTime.SpecifyKind(value, DateTimeKind.Unspecified);
+            return TimeZoneInfo.ConvertTimeToUtc(baseValue, ArgentinaTimeZone);
+        }
+
+        public static DateTime? ToUtc(DateTime? value)
+        {
+            return value.HasValue ? ToUtc(value.Value) : (DateTime?)null;
+        }
     }
 }

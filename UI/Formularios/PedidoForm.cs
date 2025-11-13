@@ -82,8 +82,9 @@ namespace UI
 
         private sealed class PagoRegistrado
         {
-            public PagoRegistrado(decimal monto, decimal? porcentaje, DateTime? fecha = null, bool esPrevio = false)
+            public PagoRegistrado(decimal monto, decimal? porcentaje, DateTime? fecha = null, bool esPrevio = false, Guid? idPago = null)
             {
+                IdPago = idPago ?? Guid.Empty;
                 Monto = Math.Round(monto, 2);
                 Porcentaje = porcentaje.HasValue && porcentaje.Value > 0
                     ? Math.Round(porcentaje.Value, 2)
@@ -94,6 +95,7 @@ namespace UI
                 EsPrevio = esPrevio;
             }
 
+            public Guid IdPago { get; }
             public decimal Monto { get; }
             public decimal? Porcentaje { get; }
             public DateTime Fecha { get; }
@@ -972,20 +974,42 @@ namespace UI
 
         private void CargarPagosPersistentes(Pedido pedido)
         {
-            if (pedido == null || pedido.MontoPagado <= 0)
+            if (pedido == null)
                 return;
 
-            var porcentaje = CalcularPorcentajePersistido(pedido);
-            var fechaBase = pedido.FechaEntrega
-                ?? pedido.FechaEnvio
-                ?? pedido.FechaFinalizacion
-                ?? pedido.FechaProduccion
-                ?? pedido.FechaConfirmacion
-                ?? pedido.FechaCreacion;
+            var pagos = pedido.Pagos?.OrderBy(p => p.FechaRegistro).ToList();
+            if (pagos != null && pagos.Count > 0)
+            {
+                foreach (var pago in pagos)
+                {
+                    var registro = new PagoRegistrado(
+                        pago.Monto,
+                        pago.Porcentaje,
+                        pago.FechaRegistro,
+                        esPrevio: true,
+                        idPago: pago.IdPedidoPago);
+                    _pagosRegistrados.Add(registro);
+                }
+            }
+            else if (pedido.MontoPagado > 0)
+            {
+                var porcentaje = CalcularPorcentajePersistido(pedido);
+                var fechaBase = pedido.FechaEntrega
+                    ?? pedido.FechaEnvio
+                    ?? pedido.FechaFinalizacion
+                    ?? pedido.FechaProduccion
+                    ?? pedido.FechaConfirmacion
+                    ?? pedido.FechaCreacion;
 
-            var pagoPrevio = new PagoRegistrado(pedido.MontoPagado, porcentaje, fechaBase, esPrevio: true);
-            _pagosRegistrados.Add(pagoPrevio);
-            lstPagos.SelectedItem = pagoPrevio;
+                var pagoPrevio = new PagoRegistrado(pedido.MontoPagado, porcentaje, fechaBase, esPrevio: true);
+                _pagosRegistrados.Add(pagoPrevio);
+            }
+
+            if (_pagosRegistrados.Count > 0)
+            {
+                _montoPagadoActual = Math.Round(_pagosRegistrados.Sum(p => p.Monto), 2);
+                lstPagos.SelectedItem = _pagosRegistrados.Last();
+            }
         }
 
         private decimal? CalcularPorcentajePersistido(Pedido pedido)
@@ -1865,7 +1889,23 @@ namespace UI
                 pedido.Adjuntos = new List<ArchivoAdjunto>();
             }
 
+            pedido.Pagos = ConstruirPagosDominio(pedido.IdPedido);
+
             return pedido;
+        }
+
+        private List<PedidoPago> ConstruirPagosDominio(Guid idPedido)
+        {
+            return _pagosRegistrados
+                .Select(p => new PedidoPago
+                {
+                    IdPedidoPago = p.IdPago == Guid.Empty ? Guid.NewGuid() : p.IdPago,
+                    IdPedido = idPedido,
+                    Monto = p.Monto,
+                    Porcentaje = p.Porcentaje,
+                    FechaRegistro = ArgentinaDateTimeHelper.ToUtc(p.Fecha)
+                })
+                .ToList();
         }
 
         private PedidoDetalle MapearDetalleDominio(PedidoDetalleViewModel vm)
