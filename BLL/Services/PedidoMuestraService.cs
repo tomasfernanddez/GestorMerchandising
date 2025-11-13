@@ -460,7 +460,8 @@ namespace BLL.Services
             var estado = detalle.EstadoMuestra?.NombreEstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
 
             if (string.Equals(estado, "Pendiente de Pago", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(estado, "Facturado", StringComparison.OrdinalIgnoreCase))
+                string.Equals(estado, "Facturado", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(estado, "Pagado", StringComparison.OrdinalIgnoreCase))
             {
                 return monto;
             }

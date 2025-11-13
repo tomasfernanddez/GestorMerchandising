@@ -34,7 +34,7 @@ namespace BLL.Helpers
                 return CrearResultado(BuscarEstado(catalogo, "cancel"));
             }
 
-            if (lista.All(s => Contiene(s, "devuel") || Contiene(s, "perd")))
+            if (lista.All(s => Contiene(s, "devuel") || Contiene(s, "perd") || Contiene(s, "pag")))
             {
                 var finalizado = BuscarEstado(catalogo, "final");
                 if (finalizado != null)

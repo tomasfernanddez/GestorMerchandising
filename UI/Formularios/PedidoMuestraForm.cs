@@ -25,6 +25,7 @@ namespace UI
         private readonly IBitacoraService _bitacoraService;
         private readonly ILogService _logService;
         private readonly Guid? _pedidoId;
+        private readonly Dictionary<string, (string Es, string En)> _diccionarioMensajes;
 
         private PedidoMuestra _pedidoOriginal;
         private List<Cliente> _clientes;
@@ -43,6 +44,7 @@ namespace UI
         private string _numeroPedido;
         private Guid? _estadoPedidoActual;
         private string _estadoPedidoNombre;
+        private bool _estadoPedidoInicializado;
 
         private BindingList<ArchivoAdjuntoViewModel> _adjuntos;
 
@@ -77,6 +79,7 @@ namespace UI
         private const string ESTADO_A_FACTURAR = "Pendiente de Pago";
         private const string ESTADO_PENDIENTE_ENVIO = "Pendiente de Envío";
         private const string ESTADO_FACTURADO = "Facturado";
+        private const string ESTADO_PAGADO = "Pagado";
 
         private sealed class PagoRegistrado
         {
@@ -111,6 +114,8 @@ namespace UI
             _bitacoraService = bitacoraService ?? throw new ArgumentNullException(nameof(bitacoraService));
             _logService = logService ?? throw new ArgumentNullException(nameof(logService));
             _pedidoId = pedidoId;
+            _diccionarioMensajes = CrearDiccionarioMensajes();
+            _estadoPedidoInicializado = false;
 
             InitializeComponent();
 
@@ -751,6 +756,8 @@ namespace UI
                 .ToList();
 
             var calculado = PedidoMuestraEstadoResolver.CalcularEstado(estadosDetalle, _estadosPedido);
+            var estadoAnteriorId = _estadoPedidoActual;
+            var estadoAnteriorNombre = _estadoPedidoNombre;
             if (calculado != null)
             {
                 _estadoPedidoActual = calculado.IdEstado;
@@ -762,10 +769,24 @@ namespace UI
                 _estadoPedidoNombre = null;
             }
             ActualizarCabeceraPedido();
+
+            var cambioEstado = estadoAnteriorId != _estadoPedidoActual
+                || !string.Equals(estadoAnteriorNombre, _estadoPedidoNombre, StringComparison.OrdinalIgnoreCase);
+
+            if (_estadoPedidoInicializado && cambioEstado && !string.IsNullOrWhiteSpace(_estadoPedidoNombre))
+            {
+                RegistrarAccion("PedidoMuestra.Estado.Automatico", "sampleOrder.log.orderStateChange", _estadoPedidoNombre);
+            }
+
+            if (!_estadoPedidoInicializado)
+            {
+                _estadoPedidoInicializado = true;
+            }
         }
 
         private void InicializarNuevoPedido()
         {
+            _estadoPedidoInicializado = false;
             _detalles.Clear();
             _pagosRegistrados.Clear();
             _montoPagadoBase = 0;
@@ -800,6 +821,7 @@ namespace UI
 
         private void CargarPedidoExistente(Guid idPedido)
         {
+            _estadoPedidoInicializado = false;
             try
             {
                 _pedidoOriginal = _pedidoMuestraService.ObtenerPedidoMuestra(idPedido, incluirDetalles: true);
@@ -865,8 +887,6 @@ namespace UI
                 }
 
                 ActualizarResumen();
-                ActualizarFacturacionDisponible();
-                ActualizarEstadoPedidoDesdeDetalles();
             }
             catch (Exception ex)
             {
@@ -915,14 +935,10 @@ namespace UI
                 RecalcularSubtotal(nuevo);
                 _detalles.Add(nuevo);
                 ActualizarResumen();
-                ActualizarFacturacionDisponible();
-                ActualizarEstadoPedidoDesdeDetalles();
 
                 if (!string.IsNullOrWhiteSpace(nuevo.NombreProducto))
                 {
-                    RegistrarAccion(
-                        "PedidoMuestra.Detalle.Agregar",
-                        string.Format("sampleOrder.log.detail.add".Traducir(), nuevo.NombreProducto));
+                    RegistrarAccion("PedidoMuestra.Detalle.Agregar", "sampleOrder.log.detail.add", nuevo.NombreProducto);
                 }
             }
         }
@@ -959,14 +975,10 @@ namespace UI
                 RecalcularSubtotal(detalle);
                 dgvDetalles.Refresh();
                 ActualizarResumen();
-                ActualizarFacturacionDisponible();
-                ActualizarEstadoPedidoDesdeDetalles();
 
                 if (!string.IsNullOrWhiteSpace(actualizado.NombreProducto))
                 {
-                    RegistrarAccion(
-                        "PedidoMuestra.Detalle.Editar",
-                        string.Format("sampleOrder.log.detail.update".Traducir(), actualizado.NombreProducto));
+                    RegistrarAccion("PedidoMuestra.Detalle.Editar", "sampleOrder.log.detail.update", actualizado.NombreProducto);
                 }
             }
         }
@@ -984,14 +996,10 @@ namespace UI
 
             _detalles.Remove(detalle);
             ActualizarResumen();
-            ActualizarFacturacionDisponible();
-            ActualizarEstadoPedidoDesdeDetalles();
 
             if (!string.IsNullOrWhiteSpace(nombreProducto))
             {
-                RegistrarAccion(
-                    "PedidoMuestra.Detalle.Eliminar",
-                    string.Format("sampleOrder.log.detail.delete".Traducir(), nombreProducto));
+                RegistrarAccion("PedidoMuestra.Detalle.Eliminar", "sampleOrder.log.detail.delete", nombreProducto);
             }
         }
 
@@ -1004,10 +1012,37 @@ namespace UI
             return null;
         }
 
+        private List<PedidoMuestraDetalleViewModel> ObtenerDetallesSeleccionados()
+        {
+            var seleccionados = new HashSet<PedidoMuestraDetalleViewModel>();
+
+            foreach (DataGridViewCell cell in dgvDetalles.SelectedCells)
+            {
+                if (cell?.OwningRow?.DataBoundItem is PedidoMuestraDetalleViewModel detalle)
+                {
+                    seleccionados.Add(detalle);
+                }
+            }
+
+            if (dgvDetalles.CurrentRow?.DataBoundItem is PedidoMuestraDetalleViewModel actual)
+            {
+                seleccionados.Add(actual);
+            }
+
+            return seleccionados.ToList();
+        }
+
         private void btnPedirFacturacion_Click(object sender, EventArgs e)
         {
             if (_detalles.Count == 0)
             {
+                return;
+            }
+
+            var seleccionados = ObtenerDetallesSeleccionados();
+            if (seleccionados.Count == 0)
+            {
+                MessageBox.Show("sampleOrder.detail.selectRequired".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -1018,21 +1053,35 @@ namespace UI
                 return;
             }
 
-            foreach (var detalle in _detalles)
+            var modificados = new List<string>();
+            foreach (var detalle in seleccionados)
             {
-                if (!EsEstadoDevuelto(detalle))
-                {
-                    detalle.IdEstadoMuestra = idFacturar;
-                    detalle.EstadoMuestra = ESTADO_A_FACTURAR;
-                    RecalcularSubtotal(detalle);
-                }
+                if (EsEstadoDevuelto(detalle) || EsEstadoPagado(detalle))
+                    continue;
+
+                var estadoActual = detalle.EstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
+                if (string.Equals(estadoActual, ESTADO_A_FACTURAR, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                detalle.IdEstadoMuestra = idFacturar;
+                detalle.EstadoMuestra = ESTADO_A_FACTURAR;
+                RecalcularSubtotal(detalle);
+
+                var nombreProducto = string.IsNullOrWhiteSpace(detalle.NombreProducto) ? "N/A" : detalle.NombreProducto;
+                modificados.Add(nombreProducto);
+            }
+
+            if (modificados.Count == 0)
+            {
+                MessageBox.Show("sampleOrder.request.billing.none".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
             }
 
             dgvDetalles.Refresh();
             ActualizarResumen();
-            RegistrarAccion("PedidoMuestra.PedirFacturacion", "sampleOrder.log.requestBilling".Traducir());
-            ActualizarFacturacionDisponible();
-            ActualizarEstadoPedidoDesdeDetalles();
+
+            var nombres = string.Join(", ", modificados);
+            RegistrarAccion("PedidoMuestra.PedirFacturacion", "sampleOrder.log.requestBilling", nombres);
         }
 
         private void btnExtenderDias_Click(object sender, EventArgs e)
@@ -1060,7 +1109,7 @@ namespace UI
             _pagosRegistrados.Add(pago);
             _montoPagadoActual = Math.Round(_montoPagadoBase + _pagosRegistrados.Sum(p => p.Monto), 2);
             ActualizarResumen();
-            RegistrarAccion("PedidoMuestra.Pago.Agregar", string.Format("sampleOrder.log.payment.add".Traducir(), pago.Monto.ToString("C2")));
+            RegistrarAccion("PedidoMuestra.Pago.Agregar", "sampleOrder.log.payment.add", pago.Monto.ToString("C2"));
         }
 
         private void btnEliminarPago_Click(object sender, EventArgs e)
@@ -1078,7 +1127,7 @@ namespace UI
                 _pagosRegistrados.Remove(pago);
                 _montoPagadoActual = Math.Round(_montoPagadoBase + _pagosRegistrados.Sum(p => p.Monto), 2);
                 ActualizarResumen();
-                RegistrarAccion("PedidoMuestra.Pago.Eliminar", string.Format("sampleOrder.log.payment.remove".Traducir(), pago.Monto.ToString("C2")));
+                RegistrarAccion("PedidoMuestra.Pago.Eliminar", "sampleOrder.log.payment.remove", pago.Monto.ToString("C2"));
             }
         }
 
@@ -1090,7 +1139,59 @@ namespace UI
             var saldo = Math.Max(0, total - _montoPagadoActual);
             lblSaldoValor.Text = saldo.ToString("N2");
 
+            var detallesActualizados = false;
+            if (saldo <= 0)
+            {
+                detallesActualizados = MarcarDetallesComoPagados();
+            }
+
             ActualizarFacturacionDisponible();
+
+            if (detallesActualizados)
+            {
+                dgvDetalles.Refresh();
+            }
+
+            ActualizarEstadoPedidoDesdeDetalles();
+        }
+
+        private bool MarcarDetallesComoPagados()
+        {
+            var idPagado = BuscarEstadoMuestraId(ESTADO_PAGADO);
+            if (!idPagado.HasValue)
+                return false;
+
+            var modificados = new List<string>();
+
+            foreach (var detalle in _detalles)
+            {
+                if (detalle == null)
+                    continue;
+
+                var estadoActual = detalle.EstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
+                if (string.Equals(estadoActual, ESTADO_PAGADO, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (!string.Equals(estadoActual, ESTADO_A_FACTURAR, StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(estadoActual, ESTADO_FACTURADO, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                detalle.IdEstadoMuestra = idPagado;
+                detalle.EstadoMuestra = ESTADO_PAGADO;
+                RecalcularSubtotal(detalle);
+
+                var nombreProducto = string.IsNullOrWhiteSpace(detalle.NombreProducto) ? "N/A" : detalle.NombreProducto;
+                modificados.Add(nombreProducto);
+            }
+
+            if (modificados.Count == 0)
+                return false;
+
+            var nombres = string.Join(", ", modificados);
+            RegistrarAccion("PedidoMuestra.Detalle.MarcarPagado", "sampleOrder.log.detail.paid", nombres);
+            return true;
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
@@ -1119,6 +1220,8 @@ namespace UI
                     MessageBox.Show("sampleOrder.client.required".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
+
+                ActualizarEstadoPedidoDesdeDetalles();
 
                 var fechaCreacionUtc = _fechaPedido.Kind == DateTimeKind.Local
                     ? _fechaPedido.ToUniversalTime()
@@ -1192,12 +1295,12 @@ namespace UI
 
                 if (resultado.EsValido)
                 {
-                    var mensaje = _pedidoOriginal == null
-                        ? "sampleOrder.log.created".Traducir()
-                        : "sampleOrder.log.updated".Traducir();
+                    var clave = _pedidoOriginal == null
+                        ? "sampleOrder.log.created"
+                        : "sampleOrder.log.updated";
 
-                    RegistrarAccion(_pedidoOriginal == null ? "PedidoMuestra.Alta" : "PedidoMuestra.Edicion", mensaje);
-                    _logService.LogInfo(mensaje, "PedidosMuestra", SessionContext.NombreUsuario);
+                    var accion = _pedidoOriginal == null ? "PedidoMuestra.Alta" : "PedidoMuestra.Edicion";
+                    RegistrarAccion(accion, clave);
 
                     DialogResult = DialogResult.OK;
                     Close();
@@ -1276,9 +1379,7 @@ namespace UI
             ActualizarResumen();
 
             var nombreProducto = string.IsNullOrWhiteSpace(detalle.NombreProducto) ? "N/A" : detalle.NombreProducto;
-            RegistrarAccion(
-                "PedidoMuestra.Detalle.Extender",
-                string.Format("sampleOrder.log.detail.extend".Traducir(), nombreProducto, dias));
+            RegistrarAccion("PedidoMuestra.Detalle.Extender", "sampleOrder.log.detail.extend", nombreProducto, dias);
 
             return true;
         }
@@ -1364,12 +1465,9 @@ namespace UI
             RecalcularSubtotal(detalle);
             dgvDetalles.Refresh();
             ActualizarResumen();
-            ActualizarFacturacionDisponible();
 
             var nombreProducto = string.IsNullOrWhiteSpace(detalle.NombreProducto) ? "N/A" : detalle.NombreProducto;
-            RegistrarAccion(
-                "PedidoMuestra.Detalle.CambiarEstado",
-                string.Format("sampleOrder.log.detail.stateChange".Traducir(), nombreProducto, estado.NombreEstadoMuestra));
+            RegistrarAccion("PedidoMuestra.Detalle.CambiarEstado", "sampleOrder.log.detail.stateChange", nombreProducto, estado.NombreEstadoMuestra);
         }
 
         private bool EsEstadoDevuelto(PedidoMuestraDetalleViewModel detalle)
@@ -1379,6 +1477,15 @@ namespace UI
 
             var estado = detalle.EstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
             return string.Equals(estado, ESTADO_DEVUELTO, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool EsEstadoPagado(PedidoMuestraDetalleViewModel detalle)
+        {
+            if (detalle == null)
+                return false;
+
+            var estado = detalle.EstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
+            return string.Equals(estado, ESTADO_PAGADO, StringComparison.OrdinalIgnoreCase);
         }
 
         private Guid? BuscarEstadoMuestraId(string nombre)
@@ -1425,7 +1532,8 @@ namespace UI
 
             var estado = detalle.EstadoMuestra ?? ObtenerNombreEstado(detalle.IdEstadoMuestra);
             return string.Equals(estado, ESTADO_A_FACTURAR, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(estado, ESTADO_FACTURADO, StringComparison.OrdinalIgnoreCase);
+                || string.Equals(estado, ESTADO_FACTURADO, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(estado, ESTADO_PAGADO, StringComparison.OrdinalIgnoreCase);
         }
 
         private string ObtenerNombreEstado(Guid? idEstado)
@@ -1436,17 +1544,56 @@ namespace UI
             return _estadosMuestra.FirstOrDefault(e => e.IdEstadoMuestra == idEstado.Value)?.NombreEstadoMuestra;
         }
 
-        private void RegistrarAccion(string accion, string mensaje)
+        private void RegistrarAccion(string accion, string claveMensaje, params object[] args)
         {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+
             try
             {
                 _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "PedidosMuestra");
-                _logService.LogInfo(mensaje, "PedidosMuestra", SessionContext.NombreUsuario);
             }
             catch
             {
-                // No interrumpir el flujo si falla el registro
+                // No interrumpir el flujo si falla el registro en bitácora
             }
+
+            _logService.LogInfo(mensaje, "PedidosMuestra", SessionContext.NombreUsuario);
+        }
+
+        private Dictionary<string, (string Es, string En)> CrearDiccionarioMensajes()
+        {
+            return new Dictionary<string, (string Es, string En)>
+            {
+                ["sampleOrder.log.detail.add"] = ("Se agregó la muestra {0}.", "Sample {0} was added."),
+                ["sampleOrder.log.detail.update"] = ("Se actualizó la muestra {0}.", "Sample {0} was updated."),
+                ["sampleOrder.log.detail.delete"] = ("Se eliminó la muestra {0}.", "Sample {0} was removed."),
+                ["sampleOrder.log.requestBilling"] = ("Se solicitó facturación para la muestra {0}.", "Billing was requested for sample {0}."),
+                ["sampleOrder.log.payment.add"] = ("Se registró un pago por {0}.", "A payment of {0} was registered."),
+                ["sampleOrder.log.payment.remove"] = ("Se eliminó un pago por {0}.", "A payment of {0} was removed."),
+                ["sampleOrder.log.detail.extend"] = ("Se extendió la devolución de {0} en {1} día(s).", "Return deadline for {0} extended by {1} day(s)."),
+                ["sampleOrder.log.detail.stateChange"] = ("Se cambió el estado de {0} a {1}.", "State for {0} changed to {1}."),
+                ["sampleOrder.log.detail.paid"] = ("Se marcaron como pagadas las muestras: {0}.", "Samples marked as paid: {0}."),
+                ["sampleOrder.log.created"] = ("Se creó el pedido de muestra.", "Sample order was created."),
+                ["sampleOrder.log.updated"] = ("Se actualizó el pedido de muestra.", "Sample order was updated."),
+                ["sampleOrder.log.orderStateChange"] = ("El pedido de muestra cambió su estado a {0}.", "Sample order state changed to {0}."),
+            };
+        }
+
+        private string ObtenerMensaje(string clave, params object[] args)
+        {
+            if (_diccionarioMensajes.TryGetValue(clave, out var textos))
+            {
+                var mensajeEs = args != null && args.Length > 0 ? string.Format(textos.Es, args) : textos.Es;
+                var mensajeEn = args != null && args.Length > 0 ? string.Format(textos.En, args) : textos.En;
+                return string.Concat(mensajeEs, " / ", mensajeEn);
+            }
+
+            if (args != null && args.Length > 0)
+            {
+                return string.Format(clave, args);
+            }
+
+            return clave;
         }
 
         private void VerificarVencimiento()
