@@ -211,7 +211,7 @@ namespace UI
             this.lblCondIVA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // cboCondIVA
-            //
+            // 
             this.cboCondIVA.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboCondIVA.FormattingEnabled = true;
             this.cboCondIVA.Location = new System.Drawing.Point(140, 292);
@@ -224,7 +224,7 @@ namespace UI
             this.chkActivo.AutoSize = true;
             this.chkActivo.Location = new System.Drawing.Point(140, 328);
             this.chkActivo.Name = "chkActivo";
-            this.chkActivo.Size = new System.Drawing.Size(90, 17);
+            this.chkActivo.Size = new System.Drawing.Size(89, 17);
             this.chkActivo.TabIndex = 18;
             this.chkActivo.Text = "cliente.activo";
             this.chkActivo.UseVisualStyleBackColor = true;
@@ -278,10 +278,12 @@ namespace UI
             this.Controls.Add(this.txtRazon);
             this.Controls.Add(this.lblRazon);
             this.Name = "ClienteForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "cliente.title";
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
     }
 }

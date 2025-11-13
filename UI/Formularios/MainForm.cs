@@ -526,49 +526,68 @@ namespace UI
         // ============================================================
         private void InitializeComponent()
         {
-            this.menuStrip1 = new MenuStrip();
-            this.statusStrip1 = new StatusStrip();
-            this.stsUsuario = new ToolStripStatusLabel();
-            this.stsPerfil = new ToolStripStatusLabel();
-            this.pnlContent = new Panel();
-
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.stsUsuario = new System.Windows.Forms.ToolStripStatusLabel();
+            this.stsPerfil = new System.Windows.Forms.ToolStripStatusLabel();
+            this.pnlContent = new System.Windows.Forms.Panel();
+            this.statusStrip1.SuspendLayout();
+            this.SuspendLayout();
+            // 
             // menuStrip1
-            this.menuStrip1.Dock = DockStyle.Top;
-            this.menuStrip1.Location = new Point(0, 0);
+            // 
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new Size(900, 24);
-
+            this.menuStrip1.Size = new System.Drawing.Size(900, 24);
+            this.menuStrip1.TabIndex = 2;
+            // 
             // statusStrip1
-            this.statusStrip1.Dock = DockStyle.Bottom;
-            this.statusStrip1.Items.AddRange(new ToolStripItem[] { this.stsUsuario, this.stsPerfil });
-            this.statusStrip1.Location = new Point(0, 428);
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.stsUsuario,
+            this.stsPerfil});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 428);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new Size(900, 22);
-
+            this.statusStrip1.Size = new System.Drawing.Size(900, 22);
+            this.statusStrip1.TabIndex = 1;
+            // 
             // stsUsuario
+            // 
             this.stsUsuario.Name = "stsUsuario";
+            this.stsUsuario.Size = new System.Drawing.Size(58, 17);
             this.stsUsuario.Text = "Usuario: -";
-
+            // 
             // stsPerfil
+            // 
             this.stsPerfil.Name = "stsPerfil";
+            this.stsPerfil.Size = new System.Drawing.Size(45, 17);
             this.stsPerfil.Text = "Perfil: -";
-
+            // 
             // pnlContent
-            this.pnlContent.Dock = DockStyle.Fill;
-            this.pnlContent.Location = new Point(0, 24);
+            // 
+            this.pnlContent.BackColor = System.Drawing.SystemColors.Window;
+            this.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlContent.Location = new System.Drawing.Point(0, 24);
             this.pnlContent.Name = "pnlContent";
-            this.pnlContent.Size = new Size(900, 404);
-            this.pnlContent.BackColor = SystemColors.Window;
-
+            this.pnlContent.Size = new System.Drawing.Size(900, 404);
+            this.pnlContent.TabIndex = 0;
+            // 
             // MainForm
-            this.ClientSize = new Size(900, 450);
+            // 
+            this.ClientSize = new System.Drawing.Size(900, 450);
             this.Controls.Add(this.pnlContent);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
-            this.StartPosition = FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SIGPM";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         private void AbrirGestionPerfiles()

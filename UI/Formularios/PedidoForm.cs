@@ -82,18 +82,22 @@ namespace UI
 
         private sealed class PagoRegistrado
         {
-            public PagoRegistrado(decimal monto, decimal? porcentaje)
+            public PagoRegistrado(decimal monto, decimal? porcentaje, DateTime? fecha = null, bool esPrevio = false)
             {
-                Monto = monto;
+                Monto = Math.Round(monto, 2);
                 Porcentaje = porcentaje.HasValue && porcentaje.Value > 0
                     ? Math.Round(porcentaje.Value, 2)
                     : (decimal?)null;
-                Fecha = ArgentinaDateTimeHelper.Now();
+                Fecha = fecha.HasValue
+                    ? ArgentinaDateTimeHelper.ToArgentina(fecha.Value)
+                    : ArgentinaDateTimeHelper.Now();
+                EsPrevio = esPrevio;
             }
 
             public decimal Monto { get; }
             public decimal? Porcentaje { get; }
             public DateTime Fecha { get; }
+            public bool EsPrevio { get; }
 
             public string ObtenerDescripcion()
             {
@@ -148,6 +152,8 @@ namespace UI
             _diccionarioMensajes = CrearDiccionarioMensajes();
 
             InitializeComponent();
+            panelScroll.ClientSizeChanged += PanelScroll_ClientSizeChanged;
+            layoutContenido.SizeChanged += (s, e) => ActualizarAreaScroll();
             lstPagos.DataSource = _pagosRegistrados;
 
             btnAgregarPago.Click += btnAgregarPago_Click;
@@ -197,6 +203,7 @@ namespace UI
 
             RefrescarHistorial();
             ActualizarResumen();
+            ActualizarAreaScroll();
 
             if (_abrirEnProductos)
             {
@@ -340,6 +347,27 @@ namespace UI
             var habilitado = adjunto != null;
             btnDescargarAdjunto.Enabled = habilitado;
             btnEliminarAdjunto.Enabled = habilitado;
+        }
+
+        private void PanelScroll_ClientSizeChanged(object sender, EventArgs e)
+        {
+            ActualizarAreaScroll();
+        }
+
+        private void ActualizarAreaScroll()
+        {
+            if (panelScroll == null || layoutContenido == null)
+                return;
+
+            var anchoDisponible = panelScroll.ClientSize.Width - panelScroll.Padding.Horizontal;
+            if (anchoDisponible > 0 && layoutContenido.Width != anchoDisponible)
+            {
+                layoutContenido.Width = anchoDisponible;
+            }
+
+            var preferred = layoutContenido.GetPreferredSize(new Size(panelScroll.ClientSize.Width, 0));
+            var altoMinimo = Math.Max(preferred.Height, panelScroll.ClientSize.Height);
+            panelScroll.AutoScrollMinSize = new Size(Math.Max(preferred.Width, panelScroll.ClientSize.Width), altoMinimo);
         }
 
         private void BtnAgregarAdjunto_Click(object sender, EventArgs e)
@@ -909,6 +937,7 @@ namespace UI
                 _montoPagadoBase = _pedidoOriginal.MontoPagado;
                 _montoPagadoActual = _montoPagadoBase;
                 _pagosRegistrados.Clear();
+                CargarPagosPersistentes(_pedidoOriginal);
                 ActualizarMontoPagadoUI();
                 txtOC.Text = _pedidoOriginal.Cliente_OC;
                 txtContacto.Text = _pedidoOriginal.Cliente_PersonaNombre;
@@ -931,6 +960,7 @@ namespace UI
 
                 ActualizarAccionesCancelacion();
                 ActualizarEstadoPedidoAutomatico();
+                ActualizarAreaScroll();
             }
             catch (Exception ex)
             {
@@ -938,6 +968,36 @@ namespace UI
                 MessageBox.Show("order.load.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
             }
+        }
+
+        private void CargarPagosPersistentes(Pedido pedido)
+        {
+            if (pedido == null || pedido.MontoPagado <= 0)
+                return;
+
+            var porcentaje = CalcularPorcentajePersistido(pedido);
+            var fechaBase = pedido.FechaEntrega
+                ?? pedido.FechaEnvio
+                ?? pedido.FechaFinalizacion
+                ?? pedido.FechaProduccion
+                ?? pedido.FechaConfirmacion
+                ?? pedido.FechaCreacion;
+
+            var pagoPrevio = new PagoRegistrado(pedido.MontoPagado, porcentaje, fechaBase, esPrevio: true);
+            _pagosRegistrados.Add(pagoPrevio);
+            lstPagos.SelectedItem = pagoPrevio;
+        }
+
+        private decimal? CalcularPorcentajePersistido(Pedido pedido)
+        {
+            if (pedido == null || pedido.TotalConIva <= 0)
+                return null;
+
+            var porcentaje = Math.Round((pedido.MontoPagado / pedido.TotalConIva) * 100m, 2);
+            if (porcentaje <= 0)
+                return null;
+
+            return Math.Min(porcentaje, 100m);
         }
 
         private void IniciarPedidoNuevo()
@@ -956,6 +1016,7 @@ namespace UI
             ActualizarAccionesCancelacion();
             ActualizarEstadoPedidoAutomatico();
             ActualizarEstadoAdjuntos();
+            ActualizarAreaScroll();
         }
 
         private PedidoDetalleViewModel MapearDetalle(PedidoDetalle detalle)
@@ -1996,6 +2057,26 @@ namespace UI
                 return true;
 
             return false;
+        }
+
+        private void panelResumen_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void lblMontoPagadoValor_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lstPagos_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvAdjuntos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }
