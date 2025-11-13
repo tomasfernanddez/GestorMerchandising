@@ -2,15 +2,28 @@
 namespace DAL.Migrations
 {
     using System.CodeDom.Compiler;
+    using System.Data.Entity.Migrations;
     using System.Data.Entity.Migrations.Infrastructure;
-
+    using System.Resources;
+    
     [GeneratedCode("EntityFramework.Migrations", "6.5.1")]
     public sealed partial class AgregarPagosPedidoMuestra : IMigrationMetadata
     {
-        string IMigrationMetadata.Id => "202511130321119_AgregarPagosPedidoMuestra";
-
-        string IMigrationMetadata.Source => null;
-
-        string IMigrationMetadata.Target => null;
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AgregarPagosPedidoMuestra));
+        
+        string IMigrationMetadata.Id
+        {
+            get { return "202511130321119_AgregarPagosPedidoMuestra"; }
+        }
+        
+        string IMigrationMetadata.Source
+        {
+            get { return null; }
+        }
+        
+        string IMigrationMetadata.Target
+        {
+            get { return Resources.GetString("Target"); }
+        }
     }
 }

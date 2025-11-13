@@ -674,11 +674,11 @@
             // 
             // btnAgregarPago
             // 
-            this.layoutPagos.SetColumnSpan(this.btnAgregarPago, 2);
             this.btnAgregarPago.AutoSize = true;
+            this.layoutPagos.SetColumnSpan(this.btnAgregarPago, 2);
             this.btnAgregarPago.Location = new System.Drawing.Point(3, 28);
             this.btnAgregarPago.Name = "btnAgregarPago";
-            this.btnAgregarPago.Size = new System.Drawing.Size(104, 26);
+            this.btnAgregarPago.Size = new System.Drawing.Size(177, 26);
             this.btnAgregarPago.TabIndex = 6;
             this.btnAgregarPago.Text = "sampleOrder.payment.addPercent";
             this.btnAgregarPago.UseVisualStyleBackColor = true;
@@ -686,11 +686,11 @@
             // 
             // btnEliminarPago
             // 
-            this.layoutPagos.SetColumnSpan(this.btnEliminarPago, 2);
             this.btnEliminarPago.AutoSize = true;
+            this.layoutPagos.SetColumnSpan(this.btnEliminarPago, 2);
             this.btnEliminarPago.Location = new System.Drawing.Point(213, 28);
             this.btnEliminarPago.Name = "btnEliminarPago";
-            this.btnEliminarPago.Size = new System.Drawing.Size(94, 26);
+            this.btnEliminarPago.Size = new System.Drawing.Size(157, 26);
             this.btnEliminarPago.TabIndex = 7;
             this.btnEliminarPago.Text = "sampleOrder.payment.remove";
             this.btnEliminarPago.UseVisualStyleBackColor = true;
@@ -701,9 +701,9 @@
             this.layoutPagos.SetColumnSpan(this.lstPagos, 2);
             this.lstPagos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstPagos.FormattingEnabled = true;
-            this.lstPagos.Location = new System.Drawing.Point(533, 28);
+            this.lstPagos.Location = new System.Drawing.Point(423, 28);
             this.lstPagos.Name = "lstPagos";
-            this.lstPagos.Size = new System.Drawing.Size(316, 30);
+            this.lstPagos.Size = new System.Drawing.Size(426, 30);
             this.lstPagos.TabIndex = 10;
             // 
             // flowButtons
