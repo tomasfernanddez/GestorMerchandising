@@ -96,5 +96,6 @@ namespace BLL.Reportes
         public Guid? IdCliente { get; set; }
         public string Cliente { get; set; }
         public decimal SaldoPendiente { get; set; }
+        public string PedidosConSaldo { get; set; }
     }
 }

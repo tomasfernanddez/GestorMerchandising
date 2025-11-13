@@ -164,6 +164,7 @@ namespace UI.Formularios
 
             ConfigurarGrilla(dgvClientesSaldo,
                 CrearColumna("Cliente", "Cliente"),
+                CrearColumna("Pedidos con saldo", "PedidosConSaldo"),
                 CrearColumnaNumerica("Saldo", "SaldoPendiente"));
         }
         private void ActualizarOpcionesCombos()

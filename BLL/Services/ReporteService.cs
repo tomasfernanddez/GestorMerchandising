@@ -273,7 +273,12 @@ namespace BLL.Services
                 {
                     IdCliente = g.Key.IdCliente,
                     Cliente = g.Key.Nombre,
-                    SaldoPendiente = g.Sum(p => p.SaldoPendiente)
+                    SaldoPendiente = g.Sum(p => p.SaldoPendiente),
+                    PedidosConSaldo = string.Join(", ", g
+                        .Select(p => p.NumeroPedido)
+                        .Where(n => !string.IsNullOrWhiteSpace(n))
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .OrderBy(n => n, StringComparer.OrdinalIgnoreCase))
                 })
                 .OrderByDescending(r => r.SaldoPendiente)
                 .ThenBy(r => r.Cliente)

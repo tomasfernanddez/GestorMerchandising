@@ -33,8 +33,8 @@ menu.roles=Roles
 menu.security=Security
 menu.security.profiles=Manage Roles
 menu.security.users=Manage Users
-menu.security.bitacora=Logs & Audit
-menu.security.backup=Backups & Restore
+menu.security.bitacora=Logs - Audit
+menu.security.backup=Backups - Restore
 menu.suppliers=Suppliers
 menu.users=Users
 
