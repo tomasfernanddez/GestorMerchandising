@@ -42,8 +42,6 @@
             this.btnBuscar = new System.Windows.Forms.ToolStripButton();
             this.tslEstado = new System.Windows.Forms.ToolStripLabel();
             this.cmbEstado = new System.Windows.Forms.ToolStripComboBox();
-            this.tslFacturado = new System.Windows.Forms.ToolStripLabel();
-            this.cmbFacturado = new System.Windows.Forms.ToolStripComboBox();
             this.tslSaldo = new System.Windows.Forms.ToolStripLabel();
             this.cmbSaldo = new System.Windows.Forms.ToolStripComboBox();
             this.layoutMain = new System.Windows.Forms.TableLayoutPanel();
@@ -69,8 +67,6 @@
             this.btnBuscar,
             this.tslEstado,
             this.cmbEstado,
-            this.tslFacturado,
-            this.cmbFacturado,
             this.tslSaldo,
             this.cmbSaldo});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
@@ -170,19 +166,6 @@
             this.cmbEstado.Name = "cmbEstado";
             this.cmbEstado.Size = new System.Drawing.Size(140, 23);
             // 
-            // tslFacturado
-            // 
-            this.tslFacturado.Name = "tslFacturado";
-            this.tslFacturado.Size = new System.Drawing.Size(149, 15);
-            this.tslFacturado.Text = "sampleOrder.invoiced.only";
-            // 
-            // cmbFacturado
-            // 
-            this.cmbFacturado.AutoSize = false;
-            this.cmbFacturado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbFacturado.Name = "cmbFacturado";
-            this.cmbFacturado.Size = new System.Drawing.Size(120, 23);
-            // 
             // tslSaldo
             // 
             this.tslSaldo.Name = "tslSaldo";
@@ -263,8 +246,6 @@
         private System.Windows.Forms.ToolStripButton btnBuscar;
         private System.Windows.Forms.ToolStripLabel tslEstado;
         private System.Windows.Forms.ToolStripComboBox cmbEstado;
-        private System.Windows.Forms.ToolStripLabel tslFacturado;
-        private System.Windows.Forms.ToolStripComboBox cmbFacturado;
         private System.Windows.Forms.ToolStripLabel tslSaldo;
         private System.Windows.Forms.ToolStripComboBox cmbSaldo;
         private System.Windows.Forms.TableLayoutPanel layoutMain;

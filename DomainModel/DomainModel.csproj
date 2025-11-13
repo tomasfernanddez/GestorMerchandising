@@ -78,6 +78,7 @@
     <Compile Include="PedidoDetalle.cs" />
     <Compile Include="PedidoEstadoHistorial.cs" />
     <Compile Include="PedidoMuestra.cs" />
+    <Compile Include="PedidoMuestraPago.cs" />
     <Compile Include="PedidoNota.cs" />
     <Compile Include="PedidoPago.cs" />
     <Compile Include="Producto.cs" />

@@ -29,8 +29,6 @@ namespace UI
         private List<EstadoPedidoMuestra> _estadosPedido;
         private List<EstadoMuestra> _estadosMuestra;
         private bool _suspendFilters;
-        private bool _alertaInicialMostrada;
-
         private const string ESTADO_A_FACTURAR = "Pendiente de Pago";
 
         private sealed class FiltroOpcion<T>
@@ -56,7 +54,6 @@ namespace UI
             public Guid? IdEstado { get; set; }
             public DateTime FechaPedido { get; set; }
             public DateTime? FechaDevolucionEsperada { get; set; }
-            public bool Facturado { get; set; }
             public decimal SaldoPendiente { get; set; }
             public string Contacto { get; set; }
             public bool Vencido { get; set; }
@@ -84,7 +81,7 @@ namespace UI
             ApplyTexts();
             CargarDatosReferencia();
             ConfigurarGrid();
-            CargarPedidos(true);
+            CargarPedidos();
             ConfigurarFiltros();
             WireEvents();
         }
@@ -101,7 +98,6 @@ namespace UI
             tslBuscar.Text = "form.search".Traducir();
             btnBuscar.Text = "form.filter".Traducir();
             tslEstado.Text = "sampleOrder.state".Traducir();
-            tslFacturado.Text = "sampleOrder.invoiced.filter".Traducir();
             tslSaldo.Text = "sampleOrder.balance.filter".Traducir();
 
             if (dgvPedidos.Columns.Count > 0)
@@ -111,7 +107,6 @@ namespace UI
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Cliente)].HeaderText = "sampleOrder.client".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Estado)].HeaderText = "sampleOrder.state".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.FechaDevolucionEsperada)].HeaderText = "sampleOrder.return.expected".Traducir();
-                dgvPedidos.Columns[nameof(PedidoMuestraRow.Facturado)].HeaderText = "sampleOrder.invoiced".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.SaldoPendiente)].HeaderText = "sampleOrder.summary.balance".Traducir();
                 dgvPedidos.Columns[nameof(PedidoMuestraRow.Contacto)].HeaderText = "sampleOrder.contact.name".Traducir();
             }
@@ -179,14 +174,6 @@ namespace UI
                 Width = 130
             });
 
-            dgvPedidos.Columns.Add(new DataGridViewCheckBoxColumn
-            {
-                DataPropertyName = nameof(PedidoMuestraRow.Facturado),
-                Name = nameof(PedidoMuestraRow.Facturado),
-                HeaderText = "sampleOrder.invoiced".Traducir(),
-                Width = 80
-            });
-
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoMuestraRow.SaldoPendiente),
@@ -207,6 +194,8 @@ namespace UI
             _rows = new BindingList<PedidoMuestraRow>();
             dgvPedidos.DataSource = _rows;
             dgvPedidos.SelectionChanged += (s, e) => ActualizarAcciones();
+            dgvPedidos.DataBindingComplete += (s, e) => ResaltarVencidos();
+            dgvPedidos.RowPrePaint += DgvPedidos_RowPrePaint;
         }
 
         private void ConfigurarFiltros()
@@ -234,21 +223,6 @@ namespace UI
                 comboEstados.Format -= ComboEstados_Format;
                 comboEstados.Format += ComboEstados_Format;
                 comboEstados.SelectedValue = Guid.Empty;
-
-                var opcionesFacturado = new List<FiltroOpcion<bool?>>
-                {
-                    new FiltroOpcion<bool?>(placeholder, null),
-                    new FiltroOpcion<bool?>("form.filter.yes".Traducir(), true),
-                    new FiltroOpcion<bool?>("form.filter.no".Traducir(), false)
-                };
-                var comboFacturado = cmbFacturado.ComboBox;
-                comboFacturado.DisplayMember = nameof(FiltroOpcion<bool?>.Texto);
-                comboFacturado.ValueMember = nameof(FiltroOpcion<bool?>.Valor);
-                comboFacturado.DataSource = opcionesFacturado;
-                if (comboFacturado.Items.Count > 0)
-                {
-                    comboFacturado.SelectedIndex = 0;
-                }
 
                 var opcionesSaldo = new List<FiltroOpcion<bool?>>
                 {
@@ -286,7 +260,6 @@ namespace UI
             txtBuscar.TextChanged += (s, e) => { if (!_suspendFilters) AplicarFiltros(); };
             txtBuscar.KeyDown += TxtBuscar_KeyDown;
             cmbEstado.SelectedIndexChanged += Filtros_SelectedIndexChanged;
-            cmbFacturado.SelectedIndexChanged += Filtros_SelectedIndexChanged;
             cmbSaldo.SelectedIndexChanged += Filtros_SelectedIndexChanged;
             dgvPedidos.SelectionChanged += (s, e) => ActualizarAcciones();
         }
@@ -314,14 +287,13 @@ namespace UI
             CargarPedidos();
         }
 
-        private void CargarPedidos(bool mostrarAlEntrar = false)
+        private void CargarPedidos()
         {
             try
             {
                 var filtro = new PedidoMuestraFiltro
                 {
                     IdEstadoPedido = ObtenerGuidSeleccionado(cmbEstado),
-                    Facturado = ObtenerValorSeleccionado(cmbFacturado),
                     ConSaldoPendiente = ObtenerValorSeleccionado(cmbSaldo),
                     TextoBusqueda = ObtenerTextoBusqueda(),
                     IncluirDetalles = true
@@ -374,7 +346,6 @@ namespace UI
                         IdEstado = estadoId,
                         FechaPedido = fechaPedido,
                         FechaDevolucionEsperada = fechaEsperada,
-                        Facturado = pedido.Facturado,
                         SaldoPendiente = pedido.SaldoPendiente,
                         Contacto = pedido.PersonaContacto,
                         Vencido = vencido
@@ -382,7 +353,6 @@ namespace UI
                 }
 
                 ResaltarVencidos();
-                MostrarAlertaVencidos(mostrarAlEntrar);
                 ActualizarAcciones();
             }
             catch (Exception ex)
@@ -413,16 +383,24 @@ namespace UI
             }
         }
 
-        private void MostrarAlertaVencidos(bool mostrarAlEntrar)
+        private void DgvPedidos_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
-            if (!mostrarAlEntrar || _alertaInicialMostrada)
+            if (e.RowIndex < 0)
                 return;
 
-            var hayVencidos = _rows.Any(r => r.Vencido && !r.Facturado);
-            if (hayVencidos)
+            var row = dgvPedidos.Rows[e.RowIndex];
+            if (row?.DataBoundItem is PedidoMuestraRow pedido)
             {
-                _alertaInicialMostrada = true;
-                MessageBox.Show("sampleOrder.return.overdue".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (pedido.Vencido)
+                {
+                    row.DefaultCellStyle.BackColor = Color.LightCoral;
+                    row.DefaultCellStyle.ForeColor = Color.White;
+                }
+                else
+                {
+                    row.DefaultCellStyle.BackColor = SystemColors.Window;
+                    row.DefaultCellStyle.ForeColor = SystemColors.ControlText;
+                }
             }
         }
 

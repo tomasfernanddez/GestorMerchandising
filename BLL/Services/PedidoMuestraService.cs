@@ -167,8 +167,7 @@ namespace BLL.Services
                 SincronizarAdjuntos(existente, pedido, ctx);
 
                 SincronizarDetalles(existente, pedido);
-
-                existente.MontoPagado = pedido.MontoPagado;
+                SincronizarPagos(existente, pedido.Pagos, ctx);
 
                 PrepararPedido(existente, false);
 
@@ -308,6 +307,45 @@ namespace BLL.Services
 
             ArchivoAdjuntoHelper.PrepararAdjuntosParaPedidoMuestra(pedido.Adjuntos, pedido.IdPedidoMuestra);
 
+            if (pedido.Pagos == null)
+            {
+                pedido.Pagos = new List<PedidoMuestraPago>();
+            }
+
+            var pagosNormalizados = new List<PedidoMuestraPago>();
+            foreach (var pago in pedido.Pagos)
+            {
+                if (pago == null)
+                    continue;
+
+                if (pago.IdPedidoMuestraPago == Guid.Empty)
+                {
+                    pago.IdPedidoMuestraPago = Guid.NewGuid();
+                }
+
+                pago.IdPedidoMuestra = pedido.IdPedidoMuestra;
+                pago.Monto = Math.Round(Math.Max(0, pago.Monto), 2);
+
+                if (pago.Porcentaje.HasValue)
+                {
+                    var porcentajeNormalizado = Math.Round(Math.Max(0, pago.Porcentaje.Value), 2);
+                    pago.Porcentaje = porcentajeNormalizado > 0 ? porcentajeNormalizado : (decimal?)null;
+                }
+                else
+                {
+                    pago.Porcentaje = null;
+                }
+
+                if (pago.FechaRegistro.Kind != DateTimeKind.Utc)
+                {
+                    pago.FechaRegistro = pago.FechaRegistro.ToUniversalTime();
+                }
+
+                pagosNormalizados.Add(pago);
+            }
+
+            pedido.Pagos = pagosNormalizados;
+
             if (!pedido.FechaDevolucionEsperada.HasValue)
             {
                 var baseDate = pedido.FechaCreacion == default ? DateTime.UtcNow : pedido.FechaCreacion;
@@ -315,6 +353,7 @@ namespace BLL.Services
             }
 
             pedido.MontoTotal = Math.Round(pedido.Detalles.Sum(d => d.Subtotal), 2);
+            pedido.MontoPagado = Math.Round(pedido.Pagos.Select(p => p.Monto).DefaultIfEmpty(0m).Sum(), 2);
             pedido.MontoPagado = Math.Max(0, Math.Round(pedido.MontoPagado, 2));
             if (pedido.MontoPagado > pedido.MontoTotal)
             {
@@ -442,6 +481,74 @@ namespace BLL.Services
                 entrante.IdEstadoMuestra = entrante.IdEstadoMuestra ?? ObtenerEstadoMuestraPorNombre("Pendiente de Envío");
 
                 existente.Detalles.Add(entrante);
+            }
+        }
+
+        private void SincronizarPagos(PedidoMuestra existente, IEnumerable<PedidoMuestraPago> nuevosPagos, DbContext ctx)
+        {
+            if (existente == null)
+                return;
+
+            existente.Pagos = existente.Pagos ?? new List<PedidoMuestraPago>();
+
+            var pagosProcesados = (nuevosPagos ?? Enumerable.Empty<PedidoMuestraPago>())
+                .Where(p => p != null)
+                .Select(pago =>
+                {
+                    if (pago.IdPedidoMuestraPago == Guid.Empty)
+                    {
+                        pago.IdPedidoMuestraPago = Guid.NewGuid();
+                    }
+
+                    pago.IdPedidoMuestra = existente.IdPedidoMuestra;
+                    pago.Monto = Math.Round(Math.Max(0, pago.Monto), 2);
+
+                    if (pago.Porcentaje.HasValue)
+                    {
+                        var porcentaje = Math.Round(Math.Max(0, pago.Porcentaje.Value), 2);
+                        pago.Porcentaje = porcentaje > 0 ? porcentaje : (decimal?)null;
+                    }
+                    else
+                    {
+                        pago.Porcentaje = null;
+                    }
+
+                    if (pago.FechaRegistro.Kind != DateTimeKind.Utc)
+                    {
+                        pago.FechaRegistro = pago.FechaRegistro.ToUniversalTime();
+                    }
+
+                    return pago;
+                })
+                .ToList();
+
+            var existentes = existente.Pagos.ToList();
+            foreach (var actual in existentes)
+            {
+                if (pagosProcesados.All(p => p.IdPedidoMuestraPago != actual.IdPedidoMuestraPago))
+                {
+                    if (ctx != null)
+                    {
+                        ctx.Set<PedidoMuestraPago>().Remove(actual);
+                    }
+
+                    existente.Pagos.Remove(actual);
+                }
+            }
+
+            foreach (var pagoNuevo in pagosProcesados)
+            {
+                var actual = existente.Pagos.FirstOrDefault(p => p.IdPedidoMuestraPago == pagoNuevo.IdPedidoMuestraPago);
+                if (actual == null)
+                {
+                    existente.Pagos.Add(pagoNuevo);
+                }
+                else
+                {
+                    actual.Monto = pagoNuevo.Monto;
+                    actual.Porcentaje = pagoNuevo.Porcentaje;
+                    actual.FechaRegistro = pagoNuevo.FechaRegistro;
+                }
             }
         }
 

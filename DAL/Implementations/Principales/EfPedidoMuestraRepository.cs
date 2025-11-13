@@ -22,7 +22,8 @@ namespace DAL.Implementations.Principales
                 .Include(p => p.EstadoPedidoMuestra)
                 .Include(p => p.Detalles.Select(d => d.Producto))
                 .Include(p => p.Detalles.Select(d => d.EstadoMuestra))
-                .Include(p => p.Adjuntos);
+                .Include(p => p.Adjuntos)
+                .Include(p => p.Pagos);
         }
 
         public override IEnumerable<PedidoMuestra> GetAll()

@@ -49,9 +49,6 @@
             this.lblEstadoPedidoValor = new System.Windows.Forms.Label();
             this.lblObservaciones = new System.Windows.Forms.Label();
             this.txtObservaciones = new System.Windows.Forms.TextBox();
-            this.chkFacturado = new System.Windows.Forms.CheckBox();
-            this.txtFactura = new System.Windows.Forms.TextBox();
-            this.btnSeleccionarFactura = new System.Windows.Forms.Button();
             this.grpDetalles = new System.Windows.Forms.GroupBox();
             this.dgvDetalles = new System.Windows.Forms.DataGridView();
             this.flowDetalles = new System.Windows.Forms.FlowLayoutPanel();
@@ -78,8 +75,6 @@
             this.lblPagadoValor = new System.Windows.Forms.Label();
             this.lblSaldo = new System.Windows.Forms.Label();
             this.lblSaldoValor = new System.Windows.Forms.Label();
-            this.lblPagoNuevo = new System.Windows.Forms.Label();
-            this.nudPago = new System.Windows.Forms.NumericUpDown();
             this.btnAgregarPago = new System.Windows.Forms.Button();
             this.btnEliminarPago = new System.Windows.Forms.Button();
             this.lstPagos = new System.Windows.Forms.ListBox();
@@ -99,7 +94,6 @@
             this.panelAdjuntosAcciones.SuspendLayout();
             this.grpPagos.SuspendLayout();
             this.layoutPagos.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPago)).BeginInit();
             this.flowButtons.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -160,9 +154,6 @@
             this.layoutGeneral.Controls.Add(this.lblEstadoPedidoValor, 3, 2);
             this.layoutGeneral.Controls.Add(this.lblObservaciones, 0, 5);
             this.layoutGeneral.Controls.Add(this.txtObservaciones, 1, 5);
-            this.layoutGeneral.Controls.Add(this.chkFacturado, 2, 3);
-            this.layoutGeneral.Controls.Add(this.txtFactura, 3, 3);
-            this.layoutGeneral.Controls.Add(this.btnSeleccionarFactura, 3, 4);
             this.layoutGeneral.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutGeneral.Location = new System.Drawing.Point(3, 16);
             this.layoutGeneral.Name = "layoutGeneral";
@@ -349,36 +340,6 @@
             this.txtObservaciones.Size = new System.Drawing.Size(706, 35);
             this.txtObservaciones.TabIndex = 17;
             // 
-            // chkFacturado
-            // 
-            this.chkFacturado.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.chkFacturado.AutoSize = true;
-            this.chkFacturado.Location = new System.Drawing.Point(429, 96);
-            this.chkFacturado.Name = "chkFacturado";
-            this.chkFacturado.Size = new System.Drawing.Size(128, 17);
-            this.chkFacturado.TabIndex = 18;
-            this.chkFacturado.Text = "sampleOrder.invoiced";
-            this.chkFacturado.UseVisualStyleBackColor = true;
-            // 
-            // txtFactura
-            // 
-            this.txtFactura.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtFactura.Location = new System.Drawing.Point(569, 93);
-            this.txtFactura.Name = "txtFactura";
-            this.txtFactura.ReadOnly = true;
-            this.txtFactura.Size = new System.Drawing.Size(280, 20);
-            this.txtFactura.TabIndex = 19;
-            // 
-            // btnSeleccionarFactura
-            // 
-            this.btnSeleccionarFactura.Location = new System.Drawing.Point(569, 123);
-            this.btnSeleccionarFactura.Name = "btnSeleccionarFactura";
-            this.btnSeleccionarFactura.Size = new System.Drawing.Size(120, 23);
-            this.btnSeleccionarFactura.TabIndex = 20;
-            this.btnSeleccionarFactura.Text = "sampleOrder.invoice.select";
-            this.btnSeleccionarFactura.UseVisualStyleBackColor = true;
-            this.btnSeleccionarFactura.Click += new System.EventHandler(this.btnSeleccionarFactura_Click);
-            // 
             // grpDetalles
             // 
             this.grpDetalles.Controls.Add(this.dgvDetalles);
@@ -520,7 +481,7 @@
             this.grpAdjuntos.Size = new System.Drawing.Size(858, 146);
             this.grpAdjuntos.TabIndex = 2;
             this.grpAdjuntos.TabStop = false;
-            this.grpAdjuntos.Text = "order.tab.attachments";
+            this.grpAdjuntos.Text = "sampleOrder.group.invoices";
             // 
             // tableAdjuntos
             // 
@@ -636,11 +597,9 @@
             this.layoutPagos.Controls.Add(this.lblPagadoValor, 3, 0);
             this.layoutPagos.Controls.Add(this.lblSaldo, 4, 0);
             this.layoutPagos.Controls.Add(this.lblSaldoValor, 5, 0);
-            this.layoutPagos.Controls.Add(this.lblPagoNuevo, 0, 1);
-            this.layoutPagos.Controls.Add(this.nudPago, 1, 1);
-            this.layoutPagos.Controls.Add(this.btnAgregarPago, 2, 1);
-            this.layoutPagos.Controls.Add(this.btnEliminarPago, 3, 1);
-            this.layoutPagos.Controls.Add(this.lstPagos, 5, 1);
+            this.layoutPagos.Controls.Add(this.btnAgregarPago, 0, 1);
+            this.layoutPagos.Controls.Add(this.btnEliminarPago, 2, 1);
+            this.layoutPagos.Controls.Add(this.lstPagos, 4, 1);
             this.layoutPagos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutPagos.Location = new System.Drawing.Point(3, 16);
             this.layoutPagos.Name = "layoutPagos";
@@ -713,54 +672,33 @@
             this.lblSaldoValor.TabIndex = 5;
             this.lblSaldoValor.Text = "$0,00";
             // 
-            // lblPagoNuevo
-            // 
-            this.lblPagoNuevo.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblPagoNuevo.AutoSize = true;
-            this.lblPagoNuevo.Location = new System.Drawing.Point(3, 30);
-            this.lblPagoNuevo.Name = "lblPagoNuevo";
-            this.lblPagoNuevo.Size = new System.Drawing.Size(100, 26);
-            this.lblPagoNuevo.TabIndex = 6;
-            this.lblPagoNuevo.Text = "sampleOrder.payment.amount";
-            // 
-            // nudPago
-            // 
-            this.nudPago.DecimalPlaces = 2;
-            this.nudPago.Location = new System.Drawing.Point(113, 28);
-            this.nudPago.Maximum = new decimal(new int[] {
-            1000000,
-            0,
-            0,
-            0});
-            this.nudPago.Name = "nudPago";
-            this.nudPago.Size = new System.Drawing.Size(94, 20);
-            this.nudPago.TabIndex = 7;
-            this.nudPago.ThousandsSeparator = true;
-            // 
             // btnAgregarPago
             // 
+            this.layoutPagos.SetColumnSpan(this.btnAgregarPago, 2);
             this.btnAgregarPago.AutoSize = true;
-            this.btnAgregarPago.Location = new System.Drawing.Point(213, 28);
+            this.btnAgregarPago.Location = new System.Drawing.Point(3, 28);
             this.btnAgregarPago.Name = "btnAgregarPago";
             this.btnAgregarPago.Size = new System.Drawing.Size(104, 26);
-            this.btnAgregarPago.TabIndex = 8;
-            this.btnAgregarPago.Text = "sampleOrder.payment.add";
+            this.btnAgregarPago.TabIndex = 6;
+            this.btnAgregarPago.Text = "sampleOrder.payment.addPercent";
             this.btnAgregarPago.UseVisualStyleBackColor = true;
             this.btnAgregarPago.Click += new System.EventHandler(this.btnAgregarPago_Click);
             // 
             // btnEliminarPago
             // 
+            this.layoutPagos.SetColumnSpan(this.btnEliminarPago, 2);
             this.btnEliminarPago.AutoSize = true;
-            this.btnEliminarPago.Location = new System.Drawing.Point(323, 28);
+            this.btnEliminarPago.Location = new System.Drawing.Point(213, 28);
             this.btnEliminarPago.Name = "btnEliminarPago";
             this.btnEliminarPago.Size = new System.Drawing.Size(94, 26);
-            this.btnEliminarPago.TabIndex = 9;
+            this.btnEliminarPago.TabIndex = 7;
             this.btnEliminarPago.Text = "sampleOrder.payment.remove";
             this.btnEliminarPago.UseVisualStyleBackColor = true;
             this.btnEliminarPago.Click += new System.EventHandler(this.btnEliminarPago_Click);
             // 
             // lstPagos
             // 
+            this.layoutPagos.SetColumnSpan(this.lstPagos, 2);
             this.lstPagos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstPagos.FormattingEnabled = true;
             this.lstPagos.Location = new System.Drawing.Point(533, 28);
@@ -835,7 +773,6 @@
             this.grpPagos.ResumeLayout(false);
             this.layoutPagos.ResumeLayout(false);
             this.layoutPagos.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPago)).EndInit();
             this.flowButtons.ResumeLayout(false);
             this.flowButtons.PerformLayout();
             this.ResumeLayout(false);
@@ -865,9 +802,6 @@
         private System.Windows.Forms.Label lblEstadoPedidoValor;
         private System.Windows.Forms.Label lblObservaciones;
         private System.Windows.Forms.TextBox txtObservaciones;
-        private System.Windows.Forms.CheckBox chkFacturado;
-        private System.Windows.Forms.TextBox txtFactura;
-        private System.Windows.Forms.Button btnSeleccionarFactura;
         private System.Windows.Forms.GroupBox grpDetalles;
         private System.Windows.Forms.DataGridView dgvDetalles;
         private System.Windows.Forms.FlowLayoutPanel flowDetalles;
@@ -894,8 +828,6 @@
         private System.Windows.Forms.Label lblPagadoValor;
         private System.Windows.Forms.Label lblSaldo;
         private System.Windows.Forms.Label lblSaldoValor;
-        private System.Windows.Forms.Label lblPagoNuevo;
-        private System.Windows.Forms.NumericUpDown nudPago;
         private System.Windows.Forms.Button btnAgregarPago;
         private System.Windows.Forms.Button btnEliminarPago;
         private System.Windows.Forms.ListBox lstPagos;
