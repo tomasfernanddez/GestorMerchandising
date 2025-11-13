@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using DomainModel.Entidades;
 
 namespace UI.Helpers
@@ -10,77 +11,67 @@ namespace UI.Helpers
     {
         public static Guid? CalcularEstadoPedido(IEnumerable<string> estadosDetalle, IEnumerable<EstadoPedidoMuestra> estadosPedido)
         {
-            if (estadosPedido == null)
+            var catalogo = estadosPedido?.ToList() ?? new List<EstadoPedidoMuestra>();
+            if (catalogo.Count == 0)
                 return null;
 
-            var listaEstados = estadosDetalle?
+            var lista = estadosDetalle?
                 .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(s => s.Trim())
+                .Select(Normalizar)
                 .ToList() ?? new List<string>();
 
-            if (listaEstados.Count == 0)
-            {
-                return BuscarEstado(estadosPedido, "solic")
-                       ?? BuscarEstado(estadosPedido, "prep")
-                       ?? estadosPedido.FirstOrDefault()?.IdEstadoPedidoMuestra;
-            }
+            if (lista.Count == 0)
+                return BuscarEstadoPorNombre(catalogo, "Pendiente de Envio") ?? catalogo.First().IdEstadoPedidoMuestra;
 
-            if (listaEstados.All(s => Contiene(s, "devuel") || Contiene(s, "perd")))
-            {
-                return BuscarEstado(estadosPedido, "cerr")
-                       ?? BuscarEstado(estadosPedido, "entreg")
-                       ?? estadosPedido.LastOrDefault()?.IdEstadoPedidoMuestra;
-            }
+            var cancelado = Normalizar("Cancelado");
+            if (lista.All(s => s == cancelado))
+                return BuscarEstadoPorNombre(catalogo, "Cancelado");
 
-            if (listaEstados.Any(s => Contiene(s, "evalu")))
-            {
-                return BuscarEstado(estadosPedido, "entreg")
-                       ?? BuscarEstado(estadosPedido, "cerr")
-                       ?? BuscarEstado(estadosPedido, "despach");
-            }
+            var pendientePago = Normalizar("Pendiente de Pago");
+            if (lista.Any(s => s == pendientePago))
+                return BuscarEstadoPorNombre(catalogo, "Pendiente de Pago");
 
-            if (listaEstados.Any(s => Contiene(s, "transit") || Contiene(s, "tránsit")))
-            {
-                return BuscarEstado(estadosPedido, "despach")
-                       ?? BuscarEstado(estadosPedido, "prepar");
-            }
+            var devuelto = Normalizar("Devuelto");
+            var pagado = Normalizar("Pagado");
+            if (lista.All(s => s == devuelto || s == pagado))
+                return BuscarEstadoPorNombre(catalogo, "Finalizado");
 
-            if (listaEstados.Any(s => Contiene(s, "pend")))
-            {
-                return BuscarEstado(estadosPedido, "prepar")
-                       ?? BuscarEstado(estadosPedido, "solic");
-            }
+            var enCliente = Normalizar("En Cliente");
+            if (lista.All(s => s == enCliente))
+                return BuscarEstadoPorNombre(catalogo, "En Cliente");
 
-            return BuscarEstado(estadosPedido, "prepar")
-                   ?? BuscarEstado(estadosPedido, "despach")
-                   ?? estadosPedido.FirstOrDefault()?.IdEstadoPedidoMuestra;
+            if (lista.All(s => s == enCliente || s == devuelto || s == pagado) && lista.Any(s => s == enCliente))
+                return BuscarEstadoPorNombre(catalogo, "En Cliente") ?? BuscarEstadoPorNombre(catalogo, "Pendiente de Envio");
+
+            var pendienteEnvio = Normalizar("Pendiente de Envio");
+            if (lista.Any(s => s == pendienteEnvio))
+                return BuscarEstadoPorNombre(catalogo, "Pendiente de Envio");
+
+            return BuscarEstadoPorNombre(catalogo, "Pendiente de Envio") ?? catalogo.First().IdEstadoPedidoMuestra;
         }
 
-        private static Guid? BuscarEstado(IEnumerable<EstadoPedidoMuestra> estados, string keyword)
+        private static Guid? BuscarEstadoPorNombre(IEnumerable<EstadoPedidoMuestra> estados, string nombre)
         {
-            if (estados == null)
-                return null;
-
-            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            var buscado = Normalizar(nombre ?? string.Empty);
             foreach (var estado in estados)
             {
                 if (estado == null)
                     continue;
 
-                var nombre = estado.NombreEstadoPedidoMuestra ?? string.Empty;
-                if (compare.IndexOf(nombre, keyword, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0)
-                {
+                var actual = Normalizar(estado.NombreEstadoPedidoMuestra ?? string.Empty);
+                if (actual == buscado)
                     return estado.IdEstadoPedidoMuestra;
-                }
             }
 
             return null;
         }
 
-        private static bool Contiene(string texto, string keyword)
+        private static string Normalizar(string texto)
         {
-            var compare = CultureInfo.InvariantCulture.CompareInfo;
-            return compare.IndexOf(texto ?? string.Empty, keyword, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
+            var formD = texto.Normalize(NormalizationForm.FormD);
+            var chars = formD.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark);
+            var limpio = new string(chars.ToArray());
+            return limpio.Normalize(NormalizationForm.FormC).ToLowerInvariant();
         }
     }
 }
