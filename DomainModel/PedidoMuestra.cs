@@ -68,5 +68,6 @@ namespace DomainModel
         public virtual EstadoPedidoMuestra EstadoPedidoMuestra { get; set; }
         public virtual ICollection<DetalleMuestra> Detalles { get; set; } = new List<DetalleMuestra>();
         public virtual ICollection<ArchivoAdjunto> Adjuntos { get; set; } = new List<ArchivoAdjunto>();
+        public virtual ICollection<PedidoMuestraPago> Pagos { get; set; } = new List<PedidoMuestraPago>();
     }
 }

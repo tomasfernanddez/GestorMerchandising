@@ -27,6 +27,7 @@ namespace DAL.Implementations.Principales
                 .Include(p => p.Detalles.Select(d => d.LogosPedido.Select(l => l.TecnicaPersonalizacion)))
                 .Include(p => p.Detalles.Select(d => d.LogosPedido.Select(l => l.UbicacionLogo)))
                 .Include(p => p.Detalles.Select(d => d.LogosPedido.Select(l => l.Proveedor)))
+                .Include(p => p.Pagos)
                 .Include(p => p.HistorialEstados.Select(h => h.EstadoPedido))
                 .Include(p => p.Notas)
                 .Include(p => p.Adjuntos);

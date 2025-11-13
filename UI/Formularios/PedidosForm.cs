@@ -25,6 +25,7 @@ namespace UI
         private readonly IProveedorService _proveedorService;
         private readonly IBitacoraService _bitacoraService;
         private readonly ILogService _logService;
+        private readonly Dictionary<string, (string Es, string En)> _diccionarioMensajes;
 
         private BindingList<PedidoRow> _rows;
         private List<EstadoPedido> _estados;
@@ -42,7 +43,6 @@ namespace UI
             public DateTime? FechaEntrega { get; set; }
             public int CantidadProductos { get; set; }
             public decimal Total { get; set; }
-            public bool Facturado { get; set; }
             public decimal SaldoPendiente { get; set; }
         }
 
@@ -62,6 +62,7 @@ namespace UI
             _proveedorService = proveedorService ?? throw new ArgumentNullException(nameof(proveedorService));
             _bitacoraService = bitacoraService ?? throw new ArgumentNullException(nameof(bitacoraService));
             _logService = logService ?? throw new ArgumentNullException(nameof(logService));
+            _diccionarioMensajes = CrearDiccionarioMensajes();
 
             InitializeComponent();
         }
@@ -89,7 +90,6 @@ namespace UI
             tslBuscar.Text = "form.search".Traducir();
             btnBuscar.Text = "form.filter".Traducir();
             tslEstado.Text = "order.state".Traducir();
-            tslFacturado.Text = "order.invoiced".Traducir();
             tslSaldo.Text = "order.summary.balance".Traducir();
 
             if (dgvPedidos.Columns.Count > 0)
@@ -167,14 +167,6 @@ namespace UI
                 MinimumWidth = 100,
                 DefaultCellStyle = { Format = "C2" }
             });
-            dgvPedidos.Columns.Add(new DataGridViewCheckBoxColumn
-            {
-                DataPropertyName = nameof(PedidoRow.Facturado),
-                Name = nameof(PedidoRow.Facturado),
-                HeaderText = "order.invoiced".Traducir(),
-                FillWeight = 80,
-                MinimumWidth = 80
-            });
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoRow.SaldoPendiente),
@@ -199,7 +191,6 @@ namespace UI
             SetHeaderText(nameof(PedidoRow.FechaCreacion), "order.createdAt");
             SetHeaderText(nameof(PedidoRow.FechaEntrega), "order.deadline");
             SetHeaderText(nameof(PedidoRow.Total), "order.summary.total");
-            SetHeaderText(nameof(PedidoRow.Facturado), "order.invoiced");
             SetHeaderText(nameof(PedidoRow.SaldoPendiente), "order.summary.balance");
         }
 
@@ -253,7 +244,6 @@ namespace UI
                 return;
 
             var estadoIndice = mantenerSeleccion ? cmbEstado.SelectedIndex : -1;
-            var facturadoIndice = mantenerSeleccion ? cmbFacturado.SelectedIndex : 1;
             var saldoIndice = mantenerSeleccion ? cmbSaldo.SelectedIndex : 1;
 
             var previousSuspend = _suspendSearch;
@@ -289,16 +279,6 @@ namespace UI
                 }
             }
 
-            cmbFacturado.Items.Clear();
-            cmbFacturado.Items.Add("form.select.optional".Traducir());
-            cmbFacturado.Items.Add("order.filter.all".Traducir());
-            cmbFacturado.Items.Add("order.filter.invoiced".Traducir());
-            cmbFacturado.Items.Add("order.filter.notInvoiced".Traducir());
-            if (facturadoIndice >= 0 && facturadoIndice < cmbFacturado.Items.Count)
-                cmbFacturado.SelectedIndex = facturadoIndice;
-            else
-                cmbFacturado.SelectedIndex = 1;
-
             cmbSaldo.Items.Clear();
             cmbSaldo.Items.Add("form.select.optional".Traducir());
             cmbSaldo.Items.Add("order.filter.all".Traducir());
@@ -320,7 +300,6 @@ namespace UI
                 {
                     NumeroPedido = string.IsNullOrWhiteSpace(txtBuscar.Text) ? null : txtBuscar.Text.Trim(),
                     IdEstado = ObtenerEstadoFiltro(),
-                    Facturado = ObtenerFacturadoFiltro(),
                     ConSaldoPendiente = ObtenerSaldoFiltro(),
                     IncluirDetalles = true
                 };
@@ -363,7 +342,6 @@ namespace UI
                         FechaEntrega = ArgentinaDateTimeHelper.ToArgentina(pedido.FechaLimiteEntrega),
                         CantidadProductos = cantidadProductos,
                         Total = pedido.TotalConIva,
-                        Facturado = pedido.Facturado,
                         SaldoPendiente = pedido.SaldoPendiente
                     });
                 }
@@ -373,7 +351,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                _logService.LogError("Error buscando pedidos / Error listing orders", ex, "Pedidos", SessionContext.NombreUsuario);
+                RegistrarError("Pedido.Buscar", "order.list.log.error", ex, ErrorMessageHelper.GetFriendlyMessage(ex));
                 MessageBox.Show("order.list.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -406,16 +384,6 @@ namespace UI
             }
 
             return -1;
-        }
-
-        private bool? ObtenerFacturadoFiltro()
-        {
-            switch (cmbFacturado.SelectedIndex)
-            {
-                case 2: return true;
-                case 3: return false;
-                default: return null;
-            }
         }
 
         private bool? ObtenerSaldoFiltro()
@@ -465,24 +433,23 @@ namespace UI
             try
             {
                 var usuario = SessionContext.NombreUsuario ?? "Sistema";
-                var comentario = $"Pedido cancelado por {usuario} / Order cancelled by {usuario}";
+                var comentario = ObtenerMensaje("order.cancel.log.comment", usuario);
                 var resultado = _pedidoService.CancelarPedido(row.IdPedido, usuario, comentario);
                 if (!resultado.EsValido)
                 {
+                    RegistrarFallo("Pedido.Cancelar", "order.cancel.log.failure", resultado.Mensaje, row.NumeroPedido, resultado.Mensaje);
                     MessageBox.Show("order.cancel.error".Traducir(resultado.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                var mensaje = $"Pedido cancelado / Order cancelled: {row.NumeroPedido}";
-                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Pedido.Cancelar", mensaje, "Pedidos");
-                _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
+                RegistrarAccion("Pedido.Cancelar", "order.cancel.log.success", row.NumeroPedido);
 
                 MessageBox.Show("order.cancel.success".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 BuscarPedidos();
             }
             catch (Exception ex)
             {
-                _logService.LogError("Error cancelando pedido / Error cancelling order", ex, "Pedidos", SessionContext.NombreUsuario);
+                RegistrarError("Pedido.Cancelar", "order.cancel.log.error", ex, row?.NumeroPedido);
                 MessageBox.Show("order.cancel.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -502,12 +469,6 @@ namespace UI
         }
 
         private void cmbEstado_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (!_suspendSearch)
-                BuscarPedidos();
-        }
-
-        private void cmbFacturado_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!_suspendSearch)
                 BuscarPedidos();
@@ -559,9 +520,84 @@ namespace UI
             }
             catch (Exception ex)
             {
-                _logService.LogError("Error abriendo formulario de pedidos / Error opening order form", ex, "Pedidos", SessionContext.NombreUsuario);
+                RegistrarError("Pedido.Formulario", "order.open.log.error", ex, idPedido?.ToString() ?? "-");
                 MessageBox.Show("order.form.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void RegistrarAccion(string accion, string claveMensaje, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos");
+            }
+            catch
+            {
+                // Evitar que errores de bitácora interrumpan el flujo normal
+            }
+
+            _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
+        }
+
+        private void RegistrarFallo(string accion, string claveMensaje, string detalle, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos", false, detalle);
+            }
+            catch
+            {
+                // Ignorar errores de bitácora
+            }
+
+            _logService.LogWarning(mensaje, "Pedidos", SessionContext.NombreUsuario);
+        }
+
+        private void RegistrarError(string accion, string claveMensaje, Exception ex, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos", false, ex?.Message);
+            }
+            catch
+            {
+                // Ignorar errores de bitácora
+            }
+
+            _logService.LogError(mensaje, ex, "Pedidos", SessionContext.NombreUsuario);
+        }
+
+        private Dictionary<string, (string Es, string En)> CrearDiccionarioMensajes()
+        {
+            return new Dictionary<string, (string Es, string En)>
+            {
+                ["order.list.log.error"] = ("Error al listar pedidos: {0}.", "Error listing orders: {0}."),
+                ["order.cancel.log.comment"] = ("Pedido cancelado por {0}.", "Order cancelled by {0}."),
+                ["order.cancel.log.success"] = ("Se canceló el pedido {0}.", "Order {0} was cancelled."),
+                ["order.cancel.log.failure"] = ("No se pudo cancelar el pedido {0}: {1}.", "Could not cancel order {0}: {1}."),
+                ["order.cancel.log.error"] = ("Error al cancelar el pedido {0}.", "Error cancelling order {0}."),
+                ["order.open.log.error"] = ("Error al abrir el formulario del pedido {0}.", "Error opening order form {0}."),
+            };
+        }
+
+        private string ObtenerMensaje(string clave, params object[] args)
+        {
+            if (_diccionarioMensajes.TryGetValue(clave, out var textos))
+            {
+                var mensajeEs = args != null && args.Length > 0 ? string.Format(textos.Es, args) : textos.Es;
+                var mensajeEn = args != null && args.Length > 0 ? string.Format(textos.En, args) : textos.En;
+                return string.Concat(mensajeEs, " / ", mensajeEn);
+            }
+
+            if (args != null && args.Length > 0)
+            {
+                return string.Format(clave, args);
+            }
+
+            return clave;
         }
 
         private sealed class ComboItem

@@ -194,8 +194,14 @@
     <EmbeddedResource Include="Formularios\ABMUsuariosForm.resx">
       <DependentUpon>ABMUsuariosForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\ClienteForm.resx">
+      <DependentUpon>ClienteForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Formularios\LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Formularios\PedidoDetalleForm.resx">
       <DependentUpon>PedidoDetalleForm.cs</DependentUpon>
@@ -208,6 +214,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Formularios\PedidoMuestraDetalleForm.resx">
       <DependentUpon>PedidoMuestraDetalleForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\PedidoMuestraForm.resx">
+      <DependentUpon>PedidoMuestraForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Formularios\PedidosMuestraForm.resx">
       <DependentUpon>PedidosMuestraForm.cs</DependentUpon>

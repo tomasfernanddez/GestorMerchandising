@@ -13,7 +13,8 @@ namespace BLL.Helpers
         public static EstadoCalculado CalcularEstado(IEnumerable<DetalleMuestra> detalles, IEnumerable<EstadoPedidoMuestra> estadosPedido)
         {
             var nombres = detalles?
-                .Select(d => d.EstadoMuestra?.NombreEstadoMuestra ?? string.Empty)
+                .Select(d => d?.EstadoMuestra?.NombreEstadoMuestra ?? string.Empty)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
                 .ToList() ?? new List<string>();
 
             return CalcularEstado(nombres, estadosPedido);
@@ -26,47 +27,46 @@ namespace BLL.Helpers
 
             if (lista.Count == 0)
             {
-                return CrearResultado(BuscarEstadoPendiente(catalogo));
+                return CrearResultado(BuscarEstadoPorNombre(catalogo, "Pendiente de Envio") ?? catalogo.FirstOrDefault());
             }
 
-            if (lista.All(s => Contiene(s, "cancel")))
+            var estadoCancelado = Normalizar("Cancelado");
+            if (lista.All(s => string.Equals(s, estadoCancelado, StringComparison.Ordinal)))
             {
-                return CrearResultado(BuscarEstado(catalogo, "cancel"));
+                return CrearResultado(BuscarEstadoPorNombre(catalogo, "Cancelado"));
             }
 
-            if (lista.All(s => Contiene(s, "devuel") || Contiene(s, "perd")))
+            var estadoPendientePago = Normalizar("Pendiente de Pago");
+            if (lista.Any(s => string.Equals(s, estadoPendientePago, StringComparison.Ordinal)))
             {
-                var finalizado = BuscarEstado(catalogo, "final");
-                if (finalizado != null)
-                    return CrearResultado(finalizado);
-
-                finalizado = BuscarEstado(catalogo, "cerr");
-                if (finalizado != null)
-                    return CrearResultado(finalizado);
+                return CrearResultado(BuscarEstadoPorNombre(catalogo, "Pendiente de Pago"));
             }
 
-            if (lista.Any(s => Contiene(s, "pago")))
+            var estadoDevuelto = Normalizar("Devuelto");
+            var estadoPagado = Normalizar("Pagado");
+            if (lista.All(s => string.Equals(s, estadoDevuelto, StringComparison.Ordinal) || string.Equals(s, estadoPagado, StringComparison.Ordinal)))
             {
-                var facturar = BuscarEstado(catalogo, "pago");
-                if (facturar != null)
-                    return CrearResultado(facturar);
+                return CrearResultado(BuscarEstadoPorNombre(catalogo, "Finalizado"));
             }
 
-            if (lista.All(s => Contiene(s, "client")))
+            var estadoEnCliente = Normalizar("En Cliente");
+            if (lista.All(s => string.Equals(s, estadoEnCliente, StringComparison.Ordinal)))
             {
-                var enCliente = BuscarEstado(catalogo, "client");
-                if (enCliente != null)
-                    return CrearResultado(enCliente);
+                return CrearResultado(BuscarEstadoPorNombre(catalogo, "En Cliente"));
             }
 
-            if (lista.Any(s => Contiene(s, "env")))
+            if (lista.All(s => s == estadoEnCliente || s == estadoDevuelto || s == estadoPagado) && lista.Any(s => s == estadoEnCliente))
             {
-                var pendiente = BuscarEstadoPendiente(catalogo);
-                if (pendiente != null)
-                    return CrearResultado(pendiente);
+                return CrearResultado(BuscarEstadoPorNombre(catalogo, "En Cliente") ?? BuscarEstadoPorNombre(catalogo, "Pendiente de Envio"));
             }
 
-            return CrearResultado(BuscarEstadoPendiente(catalogo));
+            var estadoPendienteEnvio = Normalizar("Pendiente de Envio");
+            if (lista.Any(s => string.Equals(s, estadoPendienteEnvio, StringComparison.Ordinal)))
+            {
+                return CrearResultado(BuscarEstadoPorNombre(catalogo, "Pendiente de Envio"));
+            }
+
+            return CrearResultado(BuscarEstadoPorNombre(catalogo, "Pendiente de Envio") ?? catalogo.FirstOrDefault());
         }
 
         private static List<string> NormalizarEstados(IEnumerable<string> estados)
@@ -86,44 +86,23 @@ namespace BLL.Helpers
             return limpio.Normalize(NormalizationForm.FormC).ToLowerInvariant();
         }
 
-        private static bool Contiene(string texto, string keyword)
-        {
-            var compare = CultureInfo.InvariantCulture.CompareInfo;
-            return compare.IndexOf(texto ?? string.Empty, keyword, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
-        }
-
-        private static EstadoPedidoMuestra BuscarEstado(IEnumerable<EstadoPedidoMuestra> estados, string keyword)
+        private static EstadoPedidoMuestra BuscarEstadoPorNombre(IEnumerable<EstadoPedidoMuestra> estados, string nombreBuscado)
         {
             if (estados == null)
                 return null;
 
-            var compare = CultureInfo.InvariantCulture.CompareInfo;
+            var normalizado = Normalizar(nombreBuscado ?? string.Empty);
             foreach (var estado in estados)
             {
                 if (estado == null)
                     continue;
 
-                var nombre = estado.NombreEstadoPedidoMuestra ?? string.Empty;
-                if (compare.IndexOf(nombre, keyword, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0)
-                {
+                var nombreEstado = estado.NombreEstadoPedidoMuestra ?? string.Empty;
+                if (string.Equals(Normalizar(nombreEstado), normalizado, StringComparison.Ordinal))
                     return estado;
-                }
             }
 
             return null;
-        }
-
-        private static EstadoPedidoMuestra BuscarEstadoPendiente(IEnumerable<EstadoPedidoMuestra> estados)
-        {
-            var pendiente = BuscarEstado(estados, "env");
-            if (pendiente != null)
-                return pendiente;
-
-            pendiente = BuscarEstado(estados, "solic");
-            if (pendiente != null)
-                return pendiente;
-
-            return estados?.FirstOrDefault();
         }
 
         private static EstadoCalculado CrearResultado(EstadoPedidoMuestra estado)

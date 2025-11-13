@@ -29,10 +29,10 @@ namespace UI
         private readonly ILogService _logService;
         private readonly Guid? _pedidoId;
         private readonly bool _abrirEnProductos;
+        private readonly Dictionary<string, (string Es, string En)> _diccionarioMensajes;
 
         private Pedido _pedidoOriginal;
         private BindingList<PedidoDetalleViewModel> _detalles;
-        private List<PedidoNota> _notas;
         private List<PedidoEstadoHistorial> _historial;
         private BindingList<ArchivoAdjuntoViewModel> _adjuntos;
 
@@ -47,7 +47,7 @@ namespace UI
         private List<TipoPago> _tiposPago;
         private decimal _montoPagadoBase;
         private decimal _montoPagadoActual;
-        private readonly List<PagoRegistrado> _pagosRegistrados = new List<PagoRegistrado>();
+        private readonly BindingList<PagoRegistrado> _pagosRegistrados = new BindingList<PagoRegistrado>();
         private ContextMenuStrip _contextMenuEstados;
         private Guid? _estadoCanceladoId;
         private bool _pedidoCancelado;
@@ -82,18 +82,24 @@ namespace UI
 
         private sealed class PagoRegistrado
         {
-            public PagoRegistrado(decimal monto, decimal? porcentaje)
+            public PagoRegistrado(decimal monto, decimal? porcentaje, DateTime? fecha = null, bool esPrevio = false, Guid? idPago = null)
             {
-                Monto = monto;
+                IdPago = idPago ?? Guid.Empty;
+                Monto = Math.Round(monto, 2);
                 Porcentaje = porcentaje.HasValue && porcentaje.Value > 0
                     ? Math.Round(porcentaje.Value, 2)
                     : (decimal?)null;
-                Fecha = ArgentinaDateTimeHelper.Now();
+                Fecha = fecha.HasValue
+                    ? ArgentinaDateTimeHelper.ToArgentina(fecha.Value)
+                    : ArgentinaDateTimeHelper.Now();
+                EsPrevio = esPrevio;
             }
 
+            public Guid IdPago { get; }
             public decimal Monto { get; }
             public decimal? Porcentaje { get; }
             public DateTime Fecha { get; }
+            public bool EsPrevio { get; }
 
             public string ObtenerDescripcion()
             {
@@ -145,8 +151,12 @@ namespace UI
             _logService = logService ?? throw new ArgumentNullException(nameof(logService));
             _pedidoId = pedidoId;
             _abrirEnProductos = abrirEnProductos;
+            _diccionarioMensajes = CrearDiccionarioMensajes();
 
             InitializeComponent();
+            panelScroll.ClientSizeChanged += PanelScroll_ClientSizeChanged;
+            layoutContenido.SizeChanged += (s, e) => ActualizarAreaScroll();
+            lstPagos.DataSource = _pagosRegistrados;
 
             btnAgregarPago.Click += btnAgregarPago_Click;
             btnDeshacerPago.Click += btnCancelarPago_Click;
@@ -169,9 +179,9 @@ namespace UI
             tableAdjuntos.DragEnter += Adjuntos_DragEnter;
             tableAdjuntos.DragDrop += Adjuntos_DragDrop;
 
-            tabAdjuntos.AllowDrop = true;
-            tabAdjuntos.DragEnter += Adjuntos_DragEnter;
-            tabAdjuntos.DragDrop += Adjuntos_DragDrop;
+            grpFacturas.AllowDrop = true;
+            grpFacturas.DragEnter += Adjuntos_DragEnter;
+            grpFacturas.DragDrop += Adjuntos_DragDrop;
 
             ConfigurarGrillaAdjuntos();
             ActualizarEstadoAdjuntos();
@@ -193,13 +203,13 @@ namespace UI
                 IniciarPedidoNuevo();
             }
 
-            RefrescarNotas();
             RefrescarHistorial();
             ActualizarResumen();
+            ActualizarAreaScroll();
 
             if (_abrirEnProductos)
             {
-                tabControl.SelectedTab = tabDetalles;
+                dgvDetalles.Focus();
             }
         }
 
@@ -278,9 +288,9 @@ namespace UI
         {
             Text = _pedidoId.HasValue ? "order.edit.title".Traducir() : "order.new.title".Traducir();
             tabGeneral.Text = "order.tab.general".Traducir();
-            tabDetalles.Text = "order.tab.details".Traducir();
-            tabAdjuntos.Text = "order.tab.attachments".Traducir();
-            tabNotas.Text = "order.tab.tracking".Traducir();
+            grpDetalles.Text = "order.tab.details".Traducir();
+            grpFacturas.Text = "order.tab.attachments".Traducir();
+            gbHistorialEstados.Text = "order.tab.tracking".Traducir();
 
             lblNumeroPedido.Text = "order.number".Traducir();
             lblCliente.Text = "order.client".Traducir();
@@ -289,8 +299,6 @@ namespace UI
             lblFechaEntrega.Text = "order.deadline".Traducir();
             chkFechaEntrega.Text = "order.deadline.enable".Traducir();
             lblMontoPagado.Text = "order.paidAmount".Traducir();
-            lblFacturado.Text = "order.invoiced".Traducir();
-            btnSeleccionarFactura.Text = "order.invoice.select".Traducir();
             lblOC.Text = "order.purchaseOrder".Traducir();
             lblContacto.Text = "order.contact".Traducir();
             lblEmail.Text = "order.contact.email".Traducir();
@@ -309,12 +317,9 @@ namespace UI
             btnAgregarPago.Text = "order.payment.addPercent".Traducir();
             btnDeshacerPago.Text = "order.payment.cancel".Traducir();
 
-            gbHistorialEstados.Text = "order.timeline".Traducir();
             columnFecha.Text = "order.timeline.date".Traducir();
             columnEstado.Text = "order.timeline.state".Traducir();
             columnComentario.Text = "order.timeline.comment".Traducir();
-            gbNotas.Text = "order.internalNotes".Traducir();
-            btnAgregarNota.Text = "order.note.add".Traducir();
 
             lblAdjuntosInstrucciones.Text = "order.attachments.instructions".Traducir();
             btnAgregarAdjunto.Text = "order.attachments.add".Traducir();
@@ -344,6 +349,27 @@ namespace UI
             var habilitado = adjunto != null;
             btnDescargarAdjunto.Enabled = habilitado;
             btnEliminarAdjunto.Enabled = habilitado;
+        }
+
+        private void PanelScroll_ClientSizeChanged(object sender, EventArgs e)
+        {
+            ActualizarAreaScroll();
+        }
+
+        private void ActualizarAreaScroll()
+        {
+            if (panelScroll == null || layoutContenido == null)
+                return;
+
+            var anchoDisponible = panelScroll.ClientSize.Width - panelScroll.Padding.Horizontal;
+            if (anchoDisponible > 0 && layoutContenido.Width != anchoDisponible)
+            {
+                layoutContenido.Width = anchoDisponible;
+            }
+
+            var preferred = layoutContenido.GetPreferredSize(new Size(panelScroll.ClientSize.Width, 0));
+            var altoMinimo = Math.Max(preferred.Height, panelScroll.ClientSize.Height);
+            panelScroll.AutoScrollMinSize = new Size(Math.Max(preferred.Width, panelScroll.ClientSize.Width), altoMinimo);
         }
 
         private void BtnAgregarAdjunto_Click(object sender, EventArgs e)
@@ -600,7 +626,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                _logService.LogError("Error cargando datos de referencia para pedidos / Error loading order reference data", ex, "Pedidos", SessionContext.NombreUsuario);
+                RegistrarError("Pedido.Referencias", "order.form.log.references.error", ex, ErrorMessageHelper.GetFriendlyMessage(ex));
                 MessageBox.Show("order.loadReferences.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
             }
@@ -913,10 +939,8 @@ namespace UI
                 _montoPagadoBase = _pedidoOriginal.MontoPagado;
                 _montoPagadoActual = _montoPagadoBase;
                 _pagosRegistrados.Clear();
+                CargarPagosPersistentes(_pedidoOriginal);
                 ActualizarMontoPagadoUI();
-                chkFacturado.Checked = _pedidoOriginal.Facturado;
-                txtFactura.Text = _pedidoOriginal.RutaFacturaPdf;
-
                 txtOC.Text = _pedidoOriginal.Cliente_OC;
                 txtContacto.Text = _pedidoOriginal.Cliente_PersonaNombre;
                 txtEmail.Text = _pedidoOriginal.Cliente_PersonaEmail;
@@ -929,7 +953,6 @@ namespace UI
                     _pedidoOriginal.Detalles.Select(MapearDetalle).ToList());
                 dgvDetalles.DataSource = _detalles;
 
-                _notas = _pedidoOriginal.Notas?.OrderBy(n => n.Fecha).Select(CloneNota).ToList() ?? new List<PedidoNota>();
                 _historial = _pedidoOriginal.HistorialEstados?.OrderBy(h => h.FechaCambio).Select(CloneHistorial).ToList() ?? new List<PedidoEstadoHistorial>();
 
                 var adjuntos = _pedidoOriginal.Adjuntos?.Select(MapearAdjunto).Where(a => a != null).ToList() ?? new List<ArchivoAdjuntoViewModel>();
@@ -939,13 +962,66 @@ namespace UI
 
                 ActualizarAccionesCancelacion();
                 ActualizarEstadoPedidoAutomatico();
+                ActualizarAreaScroll();
             }
             catch (Exception ex)
             {
-                _logService.LogError("Error cargando pedido existente / Error loading order", ex, "Pedidos", SessionContext.NombreUsuario);
+                RegistrarError("Pedido.Cargar", "order.form.log.load.error", ex, idPedido.ToString());
                 MessageBox.Show("order.load.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
             }
+        }
+
+        private void CargarPagosPersistentes(Pedido pedido)
+        {
+            if (pedido == null)
+                return;
+
+            var pagos = pedido.Pagos?.OrderBy(p => p.FechaRegistro).ToList();
+            if (pagos != null && pagos.Count > 0)
+            {
+                foreach (var pago in pagos)
+                {
+                    var registro = new PagoRegistrado(
+                        pago.Monto,
+                        pago.Porcentaje,
+                        pago.FechaRegistro,
+                        esPrevio: true,
+                        idPago: pago.IdPedidoPago);
+                    _pagosRegistrados.Add(registro);
+                }
+            }
+            else if (pedido.MontoPagado > 0)
+            {
+                var porcentaje = CalcularPorcentajePersistido(pedido);
+                var fechaBase = pedido.FechaEntrega
+                    ?? pedido.FechaEnvio
+                    ?? pedido.FechaFinalizacion
+                    ?? pedido.FechaProduccion
+                    ?? pedido.FechaConfirmacion
+                    ?? pedido.FechaCreacion;
+
+                var pagoPrevio = new PagoRegistrado(pedido.MontoPagado, porcentaje, fechaBase, esPrevio: true);
+                _pagosRegistrados.Add(pagoPrevio);
+            }
+
+            if (_pagosRegistrados.Count > 0)
+            {
+                _montoPagadoActual = Math.Round(_pagosRegistrados.Sum(p => p.Monto), 2);
+                lstPagos.SelectedItem = _pagosRegistrados.Last();
+            }
+        }
+
+        private decimal? CalcularPorcentajePersistido(Pedido pedido)
+        {
+            if (pedido == null || pedido.TotalConIva <= 0)
+                return null;
+
+            var porcentaje = Math.Round((pedido.MontoPagado / pedido.TotalConIva) * 100m, 2);
+            if (porcentaje <= 0)
+                return null;
+
+            return Math.Min(porcentaje, 100m);
         }
 
         private void IniciarPedidoNuevo()
@@ -953,7 +1029,6 @@ namespace UI
             txtNumeroPedido.Text = _pedidoService.GenerarProximoNumeroPedido();
             _detalles = new BindingList<PedidoDetalleViewModel>();
             dgvDetalles.DataSource = _detalles;
-            _notas = new List<PedidoNota>();
             _historial = new List<PedidoEstadoHistorial>();
             _adjuntos = new BindingList<ArchivoAdjuntoViewModel>();
             dgvAdjuntos.DataSource = _adjuntos;
@@ -965,6 +1040,7 @@ namespace UI
             ActualizarAccionesCancelacion();
             ActualizarEstadoPedidoAutomatico();
             ActualizarEstadoAdjuntos();
+            ActualizarAreaScroll();
         }
 
         private PedidoDetalleViewModel MapearDetalle(PedidoDetalle detalle)
@@ -1072,18 +1148,6 @@ namespace UI
             };
         }
 
-        private PedidoNota CloneNota(PedidoNota nota)
-        {
-            return new PedidoNota
-            {
-                IdNota = nota.IdNota,
-                IdPedido = nota.IdPedido,
-                Nota = nota.Nota,
-                Fecha = ArgentinaDateTimeHelper.ToArgentina(nota.Fecha),
-                Usuario = nota.Usuario
-            };
-        }
-
         private PedidoEstadoHistorial CloneHistorial(PedidoEstadoHistorial historial)
         {
             return new PedidoEstadoHistorial
@@ -1096,18 +1160,6 @@ namespace UI
                 FechaCambio = ArgentinaDateTimeHelper.ToArgentina(historial.FechaCambio),
                 Usuario = historial.Usuario
             };
-        }
-
-        private void RefrescarNotas()
-        {
-            lstNotas.Items.Clear();
-            if (_notas == null) return;
-
-            foreach (var nota in _notas.OrderByDescending(n => n.Fecha))
-            {
-                var texto = $"{nota.Fecha:g} - {nota.Usuario}: {nota.Nota}";
-                lstNotas.Items.Add(texto);
-            }
         }
 
         private void RefrescarHistorial()
@@ -1210,6 +1262,7 @@ namespace UI
 
             var registro = new PagoRegistrado(monto, porcentaje);
             _pagosRegistrados.Add(registro);
+            lstPagos.SelectedItem = registro;
             _montoPagadoActual = Math.Round(_montoPagadoActual + monto, 2);
             ActualizarMontoPagadoUI();
             RegistrarPagoAgregado(registro);
@@ -1223,10 +1276,13 @@ namespace UI
                 return;
             }
 
-            if (!TrySeleccionarPagoParaCancelar(out var pago))
+            if (!(lstPagos.SelectedItem is PagoRegistrado pago))
+            {
+                MessageBox.Show("order.payment.cancel.prompt".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
+            }
 
-            var mensaje = string.Format("order.payment.cancel.confirm".Traducir(), pago.Monto);
+            var mensaje = string.Format("order.payment.cancel.confirm".Traducir(), pago.Monto.ToString("C2"));
             if (MessageBox.Show(mensaje, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
@@ -1487,102 +1543,23 @@ namespace UI
             porcentaje = null;
             return false;
         }
-        private bool TrySeleccionarPagoParaCancelar(out PagoRegistrado pago)
-        {
-            pago = null;
-
-            using (var dialog = new Form())
-            {
-                dialog.Text = "order.payment.cancel.title".Traducir();
-                dialog.FormBorderStyle = FormBorderStyle.FixedDialog;
-                dialog.StartPosition = FormStartPosition.CenterParent;
-                dialog.MinimizeBox = false;
-                dialog.MaximizeBox = false;
-                dialog.ShowIcon = false;
-                dialog.ClientSize = new Size(380, 260);
-
-                var table = new TableLayoutPanel
-                {
-                    Dock = DockStyle.Fill,
-                    ColumnCount = 1,
-                    RowCount = 3,
-                    Padding = new Padding(12)
-                };
-                table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                table.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
-                table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-
-                var lbl = new Label
-                {
-                    AutoSize = true,
-                    Text = "order.payment.cancel.prompt".Traducir()
-                };
-                table.Controls.Add(lbl, 0, 0);
-
-                var lista = new ListBox
-                {
-                    Dock = DockStyle.Fill,
-                    SelectionMode = SelectionMode.One
-                };
-                foreach (var registro in _pagosRegistrados)
-                {
-                    lista.Items.Add(registro);
-                }
-                if (lista.Items.Count > 0)
-                {
-                    lista.SelectedIndex = 0;
-                }
-                table.Controls.Add(lista, 0, 1);
-
-                var panelBotones = new FlowLayoutPanel
-                {
-                    FlowDirection = FlowDirection.RightToLeft,
-                    Dock = DockStyle.Fill,
-                    AutoSize = true
-                };
-                var btnAceptar = new Button
-                {
-                    Text = "order.payment.cancel.confirmButton".Traducir(),
-                    DialogResult = DialogResult.OK,
-                    AutoSize = true
-                };
-                var btnCancelar = new Button
-                {
-                    Text = "form.cancel".Traducir(),
-                    DialogResult = DialogResult.Cancel,
-                    AutoSize = true
-                };
-                panelBotones.Controls.Add(btnAceptar);
-                panelBotones.Controls.Add(btnCancelar);
-                table.Controls.Add(panelBotones, 0, 2);
-
-                dialog.Controls.Add(table);
-                dialog.AcceptButton = btnAceptar;
-                dialog.CancelButton = btnCancelar;
-
-                if (dialog.ShowDialog(this) == DialogResult.OK && lista.SelectedItem is PagoRegistrado seleccionado)
-                {
-                    pago = seleccionado;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private void RegistrarPagoAgregado(PagoRegistrado pago)
         {
             if (pago == null)
                 return;
 
-            var detalleEs = pago.Porcentaje.HasValue
-                ? $"({pago.Porcentaje.Value:0.##}% saldo)"
-                : "(monto personalizado)";
-            var detalleEn = pago.Porcentaje.HasValue
-                ? $"({pago.Porcentaje.Value:0.##}% balance)"
-                : "(custom amount)";
-            var mensaje = $"Pago registrado {detalleEs} / Payment registered {detalleEn}: {pago.Monto.ToString("C2")}";
-            RegistrarMovimientoPago("Pedido.Pago.Agregar", mensaje);
+            var monto = pago.Monto.ToString("C2");
+            var fecha = pago.Fecha.ToString("g");
+
+            if (pago.Porcentaje.HasValue)
+            {
+                var porcentaje = pago.Porcentaje.Value.ToString("0.##");
+                RegistrarMovimientoPago("Pedido.Pago.Agregar", "order.form.log.payment.add.percent", porcentaje, monto, fecha);
+            }
+            else
+            {
+                RegistrarMovimientoPago("Pedido.Pago.Agregar", "order.form.log.payment.add.manual", monto, fecha);
+            }
         }
 
         private void RegistrarPagoCancelado(PagoRegistrado pago)
@@ -1590,54 +1567,38 @@ namespace UI
             if (pago == null)
                 return;
 
-            var detalleEs = pago.Porcentaje.HasValue
-                ? $"({pago.Porcentaje.Value:0.##}% saldo)"
-                : "(monto personalizado)";
-            var detalleEn = pago.Porcentaje.HasValue
-                ? $"({pago.Porcentaje.Value:0.##}% balance)"
-                : "(custom amount)";
-            var mensaje = $"Pago cancelado {detalleEs} / Payment cancelled {detalleEn}: {pago.Monto.ToString("C2")}";
-            RegistrarMovimientoPago("Pedido.Pago.Cancelar", mensaje);
+            var monto = pago.Monto.ToString("C2");
+            var fecha = pago.Fecha.ToString("g");
+
+            if (pago.Porcentaje.HasValue)
+            {
+                var porcentaje = pago.Porcentaje.Value.ToString("0.##");
+                RegistrarMovimientoPago("Pedido.Pago.Cancelar", "order.form.log.payment.cancel.percent", porcentaje, monto, fecha);
+            }
+            else
+            {
+                RegistrarMovimientoPago("Pedido.Pago.Cancelar", "order.form.log.payment.cancel.manual", monto, fecha);
+            }
         }
 
-        private void RegistrarMovimientoPago(string accion, string mensaje)
+        private void RegistrarMovimientoPago(string accion, string claveMensaje, params object[] args)
         {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
             try
             {
                 _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos");
-                _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
             }
             catch
             {
                 // Evitar que fallos en registro de auditoría interrumpan el flujo de pagos.
             }
+
+            _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
         }
 
         private void chkFechaEntrega_CheckedChanged(object sender, EventArgs e)
         {
             dtpFechaEntrega.Enabled = chkFechaEntrega.Checked;
-        }
-
-        private void chkFacturado_CheckedChanged(object sender, EventArgs e)
-        {
-            var habilitado = chkFacturado.Checked;
-            txtFactura.Enabled = habilitado;
-            btnSeleccionarFactura.Enabled = habilitado;
-        }
-
-        private void btnSeleccionarFactura_Click(object sender, EventArgs e)
-        {
-            using (var dialog = new OpenFileDialog())
-            {
-                dialog.Filter = "PDF|*.pdf";
-                dialog.Title = "order.invoice.select.title".Traducir();
-                dialog.CheckFileExists = true;
-                dialog.CheckPathExists = true;
-                if (dialog.ShowDialog(this) == DialogResult.OK)
-                {
-                    txtFactura.Text = dialog.FileName;
-                }
-            }
         }
 
         private void btnAgregarDetalle_Click(object sender, EventArgs e)
@@ -1739,64 +1700,38 @@ namespace UI
             return _pedidoOriginal?.FechaLimiteEntrega;
         }
 
-        private void btnAgregarNota_Click(object sender, EventArgs e)
-        {
-            var texto = txtNuevaNota.Text?.Trim();
-            if (string.IsNullOrWhiteSpace(texto))
-                return;
-
-            var nota = new PedidoNota
-            {
-                IdNota = Guid.NewGuid(),
-                Nota = texto,
-                Fecha = ArgentinaDateTimeHelper.Now(),
-                Usuario = SessionContext.NombreUsuario ?? "Sistema"
-            };
-
-            _notas.Add(nota);
-            txtNuevaNota.Clear();
-            RefrescarNotas();
-        }
-
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             if (!ValidarDatos())
                 return;
 
+            Pedido pedido = null;
             try
             {
-                var pedido = ConstruirPedido();
-                ResultadoOperacion resultado;
-
-                if (_pedidoId.HasValue)
-                {
-                    resultado = _pedidoService.ActualizarPedido(pedido);
-                }
-                else
-                {
-                    resultado = _pedidoService.CrearPedido(pedido);
-                }
+                pedido = ConstruirPedido();
+                ResultadoOperacion resultado = _pedidoId.HasValue
+                    ? _pedidoService.ActualizarPedido(pedido)
+                    : _pedidoService.CrearPedido(pedido);
 
                 if (!resultado.EsValido)
                 {
+                    var numeroFallido = pedido?.NumeroPedido ?? txtNumeroPedido.Text?.Trim();
+                    RegistrarFallo("Pedido.Guardar", "order.form.log.save.failure", resultado.Mensaje, numeroFallido ?? "-", resultado.Mensaje);
                     MessageBox.Show(resultado.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 var accion = _pedidoId.HasValue ? "Pedido.Editar" : "Pedido.Alta";
-                var mensaje = _pedidoId.HasValue
-                    ? $"Pedido actualizado / Order updated: {pedido.NumeroPedido}"
-                    : $"Pedido creado / Order created: {pedido.NumeroPedido}";
-
-                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos");
-                _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
+                var clave = _pedidoId.HasValue ? "order.form.log.update" : "order.form.log.create";
+                RegistrarAccion(accion, clave, pedido.NumeroPedido);
 
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                _logService.LogError("Error guardando pedido / Error saving order", ex, "Pedidos", SessionContext.NombreUsuario);
+                var numeroPedido = pedido?.NumeroPedido ?? txtNumeroPedido.Text?.Trim() ?? _pedidoId?.ToString();
+                RegistrarError("Pedido.Guardar", "order.form.log.save.error", ex, numeroPedido ?? "-");
                 MessageBox.Show("order.save.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -1822,10 +1757,11 @@ namespace UI
             try
             {
                 var usuario = SessionContext.NombreUsuario ?? "Sistema";
-                var comentario = $"Pedido cancelado por {usuario} / Order cancelled by {usuario}";
+                var comentario = ObtenerMensaje("order.form.log.cancel.comment", usuario);
                 var resultado = _pedidoService.CancelarPedido(_pedidoId.Value, usuario, comentario);
                 if (!resultado.EsValido)
                 {
+                    RegistrarFallo("Pedido.Cancelar", "order.form.log.cancel.failure", resultado.Mensaje, numeroPedido ?? "-", resultado.Mensaje);
                     MessageBox.Show("order.cancel.error".Traducir(resultado.Mensaje), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -1834,9 +1770,7 @@ namespace UI
                 _montoPagadoActual = totales.totalConIva;
                 ActualizarResumen();
 
-                var mensaje = $"Pedido cancelado / Order cancelled: {numeroPedido}";
-                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, "Pedido.Cancelar", mensaje, "Pedidos");
-                _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
+                RegistrarAccion("Pedido.Cancelar", "order.form.log.cancel.success", numeroPedido ?? "-");
 
                 MessageBox.Show("order.cancel.success".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -1845,7 +1779,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                _logService.LogError("Error cancelando pedido / Error cancelling order", ex, "Pedidos", SessionContext.NombreUsuario);
+                RegistrarError("Pedido.Cancelar", "order.form.log.cancel.error", ex, numeroPedido ?? "-");
                 MessageBox.Show("order.cancel.error".Traducir(ErrorMessageHelper.GetFriendlyMessage(ex)), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -1878,20 +1812,9 @@ namespace UI
             if (_detalles.Count == 0)
             {
                 MessageBox.Show("order.validation.details".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                tabControl.SelectedTab = tabDetalles;
+                tabControl.SelectedIndex = 0;
+                dgvDetalles.Focus();
                 return false;
-            }
-
-            if (chkFacturado.Checked)
-            {
-                var path = txtFactura.Text?.Trim();
-                if (string.IsNullOrWhiteSpace(path) || (!File.Exists(path) && !Uri.IsWellFormedUriString(path, UriKind.Absolute)))
-                {
-                    MessageBox.Show("order.validation.invoice".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    tabControl.SelectedTab = tabGeneral;
-                    txtFactura.Focus();
-                    return false;
-                }
             }
 
             return true;
@@ -1911,8 +1834,8 @@ namespace UI
             pedido.IdEstadoPedido = _estadoPedidoActual;
             pedido.FechaLimiteEntrega = chkFechaEntrega.Checked ? dtpFechaEntrega.Value.Date : (DateTime?)null;
             pedido.MontoPagado = _montoPagadoActual;
-            pedido.Facturado = chkFacturado.Checked;
-            pedido.RutaFacturaPdf = chkFacturado.Checked ? txtFactura.Text?.Trim() : null;
+            pedido.Facturado = _pedidoOriginal?.Facturado ?? false;
+            pedido.RutaFacturaPdf = _pedidoOriginal?.RutaFacturaPdf;
             pedido.Cliente_OC = txtOC.Text?.Trim();
             pedido.Cliente_PersonaNombre = txtContacto.Text?.Trim();
             pedido.Cliente_PersonaEmail = txtEmail.Text?.Trim();
@@ -1922,7 +1845,7 @@ namespace UI
             pedido.Observaciones = txtObservaciones.Text?.Trim();
 
             pedido.Detalles = _detalles.Select(MapearDetalleDominio).ToList();
-            pedido.Notas = _notas.Select(CloneNota).ToList();
+            pedido.Notas = _pedidoOriginal?.Notas?.ToList() ?? new List<PedidoNota>();
 
             var totales = CalcularTotales();
             pedido.TotalSinIva = totales.totalSinIva;
@@ -1966,7 +1889,23 @@ namespace UI
                 pedido.Adjuntos = new List<ArchivoAdjunto>();
             }
 
+            pedido.Pagos = ConstruirPagosDominio(pedido.IdPedido);
+
             return pedido;
+        }
+
+        private List<PedidoPago> ConstruirPagosDominio(Guid idPedido)
+        {
+            return _pagosRegistrados
+                .Select(p => new PedidoPago
+                {
+                    IdPedidoPago = p.IdPago == Guid.Empty ? Guid.NewGuid() : p.IdPago,
+                    IdPedido = idPedido,
+                    Monto = p.Monto,
+                    Porcentaje = p.Porcentaje,
+                    FechaRegistro = ArgentinaDateTimeHelper.ToUtc(p.Fecha)
+                })
+                .ToList();
         }
 
         private PedidoDetalle MapearDetalleDominio(PedidoDetalleViewModel vm)
@@ -2006,6 +1945,89 @@ namespace UI
                 CostoPersonalizacion = vm.Costo,
                 Descripcion = vm.Descripcion
             };
+        }
+
+        private void RegistrarAccion(string accion, string claveMensaje, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos");
+            }
+            catch
+            {
+                // Evitar que errores de auditoría interrumpan el flujo
+            }
+
+            _logService.LogInfo(mensaje, "Pedidos", SessionContext.NombreUsuario);
+        }
+
+        private void RegistrarFallo(string accion, string claveMensaje, string detalle, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos", false, detalle);
+            }
+            catch
+            {
+                // Ignorar errores de bitácora
+            }
+
+            _logService.LogWarning(mensaje, "Pedidos", SessionContext.NombreUsuario);
+        }
+
+        private void RegistrarError(string accion, string claveMensaje, Exception ex, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+            try
+            {
+                _bitacoraService.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Pedidos", false, ex?.Message);
+            }
+            catch
+            {
+                // Ignorar errores de bitácora
+            }
+
+            _logService.LogError(mensaje, ex, "Pedidos", SessionContext.NombreUsuario);
+        }
+
+        private Dictionary<string, (string Es, string En)> CrearDiccionarioMensajes()
+        {
+            return new Dictionary<string, (string Es, string En)>
+            {
+                ["order.form.log.references.error"] = ("Error al cargar datos de referencia: {0}.", "Error loading reference data: {0}."),
+                ["order.form.log.load.error"] = ("Error al cargar el pedido {0}.", "Error loading order {0}."),
+                ["order.form.log.save.failure"] = ("No se pudo guardar el pedido {0}: {1}.", "Could not save order {0}: {1}."),
+                ["order.form.log.save.error"] = ("Error al guardar el pedido {0}.", "Error saving order {0}."),
+                ["order.form.log.create"] = ("Se creó el pedido {0}.", "Order {0} was created."),
+                ["order.form.log.update"] = ("Se actualizó el pedido {0}.", "Order {0} was updated."),
+                ["order.form.log.cancel.comment"] = ("Pedido cancelado por {0}.", "Order cancelled by {0}."),
+                ["order.form.log.cancel.success"] = ("Se canceló el pedido {0}.", "Order {0} was cancelled."),
+                ["order.form.log.cancel.failure"] = ("No se pudo cancelar el pedido {0}: {1}.", "Could not cancel order {0}: {1}."),
+                ["order.form.log.cancel.error"] = ("Error al cancelar el pedido {0}.", "Error cancelling order {0}."),
+                ["order.form.log.payment.add.percent"] = ("Se registró un pago del {0}% por {1} el {2}.", "Recorded a payment of {0}% for {1} on {2}."),
+                ["order.form.log.payment.add.manual"] = ("Se registró un pago manual por {0} el {1}.", "Recorded a manual payment of {0} on {1}."),
+                ["order.form.log.payment.cancel.percent"] = ("Se anuló un pago del {0}% por {1} registrado el {2}.", "Voided a payment of {0}% for {1} recorded on {2}."),
+                ["order.form.log.payment.cancel.manual"] = ("Se anuló un pago manual por {0} registrado el {1}.", "Voided a manual payment of {0} recorded on {1}."),
+            };
+        }
+
+        private string ObtenerMensaje(string clave, params object[] args)
+        {
+            if (_diccionarioMensajes.TryGetValue(clave, out var textos))
+            {
+                var mensajeEs = args != null && args.Length > 0 ? string.Format(textos.Es, args) : textos.Es;
+                var mensajeEn = args != null && args.Length > 0 ? string.Format(textos.En, args) : textos.En;
+                return string.Concat(mensajeEs, " / ", mensajeEn);
+            }
+
+            if (args != null && args.Length > 0)
+            {
+                return string.Format(clave, args);
+            }
+
+            return clave;
         }
 
         private void RegistrarHistorialProducto(PedidoDetalleViewModel detalle, EstadoProducto estado)
@@ -2075,6 +2097,26 @@ namespace UI
                 return true;
 
             return false;
+        }
+
+        private void panelResumen_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void lblMontoPagadoValor_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lstPagos_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvAdjuntos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

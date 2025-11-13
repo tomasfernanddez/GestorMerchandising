@@ -49,9 +49,6 @@
             this.lblEstadoPedidoValor = new System.Windows.Forms.Label();
             this.lblObservaciones = new System.Windows.Forms.Label();
             this.txtObservaciones = new System.Windows.Forms.TextBox();
-            this.chkFacturado = new System.Windows.Forms.CheckBox();
-            this.txtFactura = new System.Windows.Forms.TextBox();
-            this.btnSeleccionarFactura = new System.Windows.Forms.Button();
             this.grpDetalles = new System.Windows.Forms.GroupBox();
             this.dgvDetalles = new System.Windows.Forms.DataGridView();
             this.flowDetalles = new System.Windows.Forms.FlowLayoutPanel();
@@ -78,8 +75,6 @@
             this.lblPagadoValor = new System.Windows.Forms.Label();
             this.lblSaldo = new System.Windows.Forms.Label();
             this.lblSaldoValor = new System.Windows.Forms.Label();
-            this.lblPagoNuevo = new System.Windows.Forms.Label();
-            this.nudPago = new System.Windows.Forms.NumericUpDown();
             this.btnAgregarPago = new System.Windows.Forms.Button();
             this.btnEliminarPago = new System.Windows.Forms.Button();
             this.lstPagos = new System.Windows.Forms.ListBox();
@@ -99,7 +94,6 @@
             this.panelAdjuntosAcciones.SuspendLayout();
             this.grpPagos.SuspendLayout();
             this.layoutPagos.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPago)).BeginInit();
             this.flowButtons.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -116,11 +110,11 @@
             this.layoutMain.Location = new System.Drawing.Point(10, 10);
             this.layoutMain.Name = "layoutMain";
             this.layoutMain.RowCount = 5;
-            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.layoutMain.Size = new System.Drawing.Size(864, 641);
             this.layoutMain.TabIndex = 0;
             // 
@@ -160,9 +154,6 @@
             this.layoutGeneral.Controls.Add(this.lblEstadoPedidoValor, 3, 2);
             this.layoutGeneral.Controls.Add(this.lblObservaciones, 0, 5);
             this.layoutGeneral.Controls.Add(this.txtObservaciones, 1, 5);
-            this.layoutGeneral.Controls.Add(this.chkFacturado, 2, 3);
-            this.layoutGeneral.Controls.Add(this.txtFactura, 3, 3);
-            this.layoutGeneral.Controls.Add(this.btnSeleccionarFactura, 3, 4);
             this.layoutGeneral.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutGeneral.Location = new System.Drawing.Point(3, 16);
             this.layoutGeneral.Name = "layoutGeneral";
@@ -193,7 +184,7 @@
             this.cmbCliente.FormattingEnabled = true;
             this.cmbCliente.Location = new System.Drawing.Point(143, 3);
             this.cmbCliente.Name = "cmbCliente";
-            this.cmbCliente.Size = new System.Drawing.Size(281, 21);
+            this.cmbCliente.Size = new System.Drawing.Size(280, 21);
             this.cmbCliente.TabIndex = 1;
             // 
             // lblContacto
@@ -202,7 +193,7 @@
             this.lblContacto.AutoSize = true;
             this.lblContacto.Location = new System.Drawing.Point(3, 38);
             this.lblContacto.Name = "lblContacto";
-            this.lblContacto.Size = new System.Drawing.Size(135, 13);
+            this.lblContacto.Size = new System.Drawing.Size(134, 13);
             this.lblContacto.TabIndex = 2;
             this.lblContacto.Text = "sampleOrder.contact.name";
             // 
@@ -211,7 +202,7 @@
             this.txtContacto.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtContacto.Location = new System.Drawing.Point(143, 33);
             this.txtContacto.Name = "txtContacto";
-            this.txtContacto.Size = new System.Drawing.Size(281, 20);
+            this.txtContacto.Size = new System.Drawing.Size(280, 20);
             this.txtContacto.TabIndex = 3;
             // 
             // lblEmail
@@ -220,7 +211,7 @@
             this.lblEmail.AutoSize = true;
             this.lblEmail.Location = new System.Drawing.Point(3, 68);
             this.lblEmail.Name = "lblEmail";
-            this.lblEmail.Size = new System.Drawing.Size(137, 13);
+            this.lblEmail.Size = new System.Drawing.Size(132, 13);
             this.lblEmail.TabIndex = 4;
             this.lblEmail.Text = "sampleOrder.contact.email";
             // 
@@ -229,16 +220,16 @@
             this.txtEmail.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtEmail.Location = new System.Drawing.Point(143, 63);
             this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(281, 20);
+            this.txtEmail.Size = new System.Drawing.Size(280, 20);
             this.txtEmail.TabIndex = 5;
             // 
             // lblTelefono
             // 
             this.lblTelefono.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblTelefono.AutoSize = true;
-            this.lblTelefono.Location = new System.Drawing.Point(3, 98);
+            this.lblTelefono.Location = new System.Drawing.Point(3, 92);
             this.lblTelefono.Name = "lblTelefono";
-            this.lblTelefono.Size = new System.Drawing.Size(143, 13);
+            this.lblTelefono.Size = new System.Drawing.Size(132, 26);
             this.lblTelefono.TabIndex = 6;
             this.lblTelefono.Text = "sampleOrder.contact.phone";
             // 
@@ -247,16 +238,16 @@
             this.txtTelefono.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtTelefono.Location = new System.Drawing.Point(143, 93);
             this.txtTelefono.Name = "txtTelefono";
-            this.txtTelefono.Size = new System.Drawing.Size(281, 20);
+            this.txtTelefono.Size = new System.Drawing.Size(280, 20);
             this.txtTelefono.TabIndex = 7;
             // 
             // lblDireccion
             // 
             this.lblDireccion.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblDireccion.AutoSize = true;
-            this.lblDireccion.Location = new System.Drawing.Point(3, 128);
+            this.lblDireccion.Location = new System.Drawing.Point(3, 122);
             this.lblDireccion.Name = "lblDireccion";
-            this.lblDireccion.Size = new System.Drawing.Size(145, 13);
+            this.lblDireccion.Size = new System.Drawing.Size(129, 26);
             this.lblDireccion.TabIndex = 8;
             this.lblDireccion.Text = "sampleOrder.contact.address";
             // 
@@ -265,44 +256,44 @@
             this.txtDireccion.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtDireccion.Location = new System.Drawing.Point(143, 123);
             this.txtDireccion.Name = "txtDireccion";
-            this.txtDireccion.Size = new System.Drawing.Size(281, 20);
+            this.txtDireccion.Size = new System.Drawing.Size(280, 20);
             this.txtDireccion.TabIndex = 9;
             // 
             // lblNumeroPedido
-            //
+            // 
             this.lblNumeroPedido.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblNumeroPedido.AutoSize = true;
-            this.lblNumeroPedido.Location = new System.Drawing.Point(430, 8);
+            this.lblNumeroPedido.Location = new System.Drawing.Point(429, 8);
             this.lblNumeroPedido.Name = "lblNumeroPedido";
-            this.lblNumeroPedido.Size = new System.Drawing.Size(112, 13);
+            this.lblNumeroPedido.Size = new System.Drawing.Size(104, 13);
             this.lblNumeroPedido.TabIndex = 10;
             this.lblNumeroPedido.Text = "sampleOrder.number";
-            //
+            // 
             // lblNumeroPedidoValor
-            //
+            // 
             this.lblNumeroPedidoValor.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblNumeroPedidoValor.AutoSize = true;
-            this.lblNumeroPedidoValor.Location = new System.Drawing.Point(570, 8);
+            this.lblNumeroPedidoValor.Location = new System.Drawing.Point(569, 8);
             this.lblNumeroPedidoValor.Name = "lblNumeroPedidoValor";
             this.lblNumeroPedidoValor.Size = new System.Drawing.Size(10, 13);
             this.lblNumeroPedidoValor.TabIndex = 11;
             this.lblNumeroPedidoValor.Text = "-";
-            //
+            // 
             // lblFechaPedido
-            //
+            // 
             this.lblFechaPedido.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblFechaPedido.AutoSize = true;
-            this.lblFechaPedido.Location = new System.Drawing.Point(430, 38);
+            this.lblFechaPedido.Location = new System.Drawing.Point(429, 38);
             this.lblFechaPedido.Name = "lblFechaPedido";
-            this.lblFechaPedido.Size = new System.Drawing.Size(128, 13);
+            this.lblFechaPedido.Size = new System.Drawing.Size(129, 13);
             this.lblFechaPedido.TabIndex = 12;
             this.lblFechaPedido.Text = "sampleOrder.created.date";
-            //
+            // 
             // lblFechaPedidoValor
-            //
+            // 
             this.lblFechaPedidoValor.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblFechaPedidoValor.AutoSize = true;
-            this.lblFechaPedidoValor.Location = new System.Drawing.Point(570, 38);
+            this.lblFechaPedidoValor.Location = new System.Drawing.Point(569, 38);
             this.lblFechaPedidoValor.Name = "lblFechaPedidoValor";
             this.lblFechaPedidoValor.Size = new System.Drawing.Size(10, 13);
             this.lblFechaPedidoValor.TabIndex = 13;
@@ -312,17 +303,17 @@
             // 
             this.lblEstadoPedido.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblEstadoPedido.AutoSize = true;
-            this.lblEstadoPedido.Location = new System.Drawing.Point(430, 68);
+            this.lblEstadoPedido.Location = new System.Drawing.Point(429, 68);
             this.lblEstadoPedido.Name = "lblEstadoPedido";
-            this.lblEstadoPedido.Size = new System.Drawing.Size(97, 13);
+            this.lblEstadoPedido.Size = new System.Drawing.Size(92, 13);
             this.lblEstadoPedido.TabIndex = 14;
             this.lblEstadoPedido.Text = "sampleOrder.state";
-            //
+            // 
             // lblEstadoPedidoValor
-            //
+            // 
             this.lblEstadoPedidoValor.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblEstadoPedidoValor.AutoSize = true;
-            this.lblEstadoPedidoValor.Location = new System.Drawing.Point(570, 68);
+            this.lblEstadoPedidoValor.Location = new System.Drawing.Point(569, 68);
             this.lblEstadoPedidoValor.Name = "lblEstadoPedidoValor";
             this.lblEstadoPedidoValor.Size = new System.Drawing.Size(10, 13);
             this.lblEstadoPedidoValor.TabIndex = 15;
@@ -332,9 +323,9 @@
             // 
             this.lblObservaciones.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblObservaciones.AutoSize = true;
-            this.lblObservaciones.Location = new System.Drawing.Point(3, 162);
+            this.lblObservaciones.Location = new System.Drawing.Point(3, 164);
             this.lblObservaciones.Name = "lblObservaciones";
-            this.lblObservaciones.Size = new System.Drawing.Size(106, 13);
+            this.lblObservaciones.Size = new System.Drawing.Size(95, 13);
             this.lblObservaciones.TabIndex = 16;
             this.lblObservaciones.Text = "sampleOrder.notes";
             // 
@@ -346,38 +337,8 @@
             this.txtObservaciones.Multiline = true;
             this.txtObservaciones.Name = "txtObservaciones";
             this.txtObservaciones.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtObservaciones.Size = new System.Drawing.Size(427, 35);
+            this.txtObservaciones.Size = new System.Drawing.Size(706, 35);
             this.txtObservaciones.TabIndex = 17;
-            // 
-            // chkFacturado
-            // 
-            this.chkFacturado.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.chkFacturado.AutoSize = true;
-            this.chkFacturado.Location = new System.Drawing.Point(430, 95);
-            this.chkFacturado.Name = "chkFacturado";
-            this.chkFacturado.Size = new System.Drawing.Size(132, 17);
-            this.chkFacturado.TabIndex = 18;
-            this.chkFacturado.Text = "sampleOrder.invoiced";
-            this.chkFacturado.UseVisualStyleBackColor = true;
-            // 
-            // txtFactura
-            // 
-            this.txtFactura.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtFactura.Location = new System.Drawing.Point(570, 93);
-            this.txtFactura.Name = "txtFactura";
-            this.txtFactura.ReadOnly = true;
-            this.txtFactura.Size = new System.Drawing.Size(279, 20);
-            this.txtFactura.TabIndex = 19;
-            // 
-            // btnSeleccionarFactura
-            // 
-            this.btnSeleccionarFactura.Location = new System.Drawing.Point(570, 123);
-            this.btnSeleccionarFactura.Name = "btnSeleccionarFactura";
-            this.btnSeleccionarFactura.Size = new System.Drawing.Size(120, 23);
-            this.btnSeleccionarFactura.TabIndex = 20;
-            this.btnSeleccionarFactura.Text = "sampleOrder.invoice.select";
-            this.btnSeleccionarFactura.UseVisualStyleBackColor = true;
-            this.btnSeleccionarFactura.Click += new System.EventHandler(this.btnSeleccionarFactura_Click);
             // 
             // grpDetalles
             // 
@@ -386,7 +347,7 @@
             this.grpDetalles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpDetalles.Location = new System.Drawing.Point(3, 219);
             this.grpDetalles.Name = "grpDetalles";
-            this.grpDetalles.Size = new System.Drawing.Size(858, 298);
+            this.grpDetalles.Size = new System.Drawing.Size(858, 146);
             this.grpDetalles.TabIndex = 1;
             this.grpDetalles.TabStop = false;
             this.grpDetalles.Text = "sampleOrder.group.details";
@@ -399,12 +360,12 @@
             this.dgvDetalles.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvDetalles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDetalles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvDetalles.Location = new System.Drawing.Point(3, 55);
+            this.dgvDetalles.Location = new System.Drawing.Point(3, 86);
             this.dgvDetalles.MultiSelect = false;
             this.dgvDetalles.Name = "dgvDetalles";
             this.dgvDetalles.ReadOnly = true;
             this.dgvDetalles.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDetalles.Size = new System.Drawing.Size(852, 240);
+            this.dgvDetalles.Size = new System.Drawing.Size(852, 57);
             this.dgvDetalles.TabIndex = 1;
             this.dgvDetalles.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDetalles_CellDoubleClick);
             // 
@@ -421,7 +382,7 @@
             this.flowDetalles.Dock = System.Windows.Forms.DockStyle.Top;
             this.flowDetalles.Location = new System.Drawing.Point(3, 16);
             this.flowDetalles.Name = "flowDetalles";
-            this.flowDetalles.Size = new System.Drawing.Size(852, 39);
+            this.flowDetalles.Size = new System.Drawing.Size(852, 70);
             this.flowDetalles.TabIndex = 0;
             // 
             // btnAgregarDetalle
@@ -429,7 +390,7 @@
             this.btnAgregarDetalle.AutoSize = true;
             this.btnAgregarDetalle.Location = new System.Drawing.Point(3, 3);
             this.btnAgregarDetalle.Name = "btnAgregarDetalle";
-            this.btnAgregarDetalle.Size = new System.Drawing.Size(110, 29);
+            this.btnAgregarDetalle.Size = new System.Drawing.Size(125, 29);
             this.btnAgregarDetalle.TabIndex = 0;
             this.btnAgregarDetalle.Text = "sampleOrder.detail.add";
             this.btnAgregarDetalle.UseVisualStyleBackColor = true;
@@ -438,9 +399,9 @@
             // btnEditarDetalle
             // 
             this.btnEditarDetalle.AutoSize = true;
-            this.btnEditarDetalle.Location = new System.Drawing.Point(119, 3);
+            this.btnEditarDetalle.Location = new System.Drawing.Point(134, 3);
             this.btnEditarDetalle.Name = "btnEditarDetalle";
-            this.btnEditarDetalle.Size = new System.Drawing.Size(110, 29);
+            this.btnEditarDetalle.Size = new System.Drawing.Size(124, 29);
             this.btnEditarDetalle.TabIndex = 1;
             this.btnEditarDetalle.Text = "sampleOrder.detail.edit";
             this.btnEditarDetalle.UseVisualStyleBackColor = true;
@@ -449,9 +410,9 @@
             // btnEliminarDetalle
             // 
             this.btnEliminarDetalle.AutoSize = true;
-            this.btnEliminarDetalle.Location = new System.Drawing.Point(235, 3);
+            this.btnEliminarDetalle.Location = new System.Drawing.Point(264, 3);
             this.btnEliminarDetalle.Name = "btnEliminarDetalle";
-            this.btnEliminarDetalle.Size = new System.Drawing.Size(110, 29);
+            this.btnEliminarDetalle.Size = new System.Drawing.Size(136, 29);
             this.btnEliminarDetalle.TabIndex = 2;
             this.btnEliminarDetalle.Text = "sampleOrder.detail.delete";
             this.btnEliminarDetalle.UseVisualStyleBackColor = true;
@@ -460,9 +421,9 @@
             // btnPedirFacturacion
             // 
             this.btnPedirFacturacion.AutoSize = true;
-            this.btnPedirFacturacion.Location = new System.Drawing.Point(351, 3);
+            this.btnPedirFacturacion.Location = new System.Drawing.Point(406, 3);
             this.btnPedirFacturacion.Name = "btnPedirFacturacion";
-            this.btnPedirFacturacion.Size = new System.Drawing.Size(140, 29);
+            this.btnPedirFacturacion.Size = new System.Drawing.Size(143, 29);
             this.btnPedirFacturacion.TabIndex = 3;
             this.btnPedirFacturacion.Text = "sampleOrder.request.billing";
             this.btnPedirFacturacion.UseVisualStyleBackColor = true;
@@ -472,15 +433,15 @@
             // 
             this.lblExtenderDias.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblExtenderDias.AutoSize = true;
-            this.lblExtenderDias.Location = new System.Drawing.Point(497, 10);
+            this.lblExtenderDias.Location = new System.Drawing.Point(555, 11);
             this.lblExtenderDias.Name = "lblExtenderDias";
-            this.lblExtenderDias.Size = new System.Drawing.Size(139, 13);
+            this.lblExtenderDias.Size = new System.Drawing.Size(126, 13);
             this.lblExtenderDias.TabIndex = 4;
             this.lblExtenderDias.Text = "sampleOrder.extend.days";
             // 
             // nudDiasExtension
             // 
-            this.nudDiasExtension.Location = new System.Drawing.Point(642, 8);
+            this.nudDiasExtension.Location = new System.Drawing.Point(687, 3);
             this.nudDiasExtension.Maximum = new decimal(new int[] {
             60,
             0,
@@ -503,27 +464,27 @@
             // btnExtenderDias
             // 
             this.btnExtenderDias.AutoSize = true;
-            this.btnExtenderDias.Location = new System.Drawing.Point(708, 3);
+            this.btnExtenderDias.Location = new System.Drawing.Point(3, 38);
             this.btnExtenderDias.Name = "btnExtenderDias";
-            this.btnExtenderDias.Size = new System.Drawing.Size(120, 29);
+            this.btnExtenderDias.Size = new System.Drawing.Size(132, 29);
             this.btnExtenderDias.TabIndex = 6;
             this.btnExtenderDias.Text = "sampleOrder.extend.due";
             this.btnExtenderDias.UseVisualStyleBackColor = true;
             this.btnExtenderDias.Click += new System.EventHandler(this.btnExtenderDias_Click);
-            //
+            // 
             // grpAdjuntos
-            //
+            // 
             this.grpAdjuntos.Controls.Add(this.tableAdjuntos);
             this.grpAdjuntos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpAdjuntos.Location = new System.Drawing.Point(3, 523);
+            this.grpAdjuntos.Location = new System.Drawing.Point(3, 371);
             this.grpAdjuntos.Name = "grpAdjuntos";
-            this.grpAdjuntos.Size = new System.Drawing.Size(858, 199);
+            this.grpAdjuntos.Size = new System.Drawing.Size(858, 146);
             this.grpAdjuntos.TabIndex = 2;
             this.grpAdjuntos.TabStop = false;
-            this.grpAdjuntos.Text = "order.tab.attachments";
-            //
+            this.grpAdjuntos.Text = "sampleOrder.group.invoices";
+            // 
             // tableAdjuntos
-            //
+            // 
             this.tableAdjuntos.ColumnCount = 1;
             this.tableAdjuntos.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableAdjuntos.Controls.Add(this.lblAdjuntosInstrucciones, 0, 0);
@@ -536,11 +497,11 @@
             this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableAdjuntos.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableAdjuntos.Size = new System.Drawing.Size(852, 180);
+            this.tableAdjuntos.Size = new System.Drawing.Size(852, 127);
             this.tableAdjuntos.TabIndex = 0;
-            //
+            // 
             // lblAdjuntosInstrucciones
-            //
+            // 
             this.lblAdjuntosInstrucciones.AutoSize = true;
             this.lblAdjuntosInstrucciones.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblAdjuntosInstrucciones.Location = new System.Drawing.Point(3, 0);
@@ -549,64 +510,63 @@
             this.lblAdjuntosInstrucciones.Size = new System.Drawing.Size(846, 13);
             this.lblAdjuntosInstrucciones.TabIndex = 0;
             this.lblAdjuntosInstrucciones.Text = "order.attachments.instructions";
-            //
+            // 
             // dgvAdjuntos
-            //
+            // 
             this.dgvAdjuntos.AllowUserToAddRows = false;
             this.dgvAdjuntos.AllowUserToDeleteRows = false;
             this.dgvAdjuntos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvAdjuntos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvAdjuntos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvAdjuntos.Location = new System.Drawing.Point(3, 19);
+            this.dgvAdjuntos.Location = new System.Drawing.Point(3, 22);
             this.dgvAdjuntos.MultiSelect = false;
             this.dgvAdjuntos.Name = "dgvAdjuntos";
             this.dgvAdjuntos.RowHeadersVisible = false;
             this.dgvAdjuntos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvAdjuntos.Size = new System.Drawing.Size(846, 126);
+            this.dgvAdjuntos.Size = new System.Drawing.Size(846, 61);
             this.dgvAdjuntos.TabIndex = 1;
-            //
+            // 
             // panelAdjuntosAcciones
-            //
+            // 
             this.panelAdjuntosAcciones.AutoSize = true;
             this.panelAdjuntosAcciones.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panelAdjuntosAcciones.Controls.Add(this.btnAgregarAdjunto);
             this.panelAdjuntosAcciones.Controls.Add(this.btnDescargarAdjunto);
             this.panelAdjuntosAcciones.Controls.Add(this.btnEliminarAdjunto);
             this.panelAdjuntosAcciones.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelAdjuntosAcciones.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.panelAdjuntosAcciones.Location = new System.Drawing.Point(3, 154);
+            this.panelAdjuntosAcciones.Location = new System.Drawing.Point(3, 89);
             this.panelAdjuntosAcciones.Name = "panelAdjuntosAcciones";
             this.panelAdjuntosAcciones.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.panelAdjuntosAcciones.Size = new System.Drawing.Size(846, 23);
+            this.panelAdjuntosAcciones.Size = new System.Drawing.Size(846, 35);
             this.panelAdjuntosAcciones.TabIndex = 2;
             this.panelAdjuntosAcciones.WrapContents = false;
-            //
+            // 
             // btnAgregarAdjunto
-            //
+            // 
             this.btnAgregarAdjunto.AutoSize = true;
             this.btnAgregarAdjunto.Location = new System.Drawing.Point(3, 9);
             this.btnAgregarAdjunto.Name = "btnAgregarAdjunto";
-            this.btnAgregarAdjunto.Size = new System.Drawing.Size(107, 23);
+            this.btnAgregarAdjunto.Size = new System.Drawing.Size(123, 23);
             this.btnAgregarAdjunto.TabIndex = 0;
             this.btnAgregarAdjunto.Text = "order.attachments.add";
             this.btnAgregarAdjunto.UseVisualStyleBackColor = true;
-            //
+            // 
             // btnDescargarAdjunto
-            //
+            // 
             this.btnDescargarAdjunto.AutoSize = true;
-            this.btnDescargarAdjunto.Location = new System.Drawing.Point(116, 9);
+            this.btnDescargarAdjunto.Location = new System.Drawing.Point(132, 9);
             this.btnDescargarAdjunto.Name = "btnDescargarAdjunto";
-            this.btnDescargarAdjunto.Size = new System.Drawing.Size(117, 23);
+            this.btnDescargarAdjunto.Size = new System.Drawing.Size(151, 23);
             this.btnDescargarAdjunto.TabIndex = 1;
             this.btnDescargarAdjunto.Text = "order.attachments.download";
             this.btnDescargarAdjunto.UseVisualStyleBackColor = true;
-            //
+            // 
             // btnEliminarAdjunto
-            //
+            // 
             this.btnEliminarAdjunto.AutoSize = true;
-            this.btnEliminarAdjunto.Location = new System.Drawing.Point(239, 9);
+            this.btnEliminarAdjunto.Location = new System.Drawing.Point(289, 9);
             this.btnEliminarAdjunto.Name = "btnEliminarAdjunto";
-            this.btnEliminarAdjunto.Size = new System.Drawing.Size(104, 23);
+            this.btnEliminarAdjunto.Size = new System.Drawing.Size(140, 23);
             this.btnEliminarAdjunto.TabIndex = 2;
             this.btnEliminarAdjunto.Text = "order.attachments.remove";
             this.btnEliminarAdjunto.UseVisualStyleBackColor = true;
@@ -615,7 +575,7 @@
             // 
             this.grpPagos.Controls.Add(this.layoutPagos);
             this.grpPagos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpPagos.Location = new System.Drawing.Point(3, 728);
+            this.grpPagos.Location = new System.Drawing.Point(3, 523);
             this.grpPagos.Name = "grpPagos";
             this.grpPagos.Size = new System.Drawing.Size(858, 80);
             this.grpPagos.TabIndex = 3;
@@ -637,11 +597,9 @@
             this.layoutPagos.Controls.Add(this.lblPagadoValor, 3, 0);
             this.layoutPagos.Controls.Add(this.lblSaldo, 4, 0);
             this.layoutPagos.Controls.Add(this.lblSaldoValor, 5, 0);
-            this.layoutPagos.Controls.Add(this.lblPagoNuevo, 0, 1);
-            this.layoutPagos.Controls.Add(this.nudPago, 1, 1);
-            this.layoutPagos.Controls.Add(this.btnAgregarPago, 2, 1);
-            this.layoutPagos.Controls.Add(this.btnEliminarPago, 3, 1);
-            this.layoutPagos.Controls.Add(this.lstPagos, 5, 1);
+            this.layoutPagos.Controls.Add(this.btnAgregarPago, 0, 1);
+            this.layoutPagos.Controls.Add(this.btnEliminarPago, 2, 1);
+            this.layoutPagos.Controls.Add(this.lstPagos, 4, 1);
             this.layoutPagos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutPagos.Location = new System.Drawing.Point(3, 16);
             this.layoutPagos.Name = "layoutPagos";
@@ -655,9 +613,9 @@
             // 
             this.lblTotal.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblTotal.AutoSize = true;
-            this.lblTotal.Location = new System.Drawing.Point(3, 6);
+            this.lblTotal.Location = new System.Drawing.Point(3, 0);
             this.lblTotal.Name = "lblTotal";
-            this.lblTotal.Size = new System.Drawing.Size(127, 13);
+            this.lblTotal.Size = new System.Drawing.Size(102, 25);
             this.lblTotal.TabIndex = 0;
             this.lblTotal.Text = "sampleOrder.summary.total";
             // 
@@ -668,7 +626,7 @@
             this.lblTotalValor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
             this.lblTotalValor.Location = new System.Drawing.Point(113, 5);
             this.lblTotalValor.Name = "lblTotalValor";
-            this.lblTotalValor.Size = new System.Drawing.Size(44, 15);
+            this.lblTotalValor.Size = new System.Drawing.Size(43, 15);
             this.lblTotalValor.TabIndex = 1;
             this.lblTotalValor.Text = "$0,00";
             // 
@@ -676,9 +634,9 @@
             // 
             this.lblPagado.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblPagado.AutoSize = true;
-            this.lblPagado.Location = new System.Drawing.Point(213, 6);
+            this.lblPagado.Location = new System.Drawing.Point(213, 0);
             this.lblPagado.Name = "lblPagado";
-            this.lblPagado.Size = new System.Drawing.Size(126, 13);
+            this.lblPagado.Size = new System.Drawing.Size(102, 25);
             this.lblPagado.TabIndex = 2;
             this.lblPagado.Text = "sampleOrder.summary.paid";
             // 
@@ -689,7 +647,7 @@
             this.lblPagadoValor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
             this.lblPagadoValor.Location = new System.Drawing.Point(323, 5);
             this.lblPagadoValor.Name = "lblPagadoValor";
-            this.lblPagadoValor.Size = new System.Drawing.Size(44, 15);
+            this.lblPagadoValor.Size = new System.Drawing.Size(43, 15);
             this.lblPagadoValor.TabIndex = 3;
             this.lblPagadoValor.Text = "$0,00";
             // 
@@ -697,9 +655,9 @@
             // 
             this.lblSaldo.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblSaldo.AutoSize = true;
-            this.lblSaldo.Location = new System.Drawing.Point(423, 6);
+            this.lblSaldo.Location = new System.Drawing.Point(423, 0);
             this.lblSaldo.Name = "lblSaldo";
-            this.lblSaldo.Size = new System.Drawing.Size(142, 13);
+            this.lblSaldo.Size = new System.Drawing.Size(102, 25);
             this.lblSaldo.TabIndex = 4;
             this.lblSaldo.Text = "sampleOrder.summary.balance";
             // 
@@ -710,63 +668,42 @@
             this.lblSaldoValor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
             this.lblSaldoValor.Location = new System.Drawing.Point(533, 5);
             this.lblSaldoValor.Name = "lblSaldoValor";
-            this.lblSaldoValor.Size = new System.Drawing.Size(44, 15);
+            this.lblSaldoValor.Size = new System.Drawing.Size(43, 15);
             this.lblSaldoValor.TabIndex = 5;
             this.lblSaldoValor.Text = "$0,00";
-            // 
-            // lblPagoNuevo
-            // 
-            this.lblPagoNuevo.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblPagoNuevo.AutoSize = true;
-            this.lblPagoNuevo.Location = new System.Drawing.Point(3, 37);
-            this.lblPagoNuevo.Name = "lblPagoNuevo";
-            this.lblPagoNuevo.Size = new System.Drawing.Size(146, 13);
-            this.lblPagoNuevo.TabIndex = 6;
-            this.lblPagoNuevo.Text = "sampleOrder.payment.amount";
-            // 
-            // nudPago
-            // 
-            this.nudPago.DecimalPlaces = 2;
-            this.nudPago.Location = new System.Drawing.Point(113, 28);
-            this.nudPago.Maximum = new decimal(new int[] {
-            1000000,
-            0,
-            0,
-            0});
-            this.nudPago.Name = "nudPago";
-            this.nudPago.Size = new System.Drawing.Size(94, 20);
-            this.nudPago.TabIndex = 7;
-            this.nudPago.ThousandsSeparator = true;
             // 
             // btnAgregarPago
             // 
             this.btnAgregarPago.AutoSize = true;
-            this.btnAgregarPago.Location = new System.Drawing.Point(213, 28);
+            this.layoutPagos.SetColumnSpan(this.btnAgregarPago, 2);
+            this.btnAgregarPago.Location = new System.Drawing.Point(3, 28);
             this.btnAgregarPago.Name = "btnAgregarPago";
-            this.btnAgregarPago.Size = new System.Drawing.Size(110, 26);
-            this.btnAgregarPago.TabIndex = 8;
-            this.btnAgregarPago.Text = "sampleOrder.payment.add";
+            this.btnAgregarPago.Size = new System.Drawing.Size(177, 26);
+            this.btnAgregarPago.TabIndex = 6;
+            this.btnAgregarPago.Text = "sampleOrder.payment.addPercent";
             this.btnAgregarPago.UseVisualStyleBackColor = true;
             this.btnAgregarPago.Click += new System.EventHandler(this.btnAgregarPago_Click);
             // 
             // btnEliminarPago
             // 
             this.btnEliminarPago.AutoSize = true;
-            this.btnEliminarPago.Location = new System.Drawing.Point(323, 28);
+            this.layoutPagos.SetColumnSpan(this.btnEliminarPago, 2);
+            this.btnEliminarPago.Location = new System.Drawing.Point(213, 28);
             this.btnEliminarPago.Name = "btnEliminarPago";
-            this.btnEliminarPago.Size = new System.Drawing.Size(110, 26);
-            this.btnEliminarPago.TabIndex = 9;
+            this.btnEliminarPago.Size = new System.Drawing.Size(157, 26);
+            this.btnEliminarPago.TabIndex = 7;
             this.btnEliminarPago.Text = "sampleOrder.payment.remove";
             this.btnEliminarPago.UseVisualStyleBackColor = true;
             this.btnEliminarPago.Click += new System.EventHandler(this.btnEliminarPago_Click);
             // 
             // lstPagos
             // 
+            this.layoutPagos.SetColumnSpan(this.lstPagos, 2);
             this.lstPagos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstPagos.FormattingEnabled = true;
-            this.lstPagos.Location = new System.Drawing.Point(533, 28);
+            this.lstPagos.Location = new System.Drawing.Point(423, 28);
             this.lstPagos.Name = "lstPagos";
-            this.lstPagos.Size = new System.Drawing.Size(316, 30);
+            this.lstPagos.Size = new System.Drawing.Size(426, 30);
             this.lstPagos.TabIndex = 10;
             // 
             // flowButtons
@@ -776,7 +713,7 @@
             this.flowButtons.Controls.Add(this.btnCancelar);
             this.flowButtons.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowButtons.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowButtons.Location = new System.Drawing.Point(3, 814);
+            this.flowButtons.Location = new System.Drawing.Point(3, 609);
             this.flowButtons.Name = "flowButtons";
             this.flowButtons.Size = new System.Drawing.Size(858, 29);
             this.flowButtons.TabIndex = 3;
@@ -814,6 +751,7 @@
             this.Padding = new System.Windows.Forms.Padding(10);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "sampleOrder.new.title";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.PedidoMuestraForm_Load);
             this.layoutMain.ResumeLayout(false);
             this.layoutMain.PerformLayout();
@@ -835,7 +773,6 @@
             this.grpPagos.ResumeLayout(false);
             this.layoutPagos.ResumeLayout(false);
             this.layoutPagos.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPago)).EndInit();
             this.flowButtons.ResumeLayout(false);
             this.flowButtons.PerformLayout();
             this.ResumeLayout(false);
@@ -865,9 +802,6 @@
         private System.Windows.Forms.Label lblEstadoPedidoValor;
         private System.Windows.Forms.Label lblObservaciones;
         private System.Windows.Forms.TextBox txtObservaciones;
-        private System.Windows.Forms.CheckBox chkFacturado;
-        private System.Windows.Forms.TextBox txtFactura;
-        private System.Windows.Forms.Button btnSeleccionarFactura;
         private System.Windows.Forms.GroupBox grpDetalles;
         private System.Windows.Forms.DataGridView dgvDetalles;
         private System.Windows.Forms.FlowLayoutPanel flowDetalles;
@@ -894,8 +828,6 @@
         private System.Windows.Forms.Label lblPagadoValor;
         private System.Windows.Forms.Label lblSaldo;
         private System.Windows.Forms.Label lblSaldoValor;
-        private System.Windows.Forms.Label lblPagoNuevo;
-        private System.Windows.Forms.NumericUpDown nudPago;
         private System.Windows.Forms.Button btnAgregarPago;
         private System.Windows.Forms.Button btnEliminarPago;
         private System.Windows.Forms.ListBox lstPagos;

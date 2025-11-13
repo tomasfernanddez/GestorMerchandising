@@ -135,6 +135,14 @@
     <Compile Include="Migrations\202511030344104_AgregarArchivosAdjuntos.Designer.cs">
       <DependentUpon>202511030344104_AgregarArchivosAdjuntos.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202511130041378_AgregarPagosPedido.cs" />
+    <Compile Include="Migrations\202511130041378_AgregarPagosPedido.Designer.cs">
+      <DependentUpon>202511130041378_AgregarPagosPedido.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202511130321119_AgregarPagosPedidoMuestra.cs" />
+    <Compile Include="Migrations\202511130321119_AgregarPagosPedidoMuestra.Designer.cs">
+      <DependentUpon>202511130321119_AgregarPagosPedidoMuestra.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ActualizarCategoriaProducto.cs" />
     <Compile Include="Migrations\AgregarCatalogoCondicionIva.cs" />
     <Compile Include="Migrations\AgregarIdiomaUsuario.cs" />
@@ -188,6 +196,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202511030344104_AgregarArchivosAdjuntos.resx">
       <DependentUpon>202511030344104_AgregarArchivosAdjuntos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202511130041378_AgregarPagosPedido.resx">
+      <DependentUpon>202511130041378_AgregarPagosPedido.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202511130321119_AgregarPagosPedidoMuestra.resx">
+      <DependentUpon>202511130321119_AgregarPagosPedidoMuestra.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

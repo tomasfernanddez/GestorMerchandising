@@ -30,8 +30,6 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tslEstado = new System.Windows.Forms.ToolStripLabel();
             this.cmbEstado = new System.Windows.Forms.ToolStripComboBox();
-            this.tslFacturado = new System.Windows.Forms.ToolStripLabel();
-            this.cmbFacturado = new System.Windows.Forms.ToolStripComboBox();
             this.tslSaldo = new System.Windows.Forms.ToolStripLabel();
             this.cmbSaldo = new System.Windows.Forms.ToolStripComboBox();
             this.dgvPedidos = new System.Windows.Forms.DataGridView();
@@ -58,8 +56,6 @@
             this.toolStripSeparator2,
             this.tslEstado,
             this.cmbEstado,
-            this.tslFacturado,
-            this.cmbFacturado,
             this.tslSaldo,
             this.cmbSaldo});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
@@ -138,20 +134,6 @@
             this.cmbEstado.Name = "cmbEstado";
             this.cmbEstado.Size = new System.Drawing.Size(150, 23);
             this.cmbEstado.SelectedIndexChanged += new System.EventHandler(this.cmbEstado_SelectedIndexChanged);
-            // 
-            // tslFacturado
-            // 
-            this.tslFacturado.Name = "tslFacturado";
-            this.tslFacturado.Size = new System.Drawing.Size(59, 22);
-            this.tslFacturado.Text = "Facturado";
-            // 
-            // cmbFacturado
-            // 
-            this.cmbFacturado.AutoSize = false;
-            this.cmbFacturado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbFacturado.Name = "cmbFacturado";
-            this.cmbFacturado.Size = new System.Drawing.Size(100, 23);
-            this.cmbFacturado.SelectedIndexChanged += new System.EventHandler(this.cmbFacturado_SelectedIndexChanged);
             // 
             // tslSaldo
             // 
@@ -239,8 +221,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripLabel tslEstado;
         private System.Windows.Forms.ToolStripComboBox cmbEstado;
-        private System.Windows.Forms.ToolStripLabel tslFacturado;
-        private System.Windows.Forms.ToolStripComboBox cmbFacturado;
         private System.Windows.Forms.ToolStripLabel tslSaldo;
         private System.Windows.Forms.ToolStripComboBox cmbSaldo;
         private System.Windows.Forms.DataGridView dgvPedidos;
