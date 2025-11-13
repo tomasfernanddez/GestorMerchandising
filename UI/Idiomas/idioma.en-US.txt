@@ -612,6 +612,7 @@ report.tab.orders.provider=Orders by supplier
 report.tab.sales.bestClients=Best clients
 report.tab.clients.balance=Clients with balance
 report.error.load=Reports could not be loaded: {0}
+report.error.export=The report could not be exported: {0}
 report.export.selectExcel=Excel files (*.xlsx)|*.xlsx
 report.export.selectPdf=PDF files (*.pdf)|*.pdf
 report.export.success=Report exported successfully.

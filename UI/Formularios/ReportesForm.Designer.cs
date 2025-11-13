@@ -27,7 +27,6 @@
         private System.Windows.Forms.DateTimePicker dtpVentasMes;
         private System.Windows.Forms.Label lblVentasAnio;
         private System.Windows.Forms.NumericUpDown nudVentasAnio;
-        private System.Windows.Forms.Button btnVentasAplicar;
         private System.Windows.Forms.DataGridView dgvVentasPeriodo;
         private System.Windows.Forms.TableLayoutPanel layoutCategorias;
         private System.Windows.Forms.FlowLayoutPanel flowCategorias;
@@ -37,7 +36,6 @@
         private System.Windows.Forms.DateTimePicker dtpCategoriasMes;
         private System.Windows.Forms.Label lblCategoriasAnio;
         private System.Windows.Forms.NumericUpDown nudCategoriasAnio;
-        private System.Windows.Forms.Button btnCategoriasAplicar;
         private System.Windows.Forms.DataGridView dgvCategorias;
         private System.Windows.Forms.TableLayoutPanel layoutFacturacion;
         private System.Windows.Forms.FlowLayoutPanel flowFacturacion;
@@ -47,7 +45,6 @@
         private System.Windows.Forms.DateTimePicker dtpFacturacionMes;
         private System.Windows.Forms.Label lblFacturacionAnio;
         private System.Windows.Forms.NumericUpDown nudFacturacionAnio;
-        private System.Windows.Forms.Button btnFacturacionAplicar;
         private System.Windows.Forms.DataGridView dgvFacturacion;
         private System.Windows.Forms.TableLayoutPanel layoutPedidosCliente;
         private System.Windows.Forms.FlowLayoutPanel flowPedidosCliente;
@@ -58,7 +55,6 @@
         private System.Windows.Forms.Label lblPedidosClienteAnio;
         private System.Windows.Forms.NumericUpDown nudPedidosClienteAnio;
         private System.Windows.Forms.CheckBox chkPedidosClienteSaldo;
-        private System.Windows.Forms.Button btnPedidosClienteAplicar;
         private System.Windows.Forms.DataGridView dgvPedidosCliente;
         private System.Windows.Forms.TableLayoutPanel layoutPedidosProveedor;
         private System.Windows.Forms.FlowLayoutPanel flowPedidosProveedor;
@@ -68,7 +64,6 @@
         private System.Windows.Forms.DateTimePicker dtpPedidosProveedorMes;
         private System.Windows.Forms.Label lblPedidosProveedorAnio;
         private System.Windows.Forms.NumericUpDown nudPedidosProveedorAnio;
-        private System.Windows.Forms.Button btnPedidosProveedorAplicar;
         private System.Windows.Forms.DataGridView dgvPedidosProveedor;
         private System.Windows.Forms.TableLayoutPanel layoutMejoresClientes;
         private System.Windows.Forms.FlowLayoutPanel flowMejoresClientes;
@@ -78,7 +73,6 @@
         private System.Windows.Forms.DateTimePicker dtpMejoresClientesMes;
         private System.Windows.Forms.Label lblMejoresClientesAnio;
         private System.Windows.Forms.NumericUpDown nudMejoresClientesAnio;
-        private System.Windows.Forms.Button btnMejoresClientesAplicar;
         private System.Windows.Forms.DataGridView dgvMejoresClientes;
         private System.Windows.Forms.TableLayoutPanel layoutClientesSaldo;
         private System.Windows.Forms.FlowLayoutPanel flowClientesSaldo;
@@ -113,7 +107,6 @@
             this.dtpVentasMes = new System.Windows.Forms.DateTimePicker();
             this.lblVentasAnio = new System.Windows.Forms.Label();
             this.nudVentasAnio = new System.Windows.Forms.NumericUpDown();
-            this.btnVentasAplicar = new System.Windows.Forms.Button();
             this.dgvVentasPeriodo = new System.Windows.Forms.DataGridView();
             this.tabCategorias = new System.Windows.Forms.TabPage();
             this.layoutCategorias = new System.Windows.Forms.TableLayoutPanel();
@@ -124,7 +117,6 @@
             this.dtpCategoriasMes = new System.Windows.Forms.DateTimePicker();
             this.lblCategoriasAnio = new System.Windows.Forms.Label();
             this.nudCategoriasAnio = new System.Windows.Forms.NumericUpDown();
-            this.btnCategoriasAplicar = new System.Windows.Forms.Button();
             this.dgvCategorias = new System.Windows.Forms.DataGridView();
             this.tabFacturacion = new System.Windows.Forms.TabPage();
             this.layoutFacturacion = new System.Windows.Forms.TableLayoutPanel();
@@ -135,7 +127,6 @@
             this.dtpFacturacionMes = new System.Windows.Forms.DateTimePicker();
             this.lblFacturacionAnio = new System.Windows.Forms.Label();
             this.nudFacturacionAnio = new System.Windows.Forms.NumericUpDown();
-            this.btnFacturacionAplicar = new System.Windows.Forms.Button();
             this.dgvFacturacion = new System.Windows.Forms.DataGridView();
             this.tabPedidosCliente = new System.Windows.Forms.TabPage();
             this.layoutPedidosCliente = new System.Windows.Forms.TableLayoutPanel();
@@ -147,7 +138,6 @@
             this.lblPedidosClienteAnio = new System.Windows.Forms.Label();
             this.nudPedidosClienteAnio = new System.Windows.Forms.NumericUpDown();
             this.chkPedidosClienteSaldo = new System.Windows.Forms.CheckBox();
-            this.btnPedidosClienteAplicar = new System.Windows.Forms.Button();
             this.dgvPedidosCliente = new System.Windows.Forms.DataGridView();
             this.tabPedidosProveedor = new System.Windows.Forms.TabPage();
             this.layoutPedidosProveedor = new System.Windows.Forms.TableLayoutPanel();
@@ -158,7 +148,6 @@
             this.dtpPedidosProveedorMes = new System.Windows.Forms.DateTimePicker();
             this.lblPedidosProveedorAnio = new System.Windows.Forms.Label();
             this.nudPedidosProveedorAnio = new System.Windows.Forms.NumericUpDown();
-            this.btnPedidosProveedorAplicar = new System.Windows.Forms.Button();
             this.dgvPedidosProveedor = new System.Windows.Forms.DataGridView();
             this.tabMejoresClientes = new System.Windows.Forms.TabPage();
             this.layoutMejoresClientes = new System.Windows.Forms.TableLayoutPanel();
@@ -169,7 +158,6 @@
             this.dtpMejoresClientesMes = new System.Windows.Forms.DateTimePicker();
             this.lblMejoresClientesAnio = new System.Windows.Forms.Label();
             this.nudMejoresClientesAnio = new System.Windows.Forms.NumericUpDown();
-            this.btnMejoresClientesAplicar = new System.Windows.Forms.Button();
             this.dgvMejoresClientes = new System.Windows.Forms.DataGridView();
             this.tabClientesSaldo = new System.Windows.Forms.TabPage();
             this.layoutClientesSaldo = new System.Windows.Forms.TableLayoutPanel();
@@ -308,7 +296,6 @@
             this.flowVentasPeriodo.Controls.Add(this.dtpVentasMes);
             this.flowVentasPeriodo.Controls.Add(this.lblVentasAnio);
             this.flowVentasPeriodo.Controls.Add(this.nudVentasAnio);
-            this.flowVentasPeriodo.Controls.Add(this.btnVentasAplicar);
             this.flowVentasPeriodo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowVentasPeriodo.Location = new System.Drawing.Point(3, 3);
             this.flowVentasPeriodo.Name = "flowVentasPeriodo";
@@ -344,6 +331,7 @@
             this.dtpVentasDesde.Name = "dtpVentasDesde";
             this.dtpVentasDesde.Size = new System.Drawing.Size(120, 26);
             this.dtpVentasDesde.TabIndex = 3;
+            this.dtpVentasDesde.ValueChanged += new System.EventHandler(this.dtpVentasDesde_ValueChanged);
             // lblVentasHasta
             this.lblVentasHasta.AutoSize = true;
             this.lblVentasHasta.Location = new System.Drawing.Point(431, 0);
@@ -358,6 +346,7 @@
             this.dtpVentasHasta.Name = "dtpVentasHasta";
             this.dtpVentasHasta.Size = new System.Drawing.Size(120, 26);
             this.dtpVentasHasta.TabIndex = 5;
+            this.dtpVentasHasta.ValueChanged += new System.EventHandler(this.dtpVentasHasta_ValueChanged);
             // lblVentasMes
             this.lblVentasMes.AutoSize = true;
             this.lblVentasMes.Location = new System.Drawing.Point(610, 0);
@@ -374,6 +363,7 @@
             this.dtpVentasMes.ShowUpDown = true;
             this.dtpVentasMes.Size = new System.Drawing.Size(110, 26);
             this.dtpVentasMes.TabIndex = 7;
+            this.dtpVentasMes.ValueChanged += new System.EventHandler(this.dtpVentasMes_ValueChanged);
             // lblVentasAnio
             this.lblVentasAnio.AutoSize = true;
             this.lblVentasAnio.Location = new System.Drawing.Point(769, 0);
@@ -402,17 +392,7 @@
             0,
             0,
             0});
-            // btnVentasAplicar
-            this.btnVentasAplicar.AutoSize = true;
-            this.btnVentasAplicar.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnVentasAplicar.Location = new System.Drawing.Point(908, 3);
-            this.btnVentasAplicar.Name = "btnVentasAplicar";
-            this.btnVentasAplicar.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
-            this.btnVentasAplicar.Size = new System.Drawing.Size(87, 33);
-            this.btnVentasAplicar.TabIndex = 10;
-            this.btnVentasAplicar.Text = "Actualizar";
-            this.btnVentasAplicar.UseVisualStyleBackColor = true;
-            this.btnVentasAplicar.Click += new System.EventHandler(this.btnVentasAplicar_Click);
+            this.nudVentasAnio.ValueChanged += new System.EventHandler(this.nudVentasAnio_ValueChanged);
             // dgvVentasPeriodo
             this.dgvVentasPeriodo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvVentasPeriodo.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -452,7 +432,6 @@
             this.flowCategorias.Controls.Add(this.dtpCategoriasMes);
             this.flowCategorias.Controls.Add(this.lblCategoriasAnio);
             this.flowCategorias.Controls.Add(this.nudCategoriasAnio);
-            this.flowCategorias.Controls.Add(this.btnCategoriasAplicar);
             this.flowCategorias.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowCategorias.Location = new System.Drawing.Point(3, 3);
             this.flowCategorias.Name = "flowCategorias";
@@ -490,6 +469,7 @@
             this.dtpCategoriasMes.ShowUpDown = true;
             this.dtpCategoriasMes.Size = new System.Drawing.Size(110, 26);
             this.dtpCategoriasMes.TabIndex = 3;
+            this.dtpCategoriasMes.ValueChanged += new System.EventHandler(this.dtpCategoriasMes_ValueChanged);
             // lblCategoriasAnio
             this.lblCategoriasAnio.AutoSize = true;
             this.lblCategoriasAnio.Location = new System.Drawing.Point(406, 0);
@@ -518,17 +498,7 @@
             0,
             0,
             0});
-            // btnCategoriasAplicar
-            this.btnCategoriasAplicar.AutoSize = true;
-            this.btnCategoriasAplicar.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnCategoriasAplicar.Location = new System.Drawing.Point(545, 3);
-            this.btnCategoriasAplicar.Name = "btnCategoriasAplicar";
-            this.btnCategoriasAplicar.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
-            this.btnCategoriasAplicar.Size = new System.Drawing.Size(87, 33);
-            this.btnCategoriasAplicar.TabIndex = 6;
-            this.btnCategoriasAplicar.Text = "Actualizar";
-            this.btnCategoriasAplicar.UseVisualStyleBackColor = true;
-            this.btnCategoriasAplicar.Click += new System.EventHandler(this.btnCategoriasAplicar_Click);
+            this.nudCategoriasAnio.ValueChanged += new System.EventHandler(this.nudCategoriasAnio_ValueChanged);
             // dgvCategorias
             this.dgvCategorias.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvCategorias.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -568,7 +538,6 @@
             this.flowFacturacion.Controls.Add(this.dtpFacturacionMes);
             this.flowFacturacion.Controls.Add(this.lblFacturacionAnio);
             this.flowFacturacion.Controls.Add(this.nudFacturacionAnio);
-            this.flowFacturacion.Controls.Add(this.btnFacturacionAplicar);
             this.flowFacturacion.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowFacturacion.Location = new System.Drawing.Point(3, 3);
             this.flowFacturacion.Name = "flowFacturacion";
@@ -606,6 +575,7 @@
             this.dtpFacturacionMes.ShowUpDown = true;
             this.dtpFacturacionMes.Size = new System.Drawing.Size(110, 26);
             this.dtpFacturacionMes.TabIndex = 3;
+            this.dtpFacturacionMes.ValueChanged += new System.EventHandler(this.dtpFacturacionMes_ValueChanged);
             // lblFacturacionAnio
             this.lblFacturacionAnio.AutoSize = true;
             this.lblFacturacionAnio.Location = new System.Drawing.Point(406, 0);
@@ -634,17 +604,7 @@
             0,
             0,
             0});
-            // btnFacturacionAplicar
-            this.btnFacturacionAplicar.AutoSize = true;
-            this.btnFacturacionAplicar.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnFacturacionAplicar.Location = new System.Drawing.Point(545, 3);
-            this.btnFacturacionAplicar.Name = "btnFacturacionAplicar";
-            this.btnFacturacionAplicar.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
-            this.btnFacturacionAplicar.Size = new System.Drawing.Size(87, 33);
-            this.btnFacturacionAplicar.TabIndex = 6;
-            this.btnFacturacionAplicar.Text = "Actualizar";
-            this.btnFacturacionAplicar.UseVisualStyleBackColor = true;
-            this.btnFacturacionAplicar.Click += new System.EventHandler(this.btnFacturacionAplicar_Click);
+            this.nudFacturacionAnio.ValueChanged += new System.EventHandler(this.nudFacturacionAnio_ValueChanged);
             // dgvFacturacion
             this.dgvFacturacion.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvFacturacion.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -685,7 +645,6 @@
             this.flowPedidosCliente.Controls.Add(this.lblPedidosClienteAnio);
             this.flowPedidosCliente.Controls.Add(this.nudPedidosClienteAnio);
             this.flowPedidosCliente.Controls.Add(this.chkPedidosClienteSaldo);
-            this.flowPedidosCliente.Controls.Add(this.btnPedidosClienteAplicar);
             this.flowPedidosCliente.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowPedidosCliente.Location = new System.Drawing.Point(3, 3);
             this.flowPedidosCliente.Name = "flowPedidosCliente";
@@ -723,6 +682,7 @@
             this.dtpPedidosClienteMes.ShowUpDown = true;
             this.dtpPedidosClienteMes.Size = new System.Drawing.Size(110, 26);
             this.dtpPedidosClienteMes.TabIndex = 3;
+            this.dtpPedidosClienteMes.ValueChanged += new System.EventHandler(this.dtpPedidosClienteMes_ValueChanged);
             // lblPedidosClienteAnio
             this.lblPedidosClienteAnio.AutoSize = true;
             this.lblPedidosClienteAnio.Location = new System.Drawing.Point(406, 0);
@@ -751,6 +711,7 @@
             0,
             0,
             0});
+            this.nudPedidosClienteAnio.ValueChanged += new System.EventHandler(this.nudPedidosClienteAnio_ValueChanged);
             // chkPedidosClienteSaldo
             this.chkPedidosClienteSaldo.AutoSize = true;
             this.chkPedidosClienteSaldo.Location = new System.Drawing.Point(545, 6);
@@ -759,17 +720,7 @@
             this.chkPedidosClienteSaldo.TabIndex = 6;
             this.chkPedidosClienteSaldo.Text = "Solo con saldo";
             this.chkPedidosClienteSaldo.UseVisualStyleBackColor = true;
-            // btnPedidosClienteAplicar
-            this.btnPedidosClienteAplicar.AutoSize = true;
-            this.btnPedidosClienteAplicar.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnPedidosClienteAplicar.Location = new System.Drawing.Point(678, 3);
-            this.btnPedidosClienteAplicar.Name = "btnPedidosClienteAplicar";
-            this.btnPedidosClienteAplicar.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
-            this.btnPedidosClienteAplicar.Size = new System.Drawing.Size(87, 33);
-            this.btnPedidosClienteAplicar.TabIndex = 7;
-            this.btnPedidosClienteAplicar.Text = "Actualizar";
-            this.btnPedidosClienteAplicar.UseVisualStyleBackColor = true;
-            this.btnPedidosClienteAplicar.Click += new System.EventHandler(this.btnPedidosClienteAplicar_Click);
+            this.chkPedidosClienteSaldo.CheckedChanged += new System.EventHandler(this.chkPedidosClienteSaldo_CheckedChanged);
             // dgvPedidosCliente
             this.dgvPedidosCliente.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvPedidosCliente.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -809,7 +760,6 @@
             this.flowPedidosProveedor.Controls.Add(this.dtpPedidosProveedorMes);
             this.flowPedidosProveedor.Controls.Add(this.lblPedidosProveedorAnio);
             this.flowPedidosProveedor.Controls.Add(this.nudPedidosProveedorAnio);
-            this.flowPedidosProveedor.Controls.Add(this.btnPedidosProveedorAplicar);
             this.flowPedidosProveedor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowPedidosProveedor.Location = new System.Drawing.Point(3, 3);
             this.flowPedidosProveedor.Name = "flowPedidosProveedor";
@@ -906,7 +856,6 @@
             this.flowMejoresClientes.Controls.Add(this.dtpMejoresClientesMes);
             this.flowMejoresClientes.Controls.Add(this.lblMejoresClientesAnio);
             this.flowMejoresClientes.Controls.Add(this.nudMejoresClientesAnio);
-            this.flowMejoresClientes.Controls.Add(this.btnMejoresClientesAplicar);
             this.flowMejoresClientes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowMejoresClientes.Location = new System.Drawing.Point(3, 3);
             this.flowMejoresClientes.Name = "flowMejoresClientes";
@@ -944,6 +893,7 @@
             this.dtpMejoresClientesMes.ShowUpDown = true;
             this.dtpMejoresClientesMes.Size = new System.Drawing.Size(110, 26);
             this.dtpMejoresClientesMes.TabIndex = 3;
+            this.dtpMejoresClientesMes.ValueChanged += new System.EventHandler(this.dtpMejoresClientesMes_ValueChanged);
             // lblMejoresClientesAnio
             this.lblMejoresClientesAnio.AutoSize = true;
             this.lblMejoresClientesAnio.Location = new System.Drawing.Point(406, 0);
@@ -972,17 +922,7 @@
             0,
             0,
             0});
-            // btnMejoresClientesAplicar
-            this.btnMejoresClientesAplicar.AutoSize = true;
-            this.btnMejoresClientesAplicar.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnMejoresClientesAplicar.Location = new System.Drawing.Point(545, 3);
-            this.btnMejoresClientesAplicar.Name = "btnMejoresClientesAplicar";
-            this.btnMejoresClientesAplicar.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
-            this.btnMejoresClientesAplicar.Size = new System.Drawing.Size(87, 33);
-            this.btnMejoresClientesAplicar.TabIndex = 6;
-            this.btnMejoresClientesAplicar.Text = "Actualizar";
-            this.btnMejoresClientesAplicar.UseVisualStyleBackColor = true;
-            this.btnMejoresClientesAplicar.Click += new System.EventHandler(this.btnMejoresClientesAplicar_Click);
+            this.nudMejoresClientesAnio.ValueChanged += new System.EventHandler(this.nudMejoresClientesAnio_ValueChanged);
             // dgvMejoresClientes
             this.dgvMejoresClientes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvMejoresClientes.Dock = System.Windows.Forms.DockStyle.Fill;

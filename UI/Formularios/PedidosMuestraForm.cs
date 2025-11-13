@@ -130,6 +130,7 @@ namespace UI
         private void ConfigurarGrid()
         {
             dgvPedidos.AutoGenerateColumns = false;
+            dgvPedidos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvPedidos.Columns.Clear();
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -137,7 +138,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraRow.Numero),
                 Name = nameof(PedidoMuestraRow.Numero),
                 HeaderText = "sampleOrder.number".Traducir(),
-                Width = 110
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 110,
+                MinimumWidth = 90
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -146,7 +149,9 @@ namespace UI
                 Name = nameof(PedidoMuestraRow.FechaPedido),
                 HeaderText = "sampleOrder.created.date".Traducir(),
                 DefaultCellStyle = { Format = "d" },
-                Width = 110
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 110,
+                MinimumWidth = 90
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -154,7 +159,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraRow.Cliente),
                 Name = nameof(PedidoMuestraRow.Cliente),
                 HeaderText = "sampleOrder.client".Traducir(),
-                Width = 220
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 220,
+                MinimumWidth = 160
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -162,7 +169,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraRow.Estado),
                 Name = nameof(PedidoMuestraRow.Estado),
                 HeaderText = "sampleOrder.state".Traducir(),
-                Width = 120
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 120,
+                MinimumWidth = 110
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -171,7 +180,9 @@ namespace UI
                 Name = nameof(PedidoMuestraRow.FechaDevolucionEsperada),
                 HeaderText = "sampleOrder.return.expected".Traducir(),
                 DefaultCellStyle = { Format = "d" },
-                Width = 130
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 130,
+                MinimumWidth = 120
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -180,7 +191,9 @@ namespace UI
                 Name = nameof(PedidoMuestraRow.SaldoPendiente),
                 HeaderText = "sampleOrder.summary.balance".Traducir(),
                 DefaultCellStyle = { Format = "C2" },
-                Width = 120
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 120,
+                MinimumWidth = 110
             });
 
             dgvPedidos.Columns.Add(new DataGridViewTextBoxColumn
@@ -188,7 +201,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraRow.Contacto),
                 Name = nameof(PedidoMuestraRow.Contacto),
                 HeaderText = "sampleOrder.contact.name".Traducir(),
-                Width = 160
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 160,
+                MinimumWidth = 140
             });
 
             _rows = new BindingList<PedidoMuestraRow>();

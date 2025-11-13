@@ -289,20 +289,25 @@ namespace UI
         private void ConfigurarGrillaDetalles()
         {
             dgvDetalles.AutoGenerateColumns = false;
+            dgvDetalles.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvDetalles.Columns.Clear();
 
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoMuestraDetalleViewModel.NombreProducto),
                 HeaderText = "sampleOrder.detail.product".Traducir(),
-                Width = 180
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 180,
+                MinimumWidth = 150
             });
 
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = nameof(PedidoMuestraDetalleViewModel.EstadoMuestra),
                 HeaderText = "sampleOrder.detail.state".Traducir(),
-                Width = 120
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 120,
+                MinimumWidth = 110
             });
 
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
@@ -310,7 +315,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraDetalleViewModel.PrecioUnitario),
                 HeaderText = "sampleOrder.detail.price".Traducir(),
                 DefaultCellStyle = { Format = "C2" },
-                Width = 90
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 90,
+                MinimumWidth = 90
             });
 
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
@@ -318,7 +325,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraDetalleViewModel.Subtotal),
                 HeaderText = "sampleOrder.detail.subtotal".Traducir(),
                 DefaultCellStyle = { Format = "C2" },
-                Width = 90
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 90,
+                MinimumWidth = 90
             });
 
             dgvDetalles.Columns.Add(new DataGridViewTextBoxColumn
@@ -326,7 +335,9 @@ namespace UI
                 DataPropertyName = nameof(PedidoMuestraDetalleViewModel.FechaDevolucion),
                 HeaderText = "sampleOrder.detail.returnDate".Traducir(),
                 DefaultCellStyle = { Format = "d" },
-                Width = 120
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                FillWeight = 120,
+                MinimumWidth = 110
             });
 
             _detalles = new BindingList<PedidoMuestraDetalleViewModel>();
