@@ -40,11 +40,18 @@ namespace BLL.Services
                     var numeroNormalizado = NormalizarNumeroPedido(numero);
                     var cliente = p.Cliente?.RazonSocial ?? string.Empty;
                     var alias = p.Cliente?.Alias ?? string.Empty;
+                    var detalles = p.Detalles ?? Enumerable.Empty<PedidoDetalle>();
 
-                    return compare.IndexOf(numero, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
-                        || (!string.IsNullOrWhiteSpace(numeroNormalizado) && compare.IndexOf(numeroNormalizado, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0)
-                        || compare.IndexOf(cliente, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0
-                        || compare.IndexOf(alias, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
+                    bool Coincide(string texto)
+                    {
+                        return compare.IndexOf(texto ?? string.Empty, termino, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
+                    }
+
+                    return Coincide(numero)
+                        || (!string.IsNullOrWhiteSpace(numeroNormalizado) && Coincide(numeroNormalizado))
+                        || Coincide(cliente)
+                        || Coincide(alias)
+                        || detalles.Any(d => Coincide(d.Producto?.NombreProducto));
                 });
             }
 

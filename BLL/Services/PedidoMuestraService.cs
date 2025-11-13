@@ -35,6 +35,7 @@ namespace BLL.Services
                 var texto = filtro.TextoBusqueda.Trim();
                 pedidos = pedidos.Where(p =>
                     (!string.IsNullOrEmpty(p.Cliente?.RazonSocial) && p.Cliente.RazonSocial.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(p.Cliente?.Alias) && p.Cliente.Alias.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
                     (!string.IsNullOrEmpty(p.PersonaContacto) && p.PersonaContacto.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
                     (!string.IsNullOrEmpty(p.EmailContacto) && p.EmailContacto.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||
                     (!string.IsNullOrEmpty(p.Observaciones) && p.Observaciones.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0) ||

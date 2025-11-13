@@ -458,6 +458,7 @@ menu.sampleOrders=Sample orders
 sampleOrder.list.title=Sample orders management
 sampleOrder.list.new=New
 sampleOrder.list.edit=Edit
+sampleOrder.list.items=Items
 sampleOrder.client=Client
 sampleOrder.contact.name=Contact
 sampleOrder.contact.email=Email

@@ -545,6 +545,7 @@ menu.sampleOrders=Pedidos de muestras
 sampleOrder.list.title=Gestión de pedidos de muestra
 sampleOrder.list.new=Nuevo
 sampleOrder.list.edit=Editar
+sampleOrder.list.items=Productos
 sampleOrder.client=Cliente
 sampleOrder.contact.name=Contacto
 sampleOrder.contact.email=Email
