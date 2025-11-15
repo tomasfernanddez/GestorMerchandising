@@ -7,7 +7,7 @@ CREATE DATABASE [GestorMerchandisingSeguridad]
 ( NAME = N'GestorMerchandisingSeguridad_Data', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\GestorMerchandisingSeguridad.mdf' , SIZE = 13312KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
  LOG ON 
 ( NAME = N'GestorMerchandisingSeguridad_Log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\GestorMerchandisingSeguridad.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
- WITH CATALOG_COLLATION = DATABASE_DEFAULT, LEDGER = OFF
+ WITH CATALOG_COLLATION = DATABASE_DEFAULT
 GO
 ALTER DATABASE [GestorMerchandisingSeguridad] SET COMPATIBILITY_LEVEL = 160
 GO
