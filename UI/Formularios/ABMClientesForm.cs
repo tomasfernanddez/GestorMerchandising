@@ -266,9 +266,11 @@ namespace UI
 
         private void Buscar()
         {
+            var filtro = string.Empty;
+
             try
             {
-                var filtro = (txtBuscar.Text ?? "").Trim();
+                filtro = (txtBuscar.Text ?? "").Trim();
                 if (string.IsNullOrEmpty(filtro))
                 {
                     CargarClientes();

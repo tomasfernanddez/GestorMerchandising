@@ -799,8 +799,33 @@ namespace UI
                 idEstado = estadoId;
             }
 
-            var idProveedorPersonalizacion = _detalleOriginal?.IdProveedorPersonalizacion;
-            var proveedorPersonalizacion = _detalleOriginal?.ProveedorPersonalizacion;
+            var logosConProveedor = _logos?
+                .Where(l => l?.IdProveedor.HasValue == true && l.IdProveedor.Value != Guid.Empty)
+                .ToList() ?? new List<PedidoLogoViewModel>();
+
+            Guid? idProveedorPersonalizacion = null;
+            string proveedorPersonalizacion = null;
+
+            if (logosConProveedor.Count > 0)
+            {
+                var proveedorPersonalizacionId = logosConProveedor[0].IdProveedor.Value;
+                idProveedorPersonalizacion = proveedorPersonalizacionId;
+
+                var proveedorPersonalizacionEntidad = _proveedoresPersonalizacion
+                    .FirstOrDefault(p => p.IdProveedor == proveedorPersonalizacionId);
+
+                if (proveedorPersonalizacionEntidad != null)
+                {
+                    proveedorPersonalizacion = DisplayNameHelper.FormatearNombreConAlias(
+                        proveedorPersonalizacionEntidad.RazonSocial,
+                        proveedorPersonalizacionEntidad.Alias);
+                }
+                else
+                {
+                    proveedorPersonalizacion = logosConProveedor[0].Proveedor;
+                }
+            }
+
             DateTime? fechaLimite = chkFechaLimite.Checked ? dtpFechaLimite.Value.Date : (DateTime?)null;
 
             if (_fechaLimitePedido.HasValue && fechaLimite.HasValue && fechaLimite.Value >= _fechaLimitePedido.Value)
