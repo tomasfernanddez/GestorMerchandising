@@ -167,8 +167,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ScriptsSQL\GestorMerchandisingNegocio.sql" />
-    <Content Include="ScriptsSQL\GestorMerchandisingSeguridad.sql" />
+    <Content Include="ScriptsSQL\GestorMerchandisingNegocio.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ScriptsSQL\GestorMerchandisingSeguridad.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202509232041093_Baseline.resx">

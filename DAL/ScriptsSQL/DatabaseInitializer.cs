@@ -51,10 +51,7 @@ namespace DAL.ScriptsSQL
 
             if (!DatabaseExists(masterConn, dbName))
             {
-                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScriptsSQL", scriptFile);
-                if (!File.Exists(path))
-                    throw new FileNotFoundException($"No se encontró el script {scriptFile}", path);
-
+                string path = ResolveScriptPath(scriptFile);
                 string script = File.ReadAllText(path);
                 ExecuteSqlScript(masterConn, script, dbName);
                 Console.WriteLine($"✔ Base de datos '{dbName}' creada correctamente.");
@@ -62,6 +59,56 @@ namespace DAL.ScriptsSQL
             else
             {
                 Console.WriteLine($"ℹ Base de datos '{dbName}' ya existe, se omite creación.");
+            }
+        }
+
+        /// <summary>
+        /// Resuelve la ruta física del script SQL buscando en distintos puntos conocidos del proyecto/binario.
+        /// </summary>
+        /// <param name="scriptFile">Nombre del archivo de script.</param>
+        /// <returns>Ruta absoluta existente del archivo solicitado.</returns>
+        private static string ResolveScriptPath(string scriptFile)
+        {
+            foreach (var root in CandidateRoots().Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                foreach (var candidate in EnumerateCandidates(root, scriptFile))
+                {
+                    if (File.Exists(candidate))
+                        return candidate;
+                }
+            }
+
+            throw new FileNotFoundException($"No se encontró el script {scriptFile}");
+        }
+
+        private static IEnumerable<string> CandidateRoots()
+        {
+            var roots = new List<string>();
+
+            var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            if (!string.IsNullOrWhiteSpace(baseDirectory))
+                roots.Add(baseDirectory);
+
+            var executingAssemblyDirectory = Path.GetDirectoryName(typeof(DatabaseInitializer).Assembly.Location);
+            if (!string.IsNullOrWhiteSpace(executingAssemblyDirectory))
+                roots.Add(executingAssemblyDirectory);
+
+            return roots;
+        }
+
+        /// <summary>
+        /// Genera posibles rutas candidatas a partir de un directorio base ascendiendo en la jerarquía.
+        /// </summary>
+        private static IEnumerable<string> EnumerateCandidates(string root, string scriptFile)
+        {
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var current = new DirectoryInfo(root);
+
+            while (current != null && visited.Add(current.FullName))
+            {
+                yield return Path.Combine(current.FullName, "ScriptsSQL", scriptFile);
+                yield return Path.Combine(current.FullName, scriptFile);
+                current = current.Parent;
             }
         }
 
