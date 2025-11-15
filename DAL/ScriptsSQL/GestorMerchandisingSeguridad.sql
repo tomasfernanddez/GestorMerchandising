@@ -2,14 +2,8 @@ USE [master]
 GO
 /****** Object:  Database [GestorMerchandisingSeguridad]    Script Date: 14/11/2025 23:47:19 ******/
 CREATE DATABASE [GestorMerchandisingSeguridad]
- CONTAINMENT = NONE
- ON  PRIMARY 
-( NAME = N'GestorMerchandisingSeguridad_Data', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\GestorMerchandisingSeguridad.mdf' , SIZE = 13312KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
- LOG ON 
-( NAME = N'GestorMerchandisingSeguridad_Log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\GestorMerchandisingSeguridad.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
- WITH CATALOG_COLLATION = DATABASE_DEFAULT
 GO
-ALTER DATABASE [GestorMerchandisingSeguridad] SET COMPATIBILITY_LEVEL = 160
+ALTER DATABASE [GestorMerchandisingSeguridad] SET COMPATIBILITY_LEVEL = 150
 GO
 IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
 begin
@@ -81,13 +75,6 @@ GO
 ALTER DATABASE [GestorMerchandisingSeguridad] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_POLICY = (STALE_QUERY_THRESHOLD_DAYS = 30), DATA_FLUSH_INTERVAL_SECONDS = 900, INTERVAL_LENGTH_MINUTES = 60, MAX_STORAGE_SIZE_MB = 1000, QUERY_CAPTURE_MODE = AUTO, SIZE_BASED_CLEANUP_MODE = AUTO, MAX_PLANS_PER_QUERY = 200, WAIT_STATS_CAPTURE_MODE = ON)
 GO
 USE [GestorMerchandisingSeguridad]
-GO
-/****** Object:  User [GestorMerchandisingSeguridadApp]    Script Date: 14/11/2025 23:47:19 ******/
-CREATE USER [GestorMerchandisingSeguridadApp] FOR LOGIN [GestorMerchandisingSeguridadApp] WITH DEFAULT_SCHEMA=[dbo]
-GO
-ALTER ROLE [db_datareader] ADD MEMBER [GestorMerchandisingSeguridadApp]
-GO
-ALTER ROLE [db_datawriter] ADD MEMBER [GestorMerchandisingSeguridadApp]
 GO
 /****** Object:  Table [dbo].[__MigrationHistory]    Script Date: 14/11/2025 23:47:19 ******/
 SET ANSI_NULLS ON
