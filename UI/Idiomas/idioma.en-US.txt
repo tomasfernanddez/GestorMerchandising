@@ -90,7 +90,7 @@ status.user=User: {0}
 
 # ABM COMMON
 abm.clients.title=Clients
-abm.common.delete=Delete
+abm.common.delete=Deactivate
 abm.common.edit=Edit
 abm.common.new=New
 abm.common.refresh=Refresh

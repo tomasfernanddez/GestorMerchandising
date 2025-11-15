@@ -14,6 +14,9 @@ namespace DAL.ScriptsSQL
     /// </summary>
     public static class DatabaseInitializer
     {
+        private const string DefaultDbNegocio = "GestorMerchandisingNegocio";
+        private const string DefaultDbSeguridad = "GestorMerchandisingSeguridad";
+
         private static readonly string[] PossibleServers =
         {
             @"(localdb)\MSSQLLocalDB",
@@ -21,44 +24,76 @@ namespace DAL.ScriptsSQL
             @"localhost"
         };
 
-        private static string _dbNegocio = "GestorMerchandisingNegocio";
-        private static string _dbSeguridad = "GestorMerchandisingSeguridad";
+        private static string _dbNegocio = DefaultDbNegocio;
+        private static string _dbSeguridad = DefaultDbSeguridad;
 
         /// <summary>
         /// Crea ambas bases de datos (negocio y seguridad) si no existen todavía.
         /// </summary>
         public static void Initialize()
         {
-            InitializeDatabase("GestorMerchandisingNegocioDB", _dbNegocio, "GestorMerchandisingNegocio.sql");
-            InitializeDatabase("GestorMerchandisingSeguridadDB", _dbSeguridad, "GestorMerchandisingSeguridad.sql");
+            EnsureDatabaseForConnection(null, "GestorMerchandisingNegocioDB", DefaultDbNegocio, ref _dbNegocio, "GestorMerchandisingNegocio.sql");
+            EnsureDatabaseForConnection(null, "GestorMerchandisingSeguridadDB", DefaultDbSeguridad, ref _dbSeguridad, "GestorMerchandisingSeguridad.sql");
         }
 
         /// <summary>
-        /// Ejecuta el script de inicialización para una base de datos determinada, usando la cadena de configuración indicada.
+        /// Garantiza la existencia de la base de datos de negocio utilizando la cadena de conexión indicada.
         /// </summary>
-        private static void InitializeDatabase(string connectionName, string dbName, string scriptFile)
+        /// <param name="connectionString">Cadena de conexión final (puede ser nula para usar la configurada por nombre).</param>
+        public static void EnsureNegocioDatabase(string connectionString)
         {
-            string baseConnection = ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
+            EnsureDatabaseForConnection(connectionString, "GestorMerchandisingNegocioDB", DefaultDbNegocio, ref _dbNegocio, "GestorMerchandisingNegocio.sql");
+        }
+
+        /// <summary>
+        /// Garantiza la existencia de la base de datos de seguridad utilizando la cadena de conexión indicada.
+        /// </summary>
+        public static void EnsureSeguridadDatabase(string connectionString)
+        {
+            EnsureDatabaseForConnection(connectionString, "GestorMerchandisingSeguridadDB", DefaultDbSeguridad, ref _dbSeguridad, "GestorMerchandisingSeguridad.sql");
+        }
+
+        /// <summary>
+        /// Ejecuta el script de inicialización para una base de datos determinada, resolviendo servidor y nombre de base dinámicamente.        /// </summary>
+        /// <summary>
+        private static void EnsureDatabaseForConnection(string connectionString, string connectionName, string defaultDbName, ref string currentDbName, string scriptFile)
+        {
+            string baseConnection = connectionString;
+
+            if (string.IsNullOrWhiteSpace(baseConnection))
+            {
+                baseConnection = ConfigurationManager.ConnectionStrings[connectionName]?.ConnectionString;
+            }
+
+            if (string.IsNullOrWhiteSpace(baseConnection))
+                throw new InvalidOperationException($"No se encontró la cadena de conexión '{connectionName}'.");
+
+            var builder = new SqlConnectionStringBuilder(baseConnection);
+
+            if (!string.IsNullOrWhiteSpace(builder.InitialCatalog))
+                currentDbName = builder.InitialCatalog;
+
             string workingServer = GetWorkingServer(baseConnection);
 
-            var builder = new SqlConnectionStringBuilder(baseConnection)
+            var masterBuilder = new SqlConnectionStringBuilder(baseConnection)
             {
                 DataSource = workingServer,
                 InitialCatalog = "master"
             };
 
-            string masterConn = builder.ConnectionString;
+            string masterConn = masterBuilder.ConnectionString;
 
-            if (!DatabaseExists(masterConn, dbName))
+            if (!DatabaseExists(masterConn, currentDbName))
             {
                 string path = ResolveScriptPath(scriptFile);
                 string script = File.ReadAllText(path);
-                ExecuteSqlScript(masterConn, script, dbName);
-                Console.WriteLine($"✔ Base de datos '{dbName}' creada correctamente.");
+                script = AdaptScriptForDatabase(script, defaultDbName, currentDbName);
+                ExecuteSqlScript(masterConn, script, currentDbName);
+                Console.WriteLine($"✔ Base de datos '{currentDbName}' creada correctamente.");
             }
             else
             {
-                Console.WriteLine($"ℹ Base de datos '{dbName}' ya existe, se omite creación.");
+                Console.WriteLine($"ℹ Base de datos '{currentDbName}' ya existe, se omite creación.");
             }
         }
 
@@ -133,15 +168,20 @@ namespace DAL.ScriptsSQL
         /// </summary>
         private static string GetWorkingServer(string baseConnection)
         {
-            foreach (var server in PossibleServers)
+            var builder = new SqlConnectionStringBuilder(baseConnection);
+            var candidates = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(builder.DataSource))
+                candidates.Add(builder.DataSource);
+
+            candidates.AddRange(PossibleServers);
+
+            foreach (var server in candidates.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 try
                 {
-                    var builder = new SqlConnectionStringBuilder(baseConnection)
-                    {
-                        DataSource = server,
-                        InitialCatalog = "master"
-                    };
+                    builder.DataSource = server;
+                    builder.InitialCatalog = "master";
 
                     using (var conn = new SqlConnection(builder.ConnectionString))
                     {
@@ -157,6 +197,19 @@ namespace DAL.ScriptsSQL
             }
 
             throw new Exception("❌ No se encontró ninguna instancia válida de SQL Server.");
+        }
+
+        /// <summary>
+        /// Adapta el script SQL para usar el nombre de base de datos objetivo en lugar del por defecto.
+        /// <summary>
+        private static string AdaptScriptForDatabase(string script, string defaultName, string targetName)
+        {
+            if (string.Equals(defaultName, targetName, StringComparison.OrdinalIgnoreCase))
+                return script;
+
+            return script
+                .Replace($"[{defaultName}]", $"[{targetName}]")
+                .Replace($"'{defaultName}'", $"'{targetName}'");
         }
 
         /// <summary>
