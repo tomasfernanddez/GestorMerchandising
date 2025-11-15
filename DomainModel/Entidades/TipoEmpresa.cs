@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("TipoEmpresa")]
+    /// <summary>
+    /// Clasifica a los clientes según el tipo de empresa al que pertenecen.
+    /// </summary>
     public class TipoEmpresa
     {
         [Key]

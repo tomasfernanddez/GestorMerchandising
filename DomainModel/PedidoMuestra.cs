@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("PedidoMuestra")]
+    /// <summary>
+    /// Gestiona los pedidos de muestras enviados a clientes, incluyendo fechas clave, pagos y estado.
+    /// </summary>
     public class PedidoMuestra
     {
         [Key]

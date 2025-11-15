@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("DetalleMuestra")]
+    /// <summary>
+    /// Describe los productos asociados a una muestra, incluyendo cantidades, precios y estado de seguimiento.
+    /// </summary>
     public class DetalleMuestra
     {
         [Key]

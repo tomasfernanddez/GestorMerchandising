@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace DomainModel
 {
     [Table("PedidoPago")]
+    /// <summary>
+    /// Registra los pagos realizados sobre un pedido, detallando montos, porcentajes y fecha de registro.
+    /// </summary>
     public class PedidoPago
     {
         [Key]

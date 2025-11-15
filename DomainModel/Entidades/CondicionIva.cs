@@ -7,6 +7,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace DomainModel.Entidades
 {
     [Table("CondicionIva")]
+    /// <summary>
+    /// Define las condiciones fiscales frente al IVA aplicables a clientes y proveedores.
+    /// </summary>
     public class CondicionIva
     {
         [Key]

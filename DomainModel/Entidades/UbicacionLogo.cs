@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("UbicacionLogo")]
+    /// <summary>
+    /// Indica las ubicaciones disponibles para aplicar logos en los productos.
+    /// </summary>
     public class UbicacionLogo
     {
         [Key]

@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("TecnicaPersonalizacion")]
+    /// <summary>
+    /// Describe las técnicas disponibles para personalizar productos y su relación con logos y proveedores.
+    /// </summary>
     public class TecnicaPersonalizacion
     {
         [Key]

@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("TipoProveedor")]
+    /// <summary>
+    /// Categoriza a los proveedores según el tipo de servicio o producto que ofrecen.
+    /// </summary>
     public class TipoProveedor
     {
         [Key]

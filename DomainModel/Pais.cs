@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("Pais")]
+    /// <summary>
+    /// Representa un país utilizado como referencia geográfica para clientes, proveedores y provincias.
+    /// </summary>
     public class Pais
     {
         [Key]

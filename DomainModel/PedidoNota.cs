@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace DomainModel
 {
     [Table("PedidoNota")]
+    /// <summary>
+    /// Guarda las anotaciones internas realizadas sobre un pedido, incluyendo autor y fecha de registro.
+    /// </summary>
     public class PedidoNota
     {
         [Key]

@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("EstadoProducto")]
+    /// <summary>
+    /// Especifica los estados de producción asignables a los productos incluidos en un pedido.
+    /// </summary>
     public class EstadoProducto
     {
         [Key]

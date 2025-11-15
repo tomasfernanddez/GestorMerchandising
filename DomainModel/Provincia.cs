@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("Provincia")]
+    /// <summary>
+    /// Representa una provincia o estado perteneciente a un país y contiene sus localidades asociadas.
+    /// </summary>
     public class Provincia
     {
         [Key]

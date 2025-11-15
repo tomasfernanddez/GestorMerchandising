@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("FacturaDetalle")]
+    /// <summary>
+    /// Registra cada ítem facturado, enlazando productos con la cabecera y calculando importes parciales.
+    /// </summary>
     public class FacturaDetalle
     {
         [Key]

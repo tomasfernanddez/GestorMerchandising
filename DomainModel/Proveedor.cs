@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("Proveedor")]
+    /// <summary>
+    /// Describe a los proveedores, su información fiscal y las especialidades que ofrecen al negocio.
+    /// </summary>
     public class Proveedor
     {
         [Key]

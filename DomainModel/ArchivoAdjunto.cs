@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace DomainModel
 {
     [Table("ArchivoAdjunto")]
+    /// <summary>
+    /// Representa un archivo adjunto asociado a un pedido o a una muestra, incluyendo su contenido y metadatos.
+    /// </summary>
     public class ArchivoAdjunto
     {
         [Key]

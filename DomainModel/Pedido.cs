@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("Pedido")]
+    /// <summary>
+    /// Modela un pedido comercial, incluyendo su estado, datos del cliente, totales y relaciones asociadas.
+    /// </summary>
     public class Pedido
     {
         [Key]

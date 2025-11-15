@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("FacturaCabecera")]
+    /// <summary>
+    /// Almacena los datos principales de una factura emitida, incluyendo importes y relaciones con cliente y emisor.
+    /// </summary>
     public class FacturaCabecera
     {
         [Key]

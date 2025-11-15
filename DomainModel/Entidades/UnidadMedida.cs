@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("UnidadMedida")]
+    /// <summary>
+    /// Define las unidades de medida utilizadas para cuantificar los productos.
+    /// </summary>
     public class UnidadMedida
     {
         [Key]

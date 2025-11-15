@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("CategoriaProducto")]
+    /// <summary>
+    /// Clasifica los productos por categoría para organizar el catálogo y facilitar su selección.
+    /// </summary>
     public class CategoriaProducto
     {
         [Key]

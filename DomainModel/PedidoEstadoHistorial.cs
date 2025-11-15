@@ -6,6 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace DomainModel
 {
     [Table("PedidoEstadoHistorial")]
+    /// <summary>
+    /// Registra cada cambio de estado de un pedido con su fecha, comentario y usuario responsable.
+    /// </summary>
     public class PedidoEstadoHistorial
     {
         [Key]

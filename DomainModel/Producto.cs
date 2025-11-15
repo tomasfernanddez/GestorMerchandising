@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("Producto")]
+    /// <summary>
+    /// Define los datos principales de un producto comercializable y sus relaciones con pedidos y facturas.
+    /// </summary>
     public class Producto
     {
         [Key]

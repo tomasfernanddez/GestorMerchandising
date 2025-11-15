@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("EmisorFactura")]
+    /// <summary>
+    /// Contiene la información fiscal del emisor de facturas utilizada en la cabecera de los comprobantes.
+    /// </summary>
     public class EmisorFactura
     {
         [Key]

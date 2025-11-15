@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("TipoPago")]
+    /// <summary>
+    /// Define los métodos de pago disponibles para los pedidos comerciales.
+    /// </summary>
     public class TipoPago
     {
         [Key]

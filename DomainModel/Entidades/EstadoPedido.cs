@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel.Entidades
 {
     [Table("EstadoPedido")]
+    /// <summary>
+    /// Lista los estados disponibles para controlar el ciclo de vida de los pedidos.
+    /// </summary>
     public class EstadoPedido
     {
         [Key]

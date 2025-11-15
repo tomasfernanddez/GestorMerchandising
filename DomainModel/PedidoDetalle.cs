@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("PedidoDetalle")]
+    /// <summary>
+    /// Contiene los productos individuales de un pedido y sus configuraciones de producción y personalización.
+    /// </summary>
     public class PedidoDetalle
     {
         [Key]

@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("Cliente")]
+    /// <summary>
+    /// Define los datos principales de un cliente, sus relaciones comerciales y vínculos geográficos.
+    /// </summary>
     public class Cliente
     {
         [Key]

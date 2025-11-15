@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace DomainModel
 {
     [Table("PedidoMuestraPago")]
+    /// <summary>
+    /// Representa un registro de pago aplicado a un pedido de muestra, almacenando montos y porcentajes abonados.
+    /// </summary>
     public class PedidoMuestraPago
     {
         [Key]

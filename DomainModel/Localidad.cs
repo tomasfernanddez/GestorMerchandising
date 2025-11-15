@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 namespace DomainModel
 {
     [Table("Localidad")]
+    /// <summary>
+    /// Representa una localidad geográfica asociada a una provincia para ubicar clientes y proveedores.
+    /// </summary>
     public class Localidad
     {
         [Key]
