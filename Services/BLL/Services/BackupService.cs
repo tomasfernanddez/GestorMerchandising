@@ -17,6 +17,9 @@ namespace Services.BLL.Services
         private readonly string _databaseName;
         private readonly string _serverBackupDirectory;
 
+        /// <summary>
+        /// Inicializa el servicio de respaldos configurando rutas y cadenas de conexión.
+        /// </summary>
         public BackupService(string connectionString = null, string backupDirectory = null)
         {
             _connectionString = ResolverConnectionString(connectionString);
@@ -43,6 +46,9 @@ namespace Services.BLL.Services
             _backupDirectory = PrepararDirectorioBackups(backupDirectory);
         }
 
+        /// <summary>
+        /// Ejecuta un respaldo de la base de datos y devuelve la ruta del archivo generado.
+        /// </summary>
         public string RealizarBackup(string rutaDestino = null)
         {
             var ruta = ObtenerRutaBackup(rutaDestino);
@@ -59,6 +65,9 @@ namespace Services.BLL.Services
             return ruta;
         }
 
+        /// <summary>
+        /// Restaura la base de datos utilizando el archivo de respaldo indicado.
+        /// </summary>
         public void RestaurarBackup(string rutaArchivo)
         {
             if (string.IsNullOrWhiteSpace(rutaArchivo))
@@ -100,6 +109,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Enumera los archivos de respaldo disponibles en el directorio configurado.
+        /// </summary>
         public IEnumerable<BackupFileInfo> ListarBackups()
         {
             if (!Directory.Exists(_backupDirectory))
@@ -124,16 +136,25 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene el directorio local donde se almacenan los backups.
+        /// </summary>
         public string ObtenerDirectorioBackups()
         {
             return _backupDirectory;
         }
 
+        /// <summary>
+        /// Genera un nombre sugerido único para un nuevo archivo de backup.
+        /// </summary>
         public string GenerarNombreSugerido()
         {
             return $"{_databaseName}_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
         }
 
+        /// <summary>
+        /// Determina y prepara el directorio local que almacenará los respaldos.
+        /// </summary>
         private string PrepararDirectorioBackups(string backupDirectory)
         {
             var rutaConfigurada = backupDirectory ?? ConfigurationManager.AppSettings["BackupPath"] ?? "backups\\";
@@ -142,6 +163,9 @@ namespace Services.BLL.Services
             return rutaFinal;
         }
 
+        /// <summary>
+        /// Obtiene la ruta final en la que se almacenará el archivo de backup.
+        /// </summary>
         private string ObtenerRutaBackup(string rutaDestino)
         {
             if (string.IsNullOrWhiteSpace(rutaDestino))
@@ -162,6 +186,9 @@ namespace Services.BLL.Services
             return rutaDestino;
         }
 
+        /// <summary>
+        /// Convierte una ruta relativa de configuración en una ruta absoluta válida.
+        /// </summary>
         private string NormalizarRutaDirectorio(string rutaConfigurada)
         {
             if (Path.IsPathRooted(rutaConfigurada))
@@ -176,6 +203,9 @@ namespace Services.BLL.Services
             return Path.GetFullPath(Path.Combine(baseDir, rutaConfigurada));
         }
 
+        /// <summary>
+        /// Garantiza que el directorio indicado exista y sea accesible.
+        /// </summary>
         private static void AsegurarDirectorio(string rutaFinal)
         {
             if (string.IsNullOrWhiteSpace(rutaFinal))
@@ -202,6 +232,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Resuelve la cadena de conexión a utilizar para las operaciones de backup.
+        /// </summary>
         private string ResolverConnectionString(string connectionStringOrName)
         {
             var cs = connectionStringOrName;
@@ -222,11 +255,17 @@ namespace Services.BLL.Services
             return cs;
         }
 
+        /// <summary>
+        /// Escapa comillas simples en la ruta para uso en comandos SQL.
+        /// </summary>
         private static string EscaparRuta(string ruta)
         {
             return ruta.Replace("'", "''");
         }
 
+        /// <summary>
+        /// Obtiene el directorio de backup configurado en el servidor SQL, si está disponible.
+        /// </summary>
         private string ObtenerDirectorioBackupServidor()
         {
             try

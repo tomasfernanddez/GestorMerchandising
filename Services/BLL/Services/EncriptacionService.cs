@@ -10,6 +10,9 @@ namespace Services.BLL.Services
         // "Pepper" (clave de aplicación). Podés inyectarla por config si querés.
         private readonly string _encryptionKey;
 
+        /// <summary>
+        /// Crea una instancia del servicio de encriptación con la clave indicada.
+        /// </summary>
         public EncriptacionService(string encryptionKey = null)
         {
             _encryptionKey = encryptionKey ?? "GestorMerchandising2024!Key";
@@ -54,12 +57,18 @@ namespace Services.BLL.Services
 
         // ================== Helpers ==================
 
+        /// <summary>
+        /// Calcula el hash SHA-256 de los bytes proporcionados.
+        /// </summary>
         private static byte[] Sha256(byte[] data)
         {
             using (var sha = SHA256.Create())
                 return sha.ComputeHash(data);
         }
 
+        /// <summary>
+        /// Convierte un arreglo de bytes a su representación hexadecimal en mayúsculas.
+        /// </summary>
         private static string ToHexUpper(byte[] bytes)
         {
             var sb = new StringBuilder(bytes.Length * 2);

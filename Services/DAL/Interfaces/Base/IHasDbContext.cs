@@ -9,6 +9,9 @@ namespace Services.DAL.Interfaces.Base
 {
     public interface IHasDbContext
     {
+        /// <summary>
+        /// Contexto de Entity Framework asociado a la instancia.
+        /// </summary>
         DbContext Context { get; }
     }
 }

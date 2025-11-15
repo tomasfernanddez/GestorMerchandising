@@ -50,11 +50,17 @@ namespace Services.DomainModel.Entities
 
         #region Extensiones del Patrón Composite
 
+        /// <summary>
+        /// Obtiene las funciones disponibles para el usuario mediante su perfil.
+        /// </summary>
         public IEnumerable<Funcion> ObtenerFunciones(bool soloActivas = true)
         {
             return Perfil?.ObtenerFunciones(soloActivas) ?? Enumerable.Empty<Funcion>();
         }
 
+        /// <summary>
+        /// Determina si el usuario posee la función indicada.
+        /// </summary>
         public bool TieneFuncion(string codigoFuncion)
         {
             if (Perfil == null)

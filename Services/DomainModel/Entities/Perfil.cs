@@ -29,21 +29,33 @@ namespace Services.DomainModel.Entities
 
         #region Implementación del Patrón Composite (Composite)
 
+        /// <summary>
+        /// Obtiene el identificador textual del perfil para el patrón Composite.
+        /// </summary>
         public string ObtenerIdentificador()
         {
             return NombrePerfil ?? string.Empty;
         }
 
+        /// <summary>
+        /// Indica si el perfil se encuentra activo.
+        /// </summary>
         public bool EstaActivo()
         {
             return Activo;
         }
 
+        /// <summary>
+        /// Devuelve las funciones asociadas al perfil como componentes hijos.
+        /// </summary>
         public IEnumerable<IPermisoComponent> ObtenerHijos()
         {
             return Funciones?.Cast<IPermisoComponent>() ?? Enumerable.Empty<IPermisoComponent>();
         }
 
+        /// <summary>
+        /// Verifica si el perfil contiene una función específica.
+        /// </summary>
         public bool ContieneFuncion(string codigoFuncion)
         {
             if (Funciones == null || Funciones.Count == 0)
@@ -54,6 +66,9 @@ namespace Services.DomainModel.Entities
             return Funciones.Any(f => f.ContieneFuncion(codigoFuncion));
         }
 
+        /// <summary>
+        /// Obtiene todas las funciones asociadas al perfil, opcionalmente filtradas por estado.
+        /// </summary>
         public IEnumerable<Funcion> ObtenerFunciones(bool soloActivas = true)
         {
             if (Funciones == null || Funciones.Count == 0)
@@ -67,6 +82,9 @@ namespace Services.DomainModel.Entities
                 .ToList();
         }
 
+        /// <summary>
+        /// Agrega una función al perfil si aún no está asociada.
+        /// </summary>
         public void AgregarFuncion(Funcion funcion)
         {
             if (funcion == null)
@@ -87,6 +105,9 @@ namespace Services.DomainModel.Entities
             Funciones.Add(funcion);
         }
 
+        /// <summary>
+        /// Elimina una función del perfil según su identificador.
+        /// </summary>
         public bool RemoverFuncion(Guid idFuncion)
         {
             if (Funciones == null || Funciones.Count == 0)
@@ -103,6 +124,9 @@ namespace Services.DomainModel.Entities
             return Funciones.Remove(existente);
         }
 
+        /// <summary>
+        /// Reemplaza la colección de funciones del perfil por la lista proporcionada.
+        /// </summary>
         public void ReemplazarFunciones(IEnumerable<Funcion> nuevasFunciones)
         {
             if (Funciones == null)

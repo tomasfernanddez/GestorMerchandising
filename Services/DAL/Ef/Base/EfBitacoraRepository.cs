@@ -13,6 +13,9 @@ namespace Services.DAL.Ef.Base
 {
     public class EfBitacoraRepository : EfRepository<Bitacora>, IBitacoraRepository
     {
+        /// <summary>
+        /// Inicializa el repositorio de bitácora con el contexto proporcionado.
+        /// </summary>
         public EfBitacoraRepository(ServicesContext context) : base(context)
         {
         }

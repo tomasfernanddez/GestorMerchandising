@@ -16,10 +16,29 @@ namespace Services.DAL.Interfaces.Base
         //    ============================================================================
         // OPERACIONES DE TRANSACCIÓN
         //    ============================================================================
+        /// <summary>
+        /// Persiste los cambios pendientes en la base de datos.
+        /// </summary>
         int SaveChanges();
+
+        /// <summary>
+        /// Persiste de forma asíncrona los cambios pendientes en la base de datos.
+        /// </summary>
         Task<int> SaveChangesAsync();
+
+        /// <summary>
+        /// Inicia una transacción de base de datos.
+        /// </summary>
         void BeginTransaction();
+
+        /// <summary>
+        /// Confirma la transacción activa guardando los cambios.
+        /// </summary>
         void CommitTransaction();
+
+        /// <summary>
+        /// Revierte la transacción activa descartando los cambios.
+        /// </summary>
         void RollbackTransaction();
 
         //    ============================================================================

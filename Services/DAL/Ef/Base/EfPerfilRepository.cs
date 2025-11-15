@@ -12,6 +12,9 @@ namespace Services.DAL.Ef.Base
 {
     public class EfPerfilRepository : EfRepository<Perfil>, IPerfilRepository
     {
+        /// <summary>
+        /// Inicializa el repositorio de perfiles con el contexto especificado.
+        /// </summary>
         public EfPerfilRepository(ServicesContext context) : base(context)
         {
         }
@@ -58,6 +61,9 @@ namespace Services.DAL.Ef.Base
             return await _dbSet.FirstOrDefaultAsync(p => p.NombrePerfil == nombrePerfil.Trim());
         }
 
+        /// <summary>
+        /// Obtiene todos los perfiles incluyendo sus funciones asociadas.
+        /// </summary>
         public IEnumerable<Perfil> GetAllWithFunciones()
         {
             return _dbSet
@@ -65,6 +71,9 @@ namespace Services.DAL.Ef.Base
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene un perfil por ID incluyendo sus funciones asociadas.
+        /// </summary>
         public Perfil GetByIdWithFunciones(Guid idPerfil)
         {
             if (idPerfil == Guid.Empty)

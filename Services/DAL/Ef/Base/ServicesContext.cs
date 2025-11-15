@@ -13,6 +13,9 @@ namespace Services.DAL.Ef.Base
     public class ServicesContext : DbContext
     {
         // Constructor - usa el connection string "GestorMerchandisingDB"
+        /// <summary>
+        /// Crea un contexto utilizando el connection string por defecto de la aplicación.
+        /// </summary>
         public ServicesContext() : base("GestorMerchandisingDB")
         {
             Database.SetInitializer<ServicesContext>(null);
@@ -20,6 +23,9 @@ namespace Services.DAL.Ef.Base
             Configuration.ProxyCreationEnabled = true;
         }
 
+        /// <summary>
+        /// Crea un contexto utilizando el connection string proporcionado.
+        /// </summary>
         public ServicesContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
             Database.SetInitializer<ServicesContext>(null);
@@ -35,6 +41,9 @@ namespace Services.DAL.Ef.Base
         //    ============================================================================
         // Configuración del modelo
         //    ============================================================================
+        /// <summary>
+        /// Configura el modelo de Entity Framework para las entidades del módulo de seguridad.
+        /// </summary>
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             // Remover convenciones que no queremos
@@ -83,6 +92,9 @@ namespace Services.DAL.Ef.Base
         //    ============================================================================
         // INICIALIZACIÓN DE DATOS - MÉTODO PARA EF6
         //    ============================================================================
+        /// <summary>
+        /// Carga los datos iniciales necesarios para el funcionamiento del módulo de seguridad.
+        /// </summary>
         public void InicializarDatos()
         {
 

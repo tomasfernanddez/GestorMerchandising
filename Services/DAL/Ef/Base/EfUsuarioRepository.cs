@@ -11,6 +11,9 @@ namespace Services.DAL.Ef.Base
 {
     public class EfUsuarioRepository : EfRepository<Usuario>, IUsuarioRepository
     {
+        /// <summary>
+        /// Inicializa el repositorio de usuarios con el contexto indicado.
+        /// </summary>
         public EfUsuarioRepository(ServicesContext context) : base(context)
         {
         }
@@ -89,6 +92,9 @@ namespace Services.DAL.Ef.Base
                               .ToListAsync();
         }
 
+        /// <summary>
+        /// Obtiene un usuario por ID incluyendo la información de su perfil.
+        /// </summary>
         public Usuario ObtenerPorIdConPerfil(Guid idUsuario)
         {
             if (idUsuario == Guid.Empty)
@@ -212,6 +218,10 @@ namespace Services.DAL.Ef.Base
                 Update(usuario);
             }
         }
+
+        /// <summary>
+        /// Obtiene todos los usuarios junto con su perfil asociado.
+        /// </summary>
         public IEnumerable<Usuario> GetTodosLosUsuarios()
         {
             return _dbSet.Include(u => u.Perfil)
@@ -219,6 +229,9 @@ namespace Services.DAL.Ef.Base
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona todos los usuarios junto con su perfil asociado.
+        /// </summary>
         public async Task<IEnumerable<Usuario>> GetTodosLosUsuariosAsync()
         {
             return await _dbSet.Include(u => u.Perfil)

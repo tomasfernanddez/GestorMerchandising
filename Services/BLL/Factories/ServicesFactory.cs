@@ -57,11 +57,17 @@ namespace Services.BLL.Factories
         // INFRAESTRUCTURA PRIVADA
         // =====================================================================
 
+        /// <summary>
+        /// Crea un nuevo contexto de base de datos para el módulo de seguridad.
+        /// </summary>
         private static SecDbContext CrearContextoSeguridad()
         {
             var cs = ObtenerConnectionString();
             return new SecDbContext(cs);
         }
+        /// <summary>
+        /// Crea una unidad de trabajo ligada al contexto de seguridad e inicializa datos base.
+        /// </summary>
         private static SecIUnitOfWork CrearUnitOfWorkSeguridad()
         {
             var ctx = CrearContextoSeguridad();
@@ -70,6 +76,9 @@ namespace Services.BLL.Factories
             return uow;
         }
 
+        /// <summary>
+        /// Garantiza que los datos iniciales del módulo de seguridad estén creados.
+        /// </summary>
         private static void EnsureDatosBase(SecIUnitOfWork uow)
         {
             if (_datosBaseInicializados)
@@ -137,6 +146,9 @@ namespace Services.BLL.Factories
                 Perfiles = new PerfilService(Uow);
             }
 
+            /// <summary>
+            /// Libera los recursos asociados al alcance de servicios.
+            /// </summary>
             public void Dispose()
             {
                 (Uow as IDisposable)?.Dispose(); // si UoW dispone el Context, mejor
@@ -144,6 +156,9 @@ namespace Services.BLL.Factories
             }
         }
 
+        /// <summary>
+        /// Crea un nuevo alcance de servicios compartiendo contexto y unidad de trabajo.
+        /// </summary>
         public static ServiceScope BeginScope()
         {
             return new ServiceScope(CrearContextoSeguridad());
@@ -172,6 +187,9 @@ namespace Services.BLL.Factories
             return !string.IsNullOrWhiteSpace(cs);
         }
 
+        /// <summary>
+        /// Expone de manera controlada el connection string resuelto internamente.
+        /// </summary>
         internal static string GetConnectionStringInterno()
         {
             // reutiliza tu ObtenerConnectionString() privado
@@ -180,11 +198,17 @@ namespace Services.BLL.Factories
             return (string)metodoPrivado.Invoke(null, null);
         }
 
+        /// <summary>
+        /// Crea una instancia del servicio de logs.
+        /// </summary>
         public static ILogService CrearLogService()
         {
             return new LogService();
         }
 
+        /// <summary>
+        /// Crea el servicio de usuarios.
+        /// </summary>
         public static IUsuarioService CrearUsuarioService()
         {
             var uow = CrearUnitOfWorkSeguridad();

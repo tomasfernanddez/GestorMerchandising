@@ -12,6 +12,9 @@ namespace Services.BLL.Services
         private readonly bool _logToFile;
         private static readonly object _lockObject = new object();
 
+        /// <summary>
+        /// Inicializa el servicio de logs leyendo la configuración de salida.
+        /// </summary>
         public LogService()
         {
             _logPath = ConfigurationManager.AppSettings["LogPath"] ?? "logs\\";
@@ -24,12 +27,18 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Registra un mensaje de error y la excepción asociada si se provee.
+        /// </summary>
         public void LogError(string mensaje, Exception ex = null, string modulo = null, string usuario = null)
         {
             var logEntry = CrearEntradaLog("ERROR", mensaje, ex, modulo, usuario);
             EscribirLog(logEntry);
         }
 
+        /// <summary>
+        /// Registra un mensaje informativo.
+        /// </summary>
         public void LogInfo(string mensaje, string modulo = null, string usuario = null)
         {
             var logEntry = CrearEntradaLog("INFO", mensaje, null, modulo, usuario);
@@ -39,12 +48,18 @@ namespace Services.BLL.Services
             System.Diagnostics.Debug.WriteLine(logEntry);
         }
 
+        /// <summary>
+        /// Registra un mensaje de advertencia.
+        /// </summary>
         public void LogWarning(string mensaje, string modulo = null, string usuario = null)
         {
             var logEntry = CrearEntradaLog("WARNING", mensaje, null, modulo, usuario);
             EscribirLog(logEntry);
         }
 
+        /// <summary>
+        /// Lee las últimas entradas de log generadas en el día.
+        /// </summary>
         public string[] ObtenerUltimosLogs(int cantidad = 100)
         {
             try
@@ -71,6 +86,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Elimina archivos de log más antiguos que los días indicados.
+        /// </summary>
         public void LimpiarLogsAntiguos(int diasAMantener = 30)
         {
             try
@@ -96,6 +114,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Construye una entrada formateada de log con metadatos y excepciones.
+        /// </summary>
         private string CrearEntradaLog(string nivel, string mensaje, Exception ex, string modulo, string usuario)
         {
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -124,6 +145,9 @@ namespace Services.BLL.Services
             return entrada;
         }
 
+        /// <summary>
+        /// Persiste una entrada de log en el archivo correspondiente.
+        /// </summary>
         private void EscribirLog(string entrada)
         {
             if (!_logToFile) return;
@@ -146,6 +170,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene el nombre del archivo de log asociado a la fecha indicada.
+        /// </summary>
         private string ObtenerNombreArchivoLog(DateTime fecha)
         {
             return $"gestor_merchandising_{fecha:yyyyMMdd}.log";

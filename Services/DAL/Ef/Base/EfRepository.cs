@@ -14,6 +14,9 @@ namespace Services.DAL.Ef.Base
         protected readonly ServicesContext _context;
         protected readonly DbSet<T> _dbSet;
 
+        /// <summary>
+        /// Inicializa el repositorio EF con el contexto indicado.
+        /// </summary>
         public EfRepository(ServicesContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -24,41 +27,65 @@ namespace Services.DAL.Ef.Base
         // OPERACIONES DE CONSULTA
         // ============================================================================
 
+        /// <summary>
+        /// Obtiene una entidad por su identificador.
+        /// </summary>
         public virtual T GetById(Guid id)
         {
             return _dbSet.Find(id);
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona una entidad por su identificador.
+        /// </summary>
         public virtual async Task<T> GetByIdAsync(Guid id)
         {
             return await _dbSet.FindAsync(id);
         }
 
+        /// <summary>
+        /// Recupera todas las entidades del conjunto.
+        /// </summary>
         public virtual IEnumerable<T> GetAll()
         {
             return _dbSet.ToList();
         }
 
+        /// <summary>
+        /// Recupera de manera asíncrona todas las entidades del conjunto.
+        /// </summary>
         public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
 
+        /// <summary>
+        /// Obtiene entidades que cumplen con la condición indicada.
+        /// </summary>
         public virtual IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
         {
             return _dbSet.Where(predicate).ToList();
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona entidades que cumplen con la condición indicada.
+        /// </summary>
         public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
+        /// <summary>
+        /// Obtiene la primera entidad que cumple con la condición o null si no existe.
+        /// </summary>
         public virtual T FirstOrDefault(Expression<Func<T, bool>> predicate)
         {
             return _dbSet.FirstOrDefault(predicate);
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona la primera entidad que cumple con la condición o null.
+        /// </summary>
         public virtual async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.FirstOrDefaultAsync(predicate);
@@ -68,6 +95,9 @@ namespace Services.DAL.Ef.Base
         // OPERACIONES DE MODIFICACIÓN
         // ============================================================================
 
+        /// <summary>
+        /// Agrega una entidad al contexto para su inserción.
+        /// </summary>
         public virtual void Add(T entity)
         {
             if (entity == null)
@@ -76,6 +106,9 @@ namespace Services.DAL.Ef.Base
             _dbSet.Add(entity);
         }
 
+        /// <summary>
+        /// Agrega un conjunto de entidades al contexto.
+        /// </summary>
         public virtual void AddRange(IEnumerable<T> entities)
         {
             if (entities == null)
@@ -84,6 +117,9 @@ namespace Services.DAL.Ef.Base
             _dbSet.AddRange(entities);
         }
 
+        /// <summary>
+        /// Marca una entidad como modificada en el contexto.
+        /// </summary>
         public virtual void Update(T entity)
         {
             if (entity == null)
@@ -93,6 +129,9 @@ namespace Services.DAL.Ef.Base
             _context.Entry(entity).State = EntityState.Modified;
         }
 
+        /// <summary>
+        /// Elimina una entidad del contexto.
+        /// </summary>
         public virtual void Remove(T entity)
         {
             if (entity == null)
@@ -105,6 +144,9 @@ namespace Services.DAL.Ef.Base
             _dbSet.Remove(entity);
         }
 
+        /// <summary>
+        /// Elimina un conjunto de entidades del contexto.
+        /// </summary>
         public virtual void RemoveRange(IEnumerable<T> entities)
         {
             if (entities == null)
@@ -117,21 +159,33 @@ namespace Services.DAL.Ef.Base
         // OPERACIONES DE CONTEO
         // ============================================================================
 
+        /// <summary>
+        /// Obtiene la cantidad total de entidades.
+        /// </summary>
         public virtual int Count()
         {
             return _dbSet.Count();
         }
 
+        /// <summary>
+        /// Obtiene la cantidad de entidades que cumplen con el filtro.
+        /// </summary>
         public virtual int Count(Expression<Func<T, bool>> predicate)
         {
             return _dbSet.Count(predicate);
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona la cantidad total de entidades.
+        /// </summary>
         public virtual async Task<int> CountAsync()
         {
             return await _dbSet.CountAsync();
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona la cantidad de entidades que cumplen con el filtro.
+        /// </summary>
         public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.CountAsync(predicate);
@@ -141,21 +195,33 @@ namespace Services.DAL.Ef.Base
         // VERIFICACIÓN DE EXISTENCIA
         // ============================================================================
 
+        /// <summary>
+        /// Verifica si existe una entidad con el identificador especificado.
+        /// </summary>
         public virtual bool Exists(Guid id)
         {
             return _dbSet.Find(id) != null;
         }
 
+        /// <summary>
+        /// Verifica si existe alguna entidad que cumpla con el filtro.
+        /// </summary>
         public virtual bool Exists(Expression<Func<T, bool>> predicate)
         {
             return _dbSet.Any(predicate);
         }
 
+        /// <summary>
+        /// Verifica de forma asíncrona si existe una entidad con el identificador especificado.
+        /// </summary>
         public virtual async Task<bool> ExistsAsync(Guid id)
         {
             return await _dbSet.FindAsync(id) != null;
         }
 
+        /// <summary>
+        /// Verifica de forma asíncrona si existe alguna entidad que cumpla con el filtro.
+        /// </summary>
         public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.AnyAsync(predicate);

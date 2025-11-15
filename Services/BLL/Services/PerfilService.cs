@@ -13,11 +13,17 @@ namespace Services.BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
 
+        /// <summary>
+        /// Crea una instancia del servicio de perfiles.
+        /// </summary>
         public PerfilService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
+        /// <summary>
+        /// Recupera todos los perfiles junto con sus funciones.
+        /// </summary>
         public IEnumerable<Perfil> ObtenerTodos()
         {
             try
@@ -30,6 +36,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene los perfiles que se encuentran activos.
+        /// </summary>
         public IEnumerable<Perfil> ObtenerPerfilesActivos()
         {
             try
@@ -42,6 +51,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona los perfiles activos.
+        /// </summary>
         public async Task<IEnumerable<Perfil>> ObtenerPerfilesActivosAsync()
         {
             try
@@ -54,6 +66,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Busca un perfil por su identificador.
+        /// </summary>
         public Perfil ObtenerPorId(Guid idPerfil)
         {
             if (idPerfil == Guid.Empty)
@@ -69,6 +84,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Busca un perfil por su nombre.
+        /// </summary>
         public Perfil ObtenerPorNombre(string nombrePerfil)
         {
             if (string.IsNullOrWhiteSpace(nombrePerfil))
@@ -84,6 +102,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene la lista de funciones disponibles para asignar a un perfil.
+        /// </summary>
         public IEnumerable<Funcion> ObtenerFuncionesDisponibles()
         {
             try
@@ -100,6 +121,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Crea un perfil y asigna las funciones seleccionadas.
+        /// </summary>
         public ResultadoOperacion CrearPerfil(Perfil perfil)
         {
             try
@@ -128,6 +152,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza los datos y funciones asociadas a un perfil.
+        /// </summary>
         public ResultadoOperacion ActualizarPerfil(Perfil perfil)
         {
             try
@@ -162,6 +189,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Activa un perfil previamente deshabilitado.
+        /// </summary>
         public ResultadoOperacion ActivarPerfil(Guid idPerfil)
         {
             if (idPerfil == Guid.Empty)
@@ -188,6 +218,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Desactiva un perfil validando que no tenga usuarios activos asociados.
+        /// </summary>
         public ResultadoOperacion DesactivarPerfil(Guid idPerfil)
         {
             if (idPerfil == Guid.Empty)
@@ -217,6 +250,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Valida los datos ingresados para un perfil.
+        /// </summary>
         private ResultadoOperacion ValidarPerfil(Perfil perfil, bool esNuevo)
         {
             if (perfil == null)
@@ -250,12 +286,18 @@ namespace Services.BLL.Services
             return ResultadoOperacion.Exitoso("Perfil válido");
         }
 
+        /// <summary>
+        /// Verifica si el perfil posee usuarios activos asociados.
+        /// </summary>
         private bool TieneUsuariosActivos(Guid idPerfil)
         {
             var usuarios = _unitOfWork.Usuarios.GetUsuariosPorPerfil(idPerfil);
             return usuarios?.Any() ?? false;
         }
 
+        /// <summary>
+        /// Actualiza la colección de funciones asociadas a un perfil según los identificadores proporcionados.
+        /// </summary>
         private void SincronizarFunciones(Perfil perfilDestino, IEnumerable<Guid> funcionesSeleccionadas)
         {
             if (perfilDestino == null)
@@ -281,6 +323,9 @@ namespace Services.BLL.Services
             perfilDestino.ReemplazarFunciones(funciones);
         }
 
+        /// <summary>
+        /// Obtiene el mensaje más interno de una excepción anidada.
+        /// </summary>
         private static string ObtenerMensajeProfundo(Exception ex)
         {
             while (ex.InnerException != null)

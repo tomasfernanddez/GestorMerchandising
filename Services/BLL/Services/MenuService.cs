@@ -13,6 +13,9 @@ namespace Services.BLL.Services
         public bool SoloAdmin { get; set; }
         public List<MenuItemConfig> SubItems { get; set; } = new List<MenuItemConfig>();
 
+        /// <summary>
+        /// Crea una copia superficial del ítem preservando sus propiedades principales.
+        /// </summary>
         public MenuItemConfig CloneShallow()
         {
             return new MenuItemConfig
@@ -27,6 +30,9 @@ namespace Services.BLL.Services
 
     public class MenuService
     {
+        /// <summary>
+        /// Devuelve la estructura completa del menú con sus permisos requeridos.
+        /// </summary>
         public IList<MenuItemConfig> ObtenerEstructuraMenu()
         {
             return new List<MenuItemConfig>
@@ -171,6 +177,9 @@ namespace Services.BLL.Services
             };
         }
 
+        /// <summary>
+        /// Filtra la estructura del menú según los permisos del usuario en sesión.
+        /// </summary>
         public IList<MenuItemConfig> FiltrarMenuPorPermisos(IEnumerable<MenuItemConfig> menuCompleto)
         {
             var resultado = new List<MenuItemConfig>();
@@ -192,6 +201,9 @@ namespace Services.BLL.Services
             return resultado;
         }
 
+        /// <summary>
+        /// Genera una copia del ítem conservando únicamente los subítems a los que se tiene acceso.
+        /// </summary>
         private MenuItemConfig ClonarFiltrando(MenuItemConfig item)
         {
             if (item == null)
@@ -226,6 +238,9 @@ namespace Services.BLL.Services
             return clon;
         }
 
+        /// <summary>
+        /// Determina si el usuario actual posee permisos para visualizar el ítem.
+        /// </summary>
         private bool TieneAcceso(MenuItemConfig item)
         {
             if (item == null)

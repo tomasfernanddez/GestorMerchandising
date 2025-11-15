@@ -29,11 +29,17 @@ namespace Services.DAL.Ef.Base
         // private IProductoRepository _productos;
         // etc.
 
+        /// <summary>
+        /// Inicializa la unidad de trabajo utilizando un contexto genérico de Entity Framework.
+        /// </summary>
         public EfUnitOfWork(DbContext context)
         {
             Context = context;
         }
 
+        /// <summary>
+        /// Inicializa la unidad de trabajo con el contexto específico del módulo de servicios.
+        /// </summary>
         public EfUnitOfWork(ServicesContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -61,6 +67,9 @@ namespace Services.DAL.Ef.Base
         }
 
         // Operaciones de guardado
+        /// <summary>
+        /// Persiste los cambios pendientes en la base de datos.
+        /// </summary>
         public int SaveChanges()
         {
             try
@@ -73,6 +82,9 @@ namespace Services.DAL.Ef.Base
             }
         }
 
+        /// <summary>
+        /// Persiste de forma asíncrona los cambios pendientes en la base de datos.
+        /// </summary>
         public async Task<int> SaveChangesAsync()
         {
             try
@@ -86,6 +98,9 @@ namespace Services.DAL.Ef.Base
         }
 
         // Manejo de transacciones
+        /// <summary>
+        /// Inicia una transacción de base de datos.
+        /// </summary>
         public void BeginTransaction()
         {
             if (_transaction != null)
@@ -95,6 +110,9 @@ namespace Services.DAL.Ef.Base
             _transaction = _context.Database.BeginTransaction();
         }
 
+        /// <summary>
+        /// Confirma la transacción activa guardando los cambios.
+        /// </summary>
         public void CommitTransaction()
         {
             if (_transaction == null)
@@ -119,6 +137,9 @@ namespace Services.DAL.Ef.Base
             }
         }
 
+        /// <summary>
+        /// Revierte la transacción activa descartando los cambios.
+        /// </summary>
         public void RollbackTransaction()
         {
             if (_transaction != null)
@@ -136,17 +157,26 @@ namespace Services.DAL.Ef.Base
         }
 
         // Métodos especiales para arquitectura base
+        /// <summary>
+        /// Ejecuta la inicialización de datos base del sistema.
+        /// </summary>
         public void InicializarSistema()
         {
             _context.InicializarDatos();
         }
 
+        /// <summary>
+        /// Registra una acción en la bitácora y persiste los cambios.
+        /// </summary>
         public void RegistrarAccion(Guid idUsuario, string accion, string descripcion, string modulo = null, bool exitoso = true, string mensajeError = null, string direccionIP = null)
         {
             Bitacoras.RegistrarAccion(idUsuario, accion, descripcion, modulo, exitoso, mensajeError, direccionIP);
             SaveChanges();
         }
 
+        /// <summary>
+        /// Registra de forma asíncrona una acción en la bitácora y persiste los cambios.
+        /// </summary>
         public async Task RegistrarAccionAsync(Guid idUsuario, string accion, string descripcion, string modulo = null, bool exitoso = true, string mensajeError = null, string direccionIP = null)
         {
             Bitacoras.RegistrarAccion(idUsuario, accion, descripcion, modulo, exitoso, mensajeError, direccionIP);
@@ -156,6 +186,9 @@ namespace Services.DAL.Ef.Base
         // Dispose pattern
         private bool _disposed = false;
 
+        /// <summary>
+        /// Libera los recursos administrados y no administrados utilizados por la unidad de trabajo.
+        /// </summary>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -173,12 +206,18 @@ namespace Services.DAL.Ef.Base
             }
         }
 
+        /// <summary>
+        /// Libera los recursos asociados y suprime el finalizador.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Finalizador que garantiza la liberación de recursos.
+        /// </summary>
         ~EfUnitOfWork()
         {
             Dispose(false);

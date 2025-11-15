@@ -10,6 +10,9 @@ namespace Services.BLL.Helpers
         public Usuario Usuario { get; set; }
         public Guid? IdSesion { get; set; }
 
+        /// <summary>
+        /// Crea un resultado exitoso incluyendo el usuario autenticado.
+        /// </summary>
         public static ResultadoAutenticacion Exitoso(Usuario usuario, string mensaje = "Autenticación exitosa", Guid? idSesion = null)
         {
             return new ResultadoAutenticacion
@@ -21,6 +24,9 @@ namespace Services.BLL.Helpers
             };
         }
 
+        /// <summary>
+        /// Crea un resultado de autenticación fallida con el mensaje indicado.
+        /// </summary>
         public static ResultadoAutenticacion Error(string mensaje)
         {
             return new ResultadoAutenticacion

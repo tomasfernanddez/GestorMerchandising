@@ -23,6 +23,9 @@ namespace Services
 
         public static bool IsAuthenticated => IdUsuario != Guid.Empty;
 
+        /// <summary>
+        /// Carga la información del usuario autenticado en la sesión estática.
+        /// </summary>
         public static void InicializarSesion(Usuario usuario)
         {
             if (usuario == null)
@@ -57,6 +60,9 @@ namespace Services
             }
         }
 
+        /// <summary>
+        /// Verifica si la sesión actual posee la función indicada.
+        /// </summary>
         public static bool TieneFuncion(string codigoFuncion)
         {
             if (EsAdministrador)
@@ -72,11 +78,17 @@ namespace Services
             return _funciones.Contains(codigoFuncion.Trim());
         }
 
+        /// <summary>
+        /// Devuelve la lista de funciones habilitadas para la sesión actual.
+        /// </summary>
         public static IEnumerable<string> ObtenerFunciones()
         {
             return _funciones.ToList();
         }
 
+        /// <summary>
+        /// Limpia los datos almacenados en la sesión.
+        /// </summary>
         public static void CerrarSesion()
         {
             IdUsuario = Guid.Empty;
@@ -90,16 +102,28 @@ namespace Services
             _funciones.Clear();
         }
 
+        /// <summary>
+        /// Actualiza el idioma preferido almacenado en la sesión.
+        /// </summary>
         public static void ActualizarIdioma(string idioma)
         {
             IdiomaPreferido = string.IsNullOrWhiteSpace(idioma) ? null : idioma.Trim();
         }
 
         // Métodos de compatibilidad con la implementación previa -----------------------
+        /// <summary>
+        /// Inicializa la sesión utilizando la nomenclatura previa.
+        /// </summary>
         public static void Set(Usuario usuario) => InicializarSesion(usuario);
 
+        /// <summary>
+        /// Limpia la sesión utilizando la nomenclatura previa.
+        /// </summary>
         public static void Clear() => CerrarSesion();
 
+        /// <summary>
+        /// Evalúa si el perfil corresponde a un usuario administrador.
+        /// </summary>
         private static bool DeterminarSiEsAdministrador(Perfil perfil)
         {
             if (perfil == null)

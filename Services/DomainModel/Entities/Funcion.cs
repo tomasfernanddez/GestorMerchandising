@@ -30,21 +30,33 @@ namespace Services.DomainModel.Entities
 
         #region Implementación del Patrón Composite (Leaf)
 
+        /// <summary>
+        /// Obtiene el identificador textual de la función.
+        /// </summary>
         public string ObtenerIdentificador()
         {
             return Codigo ?? string.Empty;
         }
 
+        /// <summary>
+        /// Indica si la función se encuentra activa.
+        /// </summary>
         public bool EstaActivo()
         {
             return Activo;
         }
 
+        /// <summary>
+        /// Devuelve los componentes hijos, vacíos en el caso de la hoja.
+        /// </summary>
         public IEnumerable<IPermisoComponent> ObtenerHijos()
         {
             return Enumerable.Empty<IPermisoComponent>();
         }
 
+        /// <summary>
+        /// Determina si la función coincide con el código indicado.
+        /// </summary>
         public bool ContieneFuncion(string codigoFuncion)
         {
             if (string.IsNullOrWhiteSpace(codigoFuncion))
@@ -61,6 +73,9 @@ namespace Services.DomainModel.Entities
             return string.Equals(codigoNormalizado, codigoFuncion.Trim(), StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        /// Devuelve la función actual si corresponde según el filtro de actividad.
+        /// </summary>
         public IEnumerable<Funcion> ObtenerFunciones(bool soloActivas = true)
         {
             if (!soloActivas || Activo)

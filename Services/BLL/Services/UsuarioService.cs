@@ -14,12 +14,18 @@ namespace Services.BLL.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEncriptacionService _encriptacionService;
 
+        /// <summary>
+        /// Inicializa una nueva instancia del servicio de usuarios.
+        /// </summary>
         public UsuarioService(IUnitOfWork unitOfWork, IEncriptacionService encriptacionService)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _encriptacionService = encriptacionService ?? throw new ArgumentNullException(nameof(encriptacionService));
         }
 
+        /// <summary>
+        /// Crea un usuario y lo persiste con la contraseña indicada.
+        /// </summary>
         public ResultadoOperacion CrearUsuario(Usuario usuario, string password)
         {
             try
@@ -66,12 +72,18 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Crea un usuario de forma asíncrona reutilizando la lógica sincrónica.
+        /// </summary>
         public async Task<ResultadoOperacion> CrearUsuarioAsync(Usuario usuario, string password)
         {
             // Implementación similar a la sincrónica
             return await Task.FromResult(CrearUsuario(usuario, password));
         }
 
+        /// <summary>
+        /// Actualiza los datos de un usuario existente.
+        /// </summary>
         public ResultadoOperacion ActualizarUsuario(Usuario usuario)
         {
             try
@@ -124,6 +136,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Desactiva lógicamente a un usuario.
+        /// </summary>
         public ResultadoOperacion EliminarUsuario(Guid idUsuario)
         {
             try
@@ -148,6 +163,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene un usuario por su identificador único.
+        /// </summary>
         public Usuario ObtenerPorId(Guid idUsuario)
         {
             if (idUsuario == Guid.Empty)
@@ -156,6 +174,9 @@ namespace Services.BLL.Services
             return _unitOfWork.Usuarios.GetById(idUsuario);
         }
 
+        /// <summary>
+        /// Obtiene un usuario e incluye su perfil asociado.
+        /// </summary>
         public Usuario ObtenerPorIdConPerfil(Guid idUsuario)
         {
             if (idUsuario == Guid.Empty)
@@ -164,6 +185,9 @@ namespace Services.BLL.Services
             return _unitOfWork.Usuarios.ObtenerPorIdConPerfil(idUsuario);
         }
 
+        /// <summary>
+        /// Busca un usuario por su nombre de inicio de sesión.
+        /// </summary>
         public Usuario ObtenerPorNombre(string nombreUsuario)
         {
             if (string.IsNullOrWhiteSpace(nombreUsuario))
@@ -172,16 +196,25 @@ namespace Services.BLL.Services
             return _unitOfWork.Usuarios.GetUsuarioPorNombre(nombreUsuario);
         }
 
+        /// <summary>
+        /// Devuelve la lista de usuarios activos.
+        /// </summary>
         public IEnumerable<Usuario> ObtenerUsuariosActivos()
         {
             return _unitOfWork.Usuarios.GetUsuariosActivos();
         }
 
+        /// <summary>
+        /// Recupera los usuarios asociados a un perfil específico.
+        /// </summary>
         public IEnumerable<Usuario> ObtenerPorPerfil(Guid idPerfil)
         {
             return _unitOfWork.Usuarios.GetUsuariosPorPerfil(idPerfil);
         }
 
+        /// <summary>
+        /// Activa a un usuario que se encontraba deshabilitado.
+        /// </summary>
         public ResultadoOperacion ActivarUsuario(Guid idUsuario)
         {
             try
@@ -207,6 +240,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Desactiva a un usuario para impedir su acceso.
+        /// </summary>
         public ResultadoOperacion DesactivarUsuario(Guid idUsuario)
         {
             try
@@ -232,6 +268,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Bloquea temporalmente el acceso de un usuario.
+        /// </summary>
         public ResultadoOperacion BloquearUsuario(Guid idUsuario)
         {
             try
@@ -257,6 +296,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Quita el bloqueo aplicado a un usuario.
+        /// </summary>
         public ResultadoOperacion DesbloquearUsuario(Guid idUsuario)
         {
             try
@@ -282,6 +324,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza la contraseña de un usuario.
+        /// </summary>
         public ResultadoOperacion CambiarPassword(Guid idUsuario, string passwordNuevo)
         {
             try
@@ -311,6 +356,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Ejecuta las validaciones de consistencia para un usuario.
+        /// </summary>
         private ResultadoOperacion ValidarUsuario(Usuario usuario, string password, bool esCreacion)
         {
             if (usuario == null)
@@ -349,6 +397,9 @@ namespace Services.BLL.Services
             return ResultadoOperacion.Exitoso("Validación exitosa");
         }
 
+        /// <summary>
+        /// Valida el formato de una dirección de correo.
+        /// </summary>
         private bool EsEmailValido(string email)
         {
             try
@@ -362,16 +413,25 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene todos los usuarios sin filtrar por estado.
+        /// </summary>
         public IEnumerable<Usuario> ObtenerTodosLosUsuarios()
         {
             return _unitOfWork.Usuarios.GetTodosLosUsuarios();
         }
 
+        /// <summary>
+        /// Obtiene de manera asíncrona todos los usuarios sin filtrar por estado.
+        /// </summary>
         public async Task<IEnumerable<Usuario>> ObtenerTodosLosUsuariosAsync()
         {
             return await _unitOfWork.Usuarios.GetTodosLosUsuariosAsync();
         }
 
+        /// <summary>
+        /// Actualiza el idioma preferido configurado para un usuario.
+        /// </summary>
         public ResultadoOperacion CambiarIdioma(Guid idUsuario, string idioma)
         {
             try

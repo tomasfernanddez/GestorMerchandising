@@ -13,12 +13,18 @@ namespace Services.BLL.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEncriptacionService _encriptacionService;
 
+        /// <summary>
+        /// Inicializa el servicio de autenticación con sus dependencias.
+        /// </summary>
         public AutenticacionService(IUnitOfWork unitOfWork, IEncriptacionService encriptacionService)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _encriptacionService = encriptacionService ?? throw new ArgumentNullException(nameof(encriptacionService));
         }
 
+        /// <summary>
+        /// Ejecuta el proceso de login validando credenciales y estado del usuario.
+        /// </summary>
         public ResultadoAutenticacion Login(string nombreUsuario, string password, string direccionIP = null)
         {
             try
@@ -160,12 +166,18 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Ejecuta el proceso de login de forma asíncrona reutilizando la lógica sincrónica.
+        /// </summary>
         public async Task<ResultadoAutenticacion> LoginAsync(string nombreUsuario, string password, string direccionIP = null)
         {
             // Implementación asincrónica simple; si tu DAL soporta async, podés migrar las llamadas internas.
             return await Task.FromResult(Login(nombreUsuario, password, direccionIP));
         }
 
+        /// <summary>
+        /// Registra la salida del usuario y cierra su sesión.
+        /// </summary>
         public ResultadoOperacion Logout(Guid idUsuario, string direccionIP = null)
         {
             try
@@ -193,6 +205,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Cambia la contraseña de un usuario verificando la actual.
+        /// </summary>
         public ResultadoOperacion CambiarPassword(Guid idUsuario, string passwordActual, string passwordNuevo)
         {
             try
@@ -233,6 +248,9 @@ namespace Services.BLL.Services
         }
 
         // ===== Helpers privados para compatibilidad de hash =====
+        /// <summary>
+        /// Calcula el hash SHA256 representado en hexadecimal.
+        /// </summary>
         private static string Sha256Hex(string input)
         {
             using (var sha = SHA256.Create())
@@ -244,6 +262,9 @@ namespace Services.BLL.Services
             }
         }
 
+        /// <summary>
+        /// Calcula el hash SHA256 representado en Base64.
+        /// </summary>
         private static string Sha256Base64(string input)
         {
             using (var sha = SHA256.Create())
