@@ -242,6 +242,13 @@ cliente.pais=País
 cliente.provincia=Provincia
 cliente.razonSocial=Razón Social
 cliente.tipoEmpresa=Tipo de Empresa
+client.tool.activate=Activar
+client.filter.status=Estado
+client.filter.status.all=Todos
+client.filter.status.active=Activos
+client.filter.status.inactive=Inactivos
+client.confirm.deactivate=¿Desea desactivar al cliente seleccionado?
+client.confirm.activate=¿Desea activar al cliente seleccionado?
 
 # ============================================
 # PROVEEDOR

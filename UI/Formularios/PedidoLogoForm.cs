@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using DomainModel;
 using DomainModel.Entidades;
+using UI.Helpers;
 using UI.Localization;
 using UI.ViewModels;
 
@@ -30,6 +31,7 @@ namespace UI
             _logoOriginal = logo;
 
             InitializeComponent();
+            cmbProveedor.Format += CmbProveedor_Format;
         }
 
         private void PedidoLogoForm_Load(object sender, EventArgs e)
@@ -90,6 +92,7 @@ namespace UI
 
         private void btnAceptar_Click(object sender, EventArgs e)
         {
+            var proveedorSeleccionado = cmbProveedor.SelectedItem as Proveedor;
             LogoResult = new PedidoLogoViewModel
             {
                 IdLogoPedido = _logoOriginal?.IdLogoPedido ?? Guid.NewGuid(),
@@ -98,7 +101,9 @@ namespace UI
                 IdUbicacion = ObtenerGuidSeleccionado(cmbUbicacion),
                 Ubicacion = (cmbUbicacion.SelectedItem as UbicacionLogo)?.NombreUbicacionLogo,
                 IdProveedor = ObtenerGuidSeleccionado(cmbProveedor),
-                Proveedor = (cmbProveedor.SelectedItem as Proveedor)?.RazonSocial,
+                Proveedor = DisplayNameHelper.FormatearNombreConAlias(
+                    proveedorSeleccionado?.RazonSocial,
+                    proveedorSeleccionado?.Alias),
                 Cantidad = (int)nudCantidad.Value,
                 Costo = _logoOriginal?.Costo ?? 0m,
                 Descripcion = txtDescripcion.Text?.Trim()
@@ -106,6 +111,12 @@ namespace UI
 
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void CmbProveedor_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is Proveedor proveedor)
+                e.Value = DisplayNameHelper.FormatearNombreConAlias(proveedor.RazonSocial, proveedor.Alias);
         }
 
         private Guid? ObtenerGuidSeleccionado(ComboBox combo)

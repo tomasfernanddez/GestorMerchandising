@@ -25,6 +25,11 @@ namespace BLL.Interfaces
         /// </summary>
         IEnumerable<Cliente> ObtenerClientesActivos();
         /// <summary>
+        /// /// Obtiene clientes filtrados por estado de actividad.
+        /// </summary>
+        /// <param name="activo">Estado deseado: true activos, false inactivos, null todos.</param>
+        IEnumerable<Cliente> ObtenerClientesPorEstado(bool? activo = null);
+        /// <summary>
         /// Obtiene asincrónicamente clientes activos.
         /// </summary>
         Task<IEnumerable<Cliente>> ObtenerClientesActivosAsync();

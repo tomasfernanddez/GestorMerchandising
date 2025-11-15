@@ -150,6 +150,8 @@ namespace UI
             lstPagos.DataSource = _pagosRegistrados;
             ConfigurarMenuDetalles();
 
+            cmbCliente.Format += CmbCliente_Format;
+
             btnAgregarAdjunto.Click += BtnAgregarAdjunto_Click;
             btnDescargarAdjunto.Click += BtnDescargarAdjunto_Click;
             btnEliminarAdjunto.Click += BtnEliminarAdjunto_Click;
@@ -285,6 +287,12 @@ namespace UI
                 _logService.LogError("Error cargando datos de referencia para pedidos de muestra / Error loading sample order reference data", ex, "PedidosMuestra", SessionContext.NombreUsuario);
                 MessageBox.Show("sampleOrder.load.error".Traducir(), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void CmbCliente_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is Cliente cliente)
+                e.Value = DisplayNameHelper.FormatearNombreConAlias(cliente.RazonSocial, cliente.Alias);
         }
 
         private void ConfigurarGrillaDetalles()

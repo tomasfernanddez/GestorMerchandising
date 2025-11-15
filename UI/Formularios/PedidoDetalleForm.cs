@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using BLL.Interfaces;
 using DomainModel;
 using DomainModel.Entidades;
+using UI.Helpers;
 using UI.Localization;
 using UI.ViewModels;
 
@@ -73,6 +74,7 @@ namespace UI
 
             InitializeComponent();
             InicializarControlesPersonalizados();
+            cmbProveedor.Format += CmbProveedor_Format;
         }
 
         private void PedidoDetalleForm_Load(object sender, EventArgs e)
@@ -814,6 +816,8 @@ namespace UI
                 return;
             }
 
+            var proveedorSeleccionado = _proveedoresProductos.FirstOrDefault(p => p.IdProveedor == proveedorId);
+
             DetalleResult = new PedidoDetalleViewModel
             {
                 IdDetallePedido = _detalleOriginal?.IdDetallePedido ?? Guid.Empty,
@@ -822,7 +826,9 @@ namespace UI
                 IdCategoria = categoriaId,
                 Categoria = (_categorias.FirstOrDefault(c => c.IdCategoria == categoriaId)?.NombreCategoria),
                 IdProveedor = proveedorId,
-                Proveedor = (_proveedoresProductos.FirstOrDefault(p => p.IdProveedor == proveedorId)?.RazonSocial),
+                Proveedor = DisplayNameHelper.FormatearNombreConAlias(
+                    proveedorSeleccionado?.RazonSocial,
+                    proveedorSeleccionado?.Alias),
                 Cantidad = (int)nudCantidad.Value,
                 PrecioUnitario = nudPrecio.Value,
                 IdEstadoProducto = idEstado,
@@ -837,6 +843,12 @@ namespace UI
 
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void CmbProveedor_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is Proveedor proveedor)
+                e.Value = DisplayNameHelper.FormatearNombreConAlias(proveedor.RazonSocial, proveedor.Alias);
         }
     }
 }

@@ -22,11 +22,15 @@ namespace UI
         private readonly IBitacoraService _bitacora;
         private readonly IGeoService _geoSvc;
         private readonly ICondicionIvaService _condicionIvaService;
+        private readonly Dictionary<string, (string Es, string En)> _diccionarioMensajes;
         private bool _puedeEliminar;
+        private bool _cargandoFiltros;
 
         public ABMClientesForm()
         {
             InitializeComponent();
+            _diccionarioMensajes = CrearDiccionarioMensajes();
+            _cargandoFiltros = false;
         }
 
         public ABMClientesForm(IClienteService clienteService, IBitacoraService bitacora, IGeoService geoSvc, ICondicionIvaService condicionIvaService)
@@ -35,6 +39,8 @@ namespace UI
             _bitacora = bitacora ?? throw new ArgumentNullException(nameof(bitacora));
             _geoSvc = geoSvc ?? throw new ArgumentNullException(nameof(geoSvc));
             _condicionIvaService = condicionIvaService ?? throw new ArgumentNullException(nameof(condicionIvaService));
+            _diccionarioMensajes = CrearDiccionarioMensajes();
+            _cargandoFiltros = false;
 
             InitializeComponent();
 
@@ -56,6 +62,20 @@ namespace UI
             public bool Activo { get; set; }
         }
 
+        private sealed class EstadoFiltroItem
+        {
+            public EstadoFiltroItem(bool? estado, string descripcion)
+            {
+                Estado = estado;
+                Descripcion = descripcion;
+            }
+
+            public bool? Estado { get; }
+            public string Descripcion { get; }
+
+            public override string ToString() => Descripcion;
+        }
+
         private void ABMClientesForm_Load(object sender, EventArgs e)
         {
             EnsureColumns();
@@ -63,9 +83,11 @@ namespace UI
             _puedeEliminar = (SessionContext.NombrePerfil ?? "")
                 .Equals("Administrador", StringComparison.OrdinalIgnoreCase);
             tsbEliminar.Visible = _puedeEliminar;
+            tsbActivar.Visible = _puedeEliminar;
 
             ApplyTexts();
             WireUp();
+            ConfigurarFiltros();
             CargarClientes();
         }
 
@@ -181,6 +203,8 @@ namespace UI
             dgvClientes.Columns["Activo"].HeaderText = "cliente.activo".Traducir();
 
             tslBuscar.Text = "form.search".Traducir();
+            tsbActivar.Text = "client.tool.activate".Traducir();
+            lblFiltroEstado.Text = "client.filter.status".Traducir();
 
             // Usa un helper que no rompe si la columna no existe
             SetHeaderSafe("RazonSocial", "cliente.razonSocial");
@@ -209,30 +233,33 @@ namespace UI
             tsbNuevo.Click += (s, e) => NuevoCliente();
             tsbEditar.Click += (s, e) => EditarSeleccionado();
             tsbEliminar.Click += (s, e) => EliminarSeleccionado();
+            tsbActivar.Click += (s, e) => ActivarSeleccionado();
             dgvClientes.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) EditarSeleccionado(); };
+            dgvClientes.SelectionChanged += (s, e) => ActualizarAcciones();
+            if (cboFiltroEstado.ComboBox != null)
+                cboFiltroEstado.ComboBox.SelectedIndexChanged += (s, e) => { if (!_cargandoFiltros) Buscar(); };
         }
 
         private void CargarClientes()
         {
             try
             {
-                var logSvc = ServicesFactory.CrearLogService();
-                logSvc.LogInfo("Iniciando carga de clientes", "Clientes", SessionContext.NombreUsuario);
+                RegistrarLogInfo("clients.log.load.start");
 
-                var clientes = _clienteService.ObtenerClientesActivos()?.ToList() ?? new List<Cliente>();
+                var estado = ObtenerFiltroEstado();
+                var clientes = _clienteService.ObtenerClientesPorEstado(estado)?.ToList() ?? new List<Cliente>();
 
                 var (dPais, dProv, dLoc) = ConstruirMapeosGeograficos();
                 var rows = ProyectarClientes(clientes, dPais, dProv, dLoc);
 
                 bsClientes.DataSource = rows;
-
-                logSvc.LogInfo($"Cargados {clientes.Count} clientes activos exitosamente", "Clientes", SessionContext.NombreUsuario);
+                RegistrarLogInfo("clients.log.load.success", clientes.Count);
+                ActualizarAcciones();
             }
             catch (Exception ex)
             {
-                var logSvc = ServicesFactory.CrearLogService();
-                logSvc.LogError("Error cargando clientes", ex, "Clientes", SessionContext.NombreUsuario);
                 var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarLogError("clients.log.load.error", ex);
                 MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -249,13 +276,21 @@ namespace UI
                 }
 
                 // búsqueda por razón social desde BLL
+                var estado = ObtenerFiltroEstado();
                 var data = _clienteService.BuscarClientesPorRazonSocial(filtro) ?? Enumerable.Empty<Cliente>();
+                if (estado.HasValue)
+                    data = data.Where(c => c.Activo == estado.Value);
+
+                var lista = data.ToList();
                 var (dPais, dProv, dLoc) = ConstruirMapeosGeograficos();
-                bsClientes.DataSource = ProyectarClientes(data, dPais, dProv, dLoc);
+                bsClientes.DataSource = ProyectarClientes(lista, dPais, dProv, dLoc);
+                ActualizarAcciones();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ErrorMessageHelper.GetFriendlyMessage(ex), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarLogError("clients.log.search.error", ex, filtro);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -333,21 +368,75 @@ namespace UI
             return bsClientes.Current as ClienteGridRow;
         }
 
+        private void ActualizarAcciones()
+        {
+            if (!_puedeEliminar)
+            {
+                tsbEliminar.Enabled = false;
+                tsbActivar.Enabled = false;
+                return;
+            }
+
+            var row = GetSeleccionado();
+            tsbEliminar.Enabled = row != null && row.Activo;
+            tsbActivar.Enabled = row != null && !row.Activo;
+        }
+
+        private void ConfigurarFiltros()
+        {
+            if (cboFiltroEstado?.ComboBox == null)
+                return;
+
+            _cargandoFiltros = true;
+            try
+            {
+                var items = new List<EstadoFiltroItem>
+                {
+                    new EstadoFiltroItem(null, "client.filter.status.all".Traducir()),
+                    new EstadoFiltroItem(true, "client.filter.status.active".Traducir()),
+                    new EstadoFiltroItem(false, "client.filter.status.inactive".Traducir())
+                };
+
+                cboFiltroEstado.ComboBox.Items.Clear();
+                foreach (var item in items)
+                {
+                    cboFiltroEstado.ComboBox.Items.Add(item);
+                }
+
+                var seleccionado = items.FirstOrDefault(i => i.Estado == true) ?? items.First();
+                cboFiltroEstado.ComboBox.SelectedItem = seleccionado;
+            }
+            finally
+            {
+                _cargandoFiltros = false;
+            }
+
+            ActualizarAcciones();
+        }
+
+        private bool? ObtenerFiltroEstado()
+        {
+            if (cboFiltroEstado?.ComboBox?.SelectedItem is EstadoFiltroItem item)
+                return item.Estado;
+
+            return null;
+        }
+
         private void NuevoCliente()
         {
-            var logSvc = ServicesFactory.CrearLogService();
-            logSvc.LogInfo("Abriendo formulario nuevo cliente", "Clientes", SessionContext.NombreUsuario);
+            RegistrarLogInfo("clients.log.create.open");
 
             using (var f = new ClienteForm(_clienteService, _bitacora, _geoSvc, _condicionIvaService, null))
             {
-                if (f.ShowDialog(this) == DialogResult.OK)
+                var dialogResult = f.ShowDialog(this);
+                if (dialogResult == DialogResult.OK)
                 {
-                    logSvc.LogInfo("Cliente creado exitosamente desde formulario", "Clientes", SessionContext.NombreUsuario);
+                    RegistrarLogInfo("clients.log.create.success");
                     CargarClientes();
                 }
                 else
                 {
-                    logSvc.LogInfo("Creación de cliente cancelada", "Clientes", SessionContext.NombreUsuario);
+                    RegistrarLogInfo("clients.log.create.cancel");
                 }
             }
         }
@@ -357,13 +446,32 @@ namespace UI
             var row = GetSeleccionado();
             if (row == null) return;
 
-            var cliente = _clienteService.ObtenerClientePorId(row.IdCliente);
-            if (cliente == null) return;
+            var nombreCliente = DisplayNameHelper.FormatearNombreConAlias(row.RazonSocial, row.Alias);
 
-            using (var f = new ClienteForm(_clienteService, _bitacora, _geoSvc, _condicionIvaService, cliente))
+            try
             {
-                if (f.ShowDialog(this) == DialogResult.OK)
-                    CargarClientes();
+                RegistrarLogInfo("clients.log.edit.start", nombreCliente);
+
+                var cliente = _clienteService.ObtenerClientePorId(row.IdCliente);
+                if (cliente == null)
+                {
+                    RegistrarLogWarning("clients.log.edit.notFound", nombreCliente);
+                    return;
+                }
+
+                using (var f = new ClienteForm(_clienteService, _bitacora, _geoSvc, _condicionIvaService, cliente))
+                {
+                    if (f.ShowDialog(this) == DialogResult.OK)
+                    {
+                        RegistrarLogInfo("clients.log.edit.success", nombreCliente);
+                        CargarClientes();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarLogError("clients.log.edit.error", ex, nombreCliente);
+                MessageBox.Show(ErrorMessageHelper.GetFriendlyMessage(ex), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -372,31 +480,144 @@ namespace UI
             if (!_puedeEliminar) return;
 
             var row = GetSeleccionado();
-            if (row == null) return;
+            if (row == null || !row.Activo) return;
 
-            if (MessageBox.Show("msg.confirm.delete".Traducir(), Text,
+            if (MessageBox.Show("client.confirm.deactivate".Traducir(), Text,
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+
+            var nombreCliente = DisplayNameHelper.FormatearNombreConAlias(row.RazonSocial, row.Alias);
 
             try
             {
-                var res = _clienteService.DesactivarCliente(row.IdCliente);
-                if (!res.EsValido)
+                RegistrarLogInfo("clients.log.deactivate.start", nombreCliente);
+
+                var resultado = _clienteService.DesactivarCliente(row.IdCliente);
+                if (!resultado.EsValido)
                 {
-                    MessageBox.Show(res.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Cliente.Baja", res.Mensaje, "Clientes", false);
+                    RegistrarBitacora("Cliente.Baja", "clients.audit.deactivate.failure", false, resultado.Mensaje, nombreCliente, row.IdCliente);
+                    RegistrarLogWarning("clients.log.deactivate.failure", nombreCliente, resultado.Mensaje);
+                    MessageBox.Show(resultado.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
-                else
-                {
-                    _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Cliente.Baja", $"Id={row.IdCliente}", "Clientes", true);
-                    CargarClientes();
-                }
+
+                RegistrarBitacora("Cliente.Baja", "clients.audit.deactivate.success", true, null, nombreCliente, row.IdCliente);
+                RegistrarLogInfo("clients.log.deactivate.success", nombreCliente);
+                CargarClientes();
             }
             catch (Exception ex)
             {
                 var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
-                _bitacora.RegistrarAccion(SessionContext.IdUsuario, "Cliente.Baja", friendly, "Clientes", false);
+                RegistrarBitacora("Cliente.Baja", "clients.audit.deactivate.failure", false, friendly, nombreCliente, row.IdCliente);
+                RegistrarLogError("clients.log.deactivate.error", ex, nombreCliente);
                 MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void ActivarSeleccionado()
+        {
+            if (!_puedeEliminar)
+                return;
+
+            var row = GetSeleccionado();
+            if (row == null || row.Activo)
+                return;
+
+            if (MessageBox.Show("client.confirm.activate".Traducir(), Text,
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            var nombreCliente = DisplayNameHelper.FormatearNombreConAlias(row.RazonSocial, row.Alias);
+
+            try
+            {
+                RegistrarLogInfo("clients.log.activate.start", nombreCliente);
+
+                var resultado = _clienteService.ActivarCliente(row.IdCliente);
+                if (!resultado.EsValido)
+                {
+                    RegistrarBitacora("Cliente.Activar", "clients.audit.activate.failure", false, resultado.Mensaje, nombreCliente, row.IdCliente);
+                    RegistrarLogWarning("clients.log.activate.failure", nombreCliente, resultado.Mensaje);
+                    MessageBox.Show(resultado.Mensaje, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                RegistrarBitacora("Cliente.Activar", "clients.audit.activate.success", true, null, nombreCliente, row.IdCliente);
+                RegistrarLogInfo("clients.log.activate.success", nombreCliente);
+                CargarClientes();
+            }
+            catch (Exception ex)
+            {
+                var friendly = ErrorMessageHelper.GetFriendlyMessage(ex);
+                RegistrarBitacora("Cliente.Activar", "clients.audit.activate.failure", false, friendly, nombreCliente, row.IdCliente);
+                RegistrarLogError("clients.log.activate.error", ex, nombreCliente);
+                MessageBox.Show(friendly, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string ObtenerMensaje(string clave, params object[] args)
+        {
+            if (_diccionarioMensajes != null && _diccionarioMensajes.TryGetValue(clave, out var textos))
+            {
+                var mensajeEs = args != null && args.Length > 0 ? string.Format(textos.Es, args) : textos.Es;
+                var mensajeEn = args != null && args.Length > 0 ? string.Format(textos.En, args) : textos.En;
+                return string.Concat(mensajeEs, " / ", mensajeEn);
+            }
+
+            return args != null && args.Length > 0 ? string.Format(clave, args) : clave;
+        }
+
+        private void RegistrarLogInfo(string claveMensaje, params object[] args)
+        {
+            var logSvc = ServicesFactory.CrearLogService();
+            logSvc.LogInfo(ObtenerMensaje(claveMensaje, args), "Clientes", SessionContext.NombreUsuario);
+        }
+
+        private void RegistrarLogWarning(string claveMensaje, params object[] args)
+        {
+            var logSvc = ServicesFactory.CrearLogService();
+            logSvc.LogWarning(ObtenerMensaje(claveMensaje, args), "Clientes", SessionContext.NombreUsuario);
+        }
+
+        private void RegistrarLogError(string claveMensaje, Exception ex, params object[] args)
+        {
+            var logSvc = ServicesFactory.CrearLogService();
+            logSvc.LogError(ObtenerMensaje(claveMensaje, args), ex, "Clientes", SessionContext.NombreUsuario);
+        }
+
+        private void RegistrarBitacora(string accion, string claveMensaje, bool exitoso, string detalle, params object[] args)
+        {
+            var mensaje = ObtenerMensaje(claveMensaje, args);
+            _bitacora?.RegistrarAccion(SessionContext.IdUsuario, accion, mensaje, "Clientes", exitoso, exitoso ? null : detalle);
+        }
+
+        private Dictionary<string, (string Es, string En)> CrearDiccionarioMensajes()
+        {
+            return new Dictionary<string, (string Es, string En)>
+            {
+                ["clients.log.load.start"] = ("Iniciando carga de clientes.", "Starting customer load."),
+                ["clients.log.load.success"] = ("Se cargaron {0} clientes.", "Loaded {0} customers."),
+                ["clients.log.load.error"] = ("Error al cargar los clientes.", "Error loading customers."),
+                ["clients.log.search.error"] = ("Error buscando clientes con el filtro '{0}'.", "Error searching customers with filter '{0}'."),
+                ["clients.log.create.open"] = ("Abriendo formulario de alta de cliente.", "Opening customer creation form."),
+                ["clients.log.create.success"] = ("Cliente creado correctamente.", "Customer created successfully."),
+                ["clients.log.create.cancel"] = ("Creación de cliente cancelada.", "Customer creation cancelled."),
+                ["clients.log.edit.start"] = ("Iniciando edición del cliente {0}.", "Starting edition of customer {0}."),
+                ["clients.log.edit.success"] = ("Cliente {0} actualizado.", "Customer {0} updated."),
+                ["clients.log.edit.error"] = ("Error editando al cliente {0}.", "Error editing customer {0}."),
+                ["clients.log.edit.notFound"] = ("El cliente {0} ya no se encuentra disponible.", "Customer {0} is no longer available."),
+                ["clients.log.deactivate.start"] = ("Desactivando cliente {0}.", "Deactivating customer {0}."),
+                ["clients.log.deactivate.success"] = ("Cliente {0} desactivado.", "Customer {0} deactivated."),
+                ["clients.log.deactivate.failure"] = ("No se pudo desactivar al cliente {0}: {1}.", "Could not deactivate customer {0}: {1}."),
+                ["clients.log.deactivate.error"] = ("Error desactivando al cliente {0}.", "Error deactivating customer {0}."),
+                ["clients.log.activate.start"] = ("Activando cliente {0}.", "Activating customer {0}."),
+                ["clients.log.activate.success"] = ("Cliente {0} activado.", "Customer {0} activated."),
+                ["clients.log.activate.failure"] = ("No se pudo activar al cliente {0}: {1}.", "Could not activate customer {0}: {1}."),
+                ["clients.log.activate.error"] = ("Error activando al cliente {0}.", "Error activating customer {0}."),
+                ["clients.audit.deactivate.success"] = ("Se desactivó el cliente {0} (ID: {1}).", "Customer {0} (ID: {1}) was deactivated."),
+                ["clients.audit.deactivate.failure"] = ("No se pudo desactivar el cliente {0} (ID: {1}).", "Could not deactivate customer {0} (ID: {1})."),
+                ["clients.audit.activate.success"] = ("Se activó el cliente {0} (ID: {1}).", "Customer {0} (ID: {1}) was activated."),
+                ["clients.audit.activate.failure"] = ("No se pudo activar el cliente {0} (ID: {1}).", "Could not activate customer {0} (ID: {1}).")
+            };
         }
     }
 }

@@ -173,6 +173,7 @@
       <DependentUpon>UsuarioForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ArgentinaDateTimeHelper.cs" />
+    <Compile Include="Helpers\DisplayNameHelper.cs" />
     <Compile Include="Helpers\ErrorMessageHelper.cs" />
     <Compile Include="Helpers\LocalizationHelper.cs" />
     <Compile Include="Helpers\PedidoEstadoHelper.cs" />

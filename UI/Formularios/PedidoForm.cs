@@ -154,6 +154,7 @@ namespace UI
             _diccionarioMensajes = CrearDiccionarioMensajes();
 
             InitializeComponent();
+            cmbCliente.Format += CmbCliente_Format;
             panelScroll.ClientSizeChanged += PanelScroll_ClientSizeChanged;
             layoutContenido.SizeChanged += (s, e) => ActualizarAreaScroll();
             lstPagos.DataSource = _pagosRegistrados;
@@ -687,6 +688,12 @@ namespace UI
             ActualizarEstadoPedidoAutomatico();
         }
 
+        private void CmbCliente_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is Cliente cliente)
+                e.Value = DisplayNameHelper.FormatearNombreConAlias(cliente.RazonSocial, cliente.Alias);
+        }
+
         private bool EsProveedorProducto(Proveedor proveedor)
         {
             return proveedor?.TiposProveedor != null && proveedor.TiposProveedor.Any(ProveedorCatalogoHelper.EsTipoProducto);
@@ -1053,7 +1060,9 @@ namespace UI
                 IdCategoria = detalle.Producto?.IdCategoria,
                 Categoria = detalle.Producto?.Categoria?.NombreCategoria,
                 IdProveedor = detalle.Producto?.IdProveedor,
-                Proveedor = detalle.Producto?.Proveedor?.RazonSocial,
+                Proveedor = DisplayNameHelper.FormatearNombreConAlias(
+                    detalle.Producto?.Proveedor?.RazonSocial,
+                    detalle.Producto?.Proveedor?.Alias),
                 Cantidad = detalle.Cantidad,
                 PrecioUnitario = detalle.PrecioUnitario,
                 IdEstadoProducto = detalle.IdEstadoProducto,
@@ -1062,7 +1071,9 @@ namespace UI
                 FichaAplicacion = detalle.FichaAplicacion,
                 Notas = detalle.Notas,
                 IdProveedorPersonalizacion = detalle.IdProveedorPersonalizacion,
-                ProveedorPersonalizacion = detalle.ProveedorPersonalizacion?.RazonSocial,
+                ProveedorPersonalizacion = DisplayNameHelper.FormatearNombreConAlias(
+                    detalle.ProveedorPersonalizacion?.RazonSocial,
+                    detalle.ProveedorPersonalizacion?.Alias),
                 Logos = detalle.LogosPedido?.Select(MapearLogo).ToList() ?? new List<PedidoLogoViewModel>()
             };
         }
@@ -1077,7 +1088,9 @@ namespace UI
                 IdUbicacion = logo.IdUbicacionLogo,
                 Ubicacion = logo.UbicacionLogo?.NombreUbicacionLogo,
                 IdProveedor = logo.IdProveedor,
-                Proveedor = logo.Proveedor?.RazonSocial,
+                Proveedor = DisplayNameHelper.FormatearNombreConAlias(
+                    logo.Proveedor?.RazonSocial,
+                    logo.Proveedor?.Alias),
                 Cantidad = logo.Cantidad,
                 Costo = logo.CostoPersonalizacion,
                 Descripcion = logo.Descripcion

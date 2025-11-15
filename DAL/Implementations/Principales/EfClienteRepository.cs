@@ -34,6 +34,26 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
+        /// Obtiene clientes filtrados por estado de actividad incluyendo datos relacionados.
+        /// </summary>
+        /// <param name="activo">Estado deseado: true activos, false inactivos, null todos.</param>
+        /// <returns>Colección de clientes filtrados.</returns>
+        public IEnumerable<Cliente> GetClientesPorEstado(bool? activo)
+        {
+            var query = _dbSet
+                .Include(c => c.TipoEmpresa)
+                .Include(c => c.CondicionIva)
+                .AsQueryable();
+
+            if (activo.HasValue)
+                query = query.Where(c => c.Activo == activo.Value);
+
+            return query
+                .OrderBy(c => c.RazonSocial)
+                .ToList();
+        }
+
+        /// <summary>
         /// Obtiene de forma asíncrona los clientes activos incluyendo su tipo de empresa y condición impositiva.
         /// </summary>
         /// <returns>Clientes activos ordenados por razón social.</returns>
