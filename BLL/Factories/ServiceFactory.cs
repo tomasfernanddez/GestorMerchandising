@@ -18,6 +18,7 @@ namespace BLL.Factories
         // CONFIGURACIÓN CENTRALIZADA
         // =====================================================================
         private static string _connectionString;
+        private const string ConnectionStringName = "GestorMerchandisingNegocioDB";
         private static bool _databaseActualizada;
         private static readonly object _upgradeLock = new object();
 
@@ -27,7 +28,7 @@ namespace BLL.Factories
         /// </summary>
         public static void ConfigurarConnectionString(string connectionString)
         {
-            _connectionString = connectionString;
+            _connectionString = string.IsNullOrWhiteSpace(connectionString) ? null : connectionString;
             EnsureDatabaseActualizada();
         }
 
@@ -42,12 +43,12 @@ namespace BLL.Factories
                 return _connectionString;
 
             // 2. Intentar leer del app.config/web.config
-            var cs = ConfigurationManager.ConnectionStrings["GestorMerchandisingDB"]?.ConnectionString;
+            var cs = ConfigurationManager.ConnectionStrings[ConnectionStringName]?.ConnectionString;
             if (!string.IsNullOrWhiteSpace(cs))
                 return cs;
 
             // 3. Nombre por defecto (busca en app.config)
-            return "GestorMerchandisingDB";
+            return ConnectionStringName;
         }
 
         // =====================================================================
