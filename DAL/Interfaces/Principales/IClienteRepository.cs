@@ -18,6 +18,13 @@ namespace DAL.Interfaces.Principales
         IEnumerable<Cliente> GetClientesActivos();
 
         /// <summary>
+        /// Obtiene clientes filtrados por su estado de actividad.
+        /// </summary>
+        /// <param name="activo">Estado deseado: true activos, false inactivos, null todos.</param>
+        /// <returns>Colección de clientes filtrados.</returns>
+        IEnumerable<Cliente> GetClientesPorEstado(bool? activo);
+
+        /// <summary>
         /// Obtiene de forma asíncrona los clientes activos ordenados por razón social.
         /// </summary>
         /// <returns>Colección de clientes activos.</returns>

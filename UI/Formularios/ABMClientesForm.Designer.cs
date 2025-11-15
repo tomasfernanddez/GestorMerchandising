@@ -12,9 +12,12 @@ namespace UI
         private ToolStripButton tsbNuevo;
         private ToolStripButton tsbEditar;
         private ToolStripButton tsbEliminar;
+        private ToolStripButton tsbActivar;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripLabel tslBuscar;
         private ToolStripTextBox txtBuscar;
+        private ToolStripLabel lblFiltroEstado;
+        private ToolStripComboBox cboFiltroEstado;
         private ToolStripButton tsbActualizar;
         private DataGridView dgvClientes;
         private BindingSource bsClientes;
@@ -32,9 +35,12 @@ namespace UI
             this.tsbNuevo = new System.Windows.Forms.ToolStripButton();
             this.tsbEditar = new System.Windows.Forms.ToolStripButton();
             this.tsbEliminar = new System.Windows.Forms.ToolStripButton();
+            this.tsbActivar = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tslBuscar = new System.Windows.Forms.ToolStripLabel();
             this.txtBuscar = new System.Windows.Forms.ToolStripTextBox();
+            this.lblFiltroEstado = new System.Windows.Forms.ToolStripLabel();
+            this.cboFiltroEstado = new System.Windows.Forms.ToolStripComboBox();
             this.tsbActualizar = new System.Windows.Forms.ToolStripButton();
             this.dgvClientes = new System.Windows.Forms.DataGridView();
             this.bsClientes = new System.Windows.Forms.BindingSource(this.components);
@@ -50,9 +56,12 @@ namespace UI
             this.tsbNuevo,
             this.tsbEditar,
             this.tsbEliminar,
+            this.tsbActivar,
             this.toolStripSeparator1,
             this.tslBuscar,
             this.txtBuscar,
+            this.lblFiltroEstado,
+            this.cboFiltroEstado,
             this.tsbActualizar});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
@@ -80,6 +89,13 @@ namespace UI
             this.tsbEliminar.Name = "tsbEliminar";
             this.tsbEliminar.Size = new System.Drawing.Size(54, 22);
             this.tsbEliminar.Text = "Eliminar";
+            //
+            // tsbActivar
+            //
+            this.tsbActivar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbActivar.Name = "tsbActivar";
+            this.tsbActivar.Size = new System.Drawing.Size(51, 22);
+            this.tsbActivar.Text = "Activar";
             // 
             // toolStripSeparator1
             // 
@@ -99,6 +115,20 @@ namespace UI
             this.txtBuscar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtBuscar.Name = "txtBuscar";
             this.txtBuscar.Size = new System.Drawing.Size(240, 25);
+            //
+            // lblFiltroEstado
+            //
+            this.lblFiltroEstado.Margin = new System.Windows.Forms.Padding(10, 1, 0, 2);
+            this.lblFiltroEstado.Name = "lblFiltroEstado";
+            this.lblFiltroEstado.Size = new System.Drawing.Size(42, 22);
+            this.lblFiltroEstado.Text = "Estado";
+            //
+            // cboFiltroEstado
+            //
+            this.cboFiltroEstado.AutoSize = false;
+            this.cboFiltroEstado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboFiltroEstado.Name = "cboFiltroEstado";
+            this.cboFiltroEstado.Size = new System.Drawing.Size(140, 25);
             // 
             // tsbActualizar
             // 

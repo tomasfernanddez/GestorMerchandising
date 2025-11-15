@@ -62,6 +62,16 @@ namespace BLL.Services
         }
 
         /// <summary>
+        /// Obtiene clientes filtrados por estado de actividad.
+        /// </summary>
+        /// <param name="activo">Estado deseado: true activos, false inactivos, null todos.</param>
+        /// <returns>Colección de clientes filtrados según el estado.</returns>
+        public IEnumerable<Cliente> ObtenerClientesPorEstado(bool? activo = null)
+        {
+            return _unitOfWork.Clientes.GetClientesPorEstado(activo);
+        }
+
+        /// <summary>
         /// Recupera asincrónicamente los clientes que se encuentran activos.
         /// </summary>
         /// <returns>Tarea que produce una colección de clientes activos.</returns>

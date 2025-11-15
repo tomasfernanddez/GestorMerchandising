@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using BLL.Interfaces;
 using DomainModel;
 using DomainModel.Entidades;
+using UI.Helpers;
 using UI.Localization;
 using UI.ViewModels;
 
@@ -73,6 +74,7 @@ namespace UI
 
             InitializeComponent();
             InicializarControlesPersonalizados();
+            cmbProveedor.Format += CmbProveedor_Format;
         }
 
         private void PedidoDetalleForm_Load(object sender, EventArgs e)
@@ -797,8 +799,33 @@ namespace UI
                 idEstado = estadoId;
             }
 
-            var idProveedorPersonalizacion = _detalleOriginal?.IdProveedorPersonalizacion;
-            var proveedorPersonalizacion = _detalleOriginal?.ProveedorPersonalizacion;
+            var logosConProveedor = _logos?
+                .Where(l => l?.IdProveedor.HasValue == true && l.IdProveedor.Value != Guid.Empty)
+                .ToList() ?? new List<PedidoLogoViewModel>();
+
+            Guid? idProveedorPersonalizacion = null;
+            string proveedorPersonalizacion = null;
+
+            if (logosConProveedor.Count > 0)
+            {
+                var proveedorPersonalizacionId = logosConProveedor[0].IdProveedor.Value;
+                idProveedorPersonalizacion = proveedorPersonalizacionId;
+
+                var proveedorPersonalizacionEntidad = _proveedoresPersonalizacion
+                    .FirstOrDefault(p => p.IdProveedor == proveedorPersonalizacionId);
+
+                if (proveedorPersonalizacionEntidad != null)
+                {
+                    proveedorPersonalizacion = DisplayNameHelper.FormatearNombreConAlias(
+                        proveedorPersonalizacionEntidad.RazonSocial,
+                        proveedorPersonalizacionEntidad.Alias);
+                }
+                else
+                {
+                    proveedorPersonalizacion = logosConProveedor[0].Proveedor;
+                }
+            }
+
             DateTime? fechaLimite = chkFechaLimite.Checked ? dtpFechaLimite.Value.Date : (DateTime?)null;
 
             if (_fechaLimitePedido.HasValue && fechaLimite.HasValue && fechaLimite.Value >= _fechaLimitePedido.Value)
@@ -814,6 +841,8 @@ namespace UI
                 return;
             }
 
+            var proveedorSeleccionado = _proveedoresProductos.FirstOrDefault(p => p.IdProveedor == proveedorId);
+
             DetalleResult = new PedidoDetalleViewModel
             {
                 IdDetallePedido = _detalleOriginal?.IdDetallePedido ?? Guid.Empty,
@@ -822,7 +851,9 @@ namespace UI
                 IdCategoria = categoriaId,
                 Categoria = (_categorias.FirstOrDefault(c => c.IdCategoria == categoriaId)?.NombreCategoria),
                 IdProveedor = proveedorId,
-                Proveedor = (_proveedoresProductos.FirstOrDefault(p => p.IdProveedor == proveedorId)?.RazonSocial),
+                Proveedor = DisplayNameHelper.FormatearNombreConAlias(
+                    proveedorSeleccionado?.RazonSocial,
+                    proveedorSeleccionado?.Alias),
                 Cantidad = (int)nudCantidad.Value,
                 PrecioUnitario = nudPrecio.Value,
                 IdEstadoProducto = idEstado,
@@ -837,6 +868,12 @@ namespace UI
 
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void CmbProveedor_Format(object sender, ListControlConvertEventArgs e)
+        {
+            if (e.ListItem is Proveedor proveedor)
+                e.Value = DisplayNameHelper.FormatearNombreConAlias(proveedor.RazonSocial, proveedor.Alias);
         }
     }
 }

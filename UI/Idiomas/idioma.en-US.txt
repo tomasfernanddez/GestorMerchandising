@@ -156,6 +156,13 @@ cliente.pais=Country
 cliente.provincia=State/Province
 cliente.razonSocial=Business Name
 cliente.tipoEmpresa=Business Type
+client.tool.activate=Activate
+client.filter.status=Status
+client.filter.status.all=All
+client.filter.status.active=Active
+client.filter.status.inactive=Inactive
+client.confirm.deactivate=Do you want to deactivate the selected client?
+client.confirm.activate=Do you want to activate the selected client?
 
 # ============================================
 # SUPPLIER
