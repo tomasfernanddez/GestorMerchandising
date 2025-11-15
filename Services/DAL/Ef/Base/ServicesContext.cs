@@ -12,11 +12,11 @@ namespace Services.DAL.Ef.Base
 {
     public class ServicesContext : DbContext
     {
-        // Constructor - usa el connection string "GestorMerchandisingDB"
+        // Constructor - usa el connection string "GestorMerchandisingSeguridadDB"
         /// <summary>
         /// Crea un contexto utilizando el connection string por defecto de la aplicación.
         /// </summary>
-        public ServicesContext() : base("GestorMerchandisingDB")
+        public ServicesContext() : base("GestorMerchandisingSeguridadDB")
         {
             Database.SetInitializer<ServicesContext>(null);
             Configuration.LazyLoadingEnabled = true;
