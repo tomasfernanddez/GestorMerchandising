@@ -22,6 +22,7 @@ namespace Services.BLL.Factories
         // CONFIGURACIÓN CENTRALIZADA
         // =====================================================================
         private static string _connectionString;
+        private const string ConnectionStringName = "GestorMerchandisingSeguridadDB";
         private static bool _datosBaseInicializados;
         private static readonly object _initLock = new object();
 
@@ -31,7 +32,7 @@ namespace Services.BLL.Factories
         /// </summary>
         public static void ConfigurarConnectionString(string connectionString)
         {
-            _connectionString = connectionString;
+            _connectionString = string.IsNullOrWhiteSpace(connectionString) ? null : connectionString;
         }
 
         /// <summary>
@@ -45,12 +46,12 @@ namespace Services.BLL.Factories
                 return _connectionString;
 
             // 2. Intentar leer del app.config/web.config
-            var cs = ConfigurationManager.ConnectionStrings["GestorMerchandisingDB"]?.ConnectionString;
+            var cs = ConfigurationManager.ConnectionStrings[ConnectionStringName]?.ConnectionString;
             if (!string.IsNullOrWhiteSpace(cs))
                 return cs;
 
             // 3. Nombre por defecto (busca en app.config)
-            return "GestorMerchandisingDB";
+            return ConnectionStringName;
         }
 
         // =====================================================================

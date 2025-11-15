@@ -17,6 +17,12 @@ namespace DAL
     {
         public static void EnsureUpToDate(string connectionString)
         {
+            if (!DatabaseExists(connectionString))
+            {
+                Trace.TraceInformation("La base de datos indicada en la cadena de conexión no existe todavía. Se omite la ejecución automática de migraciones.");
+                return;
+            }
+
             if (ShouldSkipAutomaticUpgrade(connectionString))
             {
                 Trace.TraceWarning("Se omitió la ejecución automática de migraciones porque la base existente no posee historial de migraciones pero sí tablas de usuario. Revise la configuración de Entity Framework.");
@@ -49,22 +55,14 @@ namespace DAL
 
         private static bool ShouldSkipAutomaticUpgrade(string connectionString)
         {
-            try
+            using (var connection = new SqlConnection(connectionString))
             {
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
+                connection.Open();
 
-                    var hasMigrationHistory = TableExists(connection, "__MigrationHistory");
-                    var userTableCount = CountUserTables(connection);
+                var hasMigrationHistory = TableExists(connection, "__MigrationHistory");
+                var userTableCount = CountUserTables(connection);
 
-                    return !hasMigrationHistory && userTableCount > 0;
-                }
-            }
-            catch (SqlException)
-            {
-                // Si la base no existe todavía dejamos que DbMigrator la cree.
-                return false;
+                return !hasMigrationHistory && userTableCount > 0;
             }
         }
 
@@ -84,6 +82,38 @@ namespace DAL
             using (var command = new SqlCommand(sql, connection))
             {
                 return (int)command.ExecuteScalar();
+            }
+        }
+        private static bool DatabaseExists(string connectionString)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+            var databaseName = builder.InitialCatalog;
+
+            if (string.IsNullOrWhiteSpace(databaseName))
+            {
+                // Si no se especifica base de datos asumimos que la conexión es válida.
+                return true;
+            }
+
+            try
+            {
+                builder.InitialCatalog = "master";
+
+                using (var connection = new SqlConnection(builder.ConnectionString))
+                {
+                    connection.Open();
+                    using (var command = new SqlCommand("SELECT COUNT(*) FROM sys.databases WHERE name = @database", connection))
+                    {
+                        command.Parameters.AddWithValue("@database", databaseName);
+                        var result = (int)command.ExecuteScalar();
+                        return result > 0;
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                // Si no podemos conectar al servidor asumimos que la base no existe o no es accesible.
+                return false;
             }
         }
     }

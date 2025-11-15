@@ -60,6 +60,7 @@
     <Compile Include="Helpers\ProveedorCatalogoHelper.cs" />
     <Compile Include="Helpers\ResultadoOperacion.cs" />
     <Compile Include="Helpers\ValidationHelper.cs" />
+    <Compile Include="Infraestructure\DatabaseBootstrapper.cs" />
     <Compile Include="Interfaces\ICategoriaProductoService.cs" />
     <Compile Include="Interfaces\IClienteService.cs" />
     <Compile Include="Interfaces\ICondicionIvaService.cs" />

@@ -173,7 +173,7 @@ status.user=Usuario: {0}
 
 # ABM COMÚN
 abm.clients.title=Clientes
-abm.common.delete=Eliminar
+abm.common.delete=Desactivar
 abm.common.edit=Editar
 abm.common.new=Nuevo
 abm.common.refresh=Actualizar

@@ -17,9 +17,9 @@ namespace DAL
     public class GestorMerchandisingContext : DbContext
     {
         /// <summary>
-        /// Inicializa el contexto usando la cadena de conexión predeterminada "GestorMerchandisingDB".
+        /// Inicializa el contexto usando la cadena de conexión predeterminada "GestorMerchandisingNegocioDB".
         /// </summary>
-        public GestorMerchandisingContext() : base("GestorMerchandisingDB")
+        public GestorMerchandisingContext() : base("GestorMerchandisingNegocioDB")
         {
             Database.SetInitializer<GestorMerchandisingContext>(null);
             Configuration.LazyLoadingEnabled = true;

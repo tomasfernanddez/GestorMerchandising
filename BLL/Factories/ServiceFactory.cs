@@ -2,6 +2,7 @@
 using BLL.Services;
 using DAL;
 using DAL.Interfaces.Base;
+using DAL.ScriptsSQL;
 using System;
 using System.Configuration;
 using System.Data.Entity;
@@ -18,7 +19,9 @@ namespace BLL.Factories
         // CONFIGURACIÓN CENTRALIZADA
         // =====================================================================
         private static string _connectionString;
+        private const string ConnectionStringName = "GestorMerchandisingNegocioDB";
         private static bool _databaseActualizada;
+        private static bool _databaseInicializada;
         private static readonly object _upgradeLock = new object();
 
         /// <summary>
@@ -27,7 +30,7 @@ namespace BLL.Factories
         /// </summary>
         public static void ConfigurarConnectionString(string connectionString)
         {
-            _connectionString = connectionString;
+            _connectionString = string.IsNullOrWhiteSpace(connectionString) ? null : connectionString;
             EnsureDatabaseActualizada();
         }
 
@@ -42,12 +45,12 @@ namespace BLL.Factories
                 return _connectionString;
 
             // 2. Intentar leer del app.config/web.config
-            var cs = ConfigurationManager.ConnectionStrings["GestorMerchandisingDB"]?.ConnectionString;
+            var cs = ConfigurationManager.ConnectionStrings[ConnectionStringName]?.ConnectionString;
             if (!string.IsNullOrWhiteSpace(cs))
                 return cs;
 
             // 3. Nombre por defecto (busca en app.config)
-            return "GestorMerchandisingDB";
+            return ConnectionStringName;
         }
 
         // =====================================================================
@@ -204,16 +207,46 @@ namespace BLL.Factories
                 if (_databaseActualizada)
                     return;
 
-                var cs = ObtenerConnectionString();
-                if (string.IsNullOrWhiteSpace(cs))
+                var connectionString = ResolverConnectionString();
+                if (string.IsNullOrWhiteSpace(connectionString))
                     return;
 
-                var csSettings = ConfigurationManager.ConnectionStrings[cs];
-                var connectionString = csSettings?.ConnectionString ?? cs;
+                EnsureDatabaseInicializada(connectionString);
 
                 DatabaseUpgrade.EnsureUpToDate(connectionString);
                 _databaseActualizada = true;
             }
+        }
+
+        /// <summary>
+        /// Garantiza que el script de creación inicial se ejecute una única vez antes de aplicar migraciones.
+        /// </summary>
+        private static void EnsureDatabaseInicializada(string connectionString)
+        {
+            if (_databaseInicializada)
+                return;
+
+            lock (_upgradeLock)
+            {
+                if (_databaseInicializada)
+                    return;
+
+                DatabaseInitializer.EnsureNegocioDatabase(connectionString);
+                _databaseInicializada = true;
+            }
+        }
+
+        /// <summary>
+        /// Resuelve el connection string final a usar.
+        /// </summary>
+        private static string ResolverConnectionString()
+        {
+            var cs = ObtenerConnectionString();
+            if (string.IsNullOrWhiteSpace(cs))
+                return null;
+
+            var csSettings = ConfigurationManager.ConnectionStrings[cs];
+            return csSettings?.ConnectionString ?? cs;
         }
 
         /// <summary>

@@ -241,7 +241,7 @@ namespace Services.BLL.Services
 
             if (string.IsNullOrWhiteSpace(cs))
             {
-                cs = ConfigurationManager.ConnectionStrings["GestorMerchandisingDB"]?.ConnectionString;
+                cs = ConfigurationManager.ConnectionStrings["GestorMerchandisingSeguridadDB"]?.ConnectionString;
             }
             else
             {

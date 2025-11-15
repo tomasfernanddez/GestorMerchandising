@@ -1,4 +1,5 @@
 ﻿using BLL.Factories;
+using BLL.Infrastructure;
 using Services.BLL.Interfaces;
 using Services.BLL.Factories;
 using Services;
@@ -35,8 +36,9 @@ namespace UI
                 _culturaPorDefecto = "es-AR";
 
             // Configuración de servicios
-            var cs = ConfigurationManager.ConnectionStrings["GestorMerchandisingDB"]?.ConnectionString;
-            ServiceFactory.ConfigurarConnectionString(cs);
+            DatabaseBootstrapper.Initialize(out var csNegocio, out var csSeguridad);
+            ServiceFactory.ConfigurarConnectionString(csNegocio);
+            ServicesFactory.ConfigurarConnectionString(csSeguridad);
 
             var logSvc = ServicesFactory.CrearLogService();
             ConfigurarManejadoresGlobales(logSvc);
