@@ -47,7 +47,7 @@
             this.lblNombre.AutoSize = true;
             this.lblNombre.Location = new System.Drawing.Point(24, 24);
             this.lblNombre.Name = "lblNombre";
-            this.lblNombre.Size = new System.Drawing.Size(88, 13);
+            this.lblNombre.Size = new System.Drawing.Size(86, 13);
             this.lblNombre.TabIndex = 0;
             this.lblNombre.Text = "Nombre del perfil";
             // 
@@ -90,7 +90,7 @@
             // 
             // btnGuardar
             // 
-            this.btnGuardar.Location = new System.Drawing.Point(191, 440);
+            this.btnGuardar.Location = new System.Drawing.Point(272, 440);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(75, 27);
             this.btnGuardar.TabIndex = 7;
@@ -101,7 +101,7 @@
             // btnCancelar
             // 
             this.btnCancelar.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancelar.Location = new System.Drawing.Point(272, 440);
+            this.btnCancelar.Location = new System.Drawing.Point(191, 440);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(75, 27);
             this.btnCancelar.TabIndex = 8;
@@ -111,18 +111,18 @@
             // errorProvider1
             // 
             this.errorProvider1.ContainerControl = this;
-            //
+            // 
             // lblFunciones
-            //
+            // 
             this.lblFunciones.AutoSize = true;
             this.lblFunciones.Location = new System.Drawing.Point(24, 208);
             this.lblFunciones.Name = "lblFunciones";
-            this.lblFunciones.Size = new System.Drawing.Size(58, 13);
+            this.lblFunciones.Size = new System.Drawing.Size(56, 13);
             this.lblFunciones.TabIndex = 4;
             this.lblFunciones.Text = "Funciones";
-            //
+            // 
             // clbFunciones
-            //
+            // 
             this.clbFunciones.CheckOnClick = true;
             this.clbFunciones.FormattingEnabled = true;
             this.clbFunciones.Location = new System.Drawing.Point(27, 224);

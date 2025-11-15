@@ -232,8 +232,21 @@ namespace Services.BLL.Factories
         /// </summary>
         public static IBackupService CrearBackupService()
         {
-            var connectionString = GetConnectionStringInterno();
-            return new BackupService(connectionString);
+            var conexiones = new List<string>();
+
+            var seguridad = GetConnectionStringInterno();
+            if (!string.IsNullOrWhiteSpace(seguridad))
+            {
+                conexiones.Add(seguridad);
+            }
+
+            var negocio = ConfigurationManager.ConnectionStrings["GestorMerchandisingNegocioDB"]?.ConnectionString;
+            if (!string.IsNullOrWhiteSpace(negocio))
+            {
+                conexiones.Add(negocio);
+            }
+
+            return new BackupService(conexiones);
         }
     }
 }

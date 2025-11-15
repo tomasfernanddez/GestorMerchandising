@@ -231,7 +231,7 @@ namespace UI
             // 
             // btnGuardar
             // 
-            this.btnGuardar.Location = new System.Drawing.Point(140, 364);
+            this.btnGuardar.Location = new System.Drawing.Point(270, 369);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(110, 28);
             this.btnGuardar.TabIndex = 19;
@@ -240,7 +240,7 @@ namespace UI
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Location = new System.Drawing.Point(260, 364);
+            this.btnCancelar.Location = new System.Drawing.Point(140, 369);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(110, 28);
             this.btnCancelar.TabIndex = 20;

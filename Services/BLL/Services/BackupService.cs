@@ -12,37 +12,59 @@ namespace Services.BLL.Services
     public class BackupService : IBackupService
     {
         private readonly string _backupDirectory;
-        private readonly string _connectionString;
-        private readonly string _adminConnectionString;
-        private readonly string _databaseName;
         private readonly string _serverBackupDirectory;
+        private readonly IReadOnlyList<DatabaseBackupTarget> _databases;
+
+        /// <summary>
+        /// Obtiene la base de datos objetivo para respaldos.
+        /// <summary>
+        private sealed class DatabaseBackupTarget
+        {
+            public DatabaseBackupTarget(string databaseName, string connectionString, string adminConnectionString)
+            {
+                DatabaseName = databaseName;
+                ConnectionString = connectionString;
+                AdminConnectionString = adminConnectionString;
+            }
+
+            public string DatabaseName { get; }
+            public string ConnectionString { get; }
+            public string AdminConnectionString { get; }
+        }
 
         /// <summary>
         /// Inicializa el servicio de respaldos configurando rutas y cadenas de conexión.
         /// </summary>
         public BackupService(string connectionString = null, string backupDirectory = null)
+            : this(new[] { connectionString }, backupDirectory)
         {
-            _connectionString = ResolverConnectionString(connectionString);
-            if (string.IsNullOrWhiteSpace(_connectionString))
+        }
+
+        /// <summary>
+        /// Inicializa el servicio de respaldos para múltiples bases de datos.
+        /// </summary>
+        public BackupService(IEnumerable<string> connectionStrings, string backupDirectory = null)
+        {
+            if (connectionStrings == null)
             {
-                throw new InvalidOperationException("No se encontró la cadena de conexión de la base de datos.");
+                throw new ArgumentNullException(nameof(connectionStrings));
             }
 
-            var builder = new SqlConnectionStringBuilder(_connectionString);
-            if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
+            var objetivos = connectionStrings
+                            .Select(ResolverConnectionString)
+                            .Where(cs => !string.IsNullOrWhiteSpace(cs))
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .Select(CrearObjetivoBackup)
+                            .ToList();
+
+            if (objetivos.Count == 0)
             {
-                throw new InvalidOperationException("La cadena de conexión no especifica la base de datos a respaldar.");
+                throw new InvalidOperationException("No se encontraron cadenas de conexión de bases de datos para respaldar.");
             }
 
-            _databaseName = builder.InitialCatalog;
+            _databases = objetivos.AsReadOnly();
 
-            var adminBuilder = new SqlConnectionStringBuilder(_connectionString)
-            {
-                InitialCatalog = "master"
-            };
-            _adminConnectionString = adminBuilder.ConnectionString;
-
-            _serverBackupDirectory = ObtenerDirectorioBackupServidor();
+            _serverBackupDirectory = ObtenerDirectorioBackupServidor(_databases);
             _backupDirectory = PrepararDirectorioBackups(backupDirectory);
         }
 
@@ -53,13 +75,23 @@ namespace Services.BLL.Services
         {
             var ruta = ObtenerRutaBackup(rutaDestino);
 
-            using (var connection = new SqlConnection(_adminConnectionString))
-            using (var command = connection.CreateCommand())
+            var primeraBase = true;
+
+            foreach (var database in _databases)
             {
-                connection.Open();
-                command.CommandTimeout = 0;
-                command.CommandText = $"BACKUP DATABASE [{_databaseName}] TO DISK = N'{EscaparRuta(ruta)}' WITH INIT, FORMAT, NAME = N'{_databaseName} Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 5";
-                command.ExecuteNonQuery();
+                using (var connection = new SqlConnection(database.AdminConnectionString))
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    command.CommandTimeout = 0;
+
+                    var opcionesIniciales = primeraBase ? "WITH INIT, FORMAT" : "WITH NOFORMAT, NOINIT";
+                    command.CommandText =
+                        $"BACKUP DATABASE [{database.DatabaseName}] TO DISK = N'{EscaparRuta(ruta)}' {opcionesIniciales}, NAME = N'{database.DatabaseName} Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 5";
+                    command.ExecuteNonQuery();
+                }
+
+                primeraBase = false;
             }
 
             return ruta;
@@ -80,32 +112,40 @@ namespace Services.BLL.Services
                 throw new FileNotFoundException("No se encontró el archivo de backup especificado.", rutaArchivo);
             }
 
-            using (var connection = new SqlConnection(_adminConnectionString))
-            using (var command = connection.CreateCommand())
+            var indice = 1;
+
+            foreach (var database in _databases)
             {
-                connection.Open();
-                command.CommandTimeout = 0;
-
-                command.CommandText = $"ALTER DATABASE [{_databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE";
-                command.ExecuteNonQuery();
-
-                try
+                using (var connection = new SqlConnection(database.AdminConnectionString))
+                using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"RESTORE DATABASE [{_databaseName}] FROM DISK = N'{EscaparRuta(rutaArchivo)}' WITH REPLACE, STATS = 5";
+                    connection.Open();
+                    command.CommandTimeout = 0;
+
+                    command.CommandText = $"ALTER DATABASE [{database.DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE";
                     command.ExecuteNonQuery();
-                }
-                finally
-                {
+
                     try
                     {
-                        command.CommandText = $"ALTER DATABASE [{_databaseName}] SET MULTI_USER";
+                        command.CommandText =
+                            $"RESTORE DATABASE [{database.DatabaseName}] FROM DISK = N'{EscaparRuta(rutaArchivo)}' WITH FILE = {indice}, REPLACE, STATS = 5";
                         command.ExecuteNonQuery();
                     }
-                    catch
+                    finally
                     {
-                        // Si falla el cambio de modo, no detener el flujo; el administrador puede ajustarlo manualmente.
+                        try
+                        {
+                            command.CommandText = $"ALTER DATABASE [{database.DatabaseName}] SET MULTI_USER";
+                            command.ExecuteNonQuery();
+                        }
+                        catch
+                        {
+                            // Si falla el cambio de modo, no detener el flujo; el administrador puede ajustarlo manualmente.
+                        }
                     }
                 }
+
+                indice++;
             }
         }
 
@@ -149,7 +189,14 @@ namespace Services.BLL.Services
         /// </summary>
         public string GenerarNombreSugerido()
         {
-            return $"{_databaseName}_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
+            var nombreBase = _databases.Count == 1
+                ? _databases[0].DatabaseName
+                : string.Join("_", _databases.Select(db => db.DatabaseName));
+
+            var caracteresInvalidos = Path.GetInvalidFileNameChars();
+            var limpio = new string(nombreBase.Select(c => caracteresInvalidos.Contains(c) ? '_' : c).ToArray());
+
+            return $"{limpio}_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
         }
 
         /// <summary>
@@ -235,7 +282,7 @@ namespace Services.BLL.Services
         /// <summary>
         /// Resuelve la cadena de conexión a utilizar para las operaciones de backup.
         /// </summary>
-        private string ResolverConnectionString(string connectionStringOrName)
+        private static string ResolverConnectionString(string connectionStringOrName)
         {
             var cs = connectionStringOrName;
 
@@ -256,6 +303,25 @@ namespace Services.BLL.Services
         }
 
         /// <summary>
+        /// Crea el objetivo de backup a partir de la cadena de conexión.
+        /// <summary>
+        private static DatabaseBackupTarget CrearObjetivoBackup(string connectionString)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+            if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
+            {
+                throw new InvalidOperationException("La cadena de conexión no especifica la base de datos a respaldar.");
+            }
+
+            var adminBuilder = new SqlConnectionStringBuilder(connectionString)
+            {
+                InitialCatalog = "master"
+            };
+
+            return new DatabaseBackupTarget(builder.InitialCatalog, connectionString, adminBuilder.ConnectionString);
+        }
+
+        /// <summary>
         /// Escapa comillas simples en la ruta para uso en comandos SQL.
         /// </summary>
         private static string EscaparRuta(string ruta)
@@ -266,37 +332,41 @@ namespace Services.BLL.Services
         /// <summary>
         /// Obtiene el directorio de backup configurado en el servidor SQL, si está disponible.
         /// </summary>
-        private string ObtenerDirectorioBackupServidor()
+        private string ObtenerDirectorioBackupServidor(IEnumerable<DatabaseBackupTarget> databases)
         {
-            try
+            foreach (var database in databases)
             {
-                using (var connection = new SqlConnection(_adminConnectionString))
-                using (var command = connection.CreateCommand())
+                try
                 {
-                    connection.Open();
-
-                    command.CommandText = "SELECT CAST(ISNULL(SERVERPROPERTY('InstanceDefaultBackupPath'), '') AS NVARCHAR(4000))";
-                    var resultado = command.ExecuteScalar() as string;
-                    if (!string.IsNullOrWhiteSpace(resultado))
+                    using (var connection = new SqlConnection(database.AdminConnectionString))
+                    using (var command = connection.CreateCommand())
                     {
-                        return resultado;
-                    }
+                        connection.Open();
 
-                    command.CommandText = "DECLARE @ruta NVARCHAR(4000); EXEC master.dbo.xp_instance_regread N'HKEY_LOCAL_MACHINE', N'Software\\Microsoft\\MSSQLServer\\MSSQLServer', N'BackupDirectory', @ruta OUTPUT; SELECT ISNULL(@ruta, '')";
-                    resultado = command.ExecuteScalar() as string;
-                    if (!string.IsNullOrWhiteSpace(resultado))
-                    {
-                        return resultado;
+                        command.CommandText = "SELECT CAST(ISNULL(SERVERPROPERTY('InstanceDefaultBackupPath'), '') AS NVARCHAR(4000))";
+                        var resultado = command.ExecuteScalar() as string;
+                        if (!string.IsNullOrWhiteSpace(resultado))
+                        {
+                            return resultado;
+                        }
+
+                        command.CommandText = "DECLARE @ruta NVARCHAR(4000); EXEC master.dbo.xp_instance_regread N'HKEY_LOCAL_MACHINE', N'Software\\Microsoft\\MSSQLServer\\MSSQLServer', N'BackupDirectory', @ruta OUTPUT; SELECT ISNULL(@ruta, '')";
+                        resultado = command.ExecuteScalar() as string;
+                        if (!string.IsNullOrWhiteSpace(resultado))
+                        {
+                            return resultado;
+                        }
                     }
                 }
-            }
-            catch (SqlException)
-            {
                 // Ignorar y usar las rutas configuradas.
-            }
-            catch (InvalidOperationException)
-            {
-                // Ignorar y usar las rutas configuradas.
+                catch (SqlException)
+                {
+                    // Ignorar y continuar probando con otras bases.
+                }
+                catch (InvalidOperationException)
+                {
+                    // Ignorar y continuar probando con otras bases.
+                }
             }
 
             return null;

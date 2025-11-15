@@ -64,10 +64,10 @@ namespace UI
             this.lblCondicionIVA = new System.Windows.Forms.Label();
             this.txtCUIT = new System.Windows.Forms.TextBox();
             this.lblCUIT = new System.Windows.Forms.Label();
-            this.txtRazonSocial = new System.Windows.Forms.TextBox();
-            this.lblRazonSocial = new System.Windows.Forms.Label();
             this.txtAlias = new System.Windows.Forms.TextBox();
             this.lblAlias = new System.Windows.Forms.Label();
+            this.txtRazonSocial = new System.Windows.Forms.TextBox();
+            this.lblRazonSocial = new System.Windows.Forms.Label();
             this.grpUbicacion = new System.Windows.Forms.GroupBox();
             this.cboLocalidad = new System.Windows.Forms.ComboBox();
             this.lblLocalidad = new System.Windows.Forms.Label();
@@ -140,7 +140,7 @@ namespace UI
             this.chkActivo.AutoSize = true;
             this.chkActivo.Location = new System.Drawing.Point(324, 207);
             this.chkActivo.Name = "chkActivo";
-            this.chkActivo.Size = new System.Drawing.Size(113, 17);
+            this.chkActivo.Size = new System.Drawing.Size(125, 17);
             this.chkActivo.TabIndex = 10;
             this.chkActivo.Text = "supplier.status.active";
             this.chkActivo.UseVisualStyleBackColor = true;
@@ -162,9 +162,9 @@ namespace UI
             this.lblCondicionesPago.TabIndex = 8;
             this.lblCondicionesPago.Text = "supplier.condicionesPago";
             this.lblCondicionesPago.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            //
+            // 
             // clbTiposProveedor
-            //
+            // 
             this.clbTiposProveedor.CheckOnClick = true;
             this.clbTiposProveedor.FormattingEnabled = true;
             this.clbTiposProveedor.Location = new System.Drawing.Point(140, 126);
@@ -215,6 +215,22 @@ namespace UI
             this.lblCUIT.Text = "supplier.cuit";
             this.lblCUIT.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // txtAlias
+            // 
+            this.txtAlias.Location = new System.Drawing.Point(140, 45);
+            this.txtAlias.Name = "txtAlias";
+            this.txtAlias.Size = new System.Drawing.Size(360, 20);
+            this.txtAlias.TabIndex = 2;
+            // 
+            // lblAlias
+            // 
+            this.lblAlias.Location = new System.Drawing.Point(20, 45);
+            this.lblAlias.Name = "lblAlias";
+            this.lblAlias.Size = new System.Drawing.Size(110, 20);
+            this.lblAlias.TabIndex = 13;
+            this.lblAlias.Text = "supplier.alias";
+            this.lblAlias.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // txtRazonSocial
             // 
             this.txtRazonSocial.Location = new System.Drawing.Point(140, 18);
@@ -230,22 +246,6 @@ namespace UI
             this.lblRazonSocial.TabIndex = 0;
             this.lblRazonSocial.Text = "supplier.razonSocial";
             this.lblRazonSocial.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            //
-            // txtAlias
-            //
-            this.txtAlias.Location = new System.Drawing.Point(140, 45);
-            this.txtAlias.Name = "txtAlias";
-            this.txtAlias.Size = new System.Drawing.Size(360, 20);
-            this.txtAlias.TabIndex = 2;
-            //
-            // lblAlias
-            //
-            this.lblAlias.Location = new System.Drawing.Point(20, 45);
-            this.lblAlias.Name = "lblAlias";
-            this.lblAlias.Size = new System.Drawing.Size(110, 20);
-            this.lblAlias.TabIndex = 13;
-            this.lblAlias.Text = "supplier.alias";
-            this.lblAlias.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // grpUbicacion
             // 
@@ -395,7 +395,7 @@ namespace UI
             // 
             // btnGuardar
             // 
-            this.btnGuardar.Location = new System.Drawing.Point(552, 450);
+            this.btnGuardar.Location = new System.Drawing.Point(712, 456);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(120, 32);
             this.btnGuardar.TabIndex = 4;
@@ -405,7 +405,7 @@ namespace UI
             // btnCancelar
             // 
             this.btnCancelar.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancelar.Location = new System.Drawing.Point(712, 450);
+            this.btnCancelar.Location = new System.Drawing.Point(552, 456);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(120, 32);
             this.btnCancelar.TabIndex = 5;
@@ -441,6 +441,7 @@ namespace UI
             this.grpObservaciones.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
+
         }
     }
 }
