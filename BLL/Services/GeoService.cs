@@ -13,8 +13,13 @@ namespace BLL.Services
     public class GeoService : IGeoService
     {
         private readonly IUnitOfWork _uow;
+        /// <summary>
+        /// Inicializa una nueva instancia de GeoService.
+        /// </summary>
         public GeoService(IUnitOfWork uow) { _uow = uow; }
-
+        /// <summary>
+        /// Lista paises.
+        /// </summary>
         public IList<GeoDTO> ListarPaises()
         {
             return _uow.Set<Pais>()
@@ -23,6 +28,9 @@ namespace BLL.Services
                        .ToList();
         }
 
+        /// <summary>
+        /// Lista provincias por pais.
+        /// </summary>
         public IList<GeoDTO> ListarProvinciasPorPais(Guid idPais)
         {
             return _uow.Set<Provincia>()
@@ -32,6 +40,9 @@ namespace BLL.Services
                        .ToList();
         }
 
+        /// <summary>
+        /// Lista localidades por provincia.
+        /// </summary>
         public IList<GeoDTO> ListarLocalidadesPorProvincia(Guid idProvincia)
         {
             return _uow.Set<Localidad>()

@@ -17,11 +17,17 @@ namespace BLL.Services
         private Guid? _estadoProduccionIdCache;
         private const decimal IVA_DEFAULT = 0.21m;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de PedidoService.
+        /// </summary>
         public PedidoService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
+        /// <summary>
+        /// Obtiene pedidos.
+        /// </summary>
         public IEnumerable<Pedido> ObtenerPedidos(PedidoFiltro filtro = null)
         {
             if (filtro == null)
@@ -100,6 +106,9 @@ namespace BLL.Services
             return pedidos.ToList();
         }
 
+        /// <summary>
+        /// Obtiene pedido.
+        /// </summary>
         public Pedido ObtenerPedido(Guid idPedido, bool incluirDetalles = true)
         {
             if (idPedido == Guid.Empty)
@@ -110,6 +119,9 @@ namespace BLL.Services
                 : _unitOfWork.Pedidos.GetById(idPedido);
         }
 
+        /// <summary>
+        /// Crea pedido.
+        /// </summary>
         public ResultadoOperacion CrearPedido(Pedido pedido)
         {
             if (pedido == null)
@@ -130,6 +142,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza pedido.
+        /// </summary>
         public ResultadoOperacion ActualizarPedido(Pedido pedido)
         {
             if (pedido == null || pedido.IdPedido == Guid.Empty)
@@ -268,6 +283,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Cambia estado de pedido.
+        /// </summary>
         public ResultadoOperacion CambiarEstado(Guid idPedido, Guid idEstado, string comentario, string usuario)
         {
             if (idPedido == Guid.Empty || idEstado == Guid.Empty)
@@ -303,6 +321,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Cancelar pedido.
+        /// </summary>
         public ResultadoOperacion CancelarPedido(Guid idPedido, string usuario, string comentario)
         {
             if (idPedido == Guid.Empty)
@@ -368,6 +389,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Registra nota.
+        /// </summary>
         public ResultadoOperacion RegistrarNota(Guid idPedido, string nota, string usuario)
         {
             if (idPedido == Guid.Empty || string.IsNullOrWhiteSpace(nota))
@@ -398,6 +422,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Genera proximo numero pedido.
+        /// </summary>
         public string GenerarProximoNumeroPedido()
         {
             var pedidos = _unitOfWork.Pedidos.GetAll();
@@ -409,16 +436,25 @@ namespace BLL.Services
             return (max + 1).ToString("D4");
         }
 
+        /// <summary>
+        /// Obtiene estados pedido.
+        /// </summary>
         public IEnumerable<EstadoPedido> ObtenerEstadosPedido()
         {
             return _unitOfWork.EstadosPedido.GetEstadosOrdenados();
         }
 
+        /// <summary>
+        /// Obtiene estados producto.
+        /// </summary>
         public IEnumerable<EstadoProducto> ObtenerEstadosProducto()
         {
             return _unitOfWork.EstadosProducto.GetEstadosOrdenados();
         }
 
+        /// <summary>
+        /// Obtiene tipos de pago.
+        /// </summary>
         public IEnumerable<TipoPago> ObtenerTiposPago()
         {
             var ctx = ObtenerContexto();
@@ -427,6 +463,9 @@ namespace BLL.Services
                 .ToList() ?? new List<TipoPago>();
         }
 
+        /// <summary>
+        /// Obtiene técnicas de personalización.
+        /// </summary>
         public IEnumerable<TecnicaPersonalizacion> ObtenerTecnicasPersonalizacion()
         {
             var ctx = ObtenerContexto();
@@ -435,6 +474,9 @@ namespace BLL.Services
                 .ToList() ?? new List<TecnicaPersonalizacion>();
         }
 
+        /// <summary>
+        /// Obtiene ubicaciones de logo.
+        /// </summary>
         public IEnumerable<UbicacionLogo> ObtenerUbicacionesLogo()
         {
             var ctx = ObtenerContexto();
@@ -443,6 +485,9 @@ namespace BLL.Services
                 .ToList() ?? new List<UbicacionLogo>();
         }
 
+        /// <summary>
+        /// Prepara pedido.
+        /// </summary>
         private void PrepararPedido(Pedido pedido, bool esNuevo)
         {
             if (esNuevo)
@@ -587,6 +632,9 @@ namespace BLL.Services
             RecalcularTotales(pedido);
         }
 
+        /// <summary>
+        /// Prepara detalle de pedido.
+        /// </summary>
         private void PrepararDetalle(Pedido pedido, PedidoDetalle detalle)
         {
             if (detalle == null)
@@ -615,6 +663,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Resuelve el producto para un detalle de pedido, creando uno nuevo si es necesario.
+        /// </summary>
         private Producto ResolverProducto(Producto productoEntrada, PedidoDetalle detalle)
         {
             if (productoEntrada == null && detalle?.Producto == null)
@@ -654,6 +705,9 @@ namespace BLL.Services
             return nuevo;
         }
 
+        /// <summary>
+        /// Sincroniza los detalles del pedido.
+        /// </summary>
         private void SincronizarDetalles(Pedido destino, IEnumerable<PedidoDetalle> nuevosDetalles)
         {
             var ctx = ObtenerContexto();
@@ -751,6 +805,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Sincroniza los pagos del pedido.
+        /// </summary>
         private void SincronizarPagos(Pedido destino, IEnumerable<PedidoPago> nuevosPagos)
         {
             var ctx = ObtenerContexto();
@@ -810,6 +867,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Recalcula los totales del pedido.
+        /// </summary>
         private void RecalcularTotales(Pedido pedido)
         {
             var totalProductos = pedido.Detalles
@@ -829,6 +889,9 @@ namespace BLL.Services
             pedido.SaldoPendiente = Math.Max(0, Math.Round(pedido.TotalConIva - pedido.MontoPagado, 2));
         }
 
+        /// <summary>
+        /// Asegura que el pedido tenga un estado por defecto si no tiene uno asignado.
+        /// </summary>
         private void AsegurarEstadoPorDefecto(Pedido pedido)
         {
             if (pedido == null || pedido.IdEstadoPedido.HasValue)
@@ -841,6 +904,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene el estado de producción por defecto.
+        /// </summary>
         private Guid? ObtenerEstadoProduccionPorDefecto()
         {
             if (_estadoProduccionIdCache.HasValue)
@@ -857,6 +923,9 @@ namespace BLL.Services
             return null;
         }
 
+        /// <summary>
+        /// Obtiene si el nombre corresponde a un estado de producción.
+        /// </summary>
         private static bool EsEstadoProduccion(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
@@ -867,6 +936,9 @@ namespace BLL.Services
                    || compare.IndexOf(nombre, "produccion", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
+        /// <summary>
+        /// Determina si el nombre corresponde a un estado de cancelado.
+        /// </summary>
         private static bool EsEstadoCancelado(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
@@ -877,11 +949,17 @@ namespace BLL.Services
                    || compare.IndexOf(nombre, "cancelled", CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
+        /// <summary>
+        /// Obtiene el mensaje de error más profundo de una excepción.
+        /// </summary>
         private static string ObtenerMensajeProfundo(Exception ex)
         {
             return ex?.GetBaseException().Message ?? ex?.Message ?? string.Empty;
         }
 
+        /// <summary>
+        /// Normaliza el número de pedido eliminando caracteres no numéricos.
+        /// </summary>
         private static string NormalizarNumeroPedido(string numero)
         {
             if (string.IsNullOrWhiteSpace(numero))
@@ -891,6 +969,9 @@ namespace BLL.Services
             return digits;
         }
 
+        /// <summary>
+        /// Analiza el número de pedido y devuelve su valor entero.
+        /// </summary>
         private static int ParseNumeroPedido(string numero)
         {
             var normalizado = NormalizarNumeroPedido(numero);
@@ -900,6 +981,9 @@ namespace BLL.Services
             return int.TryParse(normalizado, out var valor) ? valor : 0;
         }
 
+        /// <summary>
+        /// Sincroniza los archivos adjuntos del pedido.
+        /// </summary>
         private void SincronizarAdjuntos(Pedido existente, Pedido pedido, GestorMerchandisingContext ctx)
         {
             var adjuntosNuevos = pedido.Adjuntos?.ToList() ?? new List<ArchivoAdjunto>();
@@ -935,6 +1019,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene el contexto de base de datos desde la unidad de trabajo.
+        /// </summary>
         private GestorMerchandisingContext ObtenerContexto()
         {
             if (_unitOfWork is IHasDbContext hasDb)

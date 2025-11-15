@@ -10,6 +10,9 @@ namespace BLL.Helpers
 {
     public static class PedidoMuestraEstadoResolver
     {
+        /// <summary>
+        /// Calcula estado.
+        /// </summary>
         public static EstadoCalculado CalcularEstado(IEnumerable<DetalleMuestra> detalles, IEnumerable<EstadoPedidoMuestra> estadosPedido)
         {
             var nombres = detalles?
@@ -19,6 +22,9 @@ namespace BLL.Helpers
 
             return CalcularEstado(nombres, estadosPedido);
         }
+        /// <summary>
+        /// Calcula estado.
+        /// </summary>
 
         public static EstadoCalculado CalcularEstado(IEnumerable<string> estadosDetalle, IEnumerable<EstadoPedidoMuestra> estadosPedido)
         {
@@ -68,6 +74,9 @@ namespace BLL.Helpers
 
             return CrearResultado(BuscarEstadoPorNombre(catalogo, "Pendiente de Envio") ?? catalogo.FirstOrDefault());
         }
+        /// <summary>
+        /// Normaliza estados.
+        /// </summary>
 
         private static List<string> NormalizarEstados(IEnumerable<string> estados)
         {
@@ -77,6 +86,9 @@ namespace BLL.Helpers
                 .ToList()
                 ?? new List<string>();
         }
+        /// <summary>
+        /// Normaliza.
+        /// </summary>
 
         private static string Normalizar(string texto)
         {
@@ -85,6 +97,9 @@ namespace BLL.Helpers
             var limpio = new string(chars.ToArray());
             return limpio.Normalize(NormalizationForm.FormC).ToLowerInvariant();
         }
+        /// <summary>
+        /// Busca estado por nombre.
+        /// </summary>
 
         private static EstadoPedidoMuestra BuscarEstadoPorNombre(IEnumerable<EstadoPedidoMuestra> estados, string nombreBuscado)
         {
@@ -104,6 +119,9 @@ namespace BLL.Helpers
 
             return null;
         }
+        /// <summary>
+        /// Crea resultado.
+        /// </summary>
 
         private static EstadoCalculado CrearResultado(EstadoPedidoMuestra estado)
         {

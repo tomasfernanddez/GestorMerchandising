@@ -7,6 +7,9 @@ using DomainModel.Entidades;
 
 namespace BLL.Helpers
 {
+    /// <summary>
+    /// Calcula estado.
+    /// </summary>
     public static class PedidoEstadoResolver
     {
         public static EstadoCalculado CalcularEstado(IEnumerable<string> estadosDetalle, IEnumerable<EstadoPedido> estadosPedido)
@@ -51,6 +54,9 @@ namespace BLL.Helpers
             return CrearResultado(catalogo.FirstOrDefault());
         }
 
+        /// <summary>
+        /// Normaliza estados.
+        /// </summary>
         private static List<string> NormalizarEstados(IEnumerable<string> estados)
         {
             return estados?
@@ -60,6 +66,9 @@ namespace BLL.Helpers
                 ?? new List<string>();
         }
 
+        /// <summary>
+        /// Normaliza.
+        /// </summary>
         private static string Normalizar(string texto)
         {
             var formD = texto.Normalize(NormalizationForm.FormD);
@@ -68,12 +77,18 @@ namespace BLL.Helpers
             return limpio.Normalize(NormalizationForm.FormC).ToLowerInvariant();
         }
 
+        /// <summary>
+        /// Determina si contiene.
+        /// </summary>
         private static bool Contiene(string texto, string keyword)
         {
             var compare = CultureInfo.InvariantCulture.CompareInfo;
             return compare.IndexOf(texto ?? string.Empty, keyword, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         }
 
+        /// <summary>
+        /// Busca estado.
+        /// </summary>
         private static EstadoPedido BuscarEstado(IEnumerable<EstadoPedido> estados, string keyword)
         {
             if (estados == null)
@@ -95,6 +110,9 @@ namespace BLL.Helpers
             return null;
         }
 
+        /// <summary>
+        /// Crea resultado.
+        /// </summary>
         private static EstadoCalculado CrearResultado(EstadoPedido estado)
         {
             return new EstadoCalculado(estado?.IdEstadoPedido, estado?.NombreEstadoPedido);

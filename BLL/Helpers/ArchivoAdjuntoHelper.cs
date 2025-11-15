@@ -29,16 +29,25 @@ namespace BLL.Helpers
             [".png"] = "image/png"
         };
 
+        /// <summary>
+        /// Prepara adjuntos para pedido.
+        /// </summary>
         public static void PrepararAdjuntosParaPedido(ICollection<ArchivoAdjunto> adjuntos, Guid idPedido)
         {
             ProcesarAdjuntos(adjuntos, idPedido, null);
         }
 
+        /// <summary>
+        /// Prepara adjuntos para pedido muestra.
+        /// </summary>
         public static void PrepararAdjuntosParaPedidoMuestra(ICollection<ArchivoAdjunto> adjuntos, Guid idPedidoMuestra)
         {
             ProcesarAdjuntos(adjuntos, null, idPedidoMuestra);
         }
 
+        /// <summary>
+        /// Actualiza adjunto existente.
+        /// </summary>
         public static void ActualizarAdjuntoExistente(ArchivoAdjunto destino, ArchivoAdjunto origen)
         {
             if (destino == null)
@@ -79,6 +88,9 @@ namespace BLL.Helpers
                 : (destino.FechaSubida == default ? DateTime.UtcNow : AsegurarUtc(destino.FechaSubida));
         }
 
+        /// <summary>
+        /// Procesa adjuntos.
+        /// </summary>
         private static void ProcesarAdjuntos(ICollection<ArchivoAdjunto> adjuntos, Guid? idPedido, Guid? idPedidoMuestra)
         {
             if (adjuntos == null || adjuntos.Count == 0)
@@ -125,6 +137,9 @@ namespace BLL.Helpers
             }
         }
 
+        /// <summary>
+        /// Normaliza nombre.
+        /// </summary>
         private static string NormalizarNombre(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
@@ -137,6 +152,9 @@ namespace BLL.Helpers
             return limpio;
         }
 
+        /// <summary>
+        /// Normaliza extension.
+        /// </summary>
         private static string NormalizarExtension(string extension)
         {
             if (string.IsNullOrWhiteSpace(extension))
@@ -155,6 +173,9 @@ namespace BLL.Helpers
             return valor.ToUpperInvariant();
         }
 
+        /// <summary>
+        /// Normaliza tipo contenido.
+        /// </summary>
         private static string NormalizarTipoContenido(string tipo, string extension)
         {
             if (!string.IsNullOrWhiteSpace(tipo))
@@ -166,6 +187,9 @@ namespace BLL.Helpers
             return "application/octet-stream";
         }
 
+        /// <summary>
+        /// Normaliza descripcion.
+        /// </summary>
         private static string NormalizarDescripcion(string descripcion)
         {
             if (string.IsNullOrWhiteSpace(descripcion))
@@ -174,6 +198,9 @@ namespace BLL.Helpers
             return descripcion.Trim();
         }
 
+        /// <summary>
+        /// Normaliza nombre usuario.
+        /// </summary>
         private static string NormalizarNombreUsuario(string nombreUsuario)
         {
             if (string.IsNullOrWhiteSpace(nombreUsuario))
@@ -182,6 +209,9 @@ namespace BLL.Helpers
             return nombreUsuario.Trim();
         }
 
+        /// <summary>
+        /// Asegura utc.
+        /// </summary>
         private static DateTime AsegurarUtc(DateTime fecha)
         {
             if (fecha == default)
@@ -198,6 +228,9 @@ namespace BLL.Helpers
             }
         }
 
+        /// <summary>
+        /// Valida contenido.
+        /// </summary>
         private static void ValidarContenido(byte[] contenido)
         {
             if (contenido.LongLength > MaxFileSizeBytes)

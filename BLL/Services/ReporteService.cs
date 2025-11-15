@@ -13,11 +13,17 @@ namespace BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de ReporteService.
+        /// </summary>
         public ReporteService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
+        /// <summary>
+        /// Obtiene ventas por periodo.
+        /// </summary>
         public IList<VentaPeriodoDetalle> ObtenerVentasPorPeriodo(VentasPeriodoFiltro filtro)
         {
             var pedidos = ObtenerPedidos();
@@ -60,6 +66,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene categorias mas vendidas.
+        /// </summary>
         public IList<VentaCategoriaResumen> ObtenerCategoriasMasVendidas(ReportePeriodoFiltro filtro)
         {
             var pedidos = FiltrarPedidosPorPeriodo(ObtenerPedidos(), filtro);
@@ -85,6 +94,9 @@ namespace BLL.Services
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene facturacion por periodo.
+        /// </summary>
         public IList<FacturacionPeriodoResumen> ObtenerFacturacionPorPeriodo(ReportePeriodoFiltro filtro)
         {
             var tipo = filtro?.Tipo ?? ReportePeriodoTipo.Mensual;
@@ -183,6 +195,9 @@ namespace BLL.Services
                 .ToList();
         }
 
+        /// <summary>
+        /// Determina si un detalle de muestra es facturable.
+        /// </summary>
         private static bool EsDetalleFacturable(DetalleMuestra detalle)
         {
             if (detalle?.EstadoMuestra == null)
@@ -193,6 +208,9 @@ namespace BLL.Services
                 || string.Equals(nombreEstado, "Facturado", StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        /// Obtiene pedidos por cliente.
+        /// </summary>
         public IList<PedidoClienteResumen> ObtenerPedidosPorCliente(PedidosClienteFiltro filtro)
         {
             var pedidos = FiltrarPedidosPorPeriodo(ObtenerPedidos(), filtro);
@@ -217,6 +235,9 @@ namespace BLL.Services
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene pedidos por proveedor.
+        /// </summary>
         public IList<PedidoProveedorResumen> ObtenerPedidosPorProveedor(ReportePeriodoFiltro filtro)
         {
             var pedidos = FiltrarPedidosPorPeriodo(ObtenerPedidos(), filtro);
@@ -244,6 +265,9 @@ namespace BLL.Services
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene mejores clientes.
+        /// </summary>
         public IList<ClienteRankingResumen> ObtenerMejoresClientes(ReportePeriodoFiltro filtro)
         {
             var pedidos = FiltrarPedidosPorPeriodo(ObtenerPedidos(), filtro);
@@ -262,6 +286,9 @@ namespace BLL.Services
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene clientes con saldo.
+        /// </summary>
         public IList<CuentaPorCobrarResumen> ObtenerClientesConSaldo()
         {
             var pedidos = ObtenerPedidos();
@@ -285,16 +312,25 @@ namespace BLL.Services
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene todos los pedidos.
+        /// </summary>
         private List<Pedido> ObtenerPedidos()
         {
             return _unitOfWork.Pedidos.GetAll()?.ToList() ?? new List<Pedido>();
         }
 
+        /// <summary>
+        /// Obtiene todas las facturas.
+        /// </summary>
         private List<FacturaCabecera> ObtenerFacturas()
         {
             return _unitOfWork.FacturasCabecera.GetAll()?.ToList() ?? new List<FacturaCabecera>();
         }
 
+        /// <summary>
+        /// Filtra pedidos por periodo.
+        /// </summary>
         private static IEnumerable<Pedido> FiltrarPedidosPorPeriodo(IEnumerable<Pedido> pedidos, ReportePeriodoFiltro filtro)
         {
             if (pedidos == null)
@@ -323,6 +359,9 @@ namespace BLL.Services
             return pedidos;
         }
 
+        /// <summary>
+        /// Filtra pedidos por ventas en periodo.
+        /// </summary>
         private static IEnumerable<Pedido> FiltrarPedidosPorVentas(IEnumerable<Pedido> pedidos, VentasPeriodoFiltro filtro)
         {
             if (pedidos == null)

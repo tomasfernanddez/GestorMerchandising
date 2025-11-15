@@ -10,10 +10,18 @@ namespace DAL.Implementations.Referencia
 {
     public class EfEstadoPedidoMuestraRepository : EfRepository<EstadoPedidoMuestra>, IEstadoPedidoMuestraRepository
     {
+        /// <summary>
+        /// Inicializa el repositorio de estados de pedido de muestra con el contexto de datos proporcionado.
+        /// </summary>
+        /// <param name="context">Contexto de Entity Framework utilizado por la aplicación.</param>
         public EfEstadoPedidoMuestraRepository(GestorMerchandisingContext context) : base(context)
         {
         }
 
+        /// <summary>
+        /// Obtiene los estados de pedido de muestra ordenados alfabéticamente.
+        /// </summary>
+        /// <returns>Colección de estados de pedido de muestra.</returns>
         public IEnumerable<EstadoPedidoMuestra> GetEstadosOrdenados()
         {
             return _dbSet
@@ -21,6 +29,10 @@ namespace DAL.Implementations.Referencia
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona los estados de pedido de muestra ordenados alfabéticamente.
+        /// </summary>
+        /// <returns>Colección de estados de pedido de muestra.</returns>
         public async Task<IEnumerable<EstadoPedidoMuestra>> GetEstadosOrdenadosAsync()
         {
             return await _dbSet

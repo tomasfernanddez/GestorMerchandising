@@ -4,7 +4,6 @@ using DomainModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 
@@ -12,24 +11,35 @@ namespace DAL.Implementations.Principales
 {
     public class EfClienteRepository : EfRepository<Cliente>, IClienteRepository
     {
+        /// <summary>
+        /// Inicializa el repositorio de clientes utilizando el contexto proporcionado.
+        /// </summary>
+        /// <param name="context">Contexto de Entity Framework de la aplicación.</param>
         public EfClienteRepository(GestorMerchandisingContext context) : base(context)
         {
         }
 
-        /// Obtener todos los clientes activos
+
+        /// <summary>
+        /// Obtiene los clientes activos incluyendo su tipo de empresa y condición impositiva.
+        /// </summary>
+        /// <returns>Clientes activos ordenados por razón social.</returns>
         public IEnumerable<Cliente> GetClientesActivos()
         {
-            return _dbSet.Where(c => c.Activo == true)
+            return _dbSet.Where(c => c.Activo)
                         .Include(c => c.TipoEmpresa)
                         .Include(c => c.CondicionIva)
                         .OrderBy(c => c.RazonSocial)
                         .ToList();
         }
 
-        /// Obtiene todos los clientes activos (async)
+        /// <summary>
+        /// Obtiene de forma asíncrona los clientes activos incluyendo su tipo de empresa y condición impositiva.
+        /// </summary>
+        /// <returns>Clientes activos ordenados por razón social.</returns>
         public async Task<IEnumerable<Cliente>> GetClientesActivosAsync()
         {
-            return await _dbSet.Where(c => c.Activo == true)
+            return await _dbSet.Where(c => c.Activo)
                               .Include(c => c.TipoEmpresa)
                               .Include(c => c.CondicionIva)
                               .OrderBy(c => c.RazonSocial)
@@ -37,30 +47,36 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Obtiene clientes por tipo de empresa
+        /// Obtiene los clientes activos de un tipo de empresa específico.
         /// </summary>
+        /// <param name="idTipoEmpresa">Identificador del tipo de empresa.</param>
+        /// <returns>Clientes asociados al tipo de empresa indicado.</returns>
         public IEnumerable<Cliente> GetClientesPorTipoEmpresa(Guid idTipoEmpresa)
         {
-            return _dbSet.Where(c => c.IdTipoEmpresa == idTipoEmpresa && c.Activo == true)
+            return _dbSet.Where(c => c.IdTipoEmpresa == idTipoEmpresa && c.Activo)
                         .Include(c => c.TipoEmpresa)
                         .OrderBy(c => c.RazonSocial)
                         .ToList();
         }
 
         /// <summary>
-        /// Obtiene clientes por tipo de empresa (async)
+        /// Obtiene de forma asíncrona los clientes activos de un tipo de empresa específico.
         /// </summary>
+        /// <param name="idTipoEmpresa">Identificador del tipo de empresa.</param>
+        /// <returns>Clientes asociados al tipo de empresa indicado.</returns>
         public async Task<IEnumerable<Cliente>> GetClientesPorTipoEmpresaAsync(Guid idTipoEmpresa)
         {
-            return await _dbSet.Where(c => c.IdTipoEmpresa == idTipoEmpresa && c.Activo == true)
+            return await _dbSet.Where(c => c.IdTipoEmpresa == idTipoEmpresa && c.Activo)
                               .Include(c => c.TipoEmpresa)
                               .OrderBy(c => c.RazonSocial)
                               .ToListAsync();
         }
 
         /// <summary>
-        /// Busca un cliente por CUIT
+        /// Recupera un cliente por su CUIT.
         /// </summary>
+        /// <param name="cuit">Número de CUIT del cliente.</param>
+        /// <returns>Cliente encontrado o null.</returns>
         public Cliente GetClientePorCUIT(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -72,21 +88,26 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Busca un cliente por CUIT (async)
+        /// Recupera de forma asíncrona un cliente por su CUIT.
         /// </summary>
+        /// <param name="cuit">Número de CUIT del cliente.</param>
+        /// <returns>Cliente encontrado o null.</returns>
         public async Task<Cliente> GetClientePorCUITAsync(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
                 return null;
 
+            var limpio = cuit.Trim();
             return await _dbSet.Include(c => c.TipoEmpresa)
                             .Include(c => c.CondicionIva)
-                            .FirstOrDefaultAsync(c => c.CUIT == cuit.Trim());
+                            .FirstOrDefaultAsync(c => c.CUIT == limpio);
         }
 
         /// <summary>
-        /// Busca clientes por razón social (búsqueda parcial)
+        /// Busca clientes activos por razón social o alias.
         /// </summary>
+        /// <param name="razonSocial">Texto a buscar.</param>
+        /// <returns>Clientes coincidentes con el texto.</returns>
         public IEnumerable<Cliente> BuscarPorRazonSocial(string razonSocial)
         {
             if (string.IsNullOrWhiteSpace(razonSocial))
@@ -103,8 +124,10 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Busca clientes por razón social (búsqueda parcial - async)
+        /// Busca de forma asíncrona clientes activos por razón social o alias.
         /// </summary>
+        /// <param name="razonSocial">Texto a buscar.</param>
+        /// <returns>Clientes coincidentes con el texto.</returns>
         public async Task<IEnumerable<Cliente>> BuscarPorRazonSocialAsync(string razonSocial)
         {
             if (string.IsNullOrWhiteSpace(razonSocial))
@@ -121,8 +144,10 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Verifica si existe un cliente con el CUIT especificado
+        /// Verifica si existe un cliente con el CUIT especificado.
         /// </summary>
+        /// /// <param name="cuit">Cuit a buscar.</param>
+        /// <returns>Clientes coincidentes con el cuit.</returns>
         public bool ExisteCUIT(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -132,8 +157,10 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Verifica si existe un cliente con el CUIT especificado (async)
+        /// Verifica asincrónicamente si existe un cliente con el CUIT especificado.
         /// </summary>
+        /// /// <param name="cuit">Cuit a buscar.</param>
+        /// <returns>Clientes coincidentes con el cuit.</returns>
         public async Task<bool> ExisteCUITAsync(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -143,8 +170,9 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Desactiva un cliente (no lo elimina físicamente)
+        /// Desactiva un cliente estableciendo su estado en inactivo.
         /// </summary>
+        /// <param name="idCliente">Identificador del cliente.</param>
         public void DesactivarCliente(Guid idCliente)
         {
             var cliente = GetById(idCliente);
@@ -156,8 +184,9 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Activa un cliente
+        /// Activa un cliente estableciendo su estado en activo.
         /// </summary>
+        /// <param name="idCliente">Identificador del cliente.</param>
         public void ActivarCliente(Guid idCliente)
         {
             var cliente = GetById(idCliente);
@@ -168,16 +197,13 @@ namespace DAL.Implementations.Principales
             }
         }
 
-        // ============================================================================
-        // MÉTODOS ADICIONALES ÚTILES
-        // ============================================================================
-
         /// <summary>
-        /// Obtiene clientes con pedidos (incluye información relacionada)
+        /// Obtiene los clientes activos que tienen pedidos asociados.
         /// </summary>
+        /// <returns>Clientes con pedidos existentes.</returns>
         public IEnumerable<Cliente> GetClientesConPedidos()
         {
-            return _dbSet.Where(c => c.Activo == true && c.Pedidos.Any())
+            return _dbSet.Where(c => c.Activo && c.Pedidos.Any())
                         .Include(c => c.TipoEmpresa)
                         .Include(c => c.Pedidos)
                         .OrderBy(c => c.RazonSocial)
@@ -185,11 +211,12 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Obtiene clientes con pedidos (async)
+        /// Obtiene de forma asíncrona los clientes activos que tienen pedidos asociados.
         /// </summary>
+        /// <returns>Clientes con pedidos existentes.</returns>
         public async Task<IEnumerable<Cliente>> GetClientesConPedidosAsync()
         {
-            return await _dbSet.Where(c => c.Activo == true && c.Pedidos.Any())
+            return await _dbSet.Where(c => c.Activo && c.Pedidos.Any())
                               .Include(c => c.TipoEmpresa)
                               .Include(c => c.Pedidos)
                               .OrderBy(c => c.RazonSocial)
@@ -197,8 +224,10 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Obtiene un cliente con toda su información relacionada
+        /// Obtiene un cliente con toda su información relacionada.
         /// </summary>
+        /// <param name="idCliente">Identificador del cliente.</param>
+        /// <returns>Cliente con todas las colecciones asociadas cargadas.</returns>
         public Cliente GetClienteCompleto(Guid idCliente)
         {
             return _dbSet.Where(c => c.IdCliente == idCliente)
@@ -210,8 +239,10 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Obtiene un cliente con toda su información relacionada (async)
+        /// Obtiene de forma asíncrona un cliente con toda su información relacionada.
         /// </summary>
+        /// <param name="idCliente">Identificador del cliente.</param>
+        /// <returns>Cliente con todas las colecciones asociadas cargadas.</returns>
         public async Task<Cliente> GetClienteCompletoAsync(Guid idCliente)
         {
             return await _dbSet.Where(c => c.IdCliente == idCliente)
@@ -223,13 +254,16 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Busca clientes por múltiples criterios
+        /// Busca clientes aplicando filtros generales opcionales.
         /// </summary>
+        /// <param name="textoBusqueda">Texto libre para buscar en razón social o CUIT.</param>
+        /// <param name="idTipoEmpresa">Tipo de empresa opcional para filtrar.</param>
+        /// <param name="activo">Estado deseado del cliente.</param>
+        /// <returns>Clientes que cumplen con los criterios indicados.</returns>
         public IEnumerable<Cliente> BuscarClientes(string textoBusqueda, Guid? idTipoEmpresa = null, bool? activo = null)
         {
             var query = _dbSet.AsQueryable();
 
-            // Filtro por texto (CUIT o Razón Social)
             if (!string.IsNullOrWhiteSpace(textoBusqueda))
             {
                 var termino = textoBusqueda.Trim().ToLower();
@@ -237,13 +271,11 @@ namespace DAL.Implementations.Principales
                                         c.CUIT.Contains(termino));
             }
 
-            // Filtro por tipo de empresa
             if (idTipoEmpresa.HasValue)
             {
                 query = query.Where(c => c.IdTipoEmpresa == idTipoEmpresa.Value);
             }
 
-            // Filtro por estado activo
             if (activo.HasValue)
             {
                 query = query.Where(c => c.Activo == activo.Value);
@@ -255,14 +287,15 @@ namespace DAL.Implementations.Principales
         }
 
         /// <summary>
-        /// Obtiene estadísticas básicas de clientes
+        /// Calcula estadísticas simples sobre los clientes registrados.
         /// </summary>
+        /// <returns>Objeto dinámico con datos agregados de clientes.</returns>
         public dynamic GetEstadisticasClientes()
         {
             var totalClientes = _dbSet.Count();
-            var clientesActivos = _dbSet.Count(c => c.Activo == true);
+            var clientesActivos = _dbSet.Count(c => c.Activo);
             var clientesInactivos = totalClientes - clientesActivos;
-            var clientesConPedidos = _dbSet.Count(c => c.Activo == true && c.Pedidos.Any());
+            var clientesConPedidos = _dbSet.Count(c => c.Activo && c.Pedidos.Any());
 
             return new
             {

@@ -12,22 +12,33 @@ namespace BLL.Services
     public class CategoriaProductoService : ICategoriaProductoService
     {
         private readonly IUnitOfWork _unitOfWork;
-
+        /// <summary>
+        /// Inicializa una nueva instancia de CategoriaProductoService.
+        /// </summary>
         public CategoriaProductoService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
+        /// <summary>
+        /// Obtiene todas las categorías.
+        /// </summary>
         public IEnumerable<CategoriaProducto> ObtenerTodas()
         {
             return _unitOfWork.CategoriasProducto.GetCategoriasOrdenadas();
         }
 
+        /// <summary>
+        /// Obtiene asincrónicamente todas las categorías.
+        /// </summary>
         public async Task<IEnumerable<CategoriaProducto>> ObtenerTodasAsync()
         {
             return await _unitOfWork.CategoriasProducto.GetCategoriasOrdenadasAsync();
         }
 
+        /// <summary>
+        /// Crea la categoría.
+        /// </summary>
         public ResultadoOperacion Crear(CategoriaProducto categoria)
         {
             try
@@ -56,6 +67,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Crea asincrónicamente.
+        /// </summary>
         public async Task<ResultadoOperacion> CrearAsync(CategoriaProducto categoria)
         {
             try
@@ -85,6 +99,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza.
+        /// </summary>
         public ResultadoOperacion Actualizar(CategoriaProducto categoria)
         {
             try
@@ -114,6 +131,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza asincrónicamente.
+        /// </summary>
         public async Task<ResultadoOperacion> ActualizarAsync(CategoriaProducto categoria)
         {
             try
@@ -144,6 +164,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Cambia estado.
+        /// </summary>
         public ResultadoOperacion CambiarEstado(Guid idCategoria, bool activo)
         {
             try
@@ -164,6 +187,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Cambia asincrónicamente estado.
+        /// </summary>
         public async Task<ResultadoOperacion> CambiarEstadoAsync(Guid idCategoria, bool activo)
         {
             try
@@ -184,6 +210,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Reordena.
+        /// </summary>
         public ResultadoOperacion Reordenar(IReadOnlyList<Guid> nuevoOrden)
         {
             if (nuevoOrden == null)
@@ -204,6 +233,9 @@ namespace BLL.Services
             return ResultadoOperacion.Exitoso("Orden actualizado correctamente");
         }
 
+        /// <summary>
+        /// Reordena asincrónicamente.
+        /// </summary>
         public async Task<ResultadoOperacion> ReordenarAsync(IReadOnlyList<Guid> nuevoOrden)
         {
             if (nuevoOrden == null)
@@ -224,6 +256,9 @@ namespace BLL.Services
             return ResultadoOperacion.Exitoso("Orden actualizado correctamente");
         }
 
+        /// <summary>
+        /// Verifica si existe una categoría con el mismo nombre.
+        /// </summary>
         private bool ExisteNombre(string nombre, Guid? idExcluida = null)
         {
             var categorias = _unitOfWork.CategoriasProducto.GetAll();
@@ -231,6 +266,9 @@ namespace BLL.Services
                 string.Equals(c.NombreCategoria, nombre, StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>
+        /// Normaliza la categoría.
+        /// </summary>
         private static void NormalizarCategoria(CategoriaProducto categoria)
         {
             if (categoria == null)
@@ -240,6 +278,9 @@ namespace BLL.Services
                 categoria.NombreCategoria = categoria.NombreCategoria.Trim();
         }
 
+        /// <summary>
+        /// Valida la categoría.
+        /// </summary>
         private static ResultadoOperacion ValidarCategoria(CategoriaProducto categoria)
         {
             if (categoria == null)
@@ -254,6 +295,9 @@ namespace BLL.Services
             return ResultadoOperacion.Exitoso("Validación correcta");
         }
 
+        /// <summary>
+        /// Obtiene el siguiente orden disponible.
+        /// </summary>
         private int ObtenerSiguienteOrden(IEnumerable<CategoriaProducto> categorias = null)
         {
             if (categorias == null)

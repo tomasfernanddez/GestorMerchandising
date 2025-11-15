@@ -17,11 +17,20 @@ namespace BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
 
+        /// <summary>
+        /// Inicializa una nueva instancia del servicio de clientes con la unidad de trabajo especificada.
+        /// </summary>
+        /// <param name="unitOfWork">Unidad de trabajo que provee acceso a los repositorios.</param>
         public ClienteService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
+        /// <summary>
+        /// Obtiene un cliente por su identificador único.
+        /// </summary>
+        /// <param name="idCliente">Identificador del cliente a buscar.</param>
+        /// <returns>Cliente encontrado o null si no existe.</returns>
         public Cliente ObtenerClientePorId(Guid idCliente)
         {
             if (idCliente == Guid.Empty)
@@ -30,6 +39,11 @@ namespace BLL.Services
             return _unitOfWork.Clientes.GetById(idCliente);
         }
 
+        /// <summary>
+        /// Obtiene un cliente por su identificador de manera asincrónica.
+        /// </summary>
+        /// <param name="idCliente">Identificador del cliente a buscar.</param>
+        /// <returns>Tarea que produce el cliente solicitado.</returns>
         public async Task<Cliente> ObtenerClientePorIdAsync(Guid idCliente)
         {
             if (idCliente == Guid.Empty)
@@ -38,16 +52,29 @@ namespace BLL.Services
             return await _unitOfWork.Clientes.GetByIdAsync(idCliente);
         }
 
+        /// <summary>
+        /// Recupera todos los clientes que se encuentran activos.
+        /// </summary>
+        /// <returns>Colección de clientes activos.</returns>
         public IEnumerable<Cliente> ObtenerClientesActivos()
         {
             return _unitOfWork.Clientes.GetClientesActivos();
         }
 
+        /// <summary>
+        /// Recupera asincrónicamente los clientes que se encuentran activos.
+        /// </summary>
+        /// <returns>Tarea que produce una colección de clientes activos.</returns>
         public async Task<IEnumerable<Cliente>> ObtenerClientesActivosAsync()
         {
             return await _unitOfWork.Clientes.GetClientesActivosAsync();
         }
 
+        /// <summary>
+        /// Busca un cliente por su CUIT validando previamente el formato.
+        /// </summary>
+        /// <param name="cuit">CUIT del cliente.</param>
+        /// <returns>Cliente asociado al CUIT o null si no existe.</returns>
         public Cliente ObtenerClientePorCUIT(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -59,6 +86,11 @@ namespace BLL.Services
             return _unitOfWork.Clientes.GetClientePorCUIT(cuit);
         }
 
+        /// <summary>
+        /// Busca asincrónicamente un cliente por su CUIT validando el formato.
+        /// </summary>
+        /// <param name="cuit">CUIT del cliente.</param>
+        /// <returns>Tarea que produce el cliente encontrado.</returns>
         public async Task<Cliente> ObtenerClientePorCUITAsync(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -70,6 +102,11 @@ namespace BLL.Services
             return await _unitOfWork.Clientes.GetClientePorCUITAsync(cuit);
         }
 
+        /// <summary>
+        /// Busca clientes cuya razón social coincida con el criterio indicado.
+        /// </summary>
+        /// <param name="razonSocial">Texto a buscar en la razón social.</param>
+        /// <returns>Colección de clientes coincidentes.</returns>
         public IEnumerable<Cliente> BuscarClientesPorRazonSocial(string razonSocial)
         {
             if (string.IsNullOrWhiteSpace(razonSocial))
@@ -78,6 +115,11 @@ namespace BLL.Services
             return _unitOfWork.Clientes.BuscarPorRazonSocial(razonSocial);
         }
 
+        /// <summary>
+        /// Busca asincrónicamente clientes cuya razón social coincida con el criterio indicado.
+        /// </summary>
+        /// <param name="razonSocial">Texto a buscar en la razón social.</param>
+        /// <returns>Tarea que produce una colección de clientes coincidentes.</returns>
         public async Task<IEnumerable<Cliente>> BuscarClientesPorRazonSocialAsync(string razonSocial)
         {
             if (string.IsNullOrWhiteSpace(razonSocial))
@@ -86,6 +128,11 @@ namespace BLL.Services
             return await _unitOfWork.Clientes.BuscarPorRazonSocialAsync(razonSocial);
         }
 
+        /// <summary>
+        /// Crea un nuevo cliente validando sus datos y devolviendo el resultado de la operación.
+        /// </summary>
+        /// <param name="cliente">Cliente a registrar.</param>
+        /// <returns>Resultado detallado del intento de creación.</returns>
         public ResultadoOperacion CrearCliente(Cliente cliente)
         {
             try
@@ -114,6 +161,11 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Crea de forma asincrónica un nuevo cliente validando sus datos y devuelve el resultado de la operación.
+        /// </summary>
+        /// <param name="cliente">Cliente a registrar.</param>
+        /// <returns>Tarea que produce el resultado del intento de creación.</returns>
         public async Task<ResultadoOperacion> CrearClienteAsync(Cliente cliente)
         {
             try
@@ -142,6 +194,11 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza los datos de un cliente existente verificando conflictos y devuelve el resultado.
+        /// </summary>
+        /// <param name="cliente">Cliente con la información actualizada.</param>
+        /// <returns>Resultado detallado de la actualización.</returns>
         public ResultadoOperacion ActualizarCliente(Cliente cliente)
         {
             try
@@ -174,6 +231,11 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Desactiva un cliente existente cambiando su estado a inactivo.
+        /// </summary>
+        /// <param name="idCliente">Identificador del cliente que se desea desactivar.</param>
+        /// <returns>Resultado que detalla el éxito o error de la operación.</returns>
         public ResultadoOperacion DesactivarCliente(Guid idCliente)
         {
             try
@@ -199,6 +261,11 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Activa un cliente previamente desactivado.
+        /// </summary>
+        /// <param name="idCliente">Identificador del cliente que se desea activar.</param>
+        /// <returns>Resultado que indica si la activación fue exitosa.</returns>
         public ResultadoOperacion ActivarCliente(Guid idCliente)
         {
             try
@@ -224,6 +291,10 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene el listado de tipos de empresa disponibles ordenados.
+        /// </summary>
+        /// <returns>Colección de tipos de empresa.</returns>
         public IEnumerable<TipoEmpresa> ObtenerTiposEmpresa()
         {
             if (_unitOfWork.TiposEmpresa == null)
@@ -232,6 +303,10 @@ namespace BLL.Services
             return _unitOfWork.TiposEmpresa.GetTiposOrdenados();
         }
 
+        /// <summary>
+        /// Calcula estadísticas generales sobre los clientes registrados.
+        /// </summary>
+        /// <returns>Objeto anónimo con totales y porcentajes de clientes.</returns>
         public object ObtenerEstadisticasClientes()
         {
             var totalClientes = _unitOfWork.Clientes.Count();
@@ -247,6 +322,10 @@ namespace BLL.Services
             };
         }
 
+        /// <summary>
+        /// Normaliza y limpia los datos del cliente previo a su validación.
+        /// </summary>
+        /// <param name="cliente">Cliente a normalizar.</param>
         private void NormalizarCliente(Cliente cliente)
         {
             if (cliente == null)
@@ -263,6 +342,11 @@ namespace BLL.Services
 
         }
 
+        /// <summary>
+        /// Valida cliente.
+        /// </summary>
+        /// <param name="cliente">Cliente a validar.</param>
+        /// <returns>Resultado que indica si la validación fue exitosa.</returns>
         private ResultadoOperacion ValidarCliente(Cliente cliente)
         {
             if (cliente == null)
@@ -298,6 +382,11 @@ namespace BLL.Services
             return ResultadoOperacion.Exitoso("Validación exitosa");
         }
 
+        /// <summary>
+        /// Da formato legible al CUIT recibido.
+        /// </summary>
+        /// <param name="cuit">CUIT a formatear.</param>
+        /// <returns>CUIT formateado o el original si no cumple el largo esperado.</returns>
         private static string FormatearCuit(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -310,6 +399,11 @@ namespace BLL.Services
             return $"{limpio.Substring(0, 2)}-{limpio.Substring(2, 8)}-{limpio.Substring(10, 1)}";
         }
 
+        /// <summary>
+        /// Verifica si el CUIT indicado cumple con la longitud y caracteres requeridos.
+        /// </summary>
+        /// <param name="cuit">CUIT a validar.</param>
+        /// <returns>True si el formato es correcto; false en caso contrario.</returns>
         private bool ValidarFormatoCUIT(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))

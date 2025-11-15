@@ -16,6 +16,9 @@ namespace BLL.Helpers
         };
 
         public static IReadOnlyList<string> CondicionesPago => _condicionesPago;
+        /// <summary>
+        /// Determina si el tipo personalizador.
+        /// </summary>
 
         public static bool EsTipoPersonalizador(TipoProveedor tipoProveedor)
         {
@@ -25,6 +28,9 @@ namespace BLL.Helpers
             return tipoProveedor.TipoProveedorNombre != null
                    && tipoProveedor.TipoProveedorNombre.IndexOf("personal", StringComparison.OrdinalIgnoreCase) >= 0;
         }
+        /// <summary>
+        /// Determina si el tipo personalizador.
+        /// </summary>
 
         public static bool EsTipoPersonalizador(string tipoNombre)
         {
@@ -33,6 +39,9 @@ namespace BLL.Helpers
 
             return tipoNombre.IndexOf("personal", StringComparison.OrdinalIgnoreCase) >= 0;
         }
+        /// <summary>
+        /// Determina si el tipo producto.
+        /// </summary>
 
         public static bool EsTipoProducto(TipoProveedor tipoProveedor)
         {
@@ -41,6 +50,9 @@ namespace BLL.Helpers
 
             return EsTipoProducto(tipoProveedor.TipoProveedorNombre);
         }
+        /// <summary>
+        /// Determina si el tipo producto.
+        /// </summary>
 
         public static bool EsTipoProducto(string tipoNombre)
         {
@@ -50,6 +62,9 @@ namespace BLL.Helpers
             return tipoNombre.IndexOf("producto", StringComparison.OrdinalIgnoreCase) >= 0
                    || tipoNombre.IndexOf("product", StringComparison.OrdinalIgnoreCase) >= 0;
         }
+        /// <summary>
+        /// Determina si el condicion pago valida.
+        /// </summary>
 
         public static bool EsCondicionPagoValida(string condicion)
         {

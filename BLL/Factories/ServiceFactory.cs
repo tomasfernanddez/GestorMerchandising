@@ -53,87 +53,105 @@ namespace BLL.Factories
         // =====================================================================
         // INFRAESTRUCTURA PRIVADA
         // =====================================================================
-
+        /// <summary>
+        /// Crea contexto negocio.
+        /// </summary>
+        
         private static BizDbContext CrearContextoNegocio()
         {
             EnsureDatabaseActualizada();
             var cs = ObtenerConnectionString();
             return new BizDbContext(cs);
         }
+        /// <summary>
+        /// Crea unit of work negocio.
+        /// </summary>
         private static BizIUnitOfWork CrearUnitOfWorkNegocio()
         {
             var ctx = CrearContextoNegocio();
             return new BizEfUnitOfWork(ctx);
         }
+        /// <summary>
+        /// Crea cliente service.
+        /// </summary>
 
         public static IClienteService CrearClienteService()
         {
             var uow = CrearUnitOfWorkNegocio();
             return new ClienteService(uow);
         }
+        /// <summary>
+        /// Crea proveedor service.
+        /// </summary>
 
         public static IProveedorService CrearProveedorService()
         {
             var uow = CrearUnitOfWorkNegocio();
             return new ProveedorService(uow);
         }
+        /// <summary>
+        /// Crea producto service.
+        /// </summary>
 
         public static IProductoService CrearProductoService()
         {
             var uow = CrearUnitOfWorkNegocio();
             return new ProductoService(uow);
         }
+        /// <summary>
+        /// Crea categoria producto service.
+        /// </summary>
 
         public static ICategoriaProductoService CrearCategoriaProductoService()
         {
             var uow = CrearUnitOfWorkNegocio();
             return new CategoriaProductoService(uow);
         }
+        /// <summary>
+        /// Crea pedido service.
+        /// </summary>
 
         public static IPedidoService CrearPedidoService()
         {
             var uow = CrearUnitOfWorkNegocio();
             return new PedidoService(uow);
         }
+        /// <summary>
+        /// Crea pedido muestra service.
+        /// </summary>
 
         public static IPedidoMuestraService CrearPedidoMuestraService()
         {
             var uow = CrearUnitOfWorkNegocio();
             return new PedidoMuestraService(uow);
         }
+        /// <summary>
+        /// Crea reporte service.
+        /// </summary>
 
         public static IReporteService CrearReporteService()
         {
             var uow = CrearUnitOfWorkNegocio();
             return new ReporteService(uow);
         }
-
+        /// <summary>
+        /// Crea condicion iva service.
+        /// </summary>
         public static ICondicionIvaService CrearCondicionIvaService()
         {
             var uow = CrearUnitOfWorkNegocio();
             return new CondicionIvaService(uow);
         }
 
-        // TODO: Agregar cuando se implementen
-        /*
-        public static IProductoService CrearProductoService()
-        {
-            var uow = CrearUnitOfWork();
-            return new ProductoService(uow);
-        }
-
-        public static IPedidoService CrearPedidoService()
-        {
-            var uow = CrearUnitOfWork();
-            return new PedidoService(uow);
-        }
-        */
         public sealed class ServiceScope : IDisposable
         {
             public GestorMerchandisingContext Context { get; }
             public IUnitOfWork Uow { get; }
             public IClienteService Clientes { get; }
 
+            /// <summary>
+            /// Inicializa una nueva instancia de ServiceScope.
+            /// </summary>
             internal ServiceScope(GestorMerchandisingContext ctx)
             {
                 Context = ctx;
@@ -141,6 +159,9 @@ namespace BLL.Factories
                 Clientes = new ClienteService(Uow);
             }
 
+            /// <summary>
+            /// Libera los recursos administrados y no administrados utilizados por la instancia.
+            /// </summary>
             public void Dispose()
             {
                 (Uow as IDisposable)?.Dispose(); // si UoW dispone el Context, mejor
@@ -148,6 +169,9 @@ namespace BLL.Factories
             }
         }
 
+        /// <summary>
+        /// Inicia scope.
+        /// </summary>
         public static ServiceScope BeginScope()
         {
             return new ServiceScope(CrearContextoNegocio());
@@ -167,6 +191,9 @@ namespace BLL.Factories
             return $"ConnectionString configurado: {preview}";
         }
 
+        /// <summary>
+        /// Garantiza database actualizada.
+        /// </summary>
         private static void EnsureDatabaseActualizada()
         {
             if (_databaseActualizada)
@@ -198,6 +225,9 @@ namespace BLL.Factories
             return !string.IsNullOrWhiteSpace(cs);
         }
 
+        /// <summary>
+        /// Obtiene connection string interno.
+        /// </summary>
         internal static string GetConnectionStringInterno()
         {
             // reutiliza tu ObtenerConnectionString() privado
@@ -206,6 +236,9 @@ namespace BLL.Factories
             return (string)metodoPrivado.Invoke(null, null);
         }
 
+        /// <summary>
+        /// Crea geo service.
+        /// </summary>
         public static IGeoService CrearGeoService()
         {
             // 1) crear el DbContext concreto (usa el TUYO: por nombre suele ser GestorMerchandisingContext)

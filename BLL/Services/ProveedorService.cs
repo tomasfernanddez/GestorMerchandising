@@ -16,11 +16,17 @@ namespace BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de ProveedorService.
+        /// </summary>
         public ProveedorService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
+        /// <summary>
+        /// Obtiene proveedor por id.
+        /// </summary>
         public Proveedor ObtenerProveedorPorId(Guid idProveedor)
         {
             if (idProveedor == Guid.Empty)
@@ -29,6 +35,9 @@ namespace BLL.Services
             return _unitOfWork.Proveedores.ObtenerConDetalles(idProveedor);
         }
 
+        /// <summary>
+        /// Obtiene asincrónicamente proveedor por id.
+        /// </summary>
         public async Task<Proveedor> ObtenerProveedorPorIdAsync(Guid idProveedor)
         {
             if (idProveedor == Guid.Empty)
@@ -37,36 +46,57 @@ namespace BLL.Services
             return await _unitOfWork.Proveedores.ObtenerConDetallesAsync(idProveedor);
         }
 
+        /// <summary>
+        /// Obtiene proveedores activos.
+        /// </summary>
         public IEnumerable<Proveedor> ObtenerProveedoresActivos()
         {
             return _unitOfWork.Proveedores.GetProveedoresActivos();
         }
 
+        /// <summary>
+        /// Obtiene asincrónicamente proveedores activos.
+        /// </summary>
         public async Task<IEnumerable<Proveedor>> ObtenerProveedoresActivosAsync()
         {
             return await _unitOfWork.Proveedores.GetProveedoresActivosAsync();
         }
 
+        /// <summary>
+        /// Busca proveedores.
+        /// </summary>
         public IEnumerable<Proveedor> BuscarProveedores(string razonSocial, string cuit, Guid? idTipoProveedor, bool? activo)
         {
             return _unitOfWork.Proveedores.Buscar(razonSocial, cuit, idTipoProveedor, activo);
         }
 
+        /// <summary>
+        /// Busca proveedores.
+        /// </summary>
         public IEnumerable<Proveedor> BuscarProveedores(string razonSocial, Guid? idTipoProveedor, bool? activo)
         {
             return BuscarProveedores(razonSocial, null, idTipoProveedor, activo);
         }
 
+        /// <summary>
+        /// Busca asincrónicamente proveedores.
+        /// </summary>
         public async Task<IEnumerable<Proveedor>> BuscarProveedoresAsync(string razonSocial, string cuit, Guid? idTipoProveedor, bool? activo)
         {
             return await _unitOfWork.Proveedores.BuscarAsync(razonSocial, cuit, idTipoProveedor, activo);
         }
 
+        /// <summary>
+        /// Busca asincrónicamente proveedores.
+        /// </summary>
         public async Task<IEnumerable<Proveedor>> BuscarProveedoresAsync(string razonSocial, Guid? idTipoProveedor, bool? activo)
         {
             return await BuscarProveedoresAsync(razonSocial, null, idTipoProveedor, activo);
         }
 
+        /// <summary>
+        /// Obtiene proveedor por cuit.
+        /// </summary>
         public Proveedor ObtenerProveedorPorCUIT(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -76,6 +106,9 @@ namespace BLL.Services
             return _unitOfWork.Proveedores.GetProveedorPorCUIT(limpio);
         }
 
+        /// <summary>
+        /// Obtiene asincrónicamente proveedor por cuit.
+        /// </summary>
         public async Task<Proveedor> ObtenerProveedorPorCUITAsync(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -85,6 +118,9 @@ namespace BLL.Services
             return await _unitOfWork.Proveedores.GetProveedorPorCUITAsync(limpio);
         }
 
+        /// <summary>
+        /// Crea proveedor.
+        /// </summary>
         public ResultadoOperacion CrearProveedor(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion)
         {
             try
@@ -122,6 +158,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Crea asincrónicamente proveedor.
+        /// </summary>
         public async Task<ResultadoOperacion> CrearProveedorAsync(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion)
         {
             try
@@ -159,6 +198,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza proveedor.
+        /// </summary>
         public ResultadoOperacion ActualizarProveedor(Proveedor proveedor, IEnumerable<Guid> tiposProveedor, IEnumerable<Guid> tecnicasPersonalizacion)
         {
             try
@@ -208,6 +250,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Desactiva proveedor.
+        /// </summary>
         public ResultadoOperacion DesactivarProveedor(Guid idProveedor)
         {
             try
@@ -233,6 +278,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Activa proveedor.
+        /// </summary>
         public ResultadoOperacion ActivarProveedor(Guid idProveedor)
         {
             try
@@ -258,16 +306,25 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene tipos de proveedor.
+        /// </summary>
         public IEnumerable<TipoProveedor> ObtenerTiposProveedor()
         {
             return _unitOfWork.TiposProveedor.GetTiposOrdenados();
         }
 
+        /// <summary>
+        /// Obtiene tipos de proveedor asincrónicamente.
+        /// </summary>
         public async Task<IEnumerable<TipoProveedor>> ObtenerTiposProveedorAsync()
         {
             return await _unitOfWork.TiposProveedor.GetTiposOrdenadosAsync();
         }
 
+        /// <summary>
+        /// Obtiene técnicas de personalización.
+        /// </summary>
         public IEnumerable<TecnicaPersonalizacion> ObtenerTecnicasPersonalizacion()
         {
             return _unitOfWork.Set<TecnicaPersonalizacion>()
@@ -275,6 +332,9 @@ namespace BLL.Services
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene técnicas de personalización asincrónicamente.
+        /// </summary>
         public async Task<IEnumerable<TecnicaPersonalizacion>> ObtenerTecnicasPersonalizacionAsync()
         {
             return await _unitOfWork.Set<TecnicaPersonalizacion>()
@@ -282,6 +342,9 @@ namespace BLL.Services
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Valida los datos del proveedor.
+        /// </summary>
         private ResultadoOperacion ValidarProveedor(Proveedor proveedor, IEnumerable<Guid> tiposSeleccionados, IEnumerable<Guid> tecnicasSeleccionadas, bool esActualizacion = false)
         {
             if (proveedor == null)
@@ -352,6 +415,9 @@ namespace BLL.Services
             return ResultadoOperacion.Exitoso("Validación exitosa");
         }
 
+        /// <summary>
+        /// Normaliza la condición de pago.
+        /// </summary>
         private static string NormalizarCondicionPago(string condicion)
         {
             if (string.IsNullOrWhiteSpace(condicion))
@@ -363,6 +429,9 @@ namespace BLL.Services
             return encontrado ?? condicion.Trim();
         }
 
+        /// <summary>
+        /// Sincroniza las técnicas de personalización del proveedor.
+        /// </summary>
         private void SincronizarTecnicas(Proveedor proveedor, IEnumerable<Guid> tecnicasSeleccionadas)
         {
             if (proveedor == null)
@@ -390,6 +459,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Sincroniza los tipos de proveedor del proveedor.
+        /// </summary>
         private void SincronizarTipos(Proveedor proveedor, IEnumerable<Guid> tiposSeleccionados)
         {
             if (proveedor == null)
@@ -418,6 +490,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza las técnicas de personalización del proveedor existente.
+        /// </summary>
         private void ActualizarTecnicas(Proveedor proveedorExistente, IEnumerable<Guid> tecnicasSeleccionadas)
         {
             if (proveedorExistente == null)
@@ -446,6 +521,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Limpia el CUIT dejando solo los dígitos.
+        /// </summary>
         private static string LimpiarCuit(string cuit)
         {
             if (string.IsNullOrWhiteSpace(cuit))
@@ -454,6 +532,9 @@ namespace BLL.Services
             return new string(cuit.Where(char.IsDigit).ToArray());
         }
 
+        /// <summary>
+        /// Formatea el CUIT en el formato XX-XXXXXXXX-X.
+        /// </summary>
         private static string FormatearCuit(string cuit)
         {
             var limpio = LimpiarCuit(cuit);

@@ -20,18 +20,57 @@ namespace BLL.Interfaces
 
     public interface IPedidoService
     {
+        /// <summary>
+        /// Obtiene pedidos.
+        /// </summary>
         IEnumerable<Pedido> ObtenerPedidos(PedidoFiltro filtro = null);
+        /// <summary>
+        /// Obtiene pedido.
+        /// </summary>
         Pedido ObtenerPedido(Guid idPedido, bool incluirDetalles = true);
+        /// <summary>
+        /// Crea pedido.
+        /// </summary>
         ResultadoOperacion CrearPedido(Pedido pedido);
+        /// <summary>
+        /// Actualiza pedido.
+        /// </summary>
         ResultadoOperacion ActualizarPedido(Pedido pedido);
+        /// <summary>
+        /// Cambia estado.
+        /// </summary>
         ResultadoOperacion CambiarEstado(Guid idPedido, Guid idEstado, string comentario, string usuario);
+        /// <summary>
+        /// Cancela pedido.
+        /// </summary>
         ResultadoOperacion CancelarPedido(Guid idPedido, string usuario, string comentario);
+        /// <summary>
+        /// Registra nota.
+        /// </summary>
         ResultadoOperacion RegistrarNota(Guid idPedido, string nota, string usuario);
+        /// <summary>
+        /// Genera proximo numero pedido.
+        /// </summary>
         string GenerarProximoNumeroPedido();
+        /// <summary>
+        /// Obtiene estados pedido.
+        /// </summary>
         IEnumerable<EstadoPedido> ObtenerEstadosPedido();
+        /// <summary>
+        /// Obtiene estados producto.
+        /// </summary>
         IEnumerable<EstadoProducto> ObtenerEstadosProducto();
+        /// <summary>
+        /// Obtiene tipos pago.
+        /// </summary>
         IEnumerable<TipoPago> ObtenerTiposPago();
+        /// <summary>
+        /// Obtiene tecnicas personalizacion.
+        /// </summary>
         IEnumerable<TecnicaPersonalizacion> ObtenerTecnicasPersonalizacion();
+        /// <summary>
+        /// Obtiene ubicaciones logo.
+        /// </summary>
         IEnumerable<UbicacionLogo> ObtenerUbicacionesLogo();
     }
 }

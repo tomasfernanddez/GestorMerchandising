@@ -10,10 +10,18 @@ namespace DAL.Implementations.Referencia
 {
     public class EfTipoEmpresaRepository : EfRepository<TipoEmpresa>, ITipoEmpresaRepository
     {
+        /// <summary>
+        /// Inicializa el repositorio de tipos de empresa con el contexto proporcionado.
+        /// </summary>
+        /// <param name="context">Contexto de Entity Framework utilizado por la aplicación.</param>
         public EfTipoEmpresaRepository(GestorMerchandisingContext context) : base(context)
         {
         }
 
+        /// <summary>
+        /// Obtiene los tipos de empresa ordenados alfabéticamente.
+        /// </summary>
+        /// <returns>Colección de tipos de empresa.</returns>
         public IEnumerable<TipoEmpresa> GetTiposOrdenados()
         {
             return _dbSet
@@ -21,6 +29,10 @@ namespace DAL.Implementations.Referencia
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona los tipos de empresa ordenados alfabéticamente.
+        /// </summary>
+        /// <returns>Colección de tipos de empresa.</returns>
         public async Task<IEnumerable<TipoEmpresa>> GetTiposOrdenadosAsync()
         {
             return await _dbSet

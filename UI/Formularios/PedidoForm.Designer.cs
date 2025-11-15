@@ -68,8 +68,8 @@
             this.flowPagoAcciones = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAgregarPago = new System.Windows.Forms.Button();
             this.btnDeshacerPago = new System.Windows.Forms.Button();
-            this.lblMontoPagado = new System.Windows.Forms.Label();
             this.lblSaldoPendiente = new System.Windows.Forms.Label();
+            this.lblMontoPagado = new System.Windows.Forms.Label();
             this.lblSaldoPendienteValor = new System.Windows.Forms.Label();
             this.lblMontoPagadoValor = new System.Windows.Forms.Label();
             this.grpFacturas = new System.Windows.Forms.GroupBox();
@@ -745,6 +745,16 @@
             this.btnDeshacerPago.Text = "Deshacer Pago";
             this.btnDeshacerPago.UseVisualStyleBackColor = true;
             // 
+            // lblSaldoPendiente
+            // 
+            this.lblSaldoPendiente.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lblSaldoPendiente.AutoSize = true;
+            this.lblSaldoPendiente.Location = new System.Drawing.Point(783, 16);
+            this.lblSaldoPendiente.Name = "lblSaldoPendiente";
+            this.lblSaldoPendiente.Size = new System.Drawing.Size(84, 13);
+            this.lblSaldoPendiente.TabIndex = 6;
+            this.lblSaldoPendiente.Text = "Saldo pendiente";
+            // 
             // lblMontoPagado
             // 
             this.lblMontoPagado.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
@@ -756,16 +766,6 @@
             this.lblMontoPagado.TabIndex = 0;
             this.lblMontoPagado.Text = "Monto Pagado";
             this.lblMontoPagado.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblSaldoPendiente
-            // 
-            this.lblSaldoPendiente.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.lblSaldoPendiente.AutoSize = true;
-            this.lblSaldoPendiente.Location = new System.Drawing.Point(783, 16);
-            this.lblSaldoPendiente.Name = "lblSaldoPendiente";
-            this.lblSaldoPendiente.Size = new System.Drawing.Size(84, 13);
-            this.lblSaldoPendiente.TabIndex = 6;
-            this.lblSaldoPendiente.Text = "Saldo pendiente";
             // 
             // lblSaldoPendienteValor
             // 

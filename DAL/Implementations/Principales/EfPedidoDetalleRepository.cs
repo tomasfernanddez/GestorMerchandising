@@ -11,10 +11,18 @@ namespace DAL.Implementations.Principales
 {
     public class EfPedidoDetalleRepository : EfRepository<PedidoDetalle>, IPedidoDetalleRepository
     {
+        /// <summary>
+        /// Inicializa el repositorio de detalles de pedido con el contexto de datos indicado.
+        /// </summary>
+        /// <param name="context">Contexto de Entity Framework de la aplicación.</param>
         public EfPedidoDetalleRepository(GestorMerchandisingContext context) : base(context)
         {
         }
 
+        /// <summary>
+        /// Construye la consulta base incluyendo todas las relaciones del detalle.
+        /// </summary>
+        /// <returns>Consulta preparada para reutilizar en las operaciones públicas.</returns>
         private IQueryable<PedidoDetalle> QueryBase()
         {
             return _dbSet
@@ -26,16 +34,29 @@ namespace DAL.Implementations.Principales
                 .Include(d => d.LogosPedido.Select(l => l.Proveedor));
         }
 
+        /// <summary>
+        /// Obtiene todos los detalles de pedidos.
+        /// </summary>
+        /// <returns>Colección completa de detalles.</returns>
         public override IEnumerable<PedidoDetalle> GetAll()
         {
             return QueryBase().ToList();
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona todos los detalles de pedidos.
+        /// </summary>
+        /// <returns>Colección completa de detalles.</returns>
         public override async Task<IEnumerable<PedidoDetalle>> GetAllAsync()
         {
             return await QueryBase().ToListAsync();
         }
 
+        /// <summary>
+        /// Recupera los detalles pertenecientes a un pedido específico.
+        /// </summary>
+        /// <param name="idPedido">Identificador del pedido.</param>
+        /// <returns>Detalles asociados al pedido.</returns>
         public IEnumerable<PedidoDetalle> GetDetallesPorPedido(Guid idPedido)
         {
             return QueryBase()
@@ -44,6 +65,11 @@ namespace DAL.Implementations.Principales
                 .ToList();
         }
 
+        /// <summary>
+        /// Recupera de forma asíncrona los detalles pertenecientes a un pedido específico.
+        /// </summary>
+        /// <param name="idPedido">Identificador del pedido.</param>
+        /// <returns>Detalles asociados al pedido.</returns>
         public async Task<IEnumerable<PedidoDetalle>> GetDetallesPorPedidoAsync(Guid idPedido)
         {
             return await QueryBase()
@@ -52,6 +78,11 @@ namespace DAL.Implementations.Principales
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Recupera los detalles que corresponden a un producto determinado.
+        /// </summary>
+        /// <param name="idProducto">Identificador del producto.</param>
+        /// <returns>Detalles donde interviene el producto.</returns>
         public IEnumerable<PedidoDetalle> GetDetallesPorProducto(Guid idProducto)
         {
             return QueryBase()
@@ -60,6 +91,11 @@ namespace DAL.Implementations.Principales
                 .ToList();
         }
 
+        /// <summary>
+        /// Recupera de forma asíncrona los detalles que corresponden a un producto determinado.
+        /// </summary>
+        /// <param name="idProducto">Identificador del producto.</param>
+        /// <returns>Detalles donde interviene el producto.</returns>
         public async Task<IEnumerable<PedidoDetalle>> GetDetallesPorProductoAsync(Guid idProducto)
         {
             return await QueryBase()
@@ -68,6 +104,11 @@ namespace DAL.Implementations.Principales
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Obtiene los detalles que se encuentran en un estado de producción determinado.
+        /// </summary>
+        /// <param name="idEstadoProducto">Identificador del estado del producto.</param>
+        /// <returns>Detalles que coinciden con el estado.</returns>
         public IEnumerable<PedidoDetalle> GetDetallesPorEstado(Guid idEstadoProducto)
         {
             return QueryBase()
@@ -76,6 +117,11 @@ namespace DAL.Implementations.Principales
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene de forma asíncrona los detalles que se encuentran en un estado de producción determinado.
+        /// </summary>
+        /// <param name="idEstadoProducto">Identificador del estado del producto.</param>
+        /// <returns>Detalles que coinciden con el estado.</returns>
         public async Task<IEnumerable<PedidoDetalle>> GetDetallesPorEstadoAsync(Guid idEstadoProducto)
         {
             return await QueryBase()
@@ -84,6 +130,11 @@ namespace DAL.Implementations.Principales
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Calcula el total facturable para un pedido sumando productos y personalizaciones.
+        /// </summary>
+        /// <param name="idPedido">Identificador del pedido.</param>
+        /// <returns>Total monetario del pedido.</returns>
         public decimal GetTotalPedido(Guid idPedido)
         {
             return QueryBase()
@@ -93,6 +144,11 @@ namespace DAL.Implementations.Principales
                 .Sum();
         }
 
+        /// <summary>
+        /// Calcula de forma asíncrona el total facturable para un pedido sumando productos y personalizaciones.
+        /// </summary>
+        /// <param name="idPedido">Identificador del pedido.</param>
+        /// <returns>Total monetario del pedido.</returns>
         public async Task<decimal> GetTotalPedidoAsync(Guid idPedido)
         {
             var detalles = await QueryBase()

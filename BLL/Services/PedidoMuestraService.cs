@@ -16,11 +16,17 @@ namespace BLL.Services
         private readonly Dictionary<string, Guid> _estadoMuestraCache = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<Guid, string> _estadoMuestraNombreCache = new Dictionary<Guid, string>();
 
+        /// <summary>
+        /// Inicializa una nueva instancia de PedidoMuestraService.
+        /// </summary>
         public PedidoMuestraService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
+        /// <summary>
+        /// Obtiene pedidos muestra.
+        /// </summary>
         public IEnumerable<PedidoMuestra> ObtenerPedidosMuestra(PedidoMuestraFiltro filtro = null)
         {
             if (filtro == null)
@@ -110,6 +116,9 @@ namespace BLL.Services
             return pedidosLista;
         }
 
+        /// <summary>
+        /// Obtiene pedido muestra.
+        /// </summary>
         public PedidoMuestra ObtenerPedidoMuestra(Guid idPedidoMuestra, bool incluirDetalles = true)
         {
             if (idPedidoMuestra == Guid.Empty)
@@ -120,6 +129,9 @@ namespace BLL.Services
                 : _unitOfWork.PedidosMuestra.GetById(idPedidoMuestra);
         }
 
+        /// <summary>
+        /// Crea pedido muestra.
+        /// </summary>
         public ResultadoOperacion CrearPedidoMuestra(PedidoMuestra pedido)
         {
             if (pedido == null)
@@ -140,6 +152,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza pedido muestra.
+        /// </summary>
         public ResultadoOperacion ActualizarPedidoMuestra(PedidoMuestra pedido)
         {
             if (pedido == null || pedido.IdPedidoMuestra == Guid.Empty)
@@ -182,6 +197,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Cancela pedido muestra.
+        /// </summary>
         public ResultadoOperacion CancelarPedidoMuestra(Guid idPedidoMuestra, string usuario, string comentario = null)
         {
             if (idPedidoMuestra == Guid.Empty)
@@ -232,16 +250,25 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene estados de pedidos muestra.
+        /// </summary>
         public IEnumerable<EstadoPedidoMuestra> ObtenerEstadosPedido()
         {
             return _unitOfWork.EstadosPedidoMuestra.GetEstadosOrdenados();
         }
 
+        /// <summary>
+        /// Obtiene estados de muestra.
+        /// </summary>
         public IEnumerable<EstadoMuestra> ObtenerEstadosMuestra()
         {
             return _unitOfWork.EstadosMuestra.GetEstadosOrdenados();
         }
 
+        /// <summary>
+        /// Prepara pedido.
+        /// </summary>
         private void PrepararPedido(PedidoMuestra pedido, bool esNuevo)
         {
             if (pedido == null)
@@ -371,6 +398,9 @@ namespace BLL.Services
             ActualizarEstadoDesdeDetalles(pedido, estadosPedidoCatalogo);
         }
 
+        /// <summary>
+        /// Genera proximo numero pedido muestra.
+        /// </summary>
         private string GenerarProximoNumeroPedidoMuestra()
         {
             var pedidos = _unitOfWork.PedidosMuestra.GetAll();
@@ -382,6 +412,9 @@ namespace BLL.Services
             return $"{(max + 1):D6}";
         }
 
+        /// <summary>
+        /// Analiza numero pedido muestra.
+        /// </summary>
         private static int ParseNumeroPedidoMuestra(string numero)
         {
             if (string.IsNullOrWhiteSpace(numero))
@@ -391,6 +424,9 @@ namespace BLL.Services
             return int.TryParse(digits, out var value) ? value : 0;
         }
 
+        /// <summary>
+        /// Normaliza numero pedido muestra.
+        /// </summary>
         private static string NormalizarNumeroPedidoMuestra(string numero)
         {
             if (string.IsNullOrWhiteSpace(numero))
@@ -403,6 +439,9 @@ namespace BLL.Services
             return digits.Length <= 6 ? digits.PadLeft(6, '0') : digits;
         }
 
+        /// <summary>
+        /// Sincroniza adjuntos.
+        /// </summary>
         private void SincronizarAdjuntos(PedidoMuestra existente, PedidoMuestra pedido, DbContext ctx)
         {
             var adjuntosNuevos = pedido.Adjuntos?.ToList() ?? new List<ArchivoAdjunto>();
@@ -438,6 +477,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Sincroniza detalles.
+        /// </summary>
         private void SincronizarDetalles(PedidoMuestra existente, PedidoMuestra pedido)
         {
             var ctx = ObtenerContexto();
@@ -485,6 +527,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Sincroniza pagos.
+        /// </summary>
         private void SincronizarPagos(PedidoMuestra existente, IEnumerable<PedidoMuestraPago> nuevosPagos, DbContext ctx)
         {
             if (existente == null)
@@ -553,6 +598,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Calcula subtotal.
+        /// </summary>
         private decimal CalcularSubtotal(DetalleMuestra detalle)
         {
             if (detalle == null)
@@ -571,6 +619,9 @@ namespace BLL.Services
             return 0m;
         }
 
+        /// <summary>
+        /// Obtiene nombre estado.
+        /// </summary>
         private string ObtenerNombreEstado(Guid? idEstado)
         {
             if (!idEstado.HasValue || idEstado.Value == Guid.Empty)
@@ -594,6 +645,9 @@ namespace BLL.Services
             return string.Empty;
         }
 
+        /// <summary>
+        /// Obtiene estado muestra por nombre.
+        /// </summary>
         private Guid? ObtenerEstadoMuestraPorNombre(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
@@ -614,6 +668,9 @@ namespace BLL.Services
             return null;
         }
 
+        /// <summary>
+        /// Aplica estado por pagos.
+        /// </summary>
         private void AplicarEstadoPorPagos(PedidoMuestra pedido)
         {
             if (pedido == null)
@@ -653,6 +710,9 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza estado desde detalles.
+        /// </summary>
         private void ActualizarEstadoDesdeDetalles(PedidoMuestra pedido, List<EstadoPedidoMuestra> catalogoEstados)
         {
             if (pedido == null)
@@ -682,11 +742,17 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene contexto.
+        /// </summary>
         private DbContext ObtenerContexto()
         {
             return (_unitOfWork as IHasDbContext)?.Context;
         }
 
+        /// <summary>
+        /// Obtiene mensaje profundo.
+        /// </summary>
         private static string ObtenerMensajeProfundo(Exception ex)
         {
             if (ex == null)

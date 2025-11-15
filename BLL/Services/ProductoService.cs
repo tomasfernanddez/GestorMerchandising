@@ -14,41 +14,80 @@ namespace BLL.Services
     {
         private readonly IUnitOfWork _unitOfWork;
 
+        /// <summary>
+        /// Inicializa una nueva instancia del servicio de productos usando la unidad de trabajo proporcionada.
+        /// </summary>
+        /// <param name="unitOfWork">Unidad de trabajo que provee acceso a los repositorios.</param>
         public ProductoService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
+        /// <summary>
+        /// Busca productos cuyo nombre coincida con el término indicado.
+        /// </summary>
+        /// <param name="termino">Texto utilizado como criterio de búsqueda.</param>
+        /// <returns>Colección de productos encontrados.</returns>
         public IEnumerable<Producto> Buscar(string termino)
         {
             return _unitOfWork.Productos.BuscarPorNombre(termino);
         }
 
+        /// <summary>
+        /// Busca asincrónicamente productos cuyo nombre coincida con el término indicado.
+        /// </summary>
+        /// <param name="termino">Texto utilizado como criterio de búsqueda.</param>
+        /// <returns>Tarea que produce la colección de productos encontrados.</returns>
         public async Task<IEnumerable<Producto>> BuscarAsync(string termino)
         {
             return await _unitOfWork.Productos.BuscarPorNombreAsync(termino);
         }
 
+        /// <summary>
+        /// Obtiene la lista completa de productos registrados.
+        /// </summary>
+        /// <returns>Colección con todos los productos.</returns>
         public IEnumerable<Producto> ObtenerTodos()
         {
             return _unitOfWork.Productos.GetAll();
         }
 
+        /// <summary>
+        /// Obtiene de manera asincrónica la lista completa de productos registrados.
+        /// </summary>
+        /// <returns>Tarea que produce la colección de productos.</returns>
         public async Task<IEnumerable<Producto>> ObtenerTodosAsync()
         {
             return await _unitOfWork.Productos.GetAllAsync();
         }
 
+        /// <summary>
+        /// Busca productos limitando los resultados para funcionalidades de autocompletado.
+        /// </summary>
+        /// <param name="termino">Texto a buscar.</param>
+        /// <param name="maxResultados">Cantidad máxima de resultados.</param>
+        /// <returns>Colección con los productos coincidentes.</returns>
         public IEnumerable<Producto> BuscarParaAutocomplete(string termino, int maxResultados = 10)
         {
             return _unitOfWork.Productos.BuscarParaAutocomplete(termino, maxResultados);
         }
 
+        /// <summary>
+        /// Busca asincrónicamente productos limitando los resultados para autocompletado.
+        /// </summary>
+        /// <param name="termino">Texto a buscar.</param>
+        /// <param name="maxResultados">Cantidad máxima de resultados.</param>
+        /// <returns>Tarea que produce los productos coincidentes.</returns>
         public async Task<IEnumerable<Producto>> BuscarParaAutocompleteAsync(string termino, int maxResultados = 10)
         {
             return await _unitOfWork.Productos.BuscarParaAutocompleteAsync(termino, maxResultados);
         }
 
+        /// <summary>
+        /// Obtiene un producto a partir de su identificador.
+        /// </summary>
+        /// <param name="idProducto">Identificador del producto.</param>
+        /// <returns>Producto encontrado o null si no existe.</returns>
         public Producto ObtenerPorId(Guid idProducto)
         {
             if (idProducto == Guid.Empty)
@@ -57,6 +96,11 @@ namespace BLL.Services
             return _unitOfWork.Productos.GetById(idProducto);
         }
 
+        /// <summary>
+        /// Obtiene asincrónicamente un producto por su identificador.
+        /// </summary>
+        /// <param name="idProducto">Identificador del producto.</param>
+        /// <returns>Tarea que produce el producto encontrado.</returns>
         public async Task<Producto> ObtenerPorIdAsync(Guid idProducto)
         {
             if (idProducto == Guid.Empty)
@@ -65,16 +109,31 @@ namespace BLL.Services
             return await _unitOfWork.Productos.GetByIdAsync(idProducto);
         }
 
+        /// <summary>
+        /// Obtiene un producto cuyo nombre coincida exactamente con el indicado.
+        /// </summary>
+        /// <param name="nombreProducto">Nombre exacto a buscar.</param>
+        /// <returns>Producto encontrado o null si no existe.</returns>
         public Producto ObtenerPorNombreExacto(string nombreProducto)
         {
             return _unitOfWork.Productos.ObtenerPorNombreExacto(nombreProducto);
         }
 
+        /// <summary>
+        /// Obtiene asincrónicamente un producto cuyo nombre coincida exactamente con el indicado.
+        /// </summary>
+        /// <param name="nombreProducto">Nombre exacto a buscar.</param>
+        /// <returns>Tarea que produce el producto encontrado.</returns>
         public async Task<Producto> ObtenerPorNombreExactoAsync(string nombreProducto)
         {
             return await _unitOfWork.Productos.ObtenerPorNombreExactoAsync(nombreProducto);
         }
 
+        /// <summary>
+        /// Crea un producto manualmente tras validar sus datos.
+        /// </summary>
+        /// <param name="producto">Producto a registrar.</param>
+        /// <returns>Resultado del proceso de creación.</returns>
         public ResultadoOperacion CrearProductoManual(Producto producto)
         {
             try
@@ -106,6 +165,11 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Crea asincrónicamente un producto manual validando la información ingresada.
+        /// </summary>
+        /// <param name="producto">Producto a registrar.</param>
+        /// <returns>Tarea que produce el resultado de la operación.</returns>
         public async Task<ResultadoOperacion> CrearProductoManualAsync(Producto producto)
         {
             try
@@ -137,6 +201,11 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza la información de un producto existente realizando las validaciones correspondientes.
+        /// </summary>
+        /// <param name="producto">Producto con los datos actualizados.</param>
+        /// <returns>Resultado detallado de la actualización.</returns>
         public ResultadoOperacion ActualizarProducto(Producto producto)
         {
             try
@@ -169,6 +238,11 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Actualiza asincrónicamente la información de un producto existente.
+        /// </summary>
+        /// <param name="producto">Producto con los datos actualizados.</param>
+        /// <returns>Tarea que produce el resultado de la actualización.</returns>
         public async Task<ResultadoOperacion> ActualizarProductoAsync(Producto producto)
         {
             try
@@ -201,6 +275,13 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Crea o reactiva un producto a partir de la carga de un pedido.
+        /// </summary>
+        /// <param name="nombreProducto">Nombre del producto solicitado.</param>
+        /// <param name="idCategoria">Identificador de la categoría.</param>
+        /// <param name="idProveedor">Identificador del proveedor.</param>
+        /// <returns>Tarea que produce el producto creado o actualizado.</returns>
         public async Task<Producto> CrearProductoDesdePedidoAsync(string nombreProducto, Guid idCategoria, Guid idProveedor)
         {
             if (string.IsNullOrWhiteSpace(nombreProducto))
@@ -242,6 +323,10 @@ namespace BLL.Services
             return producto;
         }
 
+        /// <summary>
+        /// Registra un nuevo uso del producto indicado.
+        /// </summary>
+        /// <param name="idProducto">Identificador del producto utilizado.</param>
         public void RegistrarUso(Guid idProducto)
         {
             if (idProducto == Guid.Empty)
@@ -251,6 +336,10 @@ namespace BLL.Services
             _unitOfWork.SaveChanges();
         }
 
+        /// <summary>
+        /// Registra asincrónicamente un nuevo uso del producto indicado.
+        /// </summary>
+        /// <param name="idProducto">Identificador del producto utilizado.</param>
         public async Task RegistrarUsoAsync(Guid idProducto)
         {
             if (idProducto == Guid.Empty)
@@ -260,6 +349,12 @@ namespace BLL.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Cambia el estado de activación del producto indicado.
+        /// </summary>
+        /// <param name="idProducto">Identificador del producto.</param>
+        /// <param name="activo">Nuevo estado a aplicar.</param>
+        /// <returns>Resultado de la operación.</returns>
         public ResultadoOperacion CambiarEstado(Guid idProducto, bool activo)
         {
             try
@@ -283,6 +378,12 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Cambia asincrónicamente el estado de activación del producto indicado.
+        /// </summary>
+        /// <param name="idProducto">Identificador del producto.</param>
+        /// <param name="activo">Nuevo estado a aplicar.</param>
+        /// <returns>Tarea que produce el resultado de la operación.</returns>
         public async Task<ResultadoOperacion> CambiarEstadoAsync(Guid idProducto, bool activo)
         {
             try
@@ -306,6 +407,10 @@ namespace BLL.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene las categorías de productos que se encuentran activas.
+        /// </summary>
+        /// <returns>Colección de categorías activas.</returns>
         public IEnumerable<CategoriaProducto> ObtenerCategoriasActivas()
         {
             return _unitOfWork.CategoriasProducto
@@ -314,12 +419,20 @@ namespace BLL.Services
                 .ToList();
         }
 
+        /// <summary>
+        /// Obtiene asincrónicamente las categorías de productos activas.
+        /// </summary>
+        /// <returns>Tarea que produce la colección de categorías activas.</returns>
         public async Task<IEnumerable<CategoriaProducto>> ObtenerCategoriasActivasAsync()
         {
             var categorias = await _unitOfWork.CategoriasProducto.GetCategoriasOrdenadasAsync();
             return categorias.Where(c => c.Activo).ToList();
         }
 
+        /// <summary>
+        /// Limpia y normaliza los datos del producto previo a su validación.
+        /// </summary>
+        /// <param name="producto">Producto a normalizar.</param>
         private static void NormalizarProducto(Producto producto)
         {
             if (producto == null)
@@ -329,6 +442,11 @@ namespace BLL.Services
                 producto.NombreProducto = producto.NombreProducto.Trim();
         }
 
+        /// <summary>
+        /// Valida producto.
+        /// </summary>
+        /// <param name="producto">Producto a validar.</param>
+        /// <returns>Resultado de la validación.</returns>
         private static ResultadoOperacion ValidarProducto(Producto producto)
         {
             if (producto == null)

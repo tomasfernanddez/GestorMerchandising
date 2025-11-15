@@ -21,12 +21,33 @@ namespace BLL.Interfaces
 
     public interface IPedidoMuestraService
     {
+        /// <summary>
+        /// Obtiene pedidos muestra.
+        /// </summary>
         IEnumerable<PedidoMuestra> ObtenerPedidosMuestra(PedidoMuestraFiltro filtro = null);
+        /// <summary>
+        /// Obtiene pedido muestra.
+        /// </summary>
         PedidoMuestra ObtenerPedidoMuestra(Guid idPedidoMuestra, bool incluirDetalles = true);
+        /// <summary>
+        /// Crea pedido muestra.
+        /// </summary>
         ResultadoOperacion CrearPedidoMuestra(PedidoMuestra pedido);
+        /// <summary>
+        /// Actualiza pedido muestra.
+        /// </summary>
         ResultadoOperacion ActualizarPedidoMuestra(PedidoMuestra pedido);
+        /// <summary>
+        /// Cancela pedido muestra.
+        /// </summary>
         ResultadoOperacion CancelarPedidoMuestra(Guid idPedidoMuestra, string usuario, string comentario = null);
+        /// <summary>
+        /// Obtiene estados pedido.
+        /// </summary>
         IEnumerable<EstadoPedidoMuestra> ObtenerEstadosPedido();
+        /// <summary>
+        /// Obtiene estados muestra.
+        /// </summary>
         IEnumerable<EstadoMuestra> ObtenerEstadosMuestra();
     }
 }
