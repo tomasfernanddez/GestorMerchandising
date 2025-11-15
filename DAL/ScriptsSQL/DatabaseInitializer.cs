@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace DAL.ScriptsSQL
 {
+    /// <summary>
+    /// Orquesta la creación automática de las bases de datos de negocio y seguridad, resolviendo sus cadenas de conexión.
+    /// </summary>
     public static class DatabaseInitializer
     {
         private static readonly string[] PossibleServers =
@@ -21,12 +24,18 @@ namespace DAL.ScriptsSQL
         private static string _dbNegocio = "GestorMerchandisingNegocio";
         private static string _dbSeguridad = "GestorMerchandisingSeguridad";
 
+        /// <summary>
+        /// Crea ambas bases de datos (negocio y seguridad) si no existen todavía.
+        /// </summary>
         public static void Initialize()
         {
             InitializeDatabase("GestorMerchandisingNegocioDB", _dbNegocio, "GestorMerchandisingNegocio.sql");
             InitializeDatabase("GestorMerchandisingSeguridadDB", _dbSeguridad, "GestorMerchandisingSeguridad.sql");
         }
 
+        /// <summary>
+        /// Ejecuta el script de inicialización para una base de datos determinada, usando la cadena de configuración indicada.
+        /// </summary>
         private static void InitializeDatabase(string connectionName, string dbName, string scriptFile)
         {
             string baseConnection = ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
@@ -56,6 +65,9 @@ namespace DAL.ScriptsSQL
             }
         }
 
+        /// <summary>
+        /// Verifica si la base de datos objetivo ya existe en el servidor de SQL Server.
+        /// </summary>
         private static bool DatabaseExists(string masterConn, string dbName)
         {
             using (var conn = new SqlConnection(masterConn))
@@ -69,6 +81,9 @@ namespace DAL.ScriptsSQL
             }
         }
 
+        /// <summary>
+        /// Determina un servidor disponible para conectarse probando contra múltiples instancias conocidas.
+        /// </summary>
         private static string GetWorkingServer(string baseConnection)
         {
             foreach (var server in PossibleServers)
@@ -97,6 +112,9 @@ namespace DAL.ScriptsSQL
             throw new Exception("❌ No se encontró ninguna instancia válida de SQL Server.");
         }
 
+        /// <summary>
+        /// Ejecuta un script SQL completo, respetando los delimitadores GO para separar bloques.
+        /// </summary>
         private static void ExecuteSqlScript(string masterConn, string script, string dbName)
         {
             using (var conn = new SqlConnection(masterConn))
@@ -121,6 +139,9 @@ namespace DAL.ScriptsSQL
             }
         }
 
+        /// <summary>
+        /// Ejecuta un bloque individual del script SQL.
+        /// </summary>
         private static void ExecuteBlock(SqlConnection conn, StringBuilder sb, string dbName)
         {
             if (sb.Length == 0) return;
@@ -131,6 +152,9 @@ namespace DAL.ScriptsSQL
             }
         }
 
+        /// <summary>
+        /// Obtiene la cadena de conexión final para la base de datos de negocio, apuntando al servidor válido detectado.
+        /// </summary>
         public static string GetConnectionString()
         {
             string baseConnection = ConfigurationManager.ConnectionStrings["GestorMerchandisingNegocioDB"].ConnectionString;
@@ -143,6 +167,9 @@ namespace DAL.ScriptsSQL
             return builder.ConnectionString;
         }
 
+        /// <summary>
+        /// Obtiene la cadena de conexión final para la base de datos de seguridad, apuntando al servidor válido detectado.
+        /// </summary>
         public static string GetConnectionStringSeguridad()
         {
             string baseConnection = ConfigurationManager.ConnectionStrings["GestorMerchandisingSeguridadDB"].ConnectionString;
