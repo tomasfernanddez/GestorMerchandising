@@ -13,11 +13,25 @@ using UI.Localization;
 
 namespace UI.Helpers
 {
+    /// <summary>
+    /// Provee mensajes de error amigables a partir de excepciones técnicas.
+    /// </summary>
     public static class ErrorMessageHelper
     {
+        /// <summary>
+        /// Códigos de error de SQL Server asociados a problemas de tiempo de espera.
+        /// </summary>
         private static readonly HashSet<int> SqlTimeoutNumbers = new HashSet<int> { -2, 258 }; // -2 default timeout, 258 win32 timeout
+        /// <summary>
+        /// Códigos de error de SQL Server que indican indisponibilidad del servidor.
+        /// </summary>
         private static readonly HashSet<int> SqlUnavailableNumbers = new HashSet<int> { 4060, 53, 18456, 17142, 64 };
 
+        /// <summary>
+        /// Obtiene un mensaje traducido y comprensible para una excepción determinada.
+        /// </summary>
+        /// <param name="exception">Excepción original capturada.</param>
+        /// <returns>Mensaje destinado a mostrar al usuario final.</returns>
         public static string GetFriendlyMessage(Exception exception)
         {
             var info = ResolveErrorInfo(exception);
@@ -25,6 +39,11 @@ namespace UI.Helpers
             return info.Key.Traducir(args);
         }
 
+        /// <summary>
+        /// Determina la clave de traducción y argumentos apropiados para la excepción recibida.
+        /// </summary>
+        /// <param name="exception">Excepción analizada.</param>
+        /// <returns>Información con la clave de error y sus argumentos.</returns>
         private static ErrorInfo ResolveErrorInfo(Exception exception)
         {
             if (exception == null)
@@ -73,6 +92,11 @@ namespace UI.Helpers
             return new ErrorInfo("errors.unexpected", new object[] { detail });
         }
 
+        /// <summary>
+        /// Recorre recursivamente la excepción y todas sus causas.
+        /// </summary>
+        /// <param name="exception">Excepción raíz.</param>
+        /// <returns>Enumeración de excepciones encontradas.</returns>
         private static IEnumerable<Exception> EnumerateExceptions(Exception exception)
         {
             if (exception == null)
@@ -99,6 +123,11 @@ namespace UI.Helpers
             }
         }
 
+        /// <summary>
+        /// Busca la excepción más interna disponible para recuperar el detalle original.
+        /// </summary>
+        /// <param name="exception">Excepción desde la cual comenzar el análisis.</param>
+        /// <returns>Excepción más específica encontrada.</returns>
         private static Exception GetInnermostException(Exception exception)
         {
             if (exception == null)
@@ -125,6 +154,11 @@ namespace UI.Helpers
             }
         }
 
+        /// <summary>
+        /// Determina si la excepción recibida está relacionada con un tiempo de espera.
+        /// </summary>
+        /// <param name="exception">Excepción a evaluar.</param>
+        /// <returns><c>true</c> si corresponde a un timeout.</returns>
         private static bool IsTimeoutException(Exception exception)
         {
             if (exception == null)
@@ -151,6 +185,11 @@ namespace UI.Helpers
             return ContainsTimeoutKeyword(exception.Message);
         }
 
+        /// <summary>
+        /// Indica si el mensaje contiene palabras clave de timeout.
+        /// </summary>
+        /// <param name="message">Mensaje a analizar.</param>
+        /// <returns>Verdadero si se detecta vocabulario relacionado con tiempo de espera.</returns>
         private static bool ContainsTimeoutKeyword(string message)
         {
             if (string.IsNullOrWhiteSpace(message))
@@ -161,6 +200,11 @@ namespace UI.Helpers
                 || message.IndexOf("tiempo expirado", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
+        /// <summary>
+        /// Determina si la excepción representa un problema de conexión o disponibilidad de base de datos.
+        /// </summary>
+        /// <param name="exception">Excepción evaluada.</param>
+        /// <returns><c>true</c> cuando la base de datos no está disponible.</returns>
         private static bool IsDatabaseException(Exception exception)
         {
             if (exception == null)
@@ -208,6 +252,11 @@ namespace UI.Helpers
             return false;
         }
 
+        /// <summary>
+        /// Revisa si un mensaje contiene indicios de indisponibilidad de la base de datos.
+        /// </summary>
+        /// <param name="message">Mensaje a revisar.</param>
+        /// <returns>Verdadero si el texto describe problemas para acceder a la base.</returns>
         private static bool ContainsDatabaseUnavailableKeyword(string message)
         {
             if (string.IsNullOrWhiteSpace(message))
@@ -227,6 +276,11 @@ namespace UI.Helpers
                 || lower.Contains("timeout expired before obtaining a connection");
         }
 
+        /// <summary>
+        /// Determina si el error proviene de recursos externos como red o sistema operativo.
+        /// </summary>
+        /// <param name="exception">Excepción a analizar.</param>
+        /// <returns><c>true</c> si se trata de un error externo.</returns>
         private static bool IsExternalException(Exception exception)
         {
             if (exception == null)
@@ -248,15 +302,29 @@ namespace UI.Helpers
             return false;
         }
 
+        /// <summary>
+        /// Estructura con la información necesaria para traducir un error.
+        /// </summary>
         private readonly struct ErrorInfo
         {
+            /// <summary>
+            /// Crea una nueva instancia con la clave de traducción y sus argumentos.
+            /// </summary>
+            /// <param name="key">Clave de traducción a utilizar.</param>
+            /// <param name="arguments">Argumentos opcionales para el mensaje.</param>
             public ErrorInfo(string key, object[] arguments = null)
             {
                 Key = key;
                 Arguments = arguments;
             }
 
+            /// <summary>
+            /// Clave de traducción asociada al error.
+            /// </summary>
             public string Key { get; }
+            /// <summary>
+            /// Argumentos que se aplicarán al mensaje traducido.
+            /// </summary>
             public object[] Arguments { get; }
         }
     }

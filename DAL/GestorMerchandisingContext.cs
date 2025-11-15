@@ -11,9 +11,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL
 {
+    /// <summary>
+    /// Contexto de Entity Framework que administra el modelo de datos principal de la aplicación.
+    /// </summary>
     public class GestorMerchandisingContext : DbContext
     {
-        // Constructor - usa el connection string "GestorMerchandisingDB"
+        /// <summary>
+        /// Inicializa el contexto usando la cadena de conexión predeterminada "GestorMerchandisingDB".
+        /// </summary>
         public GestorMerchandisingContext() : base("GestorMerchandisingDB")
         {
             Database.SetInitializer<GestorMerchandisingContext>(null);
@@ -21,6 +26,10 @@ namespace DAL
             Configuration.ProxyCreationEnabled = true;
         }
 
+        /// <summary>
+        /// Inicializa el contexto usando la cadena de conexión proporcionada.
+        /// </summary>
+        /// <param name="nameOrConnectionString">Nombre o cadena de conexión a la base de datos.</param>
         public GestorMerchandisingContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
             Database.SetInitializer<GestorMerchandisingContext>(null);
@@ -64,10 +73,15 @@ namespace DAL
         public virtual DbSet<GrupoPersonalizacion> GruposPersonalizacion { get; set; }
         public virtual DbSet<GrupoPersonalizacionLogo> GruposPersonalizacionLogos { get; set; }
 
-    //    ============================================================================
-    // Configuración del modelo
-    //    ============================================================================
-    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        //    ============================================================================
+        // Configuración del modelo
+        //    ============================================================================
+
+        /// <summary>
+        /// Configura el modelo de datos y las relaciones entre entidades.
+        /// </summary>
+        /// <param name="modelBuilder">Constructor del modelo utilizado por Entity Framework.</param>
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             // Remover convenciones que no queremos
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();

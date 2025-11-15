@@ -7,8 +7,17 @@ using DomainModel.Entidades;
 
 namespace UI.Helpers
 {
+    /// <summary>
+    /// Calcula estados de pedidos de muestra a partir de sus detalles.
+    /// </summary>
     public static class PedidoMuestraEstadoHelper
     {
+        /// <summary>
+        /// Obtiene el estado más representativo del pedido de muestra considerando el detalle provisto.
+        /// </summary>
+        /// <param name="estadosDetalle">Estados individuales de cada detalle.</param>
+        /// <param name="estadosPedido">Catálogo de estados de pedido de muestra.</param>
+        /// <returns>Identificador del estado sugerido o <c>null</c> si no hay datos.</returns>
         public static Guid? CalcularEstadoPedido(IEnumerable<string> estadosDetalle, IEnumerable<EstadoPedidoMuestra> estadosPedido)
         {
             var catalogo = estadosPedido?.ToList() ?? new List<EstadoPedidoMuestra>();
@@ -50,6 +59,12 @@ namespace UI.Helpers
             return BuscarEstadoPorNombre(catalogo, "Pendiente de Envio") ?? catalogo.First().IdEstadoPedidoMuestra;
         }
 
+        /// <summary>
+        /// Busca un estado por coincidencia exacta utilizando una versión normalizada del nombre.
+        /// </summary>
+        /// <param name="estados">Colección de estados disponibles.</param>
+        /// <param name="nombre">Nombre que se desea localizar.</param>
+        /// <returns>Identificador del estado encontrado o <c>null</c>.</returns>
         private static Guid? BuscarEstadoPorNombre(IEnumerable<EstadoPedidoMuestra> estados, string nombre)
         {
             var buscado = Normalizar(nombre ?? string.Empty);
@@ -66,6 +81,11 @@ namespace UI.Helpers
             return null;
         }
 
+        /// <summary>
+        /// Normaliza un texto eliminando acentos y convirtiendo a minúsculas.
+        /// </summary>
+        /// <param name="texto">Texto que se debe normalizar.</param>
+        /// <returns>Cadena normalizada.</returns>
         private static string Normalizar(string texto)
         {
             var formD = texto.Normalize(NormalizationForm.FormD);

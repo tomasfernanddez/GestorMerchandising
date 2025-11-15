@@ -6,8 +6,17 @@ using DomainModel.Entidades;
 
 namespace UI.Helpers
 {
+    /// <summary>
+    /// Ofrece lógica para determinar estados de pedidos a partir del detalle de productos.
+    /// </summary>
     public static class PedidoEstadoHelper
     {
+        /// <summary>
+        /// Calcula el estado del pedido en base a los estados de sus detalles.
+        /// </summary>
+        /// <param name="estadosDetalle">Colección de estados provenientes de los detalles.</param>
+        /// <param name="estadosPedido">Catálogo de estados disponibles.</param>
+        /// <returns>Identificador del estado sugerido para el pedido.</returns>
         public static Guid? CalcularEstadoPedido(IEnumerable<string> estadosDetalle, IEnumerable<EstadoPedido> estadosPedido)
         {
             if (estadosPedido == null)
@@ -54,6 +63,12 @@ namespace UI.Helpers
                    ?? estadosPedido.FirstOrDefault()?.IdEstadoPedido;
         }
 
+        /// <summary>
+        /// Busca un estado cuyo nombre contenga la palabra clave indicada.
+        /// </summary>
+        /// <param name="estados">Estados disponibles.</param>
+        /// <param name="keyword">Palabra clave para comparar.</param>
+        /// <returns>Identificador del estado encontrado o <c>null</c>.</returns>
         private static Guid? BuscarEstado(IEnumerable<EstadoPedido> estados, string keyword)
         {
             if (estados == null)
@@ -75,6 +90,12 @@ namespace UI.Helpers
             return null;
         }
 
+        /// <summary>
+        /// Determina si el texto contiene la palabra clave ignorando acentos y mayúsculas.
+        /// </summary>
+        /// <param name="texto">Texto que se analiza.</param>
+        /// <param name="keyword">Palabra clave a buscar.</param>
+        /// <returns>Verdadero cuando se encuentra la palabra clave.</returns>
         private static bool Contiene(string texto, string keyword)
         {
             var compare = CultureInfo.InvariantCulture.CompareInfo;

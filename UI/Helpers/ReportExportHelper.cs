@@ -10,8 +10,17 @@ using UI.Localization;
 
 namespace UI.Helpers
 {
+    /// <summary>
+    /// Contiene utilidades para exportar información tabular a diferentes formatos de reporte.
+    /// </summary>
     public static class ReportExportHelper
     {
+        /// <summary>
+        /// Genera un archivo XLSX con la información visible de la grilla.
+        /// </summary>
+        /// <param name="path">Ruta de destino del archivo.</param>
+        /// <param name="titulo">Título del reporte.</param>
+        /// <param name="grid">Grilla cuyos datos se exportarán.</param>
         public static void ExportToExcel(string path, string titulo, DataGridView grid)
         {
             if (grid == null)
@@ -21,6 +30,12 @@ namespace UI.Helpers
             CrearXlsx(path, titulo ?? "Reporte", filas);
         }
 
+        /// <summary>
+        /// Genera un archivo PDF simple con los datos visibles de la grilla.
+        /// </summary>
+        /// <param name="path">Ruta destino del archivo.</param>
+        /// <param name="titulo">Título del reporte.</param>
+        /// <param name="grid">Grilla de donde se extraen los datos.</param>
         public static void ExportToPdf(string path, string titulo, DataGridView grid)
         {
             if (grid == null)
@@ -41,6 +56,11 @@ namespace UI.Helpers
             CrearPdf(path, lineas);
         }
 
+        /// <summary>
+        /// Construye una representación en filas de los datos de la grilla.
+        /// </summary>
+        /// <param name="grid">Grilla de origen.</param>
+        /// <returns>Lista de filas con los valores visibles en la interfaz.</returns>
         private static IList<string[]> ConstruirFilasDesdeGrilla(DataGridView grid)
         {
             var columnas = grid.Columns
@@ -78,6 +98,11 @@ namespace UI.Helpers
             return filas;
         }
 
+        /// <summary>
+        /// Formatea un valor proveniente de la grilla usando la cultura actual.
+        /// </summary>
+        /// <param name="valor">Valor a formatear.</param>
+        /// <returns>Cadena representando el valor.</returns>
         private static string FormatearValor(object valor)
         {
             if (valor == null || valor == DBNull.Value)
@@ -96,6 +121,12 @@ namespace UI.Helpers
             }
         }
 
+        /// <summary>
+        /// Crea un archivo XLSX usando las filas proporcionadas.
+        /// </summary>
+        /// <param name="path">Ruta destino.</param>
+        /// <param name="sheetName">Nombre de la hoja.</param>
+        /// <param name="filas">Filas que se exportarán.</param>
         private static void CrearXlsx(string path, string sheetName, IList<string[]> filas)
         {
             using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
@@ -110,6 +141,12 @@ namespace UI.Helpers
             }
         }
 
+        /// <summary>
+        /// Agrega una entrada al archivo comprimido que conforma el XLSX.
+        /// </summary>
+        /// <param name="archive">Archivo ZIP en construcción.</param>
+        /// <param name="nombre">Nombre de la entrada.</param>
+        /// <param name="contenido">Contenido XML a escribir.</param>
         private static void AgregarEntrada(ZipArchive archive, string nombre, string contenido)
         {
             var entry = archive.CreateEntry(nombre, CompressionLevel.Optimal);
@@ -119,6 +156,10 @@ namespace UI.Helpers
             }
         }
 
+        /// <summary>
+        /// Devuelve el manifiesto de tipos de contenido requerido por un paquete XLSX.
+        /// </summary>
+        /// <returns>XML con la definición de tipos de contenido.</returns>
         private static string ObtenerContentTypes()
         {
             return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -131,6 +172,10 @@ namespace UI.Helpers
                    "</Types>";
         }
 
+        /// <summary>
+        /// Obtiene el archivo de relaciones principal del paquete XLSX.
+        /// </summary>
+        /// <returns>Contenido XML de la relación principal.</returns>
         private static string ObtenerRelsPrincipal()
         {
             return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -139,6 +184,10 @@ namespace UI.Helpers
                    "</Relationships>";
         }
 
+        /// <summary>
+        /// Obtiene la definición de relaciones específicas del libro de Excel.
+        /// </summary>
+        /// <returns>XML con las relaciones del workbook.</returns>
         private static string ObtenerWorkbookRels()
         {
             return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -148,6 +197,11 @@ namespace UI.Helpers
                    "</Relationships>";
         }
 
+        /// <summary>
+        /// Genera el XML principal del libro de Excel.
+        /// </summary>
+        /// <param name="sheetName">Nombre que se asignará a la hoja.</param>
+        /// <returns>XML del workbook.</returns>
         private static string ObtenerWorkbookXml(string sheetName)
         {
             var nombre = EscaparXml(sheetName ?? "Sheet1");
@@ -156,6 +210,10 @@ namespace UI.Helpers
                    "<sheets><sheet name=\"" + nombre + "\" sheetId=\"1\" r:id=\"rId1\"/></sheets></workbook>";
         }
 
+        /// <summary>
+        /// Obtiene la definición de estilos mínima para el archivo XLSX.
+        /// </summary>
+        /// <returns>XML con la configuración de estilos.</returns>
         private static string ObtenerStylesXml()
         {
             return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -169,6 +227,11 @@ namespace UI.Helpers
                    "</styleSheet>";
         }
 
+        /// <summary>
+        /// Construye el XML de la hoja con las filas provistas.
+        /// </summary>
+        /// <param name="filas">Filas que se escribirán en la hoja.</param>
+        /// <returns>XML con la representación de la hoja.</returns>
         private static string ObtenerSheetXml(IList<string[]> filas)
         {
             var sb = new StringBuilder();
@@ -196,6 +259,11 @@ namespace UI.Helpers
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Convierte un índice numérico en la referencia de columna de Excel.
+        /// </summary>
+        /// <param name="index">Índice basado en cero.</param>
+        /// <returns>Cadena que representa la columna (A, B, ...).</returns>
         private static string ObtenerColumna(int index)
         {
             var sb = new StringBuilder();
@@ -211,6 +279,11 @@ namespace UI.Helpers
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Escapa caracteres especiales para su inclusión dentro de XML.
+        /// </summary>
+        /// <param name="valor">Texto a escapar.</param>
+        /// <returns>Cadena segura para insertar en XML.</returns>
         private static string EscaparXml(string valor)
         {
             return (valor ?? string.Empty)
@@ -221,6 +294,11 @@ namespace UI.Helpers
                 .Replace("'", "&apos;");
         }
 
+        /// <summary>
+        /// Construye un PDF básico con las líneas indicadas.
+        /// </summary>
+        /// <param name="path">Ruta donde se guardará el PDF.</param>
+        /// <param name="lineas">Líneas de texto que se incluirán en el documento.</param>
         private static void CrearPdf(string path, IEnumerable<string> lineas)
         {
             var contenido = ConstruirContenidoPdf(lineas ?? Enumerable.Empty<string>());
@@ -278,6 +356,11 @@ namespace UI.Helpers
             }
         }
 
+        /// <summary>
+        /// Genera las instrucciones de dibujo para incluir texto dentro del PDF.
+        /// </summary>
+        /// <param name="lineas">Líneas que se deben renderizar.</param>
+        /// <returns>Cadena con instrucciones PDF.</returns>
         private static string ConstruirContenidoPdf(IEnumerable<string> lineas)
         {
             var sb = new StringBuilder();
@@ -301,6 +384,11 @@ namespace UI.Helpers
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Escapa caracteres especiales según el estándar PDF.
+        /// </summary>
+        /// <param name="texto">Texto a escapar.</param>
+        /// <returns>Texto preparado para usarse en el contenido PDF.</returns>
         private static string EscaparPdf(string texto)
         {
             return (texto ?? string.Empty)
