@@ -29,16 +29,33 @@ namespace UI
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            StartupDiagnostics.BeginSession();
 
+            try
+            {
+                RunApplication();
+            }
+            catch (Exception ex)
+            {
+                StartupDiagnostics.ReportFatal("Error durante el inicio de la aplicación.", ex);
+            }
+        }
+
+        private static void RunApplication()
+        {
             // Cultura inicial por defecto
             _culturaPorDefecto = ConfigurationManager.AppSettings["UICulture"];
             if (string.IsNullOrWhiteSpace(_culturaPorDefecto))
                 _culturaPorDefecto = "es-AR";
 
+            StartupDiagnostics.Log("Inicializando bases de datos...");
+
             // Configuración de servicios
             DatabaseBootstrapper.Initialize(out var csNegocio, out var csSeguridad);
             ServiceFactory.ConfigurarConnectionString(csNegocio);
             ServicesFactory.ConfigurarConnectionString(csSeguridad);
+
+            StartupDiagnostics.Log("Bases de datos listas, configurando servicios.");
 
             var logSvc = ServicesFactory.CrearLogService();
             ConfigurarManejadoresGlobales(logSvc);
@@ -95,6 +112,7 @@ namespace UI
             }
 
             logSvc.LogInfo("=== Aplicación finalizada ===", "Sistema", null);
+            StartupDiagnostics.Log("Aplicación finalizada correctamente.");
         }
 
         private static void CargarIdiomaUsuario(ILogService logSvc)

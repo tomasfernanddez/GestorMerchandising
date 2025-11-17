@@ -59,10 +59,24 @@ namespace DAL
             {
                 connection.Open();
 
-                var hasMigrationHistory = TableExists(connection, "__MigrationHistory");
+                var migrationHistoryEntries = CountMigrationHistoryEntries(connection);
                 var userTableCount = CountUserTables(connection);
 
-                return !hasMigrationHistory && userTableCount > 0;
+                // Si la base fue provisionada manualmente (tablas de usuario pero sin historial de migraciones),
+                // ejecutar las migraciones automáticas volvería a crear todas las tablas y fallaría.
+                return userTableCount > 0 && migrationHistoryEntries == 0;
+            }
+        }
+
+        private static int CountMigrationHistoryEntries(SqlConnection connection)
+        {
+            if (!TableExists(connection, "__MigrationHistory"))
+                return 0;
+
+            const string sql = "SELECT COUNT(*) FROM [dbo].[__MigrationHistory]";
+            using (var command = new SqlCommand(sql, connection))
+            {
+                return (int)command.ExecuteScalar();
             }
         }
 

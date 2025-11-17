@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "UI\UI.csproj", "{663C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{082D7EEC-1782-4284-99D3-87C1DD395ADF}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupGestorMerch", "Setup\Setup.vdproj", "{DBE9999D-346E-CA63-6964-F3B7FC1D42B4}"
+EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "GestorMerchDocumentation", "GestorMerchDocumentation\GestorMerchDocumentation.shfbproj", "{6C0FEFFA-DEF2-4470-BE3B-F423DC605641}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,12 @@ Global
 		{082D7EEC-1782-4284-99D3-87C1DD395ADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{082D7EEC-1782-4284-99D3-87C1DD395ADF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{082D7EEC-1782-4284-99D3-87C1DD395ADF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBE9999D-346E-CA63-6964-F3B7FC1D42B4}.Debug|Any CPU.ActiveCfg = Debug
+		{DBE9999D-346E-CA63-6964-F3B7FC1D42B4}.Debug|Any CPU.Build.0 = Debug
+		{DBE9999D-346E-CA63-6964-F3B7FC1D42B4}.Release|Any CPU.ActiveCfg = Release
+		{6C0FEFFA-DEF2-4470-BE3B-F423DC605641}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C0FEFFA-DEF2-4470-BE3B-F423DC605641}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C0FEFFA-DEF2-4470-BE3B-F423DC605641}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

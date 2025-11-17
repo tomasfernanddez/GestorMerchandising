@@ -11,13 +11,15 @@ namespace Services.BLL.Services
         private readonly string _logPath;
         private readonly bool _logToFile;
         private static readonly object _lockObject = new object();
+        private const string DefaultLogFolder = "logs";
 
         /// <summary>
         /// Inicializa el servicio de logs leyendo la configuración de salida.
         /// </summary>
         public LogService()
         {
-            _logPath = ConfigurationManager.AppSettings["LogPath"] ?? "logs\\";
+            var configuredPath = ConfigurationManager.AppSettings["LogPath"];
+            _logPath = ResolveLogPath(configuredPath);
             _logToFile = bool.Parse(ConfigurationManager.AppSettings["LogToFile"] ?? "true");
 
             // Crear directorio si no existe
@@ -25,6 +27,33 @@ namespace Services.BLL.Services
             {
                 Directory.CreateDirectory(_logPath);
             }
+        }
+
+        /// <summary>
+        /// Normaliza la ruta configurada asegurando que apunte a una carpeta escribible para el usuario actual.
+        /// </summary>
+        private static string ResolveLogPath(string configuredPath)
+        {
+            var path = configuredPath;
+
+            if (string.IsNullOrWhiteSpace(path))
+                path = DefaultLogFolder;
+
+            path = Environment.ExpandEnvironmentVariables(path.Trim());
+
+            if (!Path.IsPathRooted(path))
+            {
+                var basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                if (string.IsNullOrWhiteSpace(basePath))
+                {
+                    basePath = AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory;
+                }
+
+                path = Path.Combine(basePath, "GestorMerchandising", path.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            }
+
+            return Path.GetFullPath(path);
         }
 
         /// <summary>
